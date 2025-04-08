@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  app:
+    container_name: cafe_app
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cafe
+      MYSQL_USER: cafe_admin
+      MYSQL_PASSWORD: cafe_password
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: cafe_phpmyadmin
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
