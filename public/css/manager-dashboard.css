@@ -8,6 +8,11 @@ body {
 }
 
 /* Sidebar */
+.sidebar ul li a.active {
+    background-color: #0d2c3a; /* Highlight color */
+    font-weight: bold;
+}
+
 .sidebar {
     width: 250px;
     background-color: #10394f;
