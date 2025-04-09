@@ -79,7 +79,7 @@
 
 @endsection
 
-<!-- JavaScript -->
+<!-- for functionality -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const productModal = document.getElementById("productModal");

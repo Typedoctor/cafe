@@ -8,7 +8,7 @@
 <div class="dashboard-container">
     <div class="dashboard-box">Total Sales</div>
     <div class="dashboard-box">Products in Stock</div>
-    <!-- Graph Box for Sales Analytics -->
+    <!-- for graph in manager dashboard -->
 <div class="graph-box">
     <h2>Sales Analytics</h2>
     <canvas id="salesChart"></canvas>
@@ -26,14 +26,14 @@
     document.addEventListener("DOMContentLoaded", function () {
         const ctx = document.getElementById('salesChart').getContext('2d');
         new Chart(ctx, {
-            type: 'bar', // Column chart type
+            type: 'bar',
             data: {
                 labels: ['shabu', 'juana', 'coke'],
                 datasets: [{
                     label: 'Sales (Units)',
-                    data: [1200, 900, 700], // Replace with dynamic data
+                    data: [1200, 900, 700], a
                     backgroundColor: ['#10394f', '#0d2c3a', '#007bff'],
-                    borderRadius: 5 // Rounded corners
+                    borderRadius: 5 
                 }]
             },
             options: {
@@ -42,7 +42,7 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 1000, // Limit height for better visibility
+                        max: 1000, 
                         ticks: {
                             font: {
                                 size: 10

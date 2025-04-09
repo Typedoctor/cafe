@@ -16,9 +16,9 @@
         }
         .container {
             display: flex;
-            justify-content: center; /* Align elements side by side */
-            align-items: center; /* Ensure vertical alignment */
-            height: 627px; /* Match the form's height */
+            justify-content: center; 
+            align-items: center; 
+            height: 627px; 
         }
         #title{
             position: static;
@@ -28,11 +28,11 @@
         .title-box {
             font-size: 80px;
             font-weight: bold;
-            width: 473px; /* Same width as form */
-            height: 627px; /* Same height as form */
+            width: 473px; 
+            height: 627px; 
             display: flex;
-            align-items: center; /* Vertically center text */
-            justify-content: center; /* Horizontally center text */
+            align-items: center;
+            justify-content: center; 
             background-color: transparent;
         }
 

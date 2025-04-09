@@ -25,8 +25,6 @@
                 <li><a href="{{ route('logout') }}">Logout</a></li>
             </ul>
         </div>
-
-        <!-- Dynamic Main Content -->
         <div class="content">
             @yield('content')
         </div>
