@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up() {
         Schema::create('thrown_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained(); // References `products.id` but won't delete related records
+            $table->foreignId('product_id')->constrained();
             $table->integer('quantity');
             $table->string('reason')->nullable();
             $table->timestamps();

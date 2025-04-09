@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <title>Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -16,9 +17,9 @@
         }
         .container {
             display: flex;
-            justify-content: center; 
-            align-items: center; 
-            height: 627px; 
+            justify-content: center; /* Align elements side by side */
+            align-items: center; /* Ensure vertical alignment */
+            height: 627px; /* Match the form's height */
         }
         #title{
             position: static;
@@ -28,11 +29,11 @@
         .title-box {
             font-size: 80px;
             font-weight: bold;
-            width: 473px; 
-            height: 627px; 
+            width: 473px; /* Same width as form */
+            height: 627px; /* Same height as form */
             display: flex;
-            align-items: center;
-            justify-content: center; 
+            align-items: center; /* Vertically center text */
+            justify-content: center; /* Horizontally center text */
             background-color: transparent;
         }
 

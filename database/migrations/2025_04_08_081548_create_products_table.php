@@ -8,11 +8,11 @@ return new class extends Migration {
     public function up() {
         Schema::create('products', function (Blueprint $table) {
             $table->id(); // Unique primary ID
-            $table->string('product_name')->unique(); // Ensures product names are unique
-            $table->string('category'); // Product category (e.g., beverages, snacks, etc.)
-            $table->decimal('price', 10, 2); // Stores price with two decimal places
-            $table->integer('quantity'); // Stores stock count
-            $table->timestamps(); // Tracks created_at and updated_at timestamps
+            $table->string('product_name')->unique(); 
+            $table->string('category');
+            $table->decimal('price', 10, 2); 
+            $table->integer('quantity');
+            $table->timestamps(); 
         });
     }
 

@@ -2,19 +2,20 @@
 
 @section('title', 'Manager Dashboard')
 
-@section('content')
+@section('dashboard')
 <h1>Manager Dashboard</h1>
 
 <div class="dashboard-container">
     <div class="dashboard-box">Total Sales</div>
     <div class="dashboard-box">Products in Stock</div>
-    <!-- for graph in manager dashboard -->
+    <div class="dashboard-box">Products in Stock</div>
+    <!-- Graph Box for Sales Analytics -->
 <div class="graph-box">
     <h2>Sales Analytics</h2>
     <canvas id="salesChart"></canvas>
 </div>
-    <div class="dashboard-box">Low Stock Alerts</div>
-    <div class="dashboard-box">Recent Transactions</div>
+    <div class="dashboard-lowstockbox">Low Stock Alerts</div>
+    <div class="dashboard-topselling">Top selling products</div>
 </div>
 
 
@@ -26,12 +27,12 @@
     document.addEventListener("DOMContentLoaded", function () {
         const ctx = document.getElementById('salesChart').getContext('2d');
         new Chart(ctx, {
-            type: 'bar',
+            type: 'bar', 
             data: {
                 labels: ['shabu', 'juana', 'coke'],
                 datasets: [{
                     label: 'Sales (Units)',
-                    data: [1200, 900, 700], a
+                    data: [1200, 900, 700], 
                     backgroundColor: ['#10394f', '#0d2c3a', '#007bff'],
                     borderRadius: 5 
                 }]
@@ -42,7 +43,7 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 1000, 
+                        max: 1000,
                         ticks: {
                             font: {
                                 size: 10

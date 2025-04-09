@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ManageUserController;
 
 //for login functionality
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.process'); // Add this!
+Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/manager/dashboard', function() {
@@ -27,8 +29,7 @@ Route::middleware(['role:manager'])->group(function () {
 });
 
 //for viewing dashboard
-Route::get('/home', function() {
-    return view('home');
-})->name('dashboard');
-
+Route::get('/home', function() {return view('manager.dashboard');})->name('dashboard');
+Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+Route::get('/manage_users', [ManageUserController::class, 'index'])->name('manage_users.index');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');

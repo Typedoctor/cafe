@@ -9,14 +9,18 @@
         <ul>
             <li><a href="{{ route('dashboard') }}" class="active">Home</a></li>
             <li><a href="{{ route('products.index') }}">Inventory</a></li>
-            <li><a href="{{ route('reports') }}">Reports</a></li>
-            <li><a href="{{ route('users.manage') }}">Manage Users</a></li>
+            <li><a href="{{ route('reports.index') }}">Reports</a></li>
+            <li><a href="{{ route('manage_users.index') }}">Manage Users</a></li>
             <li><a href="{{ route('logout') }}">Logout</a></li>
         </ul>
     </div>
 
+    <!-- Page ine para ma upod an navbar h page if mag balhin balhin -->
     <div class="content">
-        @yield('content')
+        @yield('dashboard')
+        @yield('product')
+        @yield('reports')
+        @yield('manage_users')
     </div>
 </body>
 </html>
