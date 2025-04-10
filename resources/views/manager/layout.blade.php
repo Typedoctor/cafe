@@ -3,6 +3,7 @@
 <head>
     <title>@yield('title')</title>
     <link rel="stylesheet" href="{{ asset('css/manager-dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/inventory.css') }}">
 </head>
 <body>
     <div class="sidebar">

@@ -13,7 +13,7 @@
 <!-- Add & Edit Product Modal (Unified) -->
 <div id="productModal" class="modal">
     <div class="modal-content">
-        <span class="close-btn">&times;</span>
+       
         <h2 id="modalTitle">Add New Product</h2>
         <form id="productForm" method="POST">
             @csrf
@@ -40,7 +40,8 @@
                 <input type="text" name="price" id="price" required>
             </div>
 
-            <button type="submit" class="btn save-btn">Save</button>
+            <button type="submit" class="btn save-btn">ADD</button>
+            <span class="close-btn">Cancel</span>
         </form>
     </div>
 </div>

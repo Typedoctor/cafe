@@ -1,0 +1,178 @@
+/* Inventory Section */
+.top-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+}
+
+/* Modal */
+.modal, .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background: white;
+    padding: 20px;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+    border-radius: 10px;
+    z-index: 1000; 
+}
+
+.modal-overlay {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+@media (max-width: 768px) {
+    .modal {
+        width: 90%;
+        max-width: 400px;
+    }
+}
+
+
+.form-group {
+    display: flex;
+    flex-direction: column; /* Stack label and input vertically */
+    align-items: flex-start; /* Align items to the left */
+    margin-bottom: 15px; /* Increased spacing between form groups */
+}
+
+.form-group label {
+    font-size: 18px;
+    font-weight: 500; /* Slightly bold for labels */
+    color: #333; /* Darker color for labels */
+    margin-bottom: 5px; /* Space between label and input */
+    
+}
+
+.form-group input,
+.form-group select {
+    width: 100%; /* Full width for inputs and select */
+    padding: 10px; /* More padding for a larger input */
+    height: 70;
+    font-size: 14px;
+    color: #666; /* Placeholder-like color for text */
+    background-color: #d3d3d3; /* Light gray background as in the image */
+    border: none; /* Remove border */
+    border-radius: 10px; /* Rounded corners */
+    box-sizing: border-box; /* Include padding in width */
+}
+
+.form-group select {
+    appearance: none; /* Remove default dropdown arrow */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="%23666" d="M7 10l5 5 5-5z"/></svg>'); /* Custom dropdown arrow */
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+}
+
+/* Buttons */
+.btn, .add-stock, .save-btn, .close-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 10px; /* More rounded corners */
+    cursor: pointer;
+    border: none;
+    text-align: center;
+}
+
+.add-stock {
+    background-color: #28a745;
+    color: white;
+}
+
+.add-stock:hover {
+    background-color: #218838;
+}
+
+.save-btn {
+    background-color: #1e3a8a; /* Dark blue as in the image */
+    color: white;
+    margin-right: 10px; /* Space between Add and Cancel buttons */
+}
+
+.save-btn:hover {
+    background-color: #162c6d; /* Slightly darker blue on hover */
+}
+
+.close-btn {
+    background-color: #6b7280; /* Gray for Cancel button */
+    color: white;
+}
+
+.add-stock {
+    background-color: #28a745;
+    color: white;
+}
+
+.add-stock:hover {
+    background-color: #218838;
+}
+
+.save-btn {
+    background-color: #007bff;
+    color: white;
+    align-items: center;
+}
+
+.save-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Table */
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+}
+
+.inventory-table th, .inventory-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.inventory-table th {
+    background-color: #10394f;
+    color: white;
+    font-weight: bold;
+}
+
+.inventory-table tr:hover {
+    background-color: #f0f0f0;
+}
+
+/* Edit/Delete Buttons */
+.edit-btn, .delete-btn {
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    text-decoration: none;
+    margin: 3px;
+    color: white;
+    border: none;
+}
+
+.edit-btn {
+    background-color: #007bff;
+}
+
+.edit-btn:hover {
+    background-color: #0056b3;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}

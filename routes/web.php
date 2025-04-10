@@ -20,12 +20,14 @@ Route::get('/cashier/dashboard', function() {
 
 //adi it para liwat inventory management
 Route::resource('products', ProductController::class);
-
+Route::resource('manage_users', ManageUserController::class)->only([
+    'index', 'store', 'update', 'destroy'
+]);
 
 // for middleware kernel inin ensure na rolebased talaga
 Route::middleware(['role:manager'])->group(function () {
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');
-    Route::get('/users/manage', [UserController::class, 'index'])->name('users.manage');
+
 });
 
 //for viewing dashboard
