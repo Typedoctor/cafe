@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ManageUserController;
+use App\Http\Controllers\TransactionController;
 
 //for login functionality
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -20,9 +21,8 @@ Route::get('/cashier/dashboard', function() {
 
 //adi it para liwat inventory management
 Route::resource('products', ProductController::class);
-Route::resource('manage_users', ManageUserController::class)->only([
-    'index', 'store', 'update', 'destroy'
-]);
+Route::resource('manage_users', ManageUserController::class);
+
 
 // for middleware kernel inin ensure na rolebased talaga
 Route::middleware(['role:manager'])->group(function () {
@@ -35,3 +35,4 @@ Route::get('/home', function() {return view('manager.dashboard');})->name('dashb
 Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 Route::get('/manage_users', [ManageUserController::class, 'index'])->name('manage_users.index');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('transactions',[TransactionController::class,'index'])->name('transactions.index');

@@ -5,6 +5,6 @@
 
 @section('reports')
 
-    <h1>Welcome, reports page ine</h1>
+    <h1>Under contruction Reports page</h1>
 
 @endsection

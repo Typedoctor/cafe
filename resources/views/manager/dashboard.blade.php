@@ -3,12 +3,12 @@
 @section('title', 'Manager Dashboard')
 
 @section('dashboard')
-<h1>Manager Dashboard</h1>
+<h1 >Manager Dashboard</h1>
 
 <div class="dashboard-container">
-    <div class="dashboard-box">Total Sales</div>
-    <div class="dashboard-box">Products in Stock</div>
-    <div class="dashboard-box">Products in Stock</div>
+    <div class="dashboard-box">Income</div>
+    <div class="dashboard-box">Loss</div>
+    <div class="dashboard-box">Revenue</div>
     <!-- Graph Box for Sales Analytics -->
 <div class="graph-box">
     <h2>Sales Analytics</h2>

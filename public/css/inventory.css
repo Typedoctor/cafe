@@ -4,7 +4,11 @@
     justify-content: flex-end;
     margin-bottom: 15px;
 }
-
+.inventory-title{
+    font-size: 20px;
+    margin-bottom: 30;
+    text-align: center;
+}
 /* Modal */
 .modal, .modal-overlay {
     display: none;
@@ -54,10 +58,11 @@
 
 .form-group input,
 .form-group select {
+    font-family: 'Poppins', sans-serif; 
     width: 100%; /* Full width for inputs and select */
     padding: 10px; /* More padding for a larger input */
     height: 70;
-    font-size: 14px;
+    font-size: 18px;
     color: #666; /* Placeholder-like color for text */
     background-color: #d3d3d3; /* Light gray background as in the image */
     border: none; /* Remove border */
@@ -75,6 +80,7 @@
 
 /* Buttons */
 .btn, .add-stock, .save-btn, .close-btn {
+    font-family: 'Poppins', sans-serif; 
     padding: 10px 20px;
     font-size: 16px;
     font-weight: 500;

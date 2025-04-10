@@ -12,6 +12,7 @@
             <li><a href="{{ route('products.index') }}">Inventory</a></li>
             <li><a href="{{ route('reports.index') }}">Reports</a></li>
             <li><a href="{{ route('manage_users.index') }}">Manage Users</a></li>
+            <li><a href="{{ route('transactions.index') }}">Transaction</a></li>
             <li><a href="{{ route('logout') }}">Logout</a></li>
         </ul>
     </div>
@@ -22,6 +23,7 @@
         @yield('product')
         @yield('reports')
         @yield('manage_users')
+        @yield('transactions')
     </div>
 </body>
 </html>

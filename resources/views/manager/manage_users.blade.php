@@ -1,9 +1,9 @@
 @extends('manager.layout')
 
-@section('title', 'User Inventory')
+@section('title', 'Manage Users')
 
 @section('product')
-<h1 class="inventory-title">User Inventory</h1>
+<h1 class="inventory-title">Manage Users</h1>
 
 <div class="top-bar">
     <button id="addStockBtn" class="btn add-stock">+ Add User</button>
@@ -114,7 +114,7 @@
             button.addEventListener("click", function () {
                 modalTitle.innerText = "Edit User";
                 methodField.value = "PUT"; // Ensure this is set to PUT
-                userForm.action = "{{ route('manage_users.update', ':id') }}".replace(':id', this.dataset.id); // Use Laravel route helper
+                userForm.action = `/manage_users/${this.dataset.id}`;
 
                 document.getElementById("userId").value = this.dataset.id;
                 document.getElementById("name").value = this.dataset.name;
