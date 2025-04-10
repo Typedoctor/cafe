@@ -2,7 +2,7 @@
 
 @section('title', 'Manager Dashboard')
 
-@section('dashboard')
+@section('content')
 <h1 >Manager Dashboard</h1>
 
 <div class="dashboard-container">

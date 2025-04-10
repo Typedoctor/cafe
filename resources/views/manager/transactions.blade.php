@@ -3,7 +3,7 @@
 @section('title', 'Transaction')
 
 
-@section('transactions')
+@section('content')
 
     <h1>Under contruction Transaction page</h1>
 

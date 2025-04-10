@@ -2,7 +2,7 @@
 
 @section('title', 'Manage Users')
 
-@section('product')
+@section('content')
 <h1 class="inventory-title">Manage Users</h1>
 
 <div class="top-bar">
@@ -24,7 +24,7 @@
                 <input type="text" name="name" id="name" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" name="pass">
                 <label>Password:</label>
                 <input type="password" name="password" id="password">
             </div>
@@ -97,6 +97,7 @@
         const confirmPasswordInput = document.getElementById("passwordConfirmation");
         const saveBtn = document.getElementById("saveBtn");
         const cancelBtn = document.getElementById("cancelBtn");
+    
 
         document.getElementById("addStockBtn").addEventListener("click", function () {
             modalTitle.innerText = "Add New User";
@@ -113,9 +114,10 @@
         document.querySelectorAll(".edit-btn").forEach(button => {
             button.addEventListener("click", function () {
                 modalTitle.innerText = "Edit User";
+                
                 methodField.value = "PUT"; // Ensure this is set to PUT
                 userForm.action = `/manage_users/${this.dataset.id}`;
-
+                
                 document.getElementById("userId").value = this.dataset.id;
                 document.getElementById("name").value = this.dataset.name;
                 document.getElementById("privilege").value = this.dataset.privilege;
@@ -123,6 +125,7 @@
                 passwordInput.required = false;
                 confirmPasswordGroup.style.display = "none";
                 confirmPasswordInput.required = false;
+                
                 saveBtn.innerText = "UPDATE";
                 userModal.style.display = "block";
             });

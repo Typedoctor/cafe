@@ -2,7 +2,7 @@
 
 @section('title', 'Product Inventory')
 
-@section('product')
+@section('content')
 <h1 class="inventory-title">Product Inventory</h1>
 
 <div class="top-bar">

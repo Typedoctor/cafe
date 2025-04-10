@@ -79,7 +79,7 @@
 }
 
 /* Buttons */
-.btn, .add-stock, .save-btn, .close-btn {
+.btn, .add-stock, .save-btn{
     font-family: 'Poppins', sans-serif; 
     padding: 10px 20px;
     font-size: 16px;
@@ -89,6 +89,7 @@
     border: none;
     text-align: center;
 }
+
 
 .add-stock {
     background-color: #28a745;
@@ -110,8 +111,16 @@
 }
 
 .close-btn {
-    background-color: #6b7280; /* Gray for Cancel button */
-    color: white;
+    font-family: 'Poppins', sans-serif; 
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 10px;
+    text-align: center;
+    background-color: #b01a1a;
+    color:white;
+    cursor: pointer;
+    margin-left: 220;
 }
 
 .add-stock {

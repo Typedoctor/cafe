@@ -19,11 +19,8 @@
 
     <!-- Page ine para ma upod an navbar h page if mag balhin balhin -->
     <div class="content">
-        @yield('dashboard')
-        @yield('product')
-        @yield('reports')
-        @yield('manage_users')
-        @yield('transactions')
+        @yield('content')
+        
     </div>
 </body>
 </html>
