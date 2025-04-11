@@ -40,8 +40,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Add click event to update active class dynamically
         link.addEventListener("click", function () {
-            links.forEach(l => l.classList.remove("active")); // Remove active class from all
-            link.classList.add("active"); // Add active class to clicked link
+            links.forEach(l => l.classList.remove("active")); 
+            link.classList.add("active"); 
         });
     });
 });

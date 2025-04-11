@@ -5,6 +5,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ManageUserController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\ManageOrderController;
+use App\Http\Controllers\ManageTrashController;
 
 //for login functionality
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -22,7 +24,8 @@ Route::get('/cashier/dashboard', function() {
 //adi it para liwat inventory management
 Route::resource('products', ProductController::class);
 Route::resource('manage_users', ManageUserController::class);
-
+Route::resource('order', ManageOrderController::class);
+Route::resource('trash', ManageTrashController::class);
 
 // for middleware kernel inin ensure na rolebased talaga
 Route::middleware(['role:manager'])->group(function () {

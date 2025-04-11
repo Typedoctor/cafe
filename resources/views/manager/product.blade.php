@@ -68,10 +68,10 @@
             <td>{{ $product->quantity }}</td>
             <td>${{ $product->price }}</td>
             <td>
-                <button class="btn edit-btn" data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-category="{{ $product->category }}" data-price="{{ $product->price }}" data-quantity="{{ $product->quantity }}">
+                <button class="btn edit-btn" data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-category="{{ $product->category }}" data-price="{{ $product->price }}" data-quantity="{{ $product->quantity }}" >
                     <i class="fa-solid fa-pencil"></i>
                 </button>
-                <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline;">
+                <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline; " onsubmit="return confirm('Are you sure you want to delete this product?');">
                     @csrf @method('DELETE')
                     <button type="submit" class="btn delete-btn"><i class="fa-solid fa-trash"></i></button>
                 </form>
@@ -99,6 +99,7 @@
             productForm.action = "{{ route('products.store') }}";
             productModal.style.display = "block";
             SaveBtn.innerText = "ADD";
+            productForm.reset();
         });
 
         document.querySelectorAll(".edit-btn").forEach(button => {
@@ -106,7 +107,7 @@
                 modalTitle.innerText = "Edit Product";
                 methodField.value = "PUT";
                 productForm.action = `/products/${this.dataset.id}`;
-
+                
                 document.getElementById("productId").value = this.dataset.id;
                 document.getElementById("productName").value = this.dataset.name;
                 document.getElementById("category").value = this.dataset.category;

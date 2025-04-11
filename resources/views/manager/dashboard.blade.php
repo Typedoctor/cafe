@@ -9,6 +9,7 @@
     <div class="dashboard-box">Income</div>
     <div class="dashboard-box">Loss</div>
     <div class="dashboard-box">Revenue</div>
+    
     <!-- Graph Box for Sales Analytics -->
 <div class="graph-box">
     <h2>Sales Analytics</h2>

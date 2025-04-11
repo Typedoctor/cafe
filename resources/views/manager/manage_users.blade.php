@@ -117,7 +117,7 @@
         document.querySelectorAll(".edit-btn").forEach(button => {
             button.addEventListener("click", function () {
                 modalTitle.innerText = "Edit User";
-                methodField.value = "PUT"; // Ensure this is set to PUT
+                methodField.value = "PUT"; 
                 userForm.action = `/manage_users/${this.dataset.id}`;
                 document.getElementById("userId").value = this.dataset.id;
                 document.getElementById("name").value = this.dataset.name;
