@@ -7,13 +7,15 @@
 
 <div class="top-bar">
     <button id="addStockBtn" class="btn add-stock">+ Add User</button>
-    <button id="exportExcel" class="btn export-btn">Export to Excel</button>
+   
 </div>
 
 <!-- Add & Edit User Modal (Unified) -->
 <div id="userModal" class="modal">
+<span class="close-btn">x</span>
     <div class="modal-content">
         <h2 id="modalTitle">Add New User</h2>
+        
         <form id="userForm" method="POST">
             @csrf
             <input type="hidden" name="_method" id="methodField" value="POST">
@@ -44,7 +46,7 @@
 
             <div class="button-group">
                 <button type="submit" class="btn save-btn" id="saveBtn">Save</button>
-                <button type="button" class="btn close-btn" id="cancelBtn">Cancel</button>
+                
             </div>
         </form>
     </div>
@@ -114,25 +116,20 @@
         document.querySelectorAll(".edit-btn").forEach(button => {
             button.addEventListener("click", function () {
                 modalTitle.innerText = "Edit User";
-                
                 methodField.value = "PUT"; // Ensure this is set to PUT
                 userForm.action = `/manage_users/${this.dataset.id}`;
-                
                 document.getElementById("userId").value = this.dataset.id;
                 document.getElementById("name").value = this.dataset.name;
                 document.getElementById("privilege").value = this.dataset.privilege;
                 document.getElementById("password").value = "";
                 passwordInput.required = false;
-                confirmPasswordGroup.style.display = "none";
                 confirmPasswordInput.required = false;
-                
                 saveBtn.innerText = "UPDATE";
                 userModal.style.display = "block";
             });
         });
 
         closeBtn.addEventListener("click", () => userModal.style.display = "none");
-        cancelBtn.addEventListener("click", () => userModal.style.display = "none");
         window.addEventListener("click", event => event.target === userModal && (userModal.style.display = "none"));
 
         userForm.addEventListener("submit", function (event) {

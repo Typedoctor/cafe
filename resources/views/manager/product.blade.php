@@ -6,14 +6,15 @@
 <h1 class="inventory-title">Product Inventory</h1>
 
 <div class="top-bar">
-    <button id="addStockBtn" class="btn add-stock">+ Add Product</button>
-    <button id="exportExcel" class="btn export-btn">Export to Excel</button>
+    <button id="addStockBtn" class="btn add-stock">+ Add Product</button>|
+    <button id="exportExcel" class="btn export-btn">Export to Excel</button>    
+    
 </div>
 
 <!-- Add & Edit Product Modal (Unified) -->
 <div id="productModal" class="modal">
     <div class="modal-content">
-       
+    <span class="close-btn">x</span>
         <h2 id="modalTitle">Add New Product</h2>
         <form id="productForm" method="POST">
             @csrf
@@ -40,8 +41,8 @@
                 <input type="text" name="price" id="price" required>
             </div>
 
-            <button type="submit" class="btn save-btn">ADD</button>
-            <span class="close-btn">Cancel</span>
+            <button type="submit" class="btn save-btn" id = "SaveBtn">ADD</button>
+            
         </form>
     </div>
 </div>
@@ -88,12 +89,14 @@
         const productForm = document.getElementById("productForm");
         const modalTitle = document.getElementById("modalTitle");
         const methodField = document.getElementById("methodField");
+        const SaveBtn = document.getElementById("SaveBtn");
 
         document.getElementById("addStockBtn").addEventListener("click", function () {
             modalTitle.innerText = "Add New Product";
             methodField.value = "POST";
             productForm.action = "{{ route('products.store') }}";
             productModal.style.display = "block";
+            SaveBtn.innerText = "ADD";
         });
 
         document.querySelectorAll(".edit-btn").forEach(button => {
@@ -107,7 +110,7 @@
                 document.getElementById("category").value = this.dataset.category;
                 document.getElementById("quantity").value = this.dataset.quantity;
                 document.getElementById("price").value = this.dataset.price;
-
+                SaveBtn.innerText = "UPDATE";
                 productModal.style.display = "block";
             });
         });

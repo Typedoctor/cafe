@@ -79,7 +79,7 @@
 }
 
 /* Buttons */
-.btn, .add-stock, .save-btn{
+.save-btn {
     font-family: 'Poppins', sans-serif; 
     padding: 10px 20px;
     font-size: 16px;
@@ -88,13 +88,18 @@
     cursor: pointer;
     border: none;
     text-align: center;
+    margin-left:160 ;
+}
+.close-btn{
+    background-color: #585656;
+    padding: 6px 10px;
+    margin-left: 380;
+    border-radius: 18px;
+    color:white;
+    
 }
 
 
-.add-stock {
-    background-color: #28a745;
-    color: white;
-}
 
 .add-stock:hover {
     background-color: #218838;
@@ -105,27 +110,31 @@
     color: white;
     margin-right: 10px; /* Space between Add and Cancel buttons */
 }
+.cancel-btn{
+    background-color: #dc3545; /* Red as in the image */
+    color:white;
+    
+}
 
 .save-btn:hover {
     background-color: #162c6d; /* Slightly darker blue on hover */
+    
 }
 
-.close-btn {
+
+
+.add-stock {
+    background-color: #3590C0;
+    color: white;
     font-family: 'Poppins', sans-serif; 
     padding: 10px 20px;
     font-size: 16px;
     font-weight: 500;
-    border-radius: 10px;
-    text-align: center;
-    background-color: #b01a1a;
-    color:white;
+    border-radius: 10px; /* More rounded corners */
     cursor: pointer;
-    margin-left: 220;
-}
-
-.add-stock {
-    background-color: #28a745;
-    color: white;
+    border: none;
+    text-align: center;
+    margin-left:160 ;
 }
 
 .add-stock:hover {
