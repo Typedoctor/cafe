@@ -38,18 +38,20 @@ class ProductController extends Controller {
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted!');
     }
-
-    public function update(Request $request, Product $product) {
-        $validated = $request->validate([
-            'product_name' => 'required|string|max:255',
-            'category' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'quantity' => 'required|integer'
+    /*pag update han existing product*/ 
+    public function update(Request $request, Product $product)
+    {
+        $request->validate([
+            'product_name' => 'required|string|unique:products,product_name,' . $product->id,
+            'category' => 'required|string',
+            'quantity' => 'numeric|min:0',
+            'price' => 'numeric|min:0',
         ]);
     
-        $product->update($validated);
+        $product->update($request->all());
     
         return redirect()->route('products.index')->with('success', 'Product updated successfully!');
-    }
-    
+    }    
+
+
 }

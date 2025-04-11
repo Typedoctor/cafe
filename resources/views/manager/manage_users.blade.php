@@ -10,7 +10,7 @@
    
 </div>
 
-<!-- Add & Edit User Modal (Unified) -->
+<!-- Add & Edit User Modal -->
 <div id="userModal" class="modal">
 <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
     <div class="modal-content">

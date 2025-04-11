@@ -6,15 +6,14 @@
 <h1 class="inventory-title">Product Inventory</h1>
 
 <div class="top-bar">
-    <button id="addStockBtn" class="btn add-stock">+ Add Product</button>   
-    <button id="exportExcel" class="btn export-btn">Export to Excel</button>    
-    
+    <button id="addStockBtn" class="btn add-stock">+ Add Product</button>
+    <button id="exportExcel" class="btn export-btn">Export to Excel</button>
 </div>
 
-<!-- Add & Edit Product Modal (Unified) -->
+<!-- Add & Edit Product Modal -->
 <div id="productModal" class="modal">
     <div class="modal-content">
-    <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i>    </span>
+        <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
         <h2 id="modalTitle">Add New Product</h2>
         <form id="productForm" method="POST">
             @csrf
@@ -23,7 +22,7 @@
             
             <div class="form-group">
                 <label>Product Name:</label>
-                <input type="text" name="product_name" id="productName" required>
+                <input type="text" name="product_name" id="productName" required value="{{ old('product_name', $product->product_name ?? '') }}">
             </div>
 
             <div class="form-group">
@@ -38,11 +37,10 @@
 
             <div class="form-group">
                 <label>Price:</label>
-                <input type="text" name="price" id="price" required>
+                <input type="number" step="0.01" name="price" id="price" required min="0">
             </div>
 
-            <button type="submit" class="btn save-btn" id = "SaveBtn">ADD</button>
-            
+            <button type="submit" class="btn save-btn" id="SaveBtn">ADD</button>
         </form>
     </div>
 </div>
@@ -51,12 +49,12 @@
 <table class="inventory-table">
     <thead>
         <tr>
-            <th style="width: 50px;">ID</th>
+            <th>ID</th>
             <th>Product Name</th>
             <th>Category</th>
             <th>Quantity</th>
             <th>Price</th>
-            <th style="width: 100px;">Actions</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -66,7 +64,7 @@
             <td>{{ $product->product_name }}</td>
             <td>{{ $product->category }}</td>
             <td>{{ $product->quantity }}</td>
-            <td>${{ $product->price }}</td>
+            <td>₱{{ $product->price }}</td>
             <td>
                 <button class="btn edit-btn" data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-category="{{ $product->category }}" data-price="{{ $product->price }}" data-quantity="{{ $product->quantity }}" >
                     <i class="fa-solid fa-pencil"></i>
@@ -81,45 +79,91 @@
     </tbody>
 </table>
 
+<!-- already existing Product Warning Modal -->
+<div id="duplicateModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Warning!</h2>
+        <p id="duplicateMessage">This product already exists.</p>
+        <button class="btn close-duplicate">OK</button>
+    </div>
+</div>
 @endsection
 
-<!-- for functionality -->
+<!-- adi tanan na functionality ngan logic -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const productModal = document.getElementById("productModal");
-        const closeBtn = document.querySelector(".close-btn");
-        const productForm = document.getElementById("productForm");
-        const modalTitle = document.getElementById("modalTitle");
-        const methodField = document.getElementById("methodField");
-        const SaveBtn = document.getElementById("SaveBtn");
+document.addEventListener("DOMContentLoaded", function () {
+    const productModal = document.getElementById("productModal");
+    const duplicateModal = document.getElementById("duplicateModal");
+    const productForm = document.getElementById("productForm");
+    const modalTitle = document.getElementById("modalTitle");
+    const methodField = document.getElementById("methodField");
+    const SaveBtn = document.getElementById("SaveBtn");
+    const closeBtns = document.querySelectorAll(".close-btn");
+    const closeDuplicateBtn = document.querySelector(".close-duplicate");
 
-        document.getElementById("addStockBtn").addEventListener("click", function () {
-            modalTitle.innerText = "Add New Product";
-            methodField.value = "POST";
-            productForm.action = "{{ route('products.store') }}";
-            productModal.style.display = "block";
-            SaveBtn.innerText = "ADD";
-            productForm.reset();
+    const quantityInput = document.getElementById("quantity");
+    const priceInput = document.getElementById("price");
+
+    // Prevent negative values and invalid input
+    function enforceValidInput(input, allowDecimals = false) {
+        input.addEventListener("input", function () {
+            this.value = allowDecimals ? this.value.replace(/[^0-9.]/g, "") : Math.max(0, this.value);
         });
+    }
 
-        document.querySelectorAll(".edit-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                modalTitle.innerText = "Edit Product";
-                methodField.value = "PUT";
-                productForm.action = `/products/${this.dataset.id}`;
-                
-                document.getElementById("productId").value = this.dataset.id;
-                document.getElementById("productName").value = this.dataset.name;
-                document.getElementById("category").value = this.dataset.category;
-                document.getElementById("quantity").value = this.dataset.quantity;
-                document.getElementById("price").value = this.dataset.price;
-                SaveBtn.innerText = "UPDATE";
-                productModal.style.display = "block";
-            });
-        });
+    enforceValidInput(quantityInput);
+    enforceValidInput(priceInput, true);
 
-        closeBtn.addEventListener("click", () => productModal.style.display = "none");
-        window.addEventListener("click", event => event.target === productModal && (productModal.style.display = "none"));
+    // para mag pakita an modal han new product form
+    document.getElementById("addStockBtn").addEventListener("click", function () {
+        modalTitle.innerText = "Add New Product";
+        methodField.value = "POST";
+        productForm.action = "{{ route('products.store') }}";
+        productModal.style.display = "block";
+        SaveBtn.innerText = "ADD";
+        productForm.reset();
     });
+
+    // para mag pakita liwat an edit product form na modal
+    document.querySelectorAll(".edit-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            modalTitle.innerText = "Edit Product";
+            methodField.value = "PUT";
+            productForm.action = `/products/${this.dataset.id}`;
+            
+            document.getElementById("productId").value = this.dataset.id;
+            document.getElementById("productName").value = this.dataset.name;
+            document.getElementById("category").value = this.dataset.category;
+            document.getElementById("quantity").value = Math.max(0, this.dataset.quantity);
+            document.getElementById("price").value = Math.max(0, this.dataset.price);
+            
+            SaveBtn.innerText = "UPDATE";
+            productModal.style.display = "block";
+        });
+    });
+
+    // adi an para prompt han duplicate product names error
+    productForm.addEventListener("submit", function (event) {
+        if (methodField.value === "POST") {
+            const existingProducts = Array.from(document.querySelectorAll("tbody tr")).map(row =>
+                row.querySelector("td:nth-child(2)").innerText.trim().toLowerCase()
+            );
+
+            if (existingProducts.includes(document.getElementById("productName").value.trim().toLowerCase())) {
+                event.preventDefault();
+                duplicateModal.style.display = "block";
+            }
+        }
+    });
+
+    // Close modals
+    closeBtns.forEach(btn => btn.addEventListener("click", () => {
+        productModal.style.display = "none";
+        duplicateModal.style.display = "none";
+    }));
+    closeDuplicateBtn.addEventListener("click", () => duplicateModal.style.display = "none");
+
+});
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
