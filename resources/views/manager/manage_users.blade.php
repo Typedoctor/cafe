@@ -106,12 +106,13 @@
             modalTitle.innerText = "Add New User";
             methodField.value = "POST";
             userForm.action = "{{ route('manage_users.store') }}";
-            userForm.reset();
+            passwordInput.placeholder = ""; 
             passwordInput.required = true;
             confirmPasswordGroup.style.display = "block";
             confirmPasswordInput.required = true;
             saveBtn.innerText = "ADD";
             userModal.style.display = "block";
+            userForm.reset();
         });
 
         document.querySelectorAll(".edit-btn").forEach(button => {
@@ -125,7 +126,7 @@
                 document.getElementById("password").value = "";
                 document.getElementById("password").placeholder = "Change pass? if no leave it blank";
                 confirmPasswordGroup.style.display = "none";
-              
+                userForm.reset();
                 passwordInput.required = false;
                 confirmPasswordInput.required = false;
                 saveBtn.innerText = "UPDATE";
