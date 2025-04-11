@@ -32,12 +32,12 @@
 
             <div class="form-group">
                 <label>Quantity:</label>
-                <input type="number" name="quantity" id="quantity" required>
+                <input type="number" name="quantity" id="quantity" min="0" max="999999" required>
             </div>
 
             <div class="form-group">
                 <label>Price:</label>
-                <input type="number" step="0.01" name="price" id="price" required min="0">
+                <input type="float" step="0.5" name="price" id="price" min="0" max="999999" required >
             </div>
 
             <button type="submit" class="btn save-btn" id="SaveBtn">ADD</button>
