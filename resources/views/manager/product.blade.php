@@ -14,7 +14,7 @@
 <!-- Add & Edit Product Modal (Unified) -->
 <div id="productModal" class="modal">
     <div class="modal-content">
-    <span class="close-btn">x</span>
+    <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i>    </span>
         <h2 id="modalTitle">Add New Product</h2>
         <form id="productForm" method="POST">
             @csrf
@@ -56,7 +56,7 @@
             <th>Category</th>
             <th>Quantity</th>
             <th>Price</th>
-            <th style="width: 150px;">Actions</th>
+            <th style="width: 100px;">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -68,10 +68,12 @@
             <td>{{ $product->quantity }}</td>
             <td>${{ $product->price }}</td>
             <td>
-                <button class="btn edit-btn" data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-category="{{ $product->category }}" data-price="{{ $product->price }}" data-quantity="{{ $product->quantity }}">Edit</button>
+                <button class="btn edit-btn" data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-category="{{ $product->category }}" data-price="{{ $product->price }}" data-quantity="{{ $product->quantity }}">
+                    <i class="fa-solid fa-pencil"></i>
+                </button>
                 <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline;">
                     @csrf @method('DELETE')
-                    <button type="submit" class="btn delete-btn">Delete</button>
+                    <button type="submit" class="btn delete-btn"><i class="fa-solid fa-trash"></i></button>
                 </form>
             </td>
         </tr>

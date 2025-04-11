@@ -12,7 +12,7 @@
 
 <!-- Add & Edit User Modal (Unified) -->
 <div id="userModal" class="modal">
-<span class="close-btn">x</span>
+<span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
     <div class="modal-content">
         <h2 id="modalTitle">Add New User</h2>
         
@@ -59,7 +59,7 @@
             <th style="width: 50px;">ID</th>
             <th>Name</th>
             <th>Privilege</th>
-            <th style="width: 150px;">Actions</th>
+            <th style="width: 100px;">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -72,11 +72,12 @@
                 <button class="btn edit-btn" 
                     data-id="{{ $user->id }}" 
                     data-name="{{ $user->name }}" 
-                    data-privilege="{{ $user->privilege }}">Edit</button>
+                    data-privilege="{{ $user->privilege }}"><i class="fa-solid fa-pencil"></i>
+                </button>
                 <form action="{{ route('manage_users.destroy', $user->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn delete-btn">Delete</button>
+                    <button type="submit" class="btn delete-btn"><i class="fa-solid fa-trash"></i></button>
                 </form>
             </td>
         </tr>
