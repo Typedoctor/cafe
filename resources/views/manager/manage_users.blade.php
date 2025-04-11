@@ -123,6 +123,9 @@
                 document.getElementById("name").value = this.dataset.name;
                 document.getElementById("privilege").value = this.dataset.privilege;
                 document.getElementById("password").value = "";
+                document.getElementById("password").placeholder = "Change pass? if no leave it blank";
+                confirmPasswordGroup.style.display = "none";
+              
                 passwordInput.required = false;
                 confirmPasswordInput.required = false;
                 saveBtn.innerText = "UPDATE";

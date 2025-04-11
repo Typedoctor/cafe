@@ -6,7 +6,7 @@
 <h1 class="inventory-title">Product Inventory</h1>
 
 <div class="top-bar">
-    <button id="addStockBtn" class="btn add-stock">+ Add Product</button>|
+    <button id="addStockBtn" class="btn add-stock">+ Add Product</button>   
     <button id="exportExcel" class="btn export-btn">Export to Excel</button>    
     
 </div>

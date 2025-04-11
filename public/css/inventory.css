@@ -160,11 +160,11 @@
 }
 
 .add-stock:hover {
-    background-color: #218838;
+    background-color: #505952;
 }
 
 .save-btn {
-    background-color: #007bff;
+    background-color: #3590C0;
     color: white;
     padding: 30px 60px;
     margin-left: 123; 
@@ -215,7 +215,7 @@
 }
 
 .edit-btn {
-    background-color: #007bff;
+    background-color: #3590C0;
 }
 
 .edit-btn:hover {
