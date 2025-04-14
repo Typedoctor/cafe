@@ -9,7 +9,7 @@ return new class extends Migration {
         Schema::create('products', function (Blueprint $table) {
             $table->id(); // Unique primary ID
             $table->string('product_name')->unique(); 
-            $table->string('category');
+            $table->enum('category', ['snack', 'drink', 'meal', 'dessert']);
             $table->decimal('price', 10, 2); 
             $table->integer('quantity');
             $table->timestamps(); 

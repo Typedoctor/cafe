@@ -10,6 +10,26 @@
     <button id="exportExcel" class="btn export-btn">Export to Excel</button>
 </div>
 
+<!-- Search and Filter Section -->
+<div class="search-filter-container">
+    <form id="searchFilterForm" class="search-filter-form" method="GET">
+        <div class="search-box">
+            <input type="text" name="search" placeholder="Search products..." value="{{ request('search') }}">
+        </div>
+        <div class="filter-box">
+            <select name="category">
+                <option value="all">All Categories</option>
+                <option value="snack" {{ request('category') == 'snack' ? 'selected' : '' }}>Snack</option>
+                <option value="drink" {{ request('category') == 'drink' ? 'selected' : '' }}>Drink</option>
+                <option value="meal" {{ request('category') == 'meal' ? 'selected' : '' }}>Meal</option>
+                <option value="dessert" {{ request('category') == 'dessert' ? 'selected' : '' }}>Dessert</option>
+            </select>
+            <button type="submit" class="btn filter-btn">Apply Filter</button>
+            <a href="{{ route('products.index') }}" class="btn reset-btn">Reset</a>
+        </div>
+    </form>
+</div>
+
 <!-- Add & Edit Product Modal -->
 <div id="productModal" class="modal">
     <div class="modal-content">
@@ -27,7 +47,13 @@
 
             <div class="form-group">
                 <label>Category:</label>
-                <input type="text" name="category" id="category" required>
+                <select name="category" id="category" required>
+                    <option value="">Select Category</option>
+                    <option value="snack">Snack</option>
+                    <option value="drink">Drink</option>
+                    <option value="meal">Meal</option>
+                    <option value="dessert">Dessert</option>
+                </select>
             </div>
 
             <div class="form-group">
