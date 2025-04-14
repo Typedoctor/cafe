@@ -7,7 +7,19 @@
 
 <div class="top-bar">
     <button id="addStockBtn" class="btn add-stock">+ Add User</button>
-   
+</div>
+
+<!-- Search and Filter Section -->
+<div class="search-filter-container">
+    <form action="{{ route('manage_users.index') }}" method="GET" class="search-filter-form">
+        <div class="search-box">
+            <input type="text" name="search" placeholder="Search by name or privilege..." value="{{ request('search') }}">
+        </div>
+        <div class="filter-box">
+            <button type="submit" class="btn filter-btn">Search</button>
+            <a href="{{ route('manage_users.index') }}" class="btn reset-btn">Reset</a>
+        </div>
+    </form>
 </div>
 
 <!-- Add & Edit User Modal -->

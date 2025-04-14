@@ -145,6 +145,76 @@ h1 {
     margin-bottom: 0px;
 }
 
+/* Search and Filter Components */
+.search-filter-container {
+    margin: 0px 0;
+    padding: 0px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.search-filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 8px 1px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.filter-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
+}
+
+.filter-box select,
+.filter-box input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.filter-btn, .reset-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 100px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    margin: 0 2px;
+    box-sizing: border-box;
+    text-align: center;
+    display: inline-block;
+}
+
+.reset-btn {
+    background-color: #666;
+}
+
+.filter-btn:hover,
+.reset-btn:hover {
+    opacity: 0.9;
+}
+
 
 
 

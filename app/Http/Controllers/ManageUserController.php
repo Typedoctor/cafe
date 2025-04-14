@@ -8,9 +8,19 @@ use Illuminate\Support\Facades\Hash;
 
 class ManageUserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
+        $query = User::query();
+
+        if ($request->has('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('privilege', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        $users = $query->get();
         return view('manager.manage_users', compact('users'));
     }
 
