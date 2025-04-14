@@ -8,34 +8,29 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ManageOrderController;
 use App\Http\Controllers\ManageTrashController;
 
-//for login functionality
+// Public routes
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/manager/dashboard', function() {
-    return view('manager.dashboard');
-})->name('manager.dashboard')->middleware('auth');
-
-Route::get('/cashier/dashboard', function() {
-    return view('cashier.dashboard');
-})->name('cashier.dashboard')->middleware('auth');
-
-//adi it para liwat inventory management
-Route::resource('products', ProductController::class);
-Route::resource('manage_users', ManageUserController::class);
-Route::resource('order', ManageOrderController::class);
-Route::resource('trash', ManageTrashController::class);
-
-// for middleware kernel inin ensure na rolebased talaga
-Route::middleware(['role:manager'])->group(function () {
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports');
-
+// Manager routes
+Route::middleware(['auth', 'can:manager'])->group(function () {
+    Route::get('/manager/dashboard', function() {
+        return view('manager.dashboard');
+    })->name('manager.dashboard');
+    
+    Route::resource('manage_users', ManageUserController::class);
+    Route::resource('reports', ReportController::class);
+    Route::resource('products', ProductController::class);
+    Route::resource('transactions', TransactionController::class);
 });
 
-//for viewing dashboard
-Route::get('/home', function() {return view('manager.dashboard');})->name('dashboard');
-Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-Route::get('/manage_users', [ManageUserController::class, 'index'])->name('manage_users.index');
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-Route::get('transactions',[TransactionController::class,'index'])->name('transactions.index');
+// Cashier routes
+Route::middleware(['auth', 'can:cashier'])->group(function () {
+    Route::get('/cashier/dashboard', function() {
+        return view('cashier.dashboard');
+    })->name('cashier.dashboard');
+    
+    Route::resource('order', ManageOrderController::class);
+    Route::resource('trash', ManageTrashController::class);
+});

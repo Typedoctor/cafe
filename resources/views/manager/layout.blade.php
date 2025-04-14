@@ -9,7 +9,7 @@
 <body>
     <div class="sidebar">
         <ul>
-            <li><a href="{{ route('dashboard') }}" class="active"><i class="fa-solid fa-house"></i>Home</a></li>
+            <li><a href="{{ route('manager.dashboard') }}" class="active"><i class="fa-solid fa-house"></i>Home</a></li>
             <li><a href="{{ route('products.index') }}"><i class="fa-solid fa-book"></i>Inventory</a></li>
             <li><a href="{{ route('reports.index') }}"><i class="fa-solid fa-chart-line"></i>Reports</a></li>
             <li><a href="{{ route('manage_users.index') }}"><i class="fa-solid fa-users"></i>Manage Users</a></li>
