@@ -36,7 +36,7 @@
 }
 
 .add-trash:hover {
-    background-color: #04f12b;
+    background-color: #0f601d;
     transform: translateY(-3px); /* Lift effect */
     box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5); /* Glow effect */
 }

@@ -34,7 +34,7 @@
 <div id="trashModal" class="modal">
     <div class="modal-content">
         <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
-        <h2 id="modalTitle">Add New Trash Entry</h2>
+        <h2 id="modalTitle" style="text-align: center;">Add New Trash Entry</h2>
         <form id="trashForm" method="POST">
             @csrf
             <input type="hidden" name="_method" id="methodField" value="POST">
