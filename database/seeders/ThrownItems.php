@@ -13,11 +13,11 @@ class ThrownItems extends Seeder
     public function run(): void
     {
         Trash::create([
-            'product_name' => 'Test User',
+            'product_name' => 'potasts',
             'category' => 'snack',
-            'quantity' => '12',
-            'reason' => 'baho',
-            'total_loss' => '12',
+            'quantity' => '13',
+            'reason' => 'expired',
+            'total_loss' => '999',
 
         ]);
     }
