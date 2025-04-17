@@ -8,9 +8,11 @@ return new class extends Migration {
     public function up() {
         Schema::create('thrown_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained();
+            $table->foreignId('product_name')->constrained();
+            $table->enum('category', ['snack', 'drink', 'meal', 'dessert']);
             $table->integer('quantity');
-            $table->string('reason')->nullable();
+            $table->string('reason');
+            $table->decimal('total_loss', 10, 2);
             $table->timestamps();
         });
     }
