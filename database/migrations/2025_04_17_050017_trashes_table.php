@@ -6,9 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up() {
-        Schema::create('thrown_items', function (Blueprint $table) {
+        Schema::create('trashes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_name')->constrained();
+            $table->string('product_name')->unique(); 
             $table->enum('category', ['snack', 'drink', 'meal', 'dessert']);
             $table->integer('quantity');
             $table->string('reason');
@@ -18,6 +18,6 @@ return new class extends Migration {
     }
 
     public function down() {
-        Schema::dropIfExists('thrown_items');
+        Schema::dropIfExists('trashes');
     }
 };
