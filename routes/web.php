@@ -1,3 +1,4 @@
+
 <?php
 
 use App\Http\Controllers\AuthController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\ManageUserController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ManageOrderController;
 use App\Http\Controllers\ManageTrashController;
+use App\Http\Controllers\DashboardController;
 
 // Public routes
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -15,9 +17,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Manager routes
 Route::middleware(['auth', 'can:manager'])->group(function () {
-    Route::get('/manager/dashboard', function() {
-        return view('manager.dashboard');
-    })->name('manager.dashboard');
+    Route::get('/manager/dashboard', [DashboardController::class, 'index'])->name('manager.dashboard');
     
     Route::resource('manage_users', ManageUserController::class);
     Route::resource('reports', ReportController::class);
