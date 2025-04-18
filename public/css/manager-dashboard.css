@@ -1,9 +1,9 @@
 /* General Styles */
 body {
     margin: 0;
-    min-height: 100vh;
+    
     background-color: #f5f5f5;
-    display: flex;
+   
     font-family: 'Poppins', sans-serif;
 }
 

@@ -80,7 +80,7 @@
             <th>Category</th>
             <th>Quantity</th>
             <th>Price</th>
-            <th>Actions</th>
+            <th style="width: 100px;">Actions</th>
         </tr>
     </thead>
     <tbody>

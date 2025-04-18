@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+   
     <title>@yield('title')</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/manager-dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/inventory.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/manager-inventory.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/manager-reports.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/manager-user.css') }}">
     <script src="https://kit.fontawesome.com/2952e58222.js" crossorigin="anonymous"></script>
 </head>
 <body>

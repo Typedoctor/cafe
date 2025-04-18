@@ -24,6 +24,7 @@ class ManageTrashController extends Controller
         $trashes = $query->get();
         
         return view('cashier.manage_trash', compact('trashes'));
+        
     }
 
     public function create()

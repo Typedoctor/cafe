@@ -1,31 +1,32 @@
+
 @extends('manager.layout')
 
 @section('title', 'Manage Users')
 
 @section('content')
-<h1 class="inventory-title">Manage Users</h1>
+<h1 class="user-manage-title">Manage Users</h1>
 
-<div class="top-bar">
-    <button id="addStockBtn" class="btn add-stock">+ Add User</button>
+<div class="user-top-bar">
+    <button id="addUserBtn" class="user-btn user-add-btn">+ Add User</button>
 </div>
 
 <!-- Search and Filter Section -->
-<div class="search-filter-container">
-    <form action="{{ route('manage_users.index') }}" method="GET" class="search-filter-form">
-        <div class="search-box">
+<div class="user-search-filter-container">
+    <form action="{{ route('manage_users.index') }}" method="GET" class="user-search-filter-form">
+        <div class="user-search-box">
             <input type="text" name="search" placeholder="Search by name or privilege..." value="{{ request('search') }}">
         </div>
-        <div class="filter-box">
-            <button type="submit" class="btn filter-btn">Search</button>
-            <a href="{{ route('manage_users.index') }}" class="btn reset-btn">Reset</a>
+        <div class="user-filter-box">
+            <button type="submit" class="user-btn user-filter-btn">Search</button>
+            <a href="{{ route('manage_users.index') }}" class="user-btn user-reset-btn">Reset</a>
         </div>
     </form>
 </div>
 
 <!-- Add & Edit User Modal -->
-<div id="userModal" class="modal">
-<span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
-    <div class="modal-content">
+<div id="userModal" class="user-modal">
+    <span class="user-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
+    <div class="user-modal-content">
         <h2 id="modalTitle">Add New User</h2>
         
         <form id="userForm" method="POST">
@@ -33,22 +34,22 @@
             <input type="hidden" name="_method" id="methodField" value="POST">
             <input type="hidden" name="user_id" id="userId">
             
-            <div class="form-group">
+            <div class="user-form-group">
                 <label>Name:</label>
                 <input type="text" name="name" id="name" required>
             </div>
 
-            <div class="form-group" name="pass">
+            <div class="user-form-group" name="pass">
                 <label>Password:</label>
                 <input type="password" name="password" id="password">
             </div>
 
-            <div class="form-group" id="confirmPasswordGroup" style="display: none;">
+            <div class="user-form-group" id="confirmPasswordGroup" style="display: none;">
                 <label>Confirm Password:</label>
                 <input type="password" name="password_confirmation" id="passwordConfirmation">
             </div>
 
-            <div class="form-group">
+            <div class="user-form-group">
                 <label>Privilege:</label>
                 <select name="privilege" id="privilege" required>
                     <option value="cashier">Cashier</option>
@@ -56,16 +57,15 @@
                 </select>
             </div>
 
-            <div class="button-group">
-                <button type="submit" class="btn save-btn" id="saveBtn">Save</button>
-                
+            <div class="user-button-group">
+                <button type="submit" class="user-btn user-save-btn" id="saveBtn">Save</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Inventory Table -->
-<table class="inventory-table">
+<!-- Users Table -->
+<table class="user-table">
     <thead>
         <tr>
             <th style="width: 50px;">ID</th>
@@ -81,7 +81,7 @@
             <td>{{ $user->name }}</td>
             <td>{{ $user->privilege }}</td>
             <td>
-                <button class="btn edit-btn" 
+                <button class="user-btn user-edit-btn" 
                     data-id="{{ $user->id }}" 
                     data-name="{{ $user->name }}" 
                     data-privilege="{{ $user->privilege }}"><i class="fa-solid fa-pencil"></i>
@@ -89,7 +89,7 @@
                 <form action="{{ route('manage_users.destroy', $user->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn delete-btn"><i class="fa-solid fa-trash"></i></button>
+                    <button type="submit" class="user-btn user-delete-btn"><i class="fa-solid fa-trash"></i></button>
                 </form>
             </td>
         </tr>
@@ -103,7 +103,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const userModal = document.getElementById("userModal");
-        const closeBtn = document.querySelector(".close-btn");
+        const closeBtn = document.querySelector(".user-close-btn");
         const userForm = document.getElementById("userForm");
         const modalTitle = document.getElementById("modalTitle");
         const methodField = document.getElementById("methodField");
@@ -111,10 +111,8 @@
         const passwordInput = document.getElementById("password");
         const confirmPasswordInput = document.getElementById("passwordConfirmation");
         const saveBtn = document.getElementById("saveBtn");
-        const cancelBtn = document.getElementById("cancelBtn");
-    
 
-        document.getElementById("addStockBtn").addEventListener("click", function () {
+        document.getElementById("addUserBtn").addEventListener("click", function () {
             modalTitle.innerText = "Add New User";
             methodField.value = "POST";
             userForm.action = "{{ route('manage_users.store') }}";
@@ -127,7 +125,7 @@
             userForm.reset();
         });
 
-        document.querySelectorAll(".edit-btn").forEach(button => {
+        document.querySelectorAll(".user-edit-btn").forEach(button => {
             button.addEventListener("click", function () {
                 modalTitle.innerText = "Edit User";
                 methodField.value = "PUT"; 
