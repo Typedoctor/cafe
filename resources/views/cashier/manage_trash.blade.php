@@ -58,7 +58,19 @@
             
             <div class="form-group">
                 <label>Product Name:</label>
-                <input type="text" name="product_name" id="productName" required>
+                <select name="product_name" id="productName" required>
+                    <option value="">Select Product</option>
+                    @if(!empty($products) && $products->count() > 0)
+                        @foreach($products as $product)
+                            <option value="{{ $product->product_name }}">{{ $product->product_name }} ({{ $product->quantity }})</option>
+                        @endforeach
+                    @else
+                        <option value="" disabled>No products available</option>
+                    @endif
+                </select>
+                @error('product_name')
+                    <span class="error" style="color: red; font-size: 0.9em;">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
@@ -70,25 +82,47 @@
                     <option value="meal">Meal</option>
                     <option value="dessert">Dessert</option>
                 </select>
+                @error('category')
+                    <span class="error" style="color: red; font-size: 0.9em;">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label>Quantity:</label>
                 <input type="number" name="quantity" id="quantity" min="1" required>
+                @error('quantity')
+                    <span class="error" style="color: red; font-size: 0.9em;">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label>Reason:</label>
                 <input type="text" name="reason" id="reason" required>
+                @error('reason')
+                    <span class="error" style="color: red; font-size: 0.9em;">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label>Total Loss:</label>
                 <input type="number" step="0.01" name="total_loss" id="totalLoss" min="0" required>
+                @error('total_loss')
+                    <span class="error" style="color: red; font-size: 0.9em;">{{ $message }}</span>
+                @enderror
             </div>
 
             <button type="submit" class="btn save-btn" id="saveBtn">ADD</button>
         </form>
+    </div>
+</div>
+
+<!-- Duplicate Entry Warning Modal -->
+<div id="duplicateModal" class="warning-modal">
+    <div class="warning-modal-content">
+        <span class="close-warning" name="close-button"><i class="fa-solid fa-circle-xmark"></i></span>
+        <h2 style="text-align: center;">Warning!</h2>
+        <p style="text-align: center;" id="duplicateMessage">This product already exists in trash entries.</p>
+        <button class="warning-close-duplicate">OK</button>
     </div>
 </div>
 
@@ -133,16 +167,6 @@
     </tbody>
 </table>
 
-<!-- Duplicate Entry Warning Modal -->
-<div id="duplicateModal" class="warning-modal">
-    <div class="warning-modal-content">
-        <span class="close-warning" name="close-button"><i class="fa-solid fa-circle-xmark"></i></span>
-        <h2 style="text-align: center;">Warning!</h2>
-        <p style="text-align: center;" id="duplicateMessage">This product already exists in trash entries.</p>
-        <button class="warning-close-duplicate">OK</button>
-    </div>
-</div>
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const trashModal = document.getElementById("trashModal");
@@ -163,6 +187,7 @@ document.addEventListener("DOMContentLoaded", function () {
         trashModal.style.display = "block";
         saveBtn.innerText = "ADD";
         trashForm.reset();
+        document.getElementById("productName").value = "";
     });
 
     // Show modal for editing trash entry
@@ -173,25 +198,32 @@ document.addEventListener("DOMContentLoaded", function () {
             trashForm.action = `/trash/${this.dataset.id}`;
             
             document.getElementById("trashId").value = this.dataset.id;
-            document.getElementById("productName").value = this.dataset.name;
-            document.getElementById("category").value = this.dataset.category;
-            document.getElementById("quantity").value = this.dataset.quantity;
-            document.getElementById("reason").value = this.dataset.reason;
-            document.getElementById("totalLoss").value = this.dataset.totalLoss;
+            document.getElementById("productName").value = this.dataset.name || "";
+            document.getElementById("category").value = this.dataset.category || "";
+            document.getElementById("quantity").value = this.dataset.quantity || "";
+            document.getElementById("reason").value = this.dataset.reason || "";
+            document.getElementById("totalLoss").value = this.dataset.totalLoss || "";
             
             saveBtn.innerText = "UPDATE";
             trashModal.style.display = "block";
         });
     });
 
-    // Check for duplicate product names
+    // Check for duplicate product names and ensure product_name is selected
     trashForm.addEventListener("submit", function (event) {
+        const selectedProduct = document.getElementById("productName").value.trim();
+        if (!selectedProduct) {
+            event.preventDefault();
+            alert('Please select a product.');
+            return;
+        }
+
         if (methodField.value === "POST") {
             const existingProducts = Array.from(document.querySelectorAll("tbody tr")).map(row =>
                 row.querySelector("td:nth-child(2)").innerText.trim().toLowerCase()
             );
 
-            if (existingProducts.includes(document.getElementById("productName").value.trim().toLowerCase())) {
+            if (existingProducts.includes(selectedProduct.toLowerCase())) {
                 event.preventDefault();
                 duplicateModal.style.display = "block";
             }
@@ -204,8 +236,8 @@ document.addEventListener("DOMContentLoaded", function () {
         duplicateModal.style.display = "none";
     }));
     closeDuplicateBtn.addEventListener("click", () => duplicateModal.style.display = "none");
+    closeWarn.addEventListener("click", () => duplicateModal.style.display = "none");
 
-    closeWarn.addEventListener("click", () => duplicateModal.style.display="none");
     // Export to Excel
     document.getElementById("exportExcel").addEventListener("click", function() {
         const table = document.querySelector(".inventory-table");

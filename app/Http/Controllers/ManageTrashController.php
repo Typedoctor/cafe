@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trash;
+use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ManageTrashController extends Controller
 {
@@ -32,26 +34,46 @@ class ManageTrashController extends Controller
         }
 
         $trashes = $query->get();
+        $products = Product::orderBy('product_name')->get();
         
-        return view('cashier.manage_trash', compact('trashes'));
+        return view('cashier.manage_trash', compact('trashes', 'products'));
     }
 
     public function create()
     {
-        return view('cashier.manage_trash'); // Using same view as index with modal
+        $products = Product::orderBy('product_name')->get();
+        return view('cashier.manage_trash', compact('products'));
     }
 
     public function store(Request $request)
     {
+        \Log::info('Store request data: ' . json_encode($request->all()));
         $validated = $request->validate([
-            'product_name' => 'required|string|max:255|unique:trashes,product_name',
+            'product_name' => 'required|string|max:255|exists:products,product_name',
             'category' => 'required|string|in:snack,drink,meal,dessert',
             'quantity' => 'required|integer|min:1',
             'reason' => 'required|string|max:255',
             'total_loss' => 'required|numeric|min:0',
         ]);
 
-        Trash::create($validated);
+        // Fallback check (optional, can be removed since validation ensures product_name)
+        if (empty($validated['product_name'])) {
+            return back()->withErrors(['product_name' => 'Product name is required.']);
+        }
+
+        try {
+            DB::transaction(function () use ($validated) {
+                $product = Product::where('product_name', $validated['product_name'])->firstOrFail();
+                if ($product->quantity < $validated['quantity']) {
+                    throw new \Exception('Not enough product quantity available.');
+                }
+
+                Trash::create($validated);
+                $product->decrement('quantity', $validated['quantity']);
+            });
+        } catch (\Exception $e) {
+            return back()->withErrors(['quantity' => $e->getMessage()])->withInput();
+        }
         
         return redirect()->route('trash.index')
             ->with('success', 'Trash entry added successfully!');
@@ -59,20 +81,46 @@ class ManageTrashController extends Controller
 
     public function edit(Trash $trash)
     {
-        return view('cashier.manage_trash', compact('trash'));
+        $products = Product::orderBy('product_name')->get();
+        return view('cashier.manage_trash', compact('trash', 'products'));
     }
 
     public function update(Request $request, Trash $trash)
     {
+        \Log::info('Update request data: ' . json_encode($request->all()));
         $validated = $request->validate([
-            'product_name' => 'required|string|max:255|unique:trashes,product_name,'.$trash->id,
+            'product_name' => 'required|string|max:255|exists:products,product_name',
             'category' => 'required|string|in:snack,drink,meal,dessert',
             'quantity' => 'required|integer|min:1',
             'reason' => 'required|string|max:255',
             'total_loss' => 'required|numeric|min:0',
         ]);
 
-        $trash->update($validated);
+        try {
+            DB::transaction(function () use ($validated, $trash) {
+                $product = Product::where('product_name', $validated['product_name'])->firstOrFail();
+                $quantityDifference = $validated['quantity'] - $trash->quantity;
+
+                if ($quantityDifference > 0 && $product->quantity < $quantityDifference) {
+                    throw new \Exception('Not enough product quantity available.');
+                }
+
+                // If product_name changed, restore quantity to the old product
+                if ($trash->product_name !== $validated['product_name']) {
+                    $oldProduct = Product::where('product_name', $trash->product_name)->first();
+                    if ($oldProduct) {
+                        $oldProduct->increment('quantity', $trash->quantity);
+                    }
+                }
+
+                $trash->update($validated);
+                if ($quantityDifference != 0) {
+                    $product->decrement('quantity', $quantityDifference);
+                }
+            });
+        } catch (\Exception $e) {
+            return back()->withErrors(['quantity' => $e->getMessage()])->withInput();
+        }
 
         return redirect()->route('trash.index')
             ->with('success', 'Trash entry updated successfully!');
@@ -80,7 +128,19 @@ class ManageTrashController extends Controller
 
     public function destroy(Trash $trash)
     {
-        $trash->delete();
-        return redirect()->route('trash.index');
+        try {
+            DB::transaction(function () use ($trash) {
+                $product = Product::where('product_name', $trash->product_name)->first();
+                if ($product) {
+                    $product->increment('quantity', $trash->quantity);
+                }
+                $trash->delete();
+            });
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to delete trash entry.']);
+        }
+
+        return redirect()->route('trash.index')
+            ->with('success', 'Trash entry deleted successfully!');
     }
 }
