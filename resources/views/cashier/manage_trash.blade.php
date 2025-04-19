@@ -10,7 +10,7 @@
     <button id="exportExcel" class="btn export-btn">Export to Excel</button>
 </div>
 
-<!-- Search and Filter Section (Unchanged) -->
+<!-- Search and Filter Section -->
 <div class="search-filter-container">
     <form id="searchFilterForm" class="search-filter-form" method="GET">
         <div class="search-box">
@@ -44,7 +44,7 @@
     </form>
 </div>
 
-<!-- Simplified Add & Edit Trash Modal with Original Styles, Fully Non-Clickable Total Loss -->
+<!-- Add & Edit Trash Modal -->
 <div id="trashModal" class="modal">
     <div class="modal-content">
         <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -60,9 +60,7 @@
                     <option value="">-- Choose a Product --</option>
                     @if(!empty($products) && $products->count() > 0)
                         @foreach($products as $product)
-                            <option value="{{ $product->product_name }}" data-price="{{ $product->price ?? 0 }}">
-                                {{ $product->product_name }} (Stock: {{ $product->quantity }})
-                            </option>
+                            <option value="{{ e(trim($product->product_name)) }}" data-price="{{ $product->price }}">{{ e(trim($product->product_name)) }} (Stock: {{ $product->quantity }})</option>
                         @endforeach
                     @else
                         <option value="" disabled>No products available</option>
@@ -90,22 +88,20 @@
                 <label>Why are you discarding it?</label>
                 <input type="text" name="reason" id="reason" placeholder="e.g., Expired, Damaged" required>
             </div>
-
-            <div class="form-group">
-                <label>Total Cost (₱)</label>
-                <input type="number"  id="totalLoss"  placeholder="0.00" disabled tabindex="-1" onfocus="this.blur()" required>
-               
-            </div>
-
+            <div class="total-loss-display">
+            <label>Total Loss (₱)</label>
+            <div id="totalLossDisplay">Enter product and quantity to see total loss.</div>
+        </div>
             <button type="submit" class="btn save-btn" id="saveBtn">Add</button>
         </form>
         <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 10px;">
             <i class="fa-solid fa-spinner fa-spin"></i> Saving...
         </div>
+       
     </div>
 </div>
 
-<!-- Simplified Duplicate Entry Warning Modal with Original Styles -->
+<!-- Duplicate Entry Warning Modal -->
 <div id="duplicateModal" class="warning-modal">
     <div class="warning-modal-content">
         <span class="close-warning" name="close-button"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -115,7 +111,7 @@
     </div>
 </div>
 
-<!-- Trash Table (Unchanged) -->
+<!-- Trash Table -->
 <table class="inventory-table">
     <thead>
         <tr>
@@ -139,10 +135,10 @@
             <td>₱{{ number_format($trash->total_loss, 2) }}</td>
             <td>
                 <button class="btn edit-btn" data-id="{{ $trash->id }}" 
-                        data-name="{{ $product->product_name }}" 
+                        data-name="{{ e(trim($trash->product_name)) }}" 
                         data-category="{{ $trash->category }}" 
                         data-quantity="{{ $trash->quantity }}" 
-                        data-reason="{{ $trash->reason }}" 
+                        data-reason="{{ $trash->reason }}"
                         data-total-loss="{{ $trash->total_loss }}">
                     <i class="fa-solid fa-pencil"></i>
                 </button>
@@ -156,122 +152,174 @@
     </tbody>
 </table>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const trashModal = document.getElementById("trashModal");
-    const duplicateModal = document.getElementById("duplicateModal");
-    const trashForm = document.getElementById("trashForm");
-    const modalTitle = document.getElementById("modalTitle");
-    const methodField = document.getElementById("methodField");
-    const saveBtn = document.getElementById("saveBtn");
-    const closeBtns = document.querySelectorAll(".close-btn");
-    const closeWarn = document.querySelector(".close-warning");
-    const closeDuplicateBtn = document.querySelector(".warning-close-duplicate");
-    const loadingSpinner = document.getElementById("loadingSpinner");
-    const productName = document.getElementById("productName");
-    const quantity = document.getElementById("quantity");
-    const totalLoss = document.getElementById("totalLoss");
-    const hiddenTotalLoss = document.getElementById("hiddenTotalLoss");
+<style>
+.total-loss-display {
+    margin-top: 15px;
+}
+.total-loss-display label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.total-loss-display #totalLossDisplay {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f9f9f9;
+    width: 100%;
+    box-sizing: border-box;
+    color: #333;
+}
+</style>
 
-    // Calculate total loss
-    function calculateTotalLoss() {
-        const selectedProduct = productName.options[productName.selectedIndex];
-        const price = selectedProduct ? parseFloat(selectedProduct.dataset.price || 0) : 0;
-        const qty = parseInt(quantity.value || 0);
-        const calculatedLoss = (price * qty).toFixed(2);
-        totalLoss.value = calculatedLoss;
-        hiddenTotalLoss.value = calculatedLoss;
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const trashModal = document.getElementById('trashModal');
+    const duplicateModal = document.getElementById('duplicateModal');
+    const trashForm = document.getElementById('trashForm');
+    const modalTitle = document.getElementById('modalTitle');
+    const methodField = document.getElementById('methodField');
+    const saveBtn = document.getElementById('saveBtn');
+    const closeBtns = document.querySelectorAll('.close-btn');
+    const closeWarn = document.querySelector('.close-warning');
+    const closeDuplicateBtn = document.querySelector('.warning-close-duplicate');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const productSelect = document.getElementById('productName');
+    const quantityInput = document.getElementById('quantity');
+    const totalLossDisplay = document.getElementById('totalLossDisplay');
+
+    // Function to calculate and update total loss display
+    function updateTotalLoss() {
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        const price = selectedOption && selectedOption.getAttribute('data-price') ? parseFloat(selectedOption.getAttribute('data-price')) : 0;
+        const quantity = parseInt(quantityInput.value) || 0;
+        const totalLoss = price * quantity;
+        totalLossDisplay.textContent = totalLoss > 0 ? `₱${totalLoss.toFixed(2)}` : 'Enter product and quantity to see total loss.';
     }
 
-    // Update total loss on product or quantity change
-    productName.addEventListener("change", calculateTotalLoss);
-    quantity.addEventListener("input", calculateTotalLoss);
+    // Event listeners for real-time total loss calculation
+    productSelect.addEventListener('change', updateTotalLoss);
+    quantityInput.addEventListener('input', updateTotalLoss);
 
     // Show modal for new trash entry
-    document.getElementById("addTrashBtn").addEventListener("click", function () {
-        modalTitle.innerText = "Add New Trash Entry";
-        methodField.value = "POST";
-        trashForm.action = "{{ route('trash.store') }}";
-        trashModal.style.display = "block";
-        saveBtn.innerText = "Add";
+    document.getElementById('addTrashBtn').addEventListener('click', function () {
+        // Remove dynamically added options
+        Array.from(productSelect.options).forEach(option => {
+            if (option.text.includes('(Not in current inventory)')) {
+                option.remove();
+            }
+        });
+
+        modalTitle.innerText = 'Add New Trash Entry';
+        methodField.value = 'POST';
+        trashForm.action = '{{ route('trash.store') }}';
+        trashModal.style.display = 'block';
+        saveBtn.innerText = 'Add';
         trashForm.reset();
-        productName.value = "";
-        document.getElementById("category").value = "";
-        totalLoss.value = "";
-        hiddenTotalLoss.value = "";
-        loadingSpinner.style.display = "none";
+        productSelect.value = '';
+        document.getElementById('category').value = '';
+        totalLossDisplay.textContent = 'Enter product and quantity to see total loss.';
+        loadingSpinner.style.display = 'none';
         saveBtn.disabled = false;
+        updateTotalLoss(); // Initialize total loss display
     });
 
     // Show modal for editing trash entry
-    document.querySelectorAll(".edit-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            modalTitle.innerText = "Edit Trash Entry";
-            methodField.value = "PUT";
-            trashForm.action = "{{ url('trash') }}/" + this.dataset.id;
-            document.getElementById("trashId").value = this.dataset.id;
-            productName.value = this.dataset.name || "";
-            document.getElementById("category").value = this.dataset.category || "";
-            quantity.value = this.dataset.quantity || "";
-            document.getElementById("reason").value = this.dataset.reason || "";
-            totalLoss.value = this.dataset.totalLoss || "";
-            hiddenTotalLoss.value = this.dataset.totalLoss || "";
-            saveBtn.innerText = "Update";
-            trashModal.style.display = "block";
-            loadingSpinner.style.display = "none";
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const productName = this.dataset.name ? this.dataset.name.trim() : '';
+            const productSelect = document.getElementById('productName');
+
+            // Debug
+            console.log('Editing product name:', productName);
+            console.log('Available options:', Array.from(productSelect.options).map(opt => opt.value));
+
+            // Check if the product name exists in the select options
+            const optionExists = Array.from(productSelect.options).some(option => option.value === productName);
+
+            if (!optionExists && productName) {
+                // Add the missing product as an option with zero price
+                const newOption = document.createElement('option');
+                newOption.value = productName;
+                newOption.text = productName + ' (Not in current inventory)';
+                newOption.setAttribute('data-price', '0');
+                newOption.selected = true;
+                productSelect.appendChild(newOption);
+            } else {
+                // Set the value if it exists
+                productSelect.value = productName || '';
+            }
+
+            // Warn if the product name couldn't be set
+            if (!productSelect.value && productName) {
+                console.warn(`Product "${productName}" not found in select options.`);
+                alert(`The product "${productName}" is not available in the current inventory. Please select another product or contact support.`);
+            }
+
+            modalTitle.innerText = 'Edit Trash Entry';
+            methodField.value = 'PUT';
+            trashForm.action = '{{ url('trash') }}/' + this.dataset.id;
+            document.getElementById('trashId').value = this.dataset.id;
+            document.getElementById('category').value = this.dataset.category || '';
+            document.getElementById('quantity').value = this.dataset.quantity || '';
+            document.getElementById('reason').value = this.dataset.reason || '';
+            saveBtn.innerText = 'Update';
+            trashModal.style.display = 'block';
+            loadingSpinner.style.display = 'none';
             saveBtn.disabled = false;
-            calculateTotalLoss(); // Recalculate total loss in case product/quantity changes
+
+            // Initialize total loss display
+            updateTotalLoss();
         });
     });
 
     // Check for duplicate product names
-    trashForm.addEventListener("submit", function (event) {
+    trashForm.addEventListener('submit', function (event) {
         event.preventDefault();
-        const productNameValue = productName.value.trim();
-        const category = document.getElementById("category").value.trim();
-        const quantityValue = quantity.value.trim();
-        const reason = document.getElementById("reason").value.trim();
-        const totalLossValue = hiddenTotalLoss.value.trim();
+        const productName = document.getElementById('productName').value.trim();
+        const category = document.getElementById('category').value.trim();
+        const quantity = document.getElementById('quantity').value.trim();
+        const reason = document.getElementById('reason').value.trim();
 
-        if (!productNameValue || !category || !quantityValue || !reason || !totalLossValue) {
-            alert("Please fill in all fields!");
+        if (!productName || !category || !quantity || !reason) {
+            alert('Please fill in all fields!');
             return;
         }
 
-        if (methodField.value === "POST") {
-            const existingProducts = Array.from(document.querySelectorAll("tbody tr")).map(row =>
-                row.querySelector("td:nth-child(2)").innerText.trim().toLowerCase()
+        if (methodField.value === 'POST') {
+            const existingProducts = Array.from(document.querySelectorAll('tbody tr')).map(row =>
+                row.querySelector('td:nth-child(2)').innerText.trim().toLowerCase()
             );
-            if (existingProducts.includes(productNameValue.toLowerCase())) {
-                duplicateModal.style.display = "block";
+            if (existingProducts.includes(productName.toLowerCase())) {
+                duplicateModal.style.display = 'block';
                 return;
             }
         }
 
-        loadingSpinner.style.display = "block";
+        loadingSpinner.style.display = 'block';
         saveBtn.disabled = true;
         trashForm.submit();
     });
 
     // Close modals
-    closeBtns.forEach(btn => btn.addEventListener("click", () => {
-        trashModal.style.display = "none";
-        duplicateModal.style.display = "none";
-        loadingSpinner.style.display = "none";
+    closeBtns.forEach(btn => btn.addEventListener('click', () => {
+        trashModal.style.display = 'none';
+        duplicateModal.style.display = 'none';
+        loadingSpinner.style.display = 'none';
         saveBtn.disabled = false;
     }));
-    closeDuplicateBtn.addEventListener("click", () => {
-        duplicateModal.style.display = "none";
+    closeDuplicateBtn.addEventListener('click', () => {
+        duplicateModal.style.display = 'none';
     });
-    closeWarn.addEventListener("click", () => {
-        duplicateModal.style.display = "none";
+    closeWarn.addEventListener('click', () => {
+        duplicateModal.style.display = 'none';
     });
 
-    // Export to Excel (Unchanged)
-    document.getElementById("exportExcel").addEventListener("click", function() {
-        const table = document.querySelector(".inventory-table");
+    // Export to Excel
+    document.getElementById('exportExcel').addEventListener('click', function () {
+        const table = document.querySelector('.inventory-table');
         const wb = XLSX.utils.table_to_book(table);
-        XLSX.writeFile(wb, "trash_entries.xlsx");
+        XLSX.writeFile(wb, 'trash_entries.xlsx');
     });
 });
 </script>

@@ -53,13 +53,7 @@ class ManageTrashController extends Controller
             'category' => 'required|string|in:snack,drink,meal,dessert',
             'quantity' => 'required|integer|min:1',
             'reason' => 'required|string|max:255',
-            'total_loss' => 'required|numeric|min:0',
         ]);
-
-        // Fallback check (optional, can be removed since validation ensures product_name)
-        if (empty($validated['product_name'])) {
-            return back()->withErrors(['product_name' => 'Product name is required.']);
-        }
 
         try {
             DB::transaction(function () use ($validated) {
@@ -67,6 +61,9 @@ class ManageTrashController extends Controller
                 if ($product->quantity < $validated['quantity']) {
                     throw new \Exception('Not enough product quantity available.');
                 }
+
+                // Calculate total_loss
+                $validated['total_loss'] = $product->price * $validated['quantity'];
 
                 Trash::create($validated);
                 $product->decrement('quantity', $validated['quantity']);
@@ -93,7 +90,6 @@ class ManageTrashController extends Controller
             'category' => 'required|string|in:snack,drink,meal,dessert',
             'quantity' => 'required|integer|min:1',
             'reason' => 'required|string|max:255',
-            'total_loss' => 'required|numeric|min:0',
         ]);
 
         try {
@@ -104,6 +100,9 @@ class ManageTrashController extends Controller
                 if ($quantityDifference > 0 && $product->quantity < $quantityDifference) {
                     throw new \Exception('Not enough product quantity available.');
                 }
+
+                // Calculate total_loss
+                $validated['total_loss'] = $product->price * $validated['quantity'];
 
                 // If product_name changed, restore quantity to the old product
                 if ($trash->product_name !== $validated['product_name']) {
