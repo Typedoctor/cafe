@@ -10,7 +10,7 @@
     <button id="exportExcel" class="btn export-btn">Export to Excel</button>
 </div>
 
-<!-- Search and Filter Section -->
+<!-- Search and Filter Section (Unchanged) -->
 <div class="search-filter-container">
     <form id="searchFilterForm" class="search-filter-form" method="GET">
         <div class="search-box">
@@ -24,7 +24,6 @@
                 <option value="meal" {{ request('category') == 'meal' ? 'selected' : '' }}>Meal</option>
                 <option value="dessert" {{ request('category') == 'dessert' ? 'selected' : '' }}>Dessert</option>
             </select>
-            <!-- Month Filter -->
             <select name="month">
                 <option value="all">All Months</option>
                 @for ($m = 1; $m <= 12; $m++)
@@ -33,7 +32,6 @@
                     </option>
                 @endfor
             </select>
-            <!-- Year Filter -->
             <select name="year">
                 <option value="all">All Years</option>
                 @for ($y = now()->year; $y >= now()->year - 5; $y--)
@@ -46,7 +44,7 @@
     </form>
 </div>
 
-<!-- Add & Edit Trash Modal -->
+<!-- Simplified Add & Edit Trash Modal with Original Styles, Fully Non-Clickable Total Loss -->
 <div id="trashModal" class="modal">
     <div class="modal-content">
         <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -55,78 +53,69 @@
             @csrf
             <input type="hidden" name="_method" id="methodField" value="POST">
             <input type="hidden" name="trash_id" id="trashId">
-            
+
             <div class="form-group">
-                <label>Product Name:</label>
+                <label>What product are you discarding?</label>
                 <select name="product_name" id="productName" required>
-                    <option value="">Select Product</option>
+                    <option value="">-- Choose a Product --</option>
                     @if(!empty($products) && $products->count() > 0)
                         @foreach($products as $product)
-                            <option value="{{ $product->product_name }}">{{ $product->product_name }} ({{ $product->quantity }})</option>
+                            <option value="{{ $product->product_name }}" data-price="{{ $product->price ?? 0 }}">
+                                {{ $product->product_name }} (Stock: {{ $product->quantity }})
+                            </option>
                         @endforeach
                     @else
                         <option value="" disabled>No products available</option>
                     @endif
                 </select>
-                @error('product_name')
-                    <span class="error" style="color: red; font-size: 0.9em;">{{ $message }}</span>
-                @enderror
             </div>
 
             <div class="form-group">
-                <label>Category:</label>
+                <label>Product Type</label>
                 <select name="category" id="category" required>
-                    <option value="">Select Category</option>   
+                    <option value="">-- Choose a Type --</option>
                     <option value="snack">Snack</option>
                     <option value="drink">Drink</option>
                     <option value="meal">Meal</option>
                     <option value="dessert">Dessert</option>
                 </select>
-                @error('category')
-                    <span class="error" style="color: red; font-size: 0.9em;">{{ $message }}</span>
-                @enderror
             </div>
 
             <div class="form-group">
-                <label>Quantity:</label>
-                <input type="number" name="quantity" id="quantity" min="1" required>
-                @error('quantity')
-                    <span class="error" style="color: red; font-size: 0.9em;">{{ $message }}</span>
-                @enderror
+                <label>How many items?</label>
+                <input type="number" name="quantity" id="quantity" min="1" placeholder="e.g., 5" required>
             </div>
 
             <div class="form-group">
-                <label>Reason:</label>
-                <input type="text" name="reason" id="reason" required>
-                @error('reason')
-                    <span class="error" style="color: red; font-size: 0.9em;">{{ $message }}</span>
-                @enderror
+                <label>Why are you discarding it?</label>
+                <input type="text" name="reason" id="reason" placeholder="e.g., Expired, Damaged" required>
             </div>
 
             <div class="form-group">
-                <label>Total Loss:</label>
-                <input type="number" step="0.01" name="total_loss" id="totalLoss" min="0" required>
-                @error('total_loss')
-                    <span class="error" style="color: red; font-size: 0.9em;">{{ $message }}</span>
-                @enderror
+                <label>Total Cost (₱)</label>
+                <input type="number"  id="totalLoss"  placeholder="0.00" disabled tabindex="-1" onfocus="this.blur()" required>
+               
             </div>
 
-            <button type="submit" class="btn save-btn" id="saveBtn">ADD</button>
+            <button type="submit" class="btn save-btn" id="saveBtn">Add</button>
         </form>
+        <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 10px;">
+            <i class="fa-solid fa-spinner fa-spin"></i> Saving...
+        </div>
     </div>
 </div>
 
-<!-- Duplicate Entry Warning Modal -->
+<!-- Simplified Duplicate Entry Warning Modal with Original Styles -->
 <div id="duplicateModal" class="warning-modal">
     <div class="warning-modal-content">
         <span class="close-warning" name="close-button"><i class="fa-solid fa-circle-xmark"></i></span>
-        <h2 style="text-align: center;">Warning!</h2>
-        <p style="text-align: center;" id="duplicateMessage">This product already exists in trash entries.</p>
+        <h2 style="text-align: center;">Already Added!</h2>
+        <p style="text-align: center;" id="duplicateMessage">This product is already in the trash list. Please edit the existing entry instead.</p>
         <button class="warning-close-duplicate">OK</button>
     </div>
 </div>
 
-<!-- Trash Table -->
+<!-- Trash Table (Unchanged) -->
 <table class="inventory-table">
     <thead>
         <tr>
@@ -150,7 +139,7 @@
             <td>₱{{ number_format($trash->total_loss, 2) }}</td>
             <td>
                 <button class="btn edit-btn" data-id="{{ $trash->id }}" 
-                        data-name="{{ $trash->product_name }}" 
+                        data-name="{{ $product->product_name }}" 
                         data-category="{{ $trash->category }}" 
                         data-quantity="{{ $trash->quantity }}" 
                         data-reason="{{ $trash->reason }}" 
@@ -178,6 +167,25 @@ document.addEventListener("DOMContentLoaded", function () {
     const closeBtns = document.querySelectorAll(".close-btn");
     const closeWarn = document.querySelector(".close-warning");
     const closeDuplicateBtn = document.querySelector(".warning-close-duplicate");
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    const productName = document.getElementById("productName");
+    const quantity = document.getElementById("quantity");
+    const totalLoss = document.getElementById("totalLoss");
+    const hiddenTotalLoss = document.getElementById("hiddenTotalLoss");
+
+    // Calculate total loss
+    function calculateTotalLoss() {
+        const selectedProduct = productName.options[productName.selectedIndex];
+        const price = selectedProduct ? parseFloat(selectedProduct.dataset.price || 0) : 0;
+        const qty = parseInt(quantity.value || 0);
+        const calculatedLoss = (price * qty).toFixed(2);
+        totalLoss.value = calculatedLoss;
+        hiddenTotalLoss.value = calculatedLoss;
+    }
+
+    // Update total loss on product or quantity change
+    productName.addEventListener("change", calculateTotalLoss);
+    quantity.addEventListener("input", calculateTotalLoss);
 
     // Show modal for new trash entry
     document.getElementById("addTrashBtn").addEventListener("click", function () {
@@ -185,9 +193,14 @@ document.addEventListener("DOMContentLoaded", function () {
         methodField.value = "POST";
         trashForm.action = "{{ route('trash.store') }}";
         trashModal.style.display = "block";
-        saveBtn.innerText = "ADD";
+        saveBtn.innerText = "Add";
         trashForm.reset();
-        document.getElementById("productName").value = "";
+        productName.value = "";
+        document.getElementById("category").value = "";
+        totalLoss.value = "";
+        hiddenTotalLoss.value = "";
+        loadingSpinner.style.display = "none";
+        saveBtn.disabled = false;
     });
 
     // Show modal for editing trash entry
@@ -195,26 +208,33 @@ document.addEventListener("DOMContentLoaded", function () {
         button.addEventListener("click", function () {
             modalTitle.innerText = "Edit Trash Entry";
             methodField.value = "PUT";
-            trashForm.action = `/trash/${this.dataset.id}`;
-            
+            trashForm.action = "{{ url('trash') }}/" + this.dataset.id;
             document.getElementById("trashId").value = this.dataset.id;
-            document.getElementById("productName").value = this.dataset.name || "";
+            productName.value = this.dataset.name || "";
             document.getElementById("category").value = this.dataset.category || "";
-            document.getElementById("quantity").value = this.dataset.quantity || "";
+            quantity.value = this.dataset.quantity || "";
             document.getElementById("reason").value = this.dataset.reason || "";
-            document.getElementById("totalLoss").value = this.dataset.totalLoss || "";
-            
-            saveBtn.innerText = "UPDATE";
+            totalLoss.value = this.dataset.totalLoss || "";
+            hiddenTotalLoss.value = this.dataset.totalLoss || "";
+            saveBtn.innerText = "Update";
             trashModal.style.display = "block";
+            loadingSpinner.style.display = "none";
+            saveBtn.disabled = false;
+            calculateTotalLoss(); // Recalculate total loss in case product/quantity changes
         });
     });
 
-    // Check for duplicate product names and ensure product_name is selected
+    // Check for duplicate product names
     trashForm.addEventListener("submit", function (event) {
-        const selectedProduct = document.getElementById("productName").value.trim();
-        if (!selectedProduct) {
-            event.preventDefault();
-            alert('Please select a product.');
+        event.preventDefault();
+        const productNameValue = productName.value.trim();
+        const category = document.getElementById("category").value.trim();
+        const quantityValue = quantity.value.trim();
+        const reason = document.getElementById("reason").value.trim();
+        const totalLossValue = hiddenTotalLoss.value.trim();
+
+        if (!productNameValue || !category || !quantityValue || !reason || !totalLossValue) {
+            alert("Please fill in all fields!");
             return;
         }
 
@@ -222,23 +242,32 @@ document.addEventListener("DOMContentLoaded", function () {
             const existingProducts = Array.from(document.querySelectorAll("tbody tr")).map(row =>
                 row.querySelector("td:nth-child(2)").innerText.trim().toLowerCase()
             );
-
-            if (existingProducts.includes(selectedProduct.toLowerCase())) {
-                event.preventDefault();
+            if (existingProducts.includes(productNameValue.toLowerCase())) {
                 duplicateModal.style.display = "block";
+                return;
             }
         }
+
+        loadingSpinner.style.display = "block";
+        saveBtn.disabled = true;
+        trashForm.submit();
     });
 
     // Close modals
     closeBtns.forEach(btn => btn.addEventListener("click", () => {
         trashModal.style.display = "none";
         duplicateModal.style.display = "none";
+        loadingSpinner.style.display = "none";
+        saveBtn.disabled = false;
     }));
-    closeDuplicateBtn.addEventListener("click", () => duplicateModal.style.display = "none");
-    closeWarn.addEventListener("click", () => duplicateModal.style.display = "none");
+    closeDuplicateBtn.addEventListener("click", () => {
+        duplicateModal.style.display = "none";
+    });
+    closeWarn.addEventListener("click", () => {
+        duplicateModal.style.display = "none";
+    });
 
-    // Export to Excel
+    // Export to Excel (Unchanged)
     document.getElementById("exportExcel").addEventListener("click", function() {
         const table = document.querySelector(".inventory-table");
         const wb = XLSX.utils.table_to_book(table);
