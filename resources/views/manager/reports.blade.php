@@ -1,4 +1,3 @@
-
 @extends('manager.layout')
 
 @section('title', 'Manager Reports')
@@ -15,6 +14,24 @@
         <div class="time-tab {{ $period === 'daily' ? 'active' : '' }}" onclick="changeTimePeriod('daily')">Daily</div>
         <div class="time-tab {{ $period === 'monthly' ? 'active' : '' }}" onclick="changeTimePeriod('monthly')">Monthly</div>
         <div class="time-tab {{ $period === 'yearly' ? 'active' : '' }}" onclick="changeTimePeriod('yearly')">Yearly</div>
+    </div>
+    <div class="filter-box">
+        <!-- Month Filter -->
+        <select class="month-filter" name="month" onchange="submitForm()">
+            <option value="all">All Months</option>
+            @for ($m = 1; $m <= 12; $m++)
+                <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>
+                    {{ \Carbon\Carbon::create()->month($m)->format('F') }}
+                </option>
+            @endfor
+        </select>
+        <!-- Year Filter -->
+        <select class="year-filter" name="year" onchange="submitForm()">
+            <option value="all">All Years</option>
+            @for ($y = now()->year; $y >= now()->year - 5; $y--)
+                <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
+            @endfor
+        </select>
     </div>
     <input type="hidden" name="period" id="periodInput" value="{{ $period }}">
     <input type="hidden" name="tab" id="tabInput" value="{{ $tab }}">
@@ -152,6 +169,10 @@
 
         // Update hidden period input and submit form
         document.getElementById('periodInput').value = period;
+        document.getElementById('timePeriodForm').submit();
+    }
+
+    function submitForm() {
         document.getElementById('timePeriodForm').submit();
     }
 </script>

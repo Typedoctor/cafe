@@ -21,10 +21,19 @@ class ManageTrashController extends Controller
             $query->where('category', $request->category);
         }
 
+        // Filter by month
+        if ($request->has('month') && $request->month !== 'all') {
+            $query->whereMonth('created_at', $request->month);
+        }
+
+        // Filter by year
+        if ($request->has('year') && $request->year !== 'all') {
+            $query->whereYear('created_at', $request->year);
+        }
+
         $trashes = $query->get();
         
         return view('cashier.manage_trash', compact('trashes'));
-        
     }
 
     public function create()
@@ -73,6 +82,5 @@ class ManageTrashController extends Controller
     {
         $trash->delete();
         return redirect()->route('trash.index');
-            
     }
 }

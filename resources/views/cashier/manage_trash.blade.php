@@ -24,6 +24,22 @@
                 <option value="meal" {{ request('category') == 'meal' ? 'selected' : '' }}>Meal</option>
                 <option value="dessert" {{ request('category') == 'dessert' ? 'selected' : '' }}>Dessert</option>
             </select>
+            <!-- Month Filter -->
+            <select name="month">
+                <option value="all">All Months</option>
+                @for ($m = 1; $m <= 12; $m++)
+                    <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>
+                        {{ \Carbon\Carbon::create()->month($m)->format('F') }}
+                    </option>
+                @endfor
+            </select>
+            <!-- Year Filter -->
+            <select name="year">
+                <option value="all">All Years</option>
+                @for ($y = now()->year; $y >= now()->year - 5; $y--)
+                    <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
+                @endfor
+            </select>
             <button type="submit" class="btn filter-btn">Apply Filter</button>
             <a href="{{ route('trash.index') }}" class="btn reset-btn">Reset</a>
         </div>
@@ -121,8 +137,8 @@
 <div id="duplicateModal" class="warning-modal">
     <div class="warning-modal-content">
         <span class="close-warning" name="close-button"><i class="fa-solid fa-circle-xmark"></i></span>
-        <h2 style = "text-align: center;">Warning!</h2>
-        <p style = "text-align: center;"id="duplicateMessage" >This product already exists in trash entries.</p>
+        <h2 style="text-align: center;">Warning!</h2>
+        <p style="text-align: center;" id="duplicateMessage">This product already exists in trash entries.</p>
         <button class="warning-close-duplicate">OK</button>
     </div>
 </div>

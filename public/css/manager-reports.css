@@ -1,26 +1,21 @@
-
 /* General reset for consistency */
-
-/* NEW: All Tabs (Profit, Loss, Daily, Monthly, Yearly) */
 .all-tabs {
     display: flex;
     justify-content: center;
     gap: 20px;
     margin-bottom: 20px;
-    padding: 10 15px;
-    
+    padding: 10px 15px;
     user-select: none;
 }
 
 .all-tabs::-webkit-scrollbar {
-    display: none; /* Hide scrollbar in WebKit browsers */
-}
-.all-tabs {
-   
-    scrollbar-width: none; /* Hide scrollbar in Firefox */
+    display: none;
 }
 
-/* Container to reduce empty space */
+.all-tabs {
+    scrollbar-width: none;
+}
+
 .reports-container {
     max-width: 1200px;
     margin: 20px auto;
@@ -28,13 +23,10 @@
     background: #ffffff;
     border-radius: 12px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    
-    
 }
 
-/* Header */
 .header {
-    font-size: 26px;
+    font-size: 20px;
     font-weight: 700;
     margin: 15px 0 20px;
     color: #2d3748;
@@ -42,12 +34,11 @@
     letter-spacing: -0.5px;
     margin-bottom: 50px;
 }
-.gap{
+
+.gap {
     user-select: none;
-    
 }
 
-/* Tabs (Profit and Loss) */
 .tab {
     padding: 10px 20px;
     cursor: pointer;
@@ -59,8 +50,7 @@
     font-size: 16px;
     font-weight: 500;
     color: #4a5568;
-    box-shadow: 0 2px 4px rgba(10, 9, 9, 0.1);
-    flex-shrink: 0; /* Prevent tabs from shrinking */
+    flex-shrink: 0;
 }
 
 .tab:hover {
@@ -85,9 +75,7 @@
     outline-offset: 2px;
 }
 
-/* Time Period Tabs */
 .time-tab {
-    
     padding: 8px 18px;
     cursor: pointer;
     background-color: #ffffff;
@@ -97,9 +85,7 @@
     font-weight: 500;
     color: #4a5568;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    
-    
+   
 }
 
 .time-tab:hover {
@@ -113,7 +99,6 @@
     box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
 }
 
-/* Metrics */
 .metrics {
     display: flex;
     gap: 15px;
@@ -154,7 +139,6 @@
     color: #e53e3e;
 }
 
-/* Table Container */
 .table-container {
     background: #ffffff;
     border-radius: 8px;
@@ -204,7 +188,23 @@ tr:hover {
     font-weight: 600;
     font-size: 18px;
     color: #2d3748;
-    
+}
+
+/* NEW: Filter Box and Custom Dropdown Styles */
+.filter-box {
+  
+    justify-content: center;
+    gap: 15px;
+    margin: 15px 0;
+    color: #e2e8f0;
+ 
+}
+.month-filter,
+.year-filter {
+    background-color: #ffffff !important; /* Light gray background */
+    color: #000000 !important; /* Red text */
+    font-family: 'Poppins', sans-serif;
+    user-select: none;
 }
 
 /* Responsive Design */
@@ -219,19 +219,36 @@ tr:hover {
         margin: 10px 0 15px;
     }
 
-    /* NEW: Ensure all-tabs stays in one row */
     .all-tabs {
-        flex-wrap: nowrap; /* Prevent wrapping */
+        flex-wrap: nowrap;
         gap: 8px;
         margin-bottom: 15px;
-        overflow-x: auto; /* Ensure scrolling */
+        overflow-x: auto;
     }
 
     .tab, .time-tab {
-        flex: 0 0 auto; /* Prevent growing/shrinking, use auto width */
+        flex: 0 0 auto;
         text-align: center;
         font-size: 14px;
-        padding: 8px 12px; /* Slightly reduce padding for mobile */
+        padding: 8px 12px;
+    }
+
+    .filter-box {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-button {
+        font-size: 14px;
+        padding: 8px 12px;
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .filter-dropdown {
+        width: 100%;
+        max-width: 200px;
     }
 
     .metrics {
