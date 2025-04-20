@@ -1,30 +1,42 @@
 /* General Styles */
 .csh-dashboard-title {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: bold;
     color: #333;
-    text-align: center;
-    margin: 2rem 0;
+    text-align: left;
+    margin: 1rem 0 0.5rem 10px;
 }
 
 .csh-button-container {
-    text-align: center;
-    margin-bottom: 2rem;
+    margin-left: 10px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .csh-add-order-btn {
-    background-color: #28a745;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border: none;
+    background-color: white;
+    color: #4285f4;
+    padding: 0.5rem 1rem;
+    border: 1px solid #4285f4;
     border-radius: 5px;
-    font-size: 1rem;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.csh-add-order-btn::before {
+    content: '+';
+    font-size: 1.2rem;
+    font-weight: bold;
 }
 
 .csh-add-order-btn:hover {
-    background-color: #218838;
+    background-color: #f0f0f0;
 }
 
 /* Modal Styles */
@@ -46,23 +58,21 @@
     border-radius: 10px;
     width: 90%;
     max-width: 500px;
-    max-height: 80vh; /* Set a maximum height relative to viewport height */
-    overflow-y: auto; /* Enable vertical scrolling */
+    max-height: 80vh;
+    overflow-y: auto;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .csh-modal-title {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     color: #333;
     margin-bottom: 1.5rem;
     text-align: center;
-    justify-content: center;
 }
 
 /* Form Styles */
 .csh-form-group {
-    margin-bottom: 1.5rem;
-    justify-content: center;
+    margin-bottom: 1rem;
 }
 
 .csh-form-label {
@@ -70,20 +80,20 @@
     font-weight: bold;
     color: #555;
     margin-bottom: 0.5rem;
-    margin-top: 100px;
+    margin-top: 20px;
 }
 
 .csh-form-input, .csh-form-textarea {
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.5rem;
     border: 1px solid #ddd;
     border-radius: 5px;
-    font-size: 1rem;
+    font-size: 0.9rem;
     box-sizing: border-box;
 }
 
 .csh-form-textarea {
-    height: 100px;
+    height: 80px;
     resize: vertical;
 }
 
@@ -102,25 +112,25 @@
 .csh-form-actions {
     display: flex;
     justify-content: space-between;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
 }
 
 .csh-submit-btn, .csh-close-btn {
-    padding: 0.75rem 1.5rem;
+    padding: 0.5rem 1rem;
     border: none;
     border-radius: 5px;
-    font-size: 1rem;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .csh-submit-btn {
-    background-color: #007bff;
+    background-color: #4285f4;
     color: white;
 }
 
 .csh-submit-btn:hover {
-    background-color: #0056b3;
+    background-color: #3267d6;
 }
 
 .csh-close-btn {
@@ -134,9 +144,9 @@
 
 /* Error and Success Messages */
 .csh-error-message, .csh-success-message {
-    padding: 1rem;
+    padding: 0.75rem;
     border-radius: 5px;
-    margin-bottom: 1.5rem;
+    margin: 0 10px 1rem;
     text-align: center;
 }
 
@@ -156,25 +166,26 @@
     margin: 0;
 }
 
-/* Addnew order filter style*/
+/* Addnew order filter style */
 .csh-tabs {
-    margin-top: 70px;
-    margin-bottom: 20px;
+    margin: 0 10px 20px;
     display: flex;
     gap: 10px;
-    justify-content: center;
 }
 
 .csh-tab-link {
-    padding: 10px 20px;
-    background: #f0f0f0;
+    padding: 0.5rem 1rem;
+    background: #e0e0e0;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
     transition: background 0.3s;
+    font-size: 0.9rem;
+    text-transform: uppercase;
 }
 
 .csh-tab-link:hover, .csh-tab-link.active {
-    background: #007bff;
+    background: #4285f4;
     color: white;
 }
 
@@ -185,14 +196,15 @@
 .csh-product-table, .csh-selected-products-table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .csh-product-table th, .csh-product-table td,
 .csh-selected-products-table th, .csh-selected-products-table td {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 6px;
     text-align: left;
+    font-size: 0.9rem;
 }
 
 .csh-product-table th, .csh-selected-products-table th {
@@ -200,8 +212,20 @@
 }
 
 .csh-add-product-btn, .csh-remove-product-btn {
-    padding: 5px 10px;
+    padding: 4px 8px;
     cursor: pointer;
+    border-radius: 5px;
+    font-size: 0.85rem;
+}
+
+.csh-add-product-btn {
+    background: #4285f4;
+    color: white;
+    border: none;
+}
+
+.csh-add-product-btn:hover {
+    background: #3267d6;
 }
 
 .csh-remove-product-btn {
@@ -210,39 +234,45 @@
     border: none;
 }
 
+.csh-remove-product-btn:hover {
+    background: #c82333;
+}
+
 /* Orders List Styles */
 .csh-orders-title {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     color: #333;
-    margin: 2rem 0 1rem;
+    margin: 1rem 0 0.5rem 10px;
 }
 
 .csh-no-orders {
     text-align: center;
     color: #777;
-    font-size: 1.1rem;
+    font-size: 1rem;
+    margin: 10px;
 }
 
 .csh-orders-container {
     display: flex;
     gap: 1rem;
     align-items: flex-start;
+    padding: 0 10px;
 }
 
 .csh-orders-list {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    max-height: 60vh; /* Limit height to enable scrolling if needed */
-    overflow-y: auto; /* Enable scrolling for many orders */
+    gap: 0.5rem;
+    max-height: 60vh;
+    overflow-y: auto;
 }
 
 .csh-order-card {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 0.75rem;
+    padding: 0.5rem;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
@@ -252,8 +282,8 @@
 }
 
 .csh-order-card-selected {
-    background-color: #e8f0fe; /* Light blue background for selected card */
-    border: 1px solid #4285f4; /* Blue border to indicate selection */
+    background-color: #e8f0fe;
+    border: none;
 }
 
 .csh-order-header {
@@ -266,11 +296,11 @@
 .csh-order-id {
     font-weight: bold;
     color: #333;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 .csh-order-products {
-    color: #555;
+    color: #333;
     font-size: 0.9rem;
 }
 
@@ -278,7 +308,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #777;
 }
 
@@ -303,7 +333,7 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 1rem;
-    display: none; /* Initially hidden */
+    display: none;
 }
 
 .csh-order-details-header {
@@ -315,12 +345,13 @@
 .csh-order-details-header span:first-child {
     font-weight: bold;
     color: #333;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 .csh-order-details-header span:last-child {
-    color: #777;
-    font-size: 0.9rem;
+    font-weight: bold;
+    color: #333;
+    font-size: 1rem;
 }
 
 .csh-order-details-time-type {
@@ -328,63 +359,52 @@
     justify-content: space-between;
     margin-bottom: 1rem;
     color: #777;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .csh-order-details-products {
     margin-bottom: 1rem;
-    color: #555;
+    color: #333;
     font-size: 0.9rem;
+    line-height: 1.5;
 }
 
 .csh-order-details-field {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 1rem;
-    color: #555;
+    margin-bottom: 0.75rem;
+    color: #333;
     font-size: 0.9rem;
 }
 
 .csh-order-details-field span:first-child {
-    font-weight: bold;
+    font-weight: normal;
 }
 
 .csh-order-details-field div {
-    color: #555;
+    color: #333;
     font-size: 0.9rem;
-    white-space: pre-line; /* Preserve line breaks for special instructions */
+    white-space: pre-line;
 }
 
 .csh-order-details-actions {
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
     justify-content: flex-end;
 }
 
 .csh-cancel-btn, .csh-complete-btn {
-    padding: 0.75rem 1.5rem;
+    padding: 0.5rem 1rem;
     border: none;
     border-radius: 5px;
-    font-size: 1rem;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
-}
-
-.csh-cancel-btn {
     background-color: #4285f4;
     color: white;
 }
 
-.csh-cancel-btn:hover {
-    background-color: #3267d6;
-}
-
-.csh-complete-btn {
-    background-color: #4285f4;
-    color: white;
-}
-
-.csh-complete-btn:hover {
+.csh-cancel-btn:hover, .csh-complete-btn:hover {
     background-color: #3267d6;
 }
 
@@ -392,43 +412,63 @@
 @media (max-width: 768px) {
     .csh-modal-content {
         width: 95%;
-        padding: 1.5rem;
-        max-height: 70vh; /* Adjust max-height for smaller screens */
+        padding: 1rem;
+        max-height: 70vh;
     }
 
     .csh-dashboard-title {
-        font-size: 2rem;
+        font-size: 1.5rem;
+        margin-left: 5px;
+    }
+
+    .csh-button-container {
+        margin-left: 5px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .csh-tabs {
+        margin: 0 5px 10px;
+        flex-wrap: wrap;
+    }
+
+    .csh-tab-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
     }
 
     .csh-orders-title {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
+        margin-left: 5px;
     }
 
     .csh-orders-container {
         flex-direction: column;
+        padding: 0 5px;
     }
 
     .csh-orders-list {
-        max-height: 40vh; /* Adjust for smaller screens */
+        max-height: 40vh;
     }
 
     .csh-order-card {
-        padding: 0.5rem;
+        padding: 0.4rem;
     }
 
     .csh-order-id {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
 
     .csh-order-products,
     .csh-order-details {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
 
     .csh-order-details {
         flex-direction: column;
         align-items: flex-start;
-        gap: 0.25rem;
+        gap: 0.2rem;
     }
 
     .csh-order-customer,
@@ -441,23 +481,23 @@
     }
 
     .csh-order-details-header span:first-child {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
 
     .csh-order-details-header span:last-child,
     .csh-order-details-time-type,
     .csh-order-details-products,
     .csh-order-details-field {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
 
     .csh-order-details-actions {
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.4rem;
     }
 
     .csh-cancel-btn, .csh-complete-btn {
         width: 100%;
-        padding: 0.5rem;
+        padding: 0.4rem;
     }
 }

@@ -10,6 +10,7 @@ class Order extends Model
         'customer_name',
         'user_id',
         'product_id',
+        'status',
         'total_price',
         'order_type',
         'special_instructions',

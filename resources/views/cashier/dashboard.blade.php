@@ -121,9 +121,30 @@
     </div>
 
     @if (session('success'))
-        <div class="csh-success-message">
+        <div class="csh-success-message" id="successMessage">
             {{ session('success') }}
         </div>
+        <style>
+            .csh-success-message {
+                transition: opacity 0.5s ease;
+            }
+            .csh-success-message.hidden {
+                opacity: 0;
+                display: none;
+            }
+        </style>
+        <script>
+            // Fade out the success message after 2 seconds
+            setTimeout(() => {
+                const successMessage = document.getElementById('successMessage');
+                if (successMessage) {
+                    successMessage.style.opacity = '0';
+                    setTimeout(() => {
+                        successMessage.classList.add('hidden');
+                    }, 500); // Match the transition duration (0.5s)
+                }
+            }, 2000); // 2000 milliseconds = 2 seconds
+        </script>
     @endif
 
     <h2 class="csh-orders-title">Placed Orders</h2>
@@ -269,10 +290,13 @@
             }
         });
 
-        // Debugging form submission
+        // Ensure at least one product is selected before submission
         document.getElementById('orderForm').addEventListener('submit', (e) => {
-            console.log('Form submission attempted');
-            console.log('Form data:', new FormData(e.target));
+            const selectedProducts = document.querySelectorAll('#selected-products-body tr');
+            if (selectedProducts.length === 0) {
+                e.preventDefault();
+                alert('Please add at least one product to the order.');
+            }
         });
 
         // Reopen modal if errors exist
@@ -291,36 +315,58 @@
         const orderDetailsTotal = document.getElementById('orderDetailsTotal');
         const orderDetailsInstructions = document.getElementById('orderDetailsInstructions');
 
+        // Function to update order details
+        function updateOrderDetails(card) {
+            // Highlight the selected card
+            document.querySelectorAll('.csh-order-card').forEach(c => c.classList.remove('csh-order-card-selected'));
+            card.classList.add('csh-order-card-selected');
+
+            // Populate the order details form
+            orderDetailsId.value = card.dataset.orderId;
+            orderDetailsIdDisplay.textContent = `Order ${card.dataset.orderId}`;
+            orderDetailsCustomer.textContent = card.dataset.customerName;
+            orderDetailsTime.textContent = card.dataset.time;
+            orderDetailsType.textContent = card.dataset.orderType;
+            orderDetailsProducts.textContent = card.dataset.products;
+            orderDetailsTotal.textContent = `₱ ${card.dataset.totalPrice}`;
+            orderDetailsInstructions.textContent = card.dataset.specialInstructions;
+
+            // Show the form
+            orderDetailsForm.style.display = 'block';
+        }
+
+        // Attach event listeners to order cards
         document.querySelectorAll('.csh-order-card').forEach(card => {
-            const updateOrderDetails = () => {
-                // Highlight the selected card
-                document.querySelectorAll('.csh-order-card').forEach(c => c.classList.remove('csh-order-card-selected'));
-                card.classList.add('csh-order-card-selected');
-
-                // Populate the order details form
-                orderDetailsId.value = card.dataset.orderId;
-                orderDetailsIdDisplay.textContent = `Order ${card.dataset.orderId}`;
-                orderDetailsCustomer.textContent = card.dataset.customerName;
-                orderDetailsTime.textContent = card.dataset.time;
-                orderDetailsType.textContent = card.dataset.orderType;
-                orderDetailsProducts.textContent = card.dataset.products;
-                orderDetailsTotal.textContent = `₱ ${card.dataset.totalPrice}`;
-                orderDetailsInstructions.textContent = card.dataset.specialInstructions;
-
-                // Show the form
-                orderDetailsForm.style.display = 'block';
-            };
-
-            card.addEventListener('click', updateOrderDetails);
+            card.addEventListener('click', () => updateOrderDetails(card));
 
             card.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
-                    updateOrderDetails();
+                    updateOrderDetails(card);
                 }
             });
         });
 
-        // Initially hide the order details form
-        orderDetailsForm.style.display = 'none';
+        // Automatically select the most recent order on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const orderCards = document.querySelectorAll('.csh-order-card');
+            if (orderCards.length > 0) {
+                // Find the card with the highest order ID (most recent)
+                let latestCard = null;
+                let highestId = -1;
+
+                orderCards.forEach(card => {
+                    const orderId = parseInt(card.dataset.orderId, 10);
+                    if (orderId > highestId) {
+                        highestId = orderId;
+                        latestCard = card;
+                    }
+                });
+
+                // Trigger updateOrderDetails for the latest card
+                if (latestCard) {
+                    updateOrderDetails(latestCard);
+                }
+            }
+        });
     </script>
 @endsection

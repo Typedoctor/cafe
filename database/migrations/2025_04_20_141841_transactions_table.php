@@ -11,12 +11,15 @@ return new class extends Migration
       
 
         // Create the new transactions table
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->string('customer_name', 255);
             $table->text('special_instructions')->nullable();
             $table->string('order_type', 255);
+            $table->string('status')->default('completed');
+            $table->integer('quantity');
             $table->decimal('total_price', 10, 2);
             $table->timestamps();
         });
@@ -24,6 +27,6 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('transactions');
     }
 };
