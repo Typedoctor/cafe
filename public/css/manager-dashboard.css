@@ -40,7 +40,7 @@ body {
 }
 
 .sidebar ul li a.active {
-    background-color: #177ead; /* Highlight color */
+    background-color: #177ead; 
     font-weight: bold;
 }
 
@@ -51,7 +51,7 @@ body {
 
 /* Main Content */
 .content {
-    margin-left: 290px; /* Matches sidebar width + padding */
+    margin-left: 290px;
     padding: 20px;
     min-height: calc(100vh - 40px); /* Fill viewport height minus padding */
     overflow: auto; /* Scroll only if content overflows */
@@ -78,127 +78,79 @@ h1 {
 
 .dashboard-box {
     width: 230px;
-    height: 120px;
+    height: 70px;
     padding: 15px;
     text-align: center;
+    font-weight: bold;
     background-color: white;
     border-radius: 8px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     transition: 0.3s ease-in-out;
 }
 
-.dashboard-lowstockbox {
-    width: 500px;
-    height: 120px;
+.dashboard-salesbox {
+    margin-top: 7px;
+    width: 100%;
+    max-width: 870;
+    height: 260x; /* Adjust based on your layout */
     padding: 15px;
-    background-color: white;
+    background-color:white;
     border-radius: 8px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    transition: 0.3s ease-in-out;
+    overflow: hidden; /* Prevents the chart from spilling out */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.dashboard-topselling {
-    width: 300px;
-    height: 120px;
+#salesChart {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 260;
+}
+.dashboard-box-product {
+    margin-top: 20px;
+    width: 270px;
+    height: 220px;
+    background-color: white;
     padding: 15px;
+    border-radius: 8px;
     text-align: center;
-    background-color: white;
-    border-radius: 8px;
+    margin-bottom: 10px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     transition: 0.3s ease-in-out;
 }
 
+/*hover effects for widgets*/
 .dashboard-box:hover {
     background-color: #f0f0f0;
     cursor: pointer;
 }
-
-/* Graph Box */
-.graph-box {
-    width: 100%;
-    max-width: 880px;
-    height: 300px;
-    background-color: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: left;
-    margin: 10px auto; /* Reduced from 20px for tighter spacing */
-}
-
-.graph-box h2 {
-    font-size: 15px;
-    margin-bottom: 10px; /* Added for spacing */
-}
-
-/* Search and Filter Components */
-.search-filter-container {
-    margin: 0px 0;
-    padding: 0px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.search-filter-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.search-box {
-    flex: 1;
-    min-width: 200px;
-}
-
-.search-box input {
-    width: 100%;
-    padding: 8px 12px; /* Fixed typo (1px to 12px for consistency) */
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.filter-box {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    align-items: center;
-}
-
-.filter-box select,
-.filter-box input {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.filter-btn, .reset-btn {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
+.dashboard-box-product:hover {
+    background-color: #f0f0f0;
     cursor: pointer;
-    min-width: 100px;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    font-family: 'Poppins', sans-serif;
-    margin: 0 2px;
-    box-sizing: border-box;
-    text-align: center;
-    display: inline-block;
+}
+.dashboard-salesbox:hover{
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+/*for linking the widgets in dashboard*/ 
+.box-link {
+    text-decoration: none !important; /* Remove underline */
+    display:block;
+    color: inherit;
+    font-weight: bold; /* Keep original text color */
+}
+/* Graph Box */
+.card {
+    border: 2px solid #ccc; /* Match other boxes' border */
+    border-radius: 8px; /* Smooth rounded corners */
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
-.reset-btn {
-    background-color: #666;
-}
-
-.filter-btn:hover,
-.reset-btn:hover {
-    opacity: 0.9;
+.card-body {
+    background-color: #f8f9fa; /* Light background */
+    padding: 15px;
 }
 
 /* Responsive Design */
@@ -223,7 +175,7 @@ h1 {
     }
 
     .graph-box {
-        height: 250px; /* Slightly smaller graph on mobile */
+        height: 250px; 
     }
 }
 
