@@ -38,7 +38,6 @@
     background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
-
 }
 
 .csh-modal-content {
@@ -47,6 +46,8 @@
     border-radius: 10px;
     width: 90%;
     max-width: 500px;
+    max-height: 80vh; /* Set a maximum height relative to viewport height */
+    overflow-y: auto; /* Enable vertical scrolling */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -55,11 +56,13 @@
     color: #333;
     margin-bottom: 1.5rem;
     text-align: center;
+    justify-content: center;
 }
 
 /* Form Styles */
 .csh-form-group {
     margin-bottom: 1.5rem;
+    justify-content: center;
 }
 
 .csh-form-label {
@@ -67,6 +70,7 @@
     font-weight: bold;
     color: #555;
     margin-bottom: 0.5rem;
+    margin-top: 100px;
 }
 
 .csh-form-input, .csh-form-textarea {
@@ -87,6 +91,7 @@
     display: flex;
     gap: 1rem;
     align-items: center;
+    justify-content: center;
 }
 
 .csh-radio-label {
@@ -151,6 +156,60 @@
     margin: 0;
 }
 
+/* Addnew order filter style*/
+.csh-tabs {
+    margin-top: 70px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.csh-tab-link {
+    padding: 10px 20px;
+    background: #f0f0f0;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.csh-tab-link:hover, .csh-tab-link.active {
+    background: #007bff;
+    color: white;
+}
+
+.csh-tab-content {
+    display: none;
+}
+
+.csh-product-table, .csh-selected-products-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.csh-product-table th, .csh-product-table td,
+.csh-selected-products-table th, .csh-selected-products-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.csh-product-table th, .csh-selected-products-table th {
+    background: #f4f4f4;
+}
+
+.csh-add-product-btn, .csh-remove-product-btn {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.csh-remove-product-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+}
+
 /* Orders Table Styles */
 .csh-orders-title {
     font-size: 1.75rem;
@@ -196,6 +255,7 @@
     .csh-modal-content {
         width: 95%;
         padding: 1.5rem;
+        max-height: 70vh; /* Adjust max-height for smaller screens */
     }
 
     .csh-dashboard-title {

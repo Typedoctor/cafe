@@ -30,7 +30,7 @@
 
                 <div class="csh-form-group">
                     <label for="customer_name" class="csh-form-label">Customer Name:</label>
-                    <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}" required class="csh-form-input">
+                    <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}" required class="csh-form-input" placeholder="Enter customer name here">
                 </div>
 
                 <!-- Tabs for Categories -->
@@ -57,13 +57,15 @@
                                     @foreach ($products->where('category', $category) as $product)
                                         <tr>
                                             <td>{{ $product->product_name }}</td>
-                                            <td>{{ number_format($product->price, 2) }}</td>
+                                            
+                                            <td>₱{{ number_format($product->price, 2) }}</td>
+                                            
                                             <td>
                                                 <button type="button" class="csh-add-product-btn" 
                                                         data-product-id="{{ $product->id }}" 
                                                         data-product-name="{{ $product->product_name }}" 
-                                                        data-product-price="{{ $product->price }}">
-                                                    Add
+                                                        data-product-price="{{ $product->price }}">  
+                                                        Add to Order
                                                 </button>
                                             </td>
                                         </tr>
@@ -109,7 +111,7 @@
 
                 <div class="csh-form-group">
                     <label for="special_instructions" class="csh-form-label">Special Instructions:</label>
-                    <textarea name="special_instructions" id="special_instructions" class="csh-form-textarea">{{ old('special_instructions') }}</textarea>
+                    <textarea placeholder="Any special instructions? Add here" name="special_instructions" id="special_instructions" class="csh-form-textarea">{{ old('special_instructions') }}</textarea>
                 </div>
 
                 <div class="csh-form-actions">
@@ -153,57 +155,14 @@
                         </td>
                         <td>{{ $order->order_type }}</td>
                         <td>{{ $order->special_instructions ?? 'None' }}</td>
-                        <td>{{ number_format($order->total_price, 2) }}</td>
+                        <td>₱{{ number_format($order->total_price, 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     @endif
 
-    <style>
-        .csh-tabs {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-        }
-        .csh-tab-link {
-            padding: 10px 20px;
-            background: #f0f0f0;
-            border: none;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .csh-tab-link:hover, .csh-tab-link.active {
-            background: #007bff;
-            color: white;
-        }
-        .csh-tab-content {
-            display: none;
-        }
-        .csh-product-table, .csh-selected-products-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        .csh-product-table th, .csh-product-table td,
-        .csh-selected-products-table th, .csh-selected-products-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        .csh-product-table th, .csh-selected-products-table th {
-            background: #f4f4f4;
-        }
-        .csh-add-product-btn, .csh-remove-product-btn {
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-        .csh-remove-product-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-        }
-    </style>
+    
 
     <script>
         let productIndex = 0;

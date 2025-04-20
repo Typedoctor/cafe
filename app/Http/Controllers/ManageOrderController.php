@@ -20,11 +20,6 @@ class ManageOrderController extends Controller
         return view('cashier.dashboard', compact('products', 'orders'));
     }
 
-    public function create()
-    {
-        $products = Product::all();
-        return view('cashier.dashboard', compact('products'));
-    }
 
     public function store(Request $request)
     {
