@@ -33,24 +33,68 @@
                     <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}" required class="csh-form-input">
                 </div>
 
-                <div id="product-list">
-                    <div class="csh-form-group csh-product-row">
-                        <label class="csh-form-label">Product:</label>
-                        <select name="products[0][product_id]" required class="csh-form-input">
-                            <option value="">Choose a product</option>
-                            @foreach ($products as $product)
-                                <option value="{{ $product->id }}" {{ old('products.0.product_id') == $product->id ? 'selected' : '' }}>
-                                    {{ $product->product_name }} ({{ number_format($product->price, 2) }})
-                                </option>
-                            @endforeach
-                        </select>
-                        <label for="products[0][quantity]" class="csh-form-label">Quantity:</label>
-                        <input type="number" name="products[0][quantity]" min="1" value="{{ old('products.0.quantity', 1) }}" required class="csh-form-input">
-                        <button type="button" class="csh-remove-product-btn" style="display:none;">Remove</button>
-                    </div>
+                <!-- Tabs for Categories -->
+                <div class="csh-tabs">
+                    <button type="button" class="csh-tab-link active" data-tab="meal">Meal</button>
+                    <button type="button" class="csh-tab-link" data-tab="drink">Drink</button>
+                    <button type="button" class="csh-tab-link" data-tab="dessert">Dessert</button>
+                    <button type="button" class="csh-tab-link" data-tab="snack">Snack</button>
                 </div>
-                <div class="csh-form-group">
-                    <button type="button" id="addProductBtn" class="csh-add-product-btn">Add Another Product</button>
+
+                <!-- Product Table -->
+                <div id="product-table-container">
+                    @foreach (['meal', 'drink', 'dessert', 'snack'] as $category)
+                        <div id="{{ $category }}-tab" class="csh-tab-content" style="display: {{ $category == 'meal' ? 'block' : 'none' }};">
+                            <table class="csh-product-table">
+                                <thead>
+                                    <tr>
+                                        <th>Product Name</th>
+                                        <th>Price</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($products->where('category', $category) as $product)
+                                        <tr>
+                                            <td>{{ $product->product_name }}</td>
+                                            <td>{{ number_format($product->price, 2) }}</td>
+                                            <td>
+                                                <button type="button" class="csh-add-product-btn" 
+                                                        data-product-id="{{ $product->id }}" 
+                                                        data-product-name="{{ $product->product_name }}" 
+                                                        data-product-price="{{ $product->price }}">
+                                                    Add
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    @if ($products->where('category', $category)->isEmpty())
+                                        <tr>
+                                            <td colspan="3">No {{ $category }} products available.</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Selected Products -->
+                <div id="selected-products">
+                    <h3>Selected Products</h3>
+                    <table class="csh-selected-products-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="selected-products-body">
+                            <!-- Dynamically added rows will appear here -->
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="csh-form-group">
@@ -116,45 +160,99 @@
         </table>
     @endif
 
-    <script>
-        let productIndex = 1;
+    <style>
+        .csh-tabs {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .csh-tab-link {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .csh-tab-link:hover, .csh-tab-link.active {
+            background: #007bff;
+            color: white;
+        }
+        .csh-tab-content {
+            display: none;
+        }
+        .csh-product-table, .csh-selected-products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .csh-product-table th, .csh-product-table td,
+        .csh-selected-products-table th, .csh-selected-products-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .csh-product-table th, .csh-selected-products-table th {
+            background: #f4f4f4;
+        }
+        .csh-add-product-btn, .csh-remove-product-btn {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .csh-remove-product-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+        }
+    </style>
 
-        document.getElementById('addProductBtn').addEventListener('click', () => {
-            const productList = document.getElementById('product-list');
-            const newRow = document.createElement('div');
-            newRow.className = 'csh-form-group csh-product-row';
-            newRow.innerHTML = `
-                <label class="csh-form-label">Product:</label>
-                <select name="products[${productIndex}][product_id]" required class="csh-form-input">
-                    <option value="">Choose a product</option>
-                    @foreach ($products as $product)
-                        <option value="{{ $product->id }}">{{ $product->product_name }} ({{ number_format($product->price, 2) }})</option>
-                    @endforeach
-                </select>
-                <label for="products[${productIndex}][quantity]" class="csh-form-label">Quantity:</label>
-                <input type="number" name="products[${productIndex}][quantity]" min="1" value="1" required class="csh-form-input">
-                <button type="button" class="csh-remove-product-btn">Remove</button>
-            `;
-            productList.appendChild(newRow);
-            productIndex++;
-            updateRemoveButtons();
+    <script>
+        let productIndex = 0;
+
+        // Tab Switching
+        document.querySelectorAll('.csh-tab-link').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.csh-tab-link').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                document.querySelectorAll('.csh-tab-content').forEach(content => {
+                    content.style.display = content.id === `${button.dataset.tab}-tab` ? 'block' : 'none';
+                });
+            });
         });
 
+        // Add Product to Selected Products Table
+        document.querySelectorAll('.csh-add-product-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const productId = button.dataset.productId;
+                const productName = button.dataset.productName;
+                const productPrice = button.dataset.productPrice;
+
+                const selectedProductsBody = document.getElementById('selected-products-body');
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${productName}</td>
+                    <td>${parseFloat(productPrice).toFixed(2)}</td>
+                    <td>
+                        <input type="number" name="products[${productIndex}][quantity]" min="1" value="1" required class="csh-form-input">
+                        <input type="hidden" name="products[${productIndex}][product_id]" value="${productId}">
+                    </td>
+                    <td>
+                        <button type="button" class="csh-remove-product-btn">Remove</button>
+                    </td>
+                `;
+                selectedProductsBody.appendChild(row);
+                productIndex++;
+            });
+        });
+
+        // Remove Product from Selected Products
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('csh-remove-product-btn')) {
-                e.target.parentElement.remove();
-                updateRemoveButtons();
+                e.target.closest('tr').remove();
             }
         });
 
-        function updateRemoveButtons() {
-            const rows = document.querySelectorAll('.csh-product-row');
-            rows.forEach((row, index) => {
-                const removeBtn = row.querySelector('.csh-remove-product-btn');
-                removeBtn.style.display = index === 0 && rows.length === 1 ? 'none' : 'inline-block';
-            });
-        }
-
+        // Modal Handling
         const openModalBtn = document.getElementById('openModalBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const orderModal = document.getElementById('orderModal');
