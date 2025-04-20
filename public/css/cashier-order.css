@@ -1,0 +1,212 @@
+/* General Styles */
+.csh-dashboard-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.csh-button-container {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.csh-add-order-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.csh-add-order-btn:hover {
+    background-color: #218838;
+}
+
+/* Modal Styles */
+.csh-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+
+}
+
+.csh-modal-content {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.csh-modal-title {
+    font-size: 1.75rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Form Styles */
+.csh-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.csh-form-label {
+    display: block;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+.csh-form-input, .csh-form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.csh-form-textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.csh-radio-group {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.csh-radio-label {
+    margin-right: 1rem;
+    color: #555;
+}
+
+.csh-form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+
+.csh-submit-btn, .csh-close-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.csh-submit-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.csh-submit-btn:hover {
+    background-color: #0056b3;
+}
+
+.csh-close-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.csh-close-btn:hover {
+    background-color: #c82333;
+}
+
+/* Error and Success Messages */
+.csh-error-message, .csh-success-message {
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.csh-error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.csh-success-message {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.csh-error-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Orders Table Styles */
+.csh-orders-title {
+    font-size: 1.75rem;
+    color: #333;
+    margin: 2rem 0 1rem;
+}
+
+.csh-no-orders {
+    text-align: center;
+    color: #777;
+    font-size: 1.1rem;
+}
+
+.csh-orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.csh-table-header th {
+    background-color: #f8f9fa;
+    color: #333;
+    padding: 1rem;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.csh-table-row td {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    color: #555;
+}
+
+.csh-table-row:hover {
+    background-color: #f1f1f1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .csh-modal-content {
+        width: 95%;
+        padding: 1.5rem;
+    }
+
+    .csh-dashboard-title {
+        font-size: 2rem;
+    }
+
+    .csh-orders-table {
+        font-size: 0.9rem;
+    }
+
+    .csh-table-header th, .csh-table-row td {
+        padding: 0.75rem;
+    }
+}

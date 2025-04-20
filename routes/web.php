@@ -27,9 +27,7 @@ Route::middleware(['auth', 'can:manager'])->group(function () {
 
 // Cashier routes
 Route::middleware(['auth', 'can:cashier'])->group(function () {
-    Route::get('/cashier/dashboard', function() {
-        return view('cashier.dashboard');
-    })->name('cashier.dashboard');
+    Route::get('/cashier/dashboard', [ManageOrderController::class, 'index'])->name('cashier.dashboard');
     
     Route::resource('order', ManageOrderController::class);
     Route::resource('trash', ManageTrashController::class);

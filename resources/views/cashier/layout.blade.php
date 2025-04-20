@@ -5,6 +5,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/cashier-dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/cashier-trash.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/cashier-order.css') }}">
     <script src="https://kit.fontawesome.com/2952e58222.js" crossorigin="anonymous"></script>
 </head>
 <body>
