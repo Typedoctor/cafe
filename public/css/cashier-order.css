@@ -210,7 +210,7 @@
     border: none;
 }
 
-/* Orders Table Styles */
+/* Orders List Styles */
 .csh-orders-title {
     font-size: 1.75rem;
     color: #333;
@@ -223,31 +223,169 @@
     font-size: 1.1rem;
 }
 
-.csh-orders-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
+.csh-orders-container {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.csh-orders-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 60vh; /* Limit height to enable scrolling if needed */
+    overflow-y: auto; /* Enable scrolling for many orders */
+}
+
+.csh-order-card {
     background-color: white;
+    border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
-.csh-table-header th {
-    background-color: #f8f9fa;
-    color: #333;
-    padding: 1rem;
-    text-align: left;
+.csh-order-card:hover {
+    background-color: #f5f5f5;
+}
+
+.csh-order-card-selected {
+    background-color: #e8f0fe; /* Light blue background for selected card */
+    border: 1px solid #4285f4; /* Blue border to indicate selection */
+}
+
+.csh-order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.csh-order-id {
     font-weight: bold;
-    border-bottom: 2px solid #dee2e6;
+    color: #333;
+    font-size: 1.1rem;
 }
 
-.csh-table-row td {
-    padding: 1rem;
-    border-bottom: 1px solid #dee2e6;
+.csh-order-products {
     color: #555;
+    font-size: 0.9rem;
 }
 
-.csh-table-row:hover {
-    background-color: #f1f1f1;
+.csh-order-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.csh-order-time {
+    flex: 1;
+}
+
+.csh-order-customer {
+    flex: 1;
+    text-align: center;
+}
+
+.csh-order-type {
+    flex: 1;
+    text-align: right;
+}
+
+/* Order Details Form Styles */
+.csh-order-details-form {
+    flex: 1;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    display: none; /* Initially hidden */
+}
+
+.csh-order-details-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.csh-order-details-header span:first-child {
+    font-weight: bold;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.csh-order-details-header span:last-child {
+    color: #777;
+    font-size: 0.9rem;
+}
+
+.csh-order-details-time-type {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    color: #777;
+    font-size: 0.9rem;
+}
+
+.csh-order-details-products {
+    margin-bottom: 1rem;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.csh-order-details-field {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.csh-order-details-field span:first-child {
+    font-weight: bold;
+}
+
+.csh-order-details-field div {
+    color: #555;
+    font-size: 0.9rem;
+    white-space: pre-line; /* Preserve line breaks for special instructions */
+}
+
+.csh-order-details-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.csh-cancel-btn, .csh-complete-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.csh-cancel-btn {
+    background-color: #4285f4;
+    color: white;
+}
+
+.csh-cancel-btn:hover {
+    background-color: #3267d6;
+}
+
+.csh-complete-btn {
+    background-color: #4285f4;
+    color: white;
+}
+
+.csh-complete-btn:hover {
+    background-color: #3267d6;
 }
 
 /* Responsive Design */
@@ -262,11 +400,64 @@
         font-size: 2rem;
     }
 
-    .csh-orders-table {
-        font-size: 0.9rem;
+    .csh-orders-title {
+        font-size: 1.5rem;
     }
 
-    .csh-table-header th, .csh-table-row td {
+    .csh-orders-container {
+        flex-direction: column;
+    }
+
+    .csh-orders-list {
+        max-height: 40vh; /* Adjust for smaller screens */
+    }
+
+    .csh-order-card {
+        padding: 0.5rem;
+    }
+
+    .csh-order-id {
+        font-size: 1rem;
+    }
+
+    .csh-order-products,
+    .csh-order-details {
+        font-size: 0.85rem;
+    }
+
+    .csh-order-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .csh-order-customer,
+    .csh-order-type {
+        text-align: left;
+    }
+
+    .csh-order-details-form {
         padding: 0.75rem;
+    }
+
+    .csh-order-details-header span:first-child {
+        font-size: 1rem;
+    }
+
+    .csh-order-details-header span:last-child,
+    .csh-order-details-time-type,
+    .csh-order-details-products,
+    .csh-order-details-field {
+        font-size: 0.85rem;
+    }
+
+    .csh-order-details-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .csh-cancel-btn, .csh-complete-btn {
+        width: 100%;
+        padding: 0.5rem;
     }
 }

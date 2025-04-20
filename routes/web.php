@@ -30,7 +30,8 @@ Route::middleware(['auth', 'can:manager'])->group(function () {
 // Cashier routes
 Route::middleware(['auth', 'can:cashier'])->group(function () {
     Route::get('/cashier/dashboard', [ManageOrderController::class, 'index'])->name('cashier.dashboard');
-    
+    Route::post('/orders/cancel', [ManageOrderController::class, 'cancel'])->name('order.cancel');
+    Route::post('/orders/complete', [ManageOrderController::class, 'complete'])->name('order.complete');
     Route::resource('transaction', CashierTransactionController::class);
     Route::resource('order', ManageOrderController::class);
     Route::resource('trash', ManageTrashController::class);

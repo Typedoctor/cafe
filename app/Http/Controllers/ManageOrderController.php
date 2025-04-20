@@ -6,13 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ManageOrderController extends Controller
 {
-
-
     public function index()
     {
         $orders = Order::with('orderItems.product')->get();
@@ -20,6 +19,11 @@ class ManageOrderController extends Controller
         return view('cashier.dashboard', compact('products', 'orders'));
     }
 
+    public function create()
+    {
+        $products = Product::all();
+        return view('cashier.dashboard', compact('products'));
+    }
 
     public function store(Request $request)
     {
@@ -62,6 +66,7 @@ class ManageOrderController extends Controller
                 'total_price' => $total_price,
                 'order_type' => ucwords(strtolower($validated['order_type'])),
                 'special_instructions' => $validated['special_instructions'],
+                'status' => 'pending',
             ]);
 
             foreach ($orderItems as $item) {
@@ -81,7 +86,90 @@ class ManageOrderController extends Controller
             return redirect()->route('cashier.dashboard')->with('success', 'Order created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Failed to create order: ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['error' => 'Failed to create order. Please try again.'])->withInput();
+        }
+    }
+
+    public function cancel(Request $request)
+    {
+        $validated = $request->validate([
+            'order_id' => 'required|exists:orders,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $order = Order::findOrFail($validated['order_id']);
+            
+            if ($order->status === 'completed') {
+                return redirect()->route('cashier.dashboard')->withErrors(['error' => 'Cannot cancel a completed order.']);
+            }
+
+            foreach ($order->orderItems as $item) {
+                $product = Product::find($item->product_id);
+                if ($product) {
+                    $product->quantity += $item->quantity;
+                    $product->save();
+                }
+            }
+
+            $order->orderItems()->delete();
+            $order->delete();
+
+            DB::commit();
+            return redirect()->route('cashier.dashboard')->with('success', 'Order canceled successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('cashier.dashboard')->withErrors(['error' => 'Failed to cancel order. Please try again.']);
+        }
+    }
+
+    public function complete(Request $request)
+    {
+        $validated = $request->validate([
+            'order_id' => 'required|exists:orders,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $order = Order::with('orderItems.product')->findOrFail($validated['order_id']);
+            
+            if ($order->status === 'completed') {
+                return redirect()->route('cashier.dashboard')->withErrors(['error' => 'Order is already completed.']);
+            }
+
+            // Create a Transaction record for each OrderItem
+            foreach ($order->orderItems as $item) {
+                // Skip if the product no longer exists (due to onDelete('cascade'))
+                if (!$item->product) {
+                    continue;
+                }
+
+                Transaction::create([
+                    'customer_name' => $order->customer_name,
+                    'user_id' => $order->user_id,
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'total_price' => $item->price, // Price for this specific product (quantity * product price)
+                    'special_instructions' => $order->special_instructions,
+                    'order_type' => $order->order_type,
+                ]);
+            }
+
+            // Update the order status
+            $order->status = 'completed';
+            $order->save();
+
+            // Delete the order and its items to remove it from the "Placed Orders" list
+            $order->orderItems()->delete();
+            $order->delete();
+
+            DB::commit();
+            return redirect()->route('cashier.dashboard')->with('success', 'Order marked as completed and transaction recorded.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('cashier.dashboard')->withErrors(['error' => 'Failed to mark order as completed. Please try again.']);
         }
     }
 }

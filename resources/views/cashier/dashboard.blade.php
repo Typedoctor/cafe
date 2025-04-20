@@ -57,9 +57,7 @@
                                     @foreach ($products->where('category', $category) as $product)
                                         <tr>
                                             <td>{{ $product->product_name }}</td>
-                                            
                                             <td>₱{{ number_format($product->price, 2) }}</td>
-                                            
                                             <td>
                                                 <button type="button" class="csh-add-product-btn" 
                                                         data-product-id="{{ $product->id }}" 
@@ -129,40 +127,81 @@
     @endif
 
     <h2 class="csh-orders-title">Placed Orders</h2>
-    @if ($orders->isEmpty())
-        <p class="csh-no-orders">No orders have been placed yet.</p>
-    @else
-        <table class="csh-orders-table">
-            <thead>
-                <tr class="csh-table-header">
-                    <th>ID</th>
-                    <th>Customer</th>
-                    <th>Products</th>
-                    <th>Order Type</th>
-                    <th>Special Instructions</th>
-                    <th>Total Price</th>
-                </tr>
-            </thead>
-            <tbody>
+    <div class="csh-orders-container">
+        <div class="csh-orders-list">
+            @if ($orders->isEmpty())
+                <p class="csh-no-orders">No orders have been placed yet.</p>
+            @else
                 @foreach ($orders as $order)
-                    <tr class="csh-table-row">
-                        <td>{{ $order->id }}</td>
-                        <td>{{ $order->customer_name }}</td>
-                        <td>
-                            @foreach ($order->orderItems as $item)
-                                {{ $item->product->product_name ?? 'N/A' }} (Qty: {{ $item->quantity }})<br>
-                            @endforeach
-                        </td>
-                        <td>{{ $order->order_type }}</td>
-                        <td>{{ $order->special_instructions ?? 'None' }}</td>
-                        <td>₱{{ number_format($order->total_price, 2) }}</td>
-                    </tr>
+                    @php
+                        // Build the products string for data-products attribute
+                        $productsString = '';
+                        foreach ($order->orderItems as $index => $item) {
+                            $productsString .= $item->quantity . ' x ' . ($item->product->product_name ?? 'N/A');
+                            if ($index < $order->orderItems->count() - 1) {
+                                $productsString .= ', ';
+                            }
+                        }
+                    @endphp
+                    <div class="csh-order-card" data-order-id="{{ $order->id }}" role="button" tabindex="0"
+                         data-customer-name="{{ $order->customer_name }}"
+                         data-order-type="{{ $order->order_type }}"
+                         data-special-instructions="{{ $order->special_instructions ?? 'None' }}"
+                         data-total-price="{{ number_format($order->total_price, 2) }}"
+                         data-time="{{ $order->created_at->format('h:i A') }}"
+                         data-products="{{ $productsString }}">
+                        <div class="csh-order-header">
+                            <span class="csh-order-id">{{ $order->id }}</span>
+                            <span class="csh-order-products">
+                                @foreach ($order->orderItems as $item)
+                                    {{ $item->product->product_name ?? 'N/A' }}
+                                    @if (!$loop->last), @endif
+                                @endforeach
+                            </span>
+                        </div>
+                        <div class="csh-order-details">
+                            <span class="csh-order-time">{{ $order->created_at->format('h:i A') }}</span>
+                            <span class="csh-order-customer">{{ $order->customer_name }}</span>
+                            <span class="csh-order-type">{{ $order->order_type }}</span>
+                        </div>
+                    </div>
                 @endforeach
-            </tbody>
-        </table>
-    @endif
+            @endif
+        </div>
 
-    
+        <!-- Order Details Form -->
+        <div id="orderDetailsForm" class="csh-order-details-form">
+            <form id="orderDetailsFormInner" method="POST">
+                @csrf
+                <input type="hidden" name="order_id" id="orderDetailsId">
+                <div class="csh-order-details-header">
+                    <span id="orderDetailsIdDisplay">Select an order</span>
+                    <span id="orderDetailsCustomer"></span>
+                </div>
+                <div class="csh-order-details-time-type">
+                    <span id="orderDetailsTime"></span>
+                    <span id="orderDetailsType"></span>
+                </div>
+                <div class="csh-order-details-products" id="orderDetailsProducts"></div>
+                <div class="csh-order-details-field">
+                    <span>Payment mode</span>
+                    <span>Cash</span>
+                </div>
+                <div class="csh-order-details-field">
+                    <span>TOTAL</span>
+                    <span id="orderDetailsTotal">₱ 0.00</span>
+                </div>
+                <div class="csh-order-details-field">
+                    <span>Special Instructions</span>
+                    <div id="orderDetailsInstructions"></div>
+                </div>
+                <div class="csh-order-details-actions">
+                    <button type="submit" formaction="{{ route('order.cancel') }}" class="csh-cancel-btn">Cancel Order</button>
+                    <button type="submit" formaction="{{ route('order.complete') }}" class="csh-complete-btn">Mark as Completed</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         let productIndex = 0;
@@ -240,5 +279,48 @@
         @if ($errors->any())
             document.getElementById('orderModal').style.display = 'flex';
         @endif
+
+        // Add click and keyboard interaction to show order details
+        const orderDetailsForm = document.getElementById('orderDetailsForm');
+        const orderDetailsId = document.getElementById('orderDetailsId');
+        const orderDetailsIdDisplay = document.getElementById('orderDetailsIdDisplay');
+        const orderDetailsCustomer = document.getElementById('orderDetailsCustomer');
+        const orderDetailsTime = document.getElementById('orderDetailsTime');
+        const orderDetailsType = document.getElementById('orderDetailsType');
+        const orderDetailsProducts = document.getElementById('orderDetailsProducts');
+        const orderDetailsTotal = document.getElementById('orderDetailsTotal');
+        const orderDetailsInstructions = document.getElementById('orderDetailsInstructions');
+
+        document.querySelectorAll('.csh-order-card').forEach(card => {
+            const updateOrderDetails = () => {
+                // Highlight the selected card
+                document.querySelectorAll('.csh-order-card').forEach(c => c.classList.remove('csh-order-card-selected'));
+                card.classList.add('csh-order-card-selected');
+
+                // Populate the order details form
+                orderDetailsId.value = card.dataset.orderId;
+                orderDetailsIdDisplay.textContent = `Order ${card.dataset.orderId}`;
+                orderDetailsCustomer.textContent = card.dataset.customerName;
+                orderDetailsTime.textContent = card.dataset.time;
+                orderDetailsType.textContent = card.dataset.orderType;
+                orderDetailsProducts.textContent = card.dataset.products;
+                orderDetailsTotal.textContent = `₱ ${card.dataset.totalPrice}`;
+                orderDetailsInstructions.textContent = card.dataset.specialInstructions;
+
+                // Show the form
+                orderDetailsForm.style.display = 'block';
+            };
+
+            card.addEventListener('click', updateOrderDetails);
+
+            card.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    updateOrderDetails();
+                }
+            });
+        });
+
+        // Initially hide the order details form
+        orderDetailsForm.style.display = 'none';
     </script>
 @endsection
