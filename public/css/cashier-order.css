@@ -1,5 +1,5 @@
-/* Import Poppins Font */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap');
+
+
 
 /* Global Font Settings */
 * {
@@ -30,7 +30,7 @@
 .csh-button-container {
     margin: 0 10px 10px;
     display: flex;
-    align-items: center;
+   
     gap: 10px;
     color: #3267d6;
 }
@@ -39,7 +39,7 @@
     background-color: white;
     color: #000000;
     padding: 8px 16px;
-    border-radius: 3px;
+    border-radius: 8px;
     font-size: 12px;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -187,6 +187,40 @@
 }
 
 /* Addnew order filter style */
+.csh-tabs-categ{
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+    justify-content: center;
+
+}
+.csh-tab-link-categ{
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #ffffff;
+    background: none; /* Remove background */
+    border-radius: 0; /* Remove border-radius */
+    transition: color 0.3s; /* Smooth transition for color change */
+    padding: 8px 16px;
+    border-radius: 8px;
+    background-color: #3590BF;
+}
+.csh-tab-link-categ:hover{
+    background-color: #4285f4;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
+    transition: 0.5s ease;
+}
+.csh-tab-link-categ.active{
+    background-color: #00256e;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
+    transition: 0.5s ease;
+}
+
 .csh-tabs {
     display: flex;
     gap: 8px;
@@ -482,8 +516,6 @@
 
     .csh-button-container {
         margin-left: 5px;
-        flex-direction: column;
-        align-items: flex-start;
         gap: 5px;
     }
 

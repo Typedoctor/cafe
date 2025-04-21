@@ -40,11 +40,11 @@
                     </div>
 
                     <!-- Tabs for Categories -->
-                    <div class="csh-tabs">
-                        <button type="button" class="csh-tab-link active" data-tab="meal">Meal</button>
-                        <button type="button" class="csh-tab-link" data-tab="drink">Drink</button>
-                        <button type="button" class="csh-tab-link" data-tab="dessert">Dessert</button>
-                        <button type="button" class="csh-tab-link" data-tab="snack">Snack</button>
+                    <div class="csh-tabs-categ">
+                        <button type="button" class="csh-tab-link-categ active" data-tab="meal">Meal</button>
+                        <button type="button" class="csh-tab-link-categ" data-tab="drink">Drink</button>
+                        <button type="button" class="csh-tab-link-categ" data-tab="dessert">Dessert</button>
+                        <button type="button" class="csh-tab-link-categ" data-tab="snack">Snack</button>
                     </div>
 
                     <!-- Product Table -->
@@ -234,9 +234,9 @@
         let productIndex = 0;
 
         // Tab Switching for Categories
-        document.querySelectorAll('.csh-tab-link').forEach(button => {
+        document.querySelectorAll('.csh-tab-link-categ').forEach(button => {
             button.addEventListener('click', () => {
-                document.querySelectorAll('.csh-tab-link').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.csh-tab-link-categ').forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
 
                 document.querySelectorAll('.csh-tab-content').forEach(content => {
