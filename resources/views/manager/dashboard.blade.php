@@ -1,11 +1,9 @@
-
 @extends('manager.layout')
 
 @section('title', 'Manager Dashboard')
 
 @section('content')
 <h1>Manager Dashboard</h1>
-
 
 <div class="dashboard-container">
     <a href="/reports?tab=profit" class="box-link">
@@ -32,34 +30,37 @@
     <a href="/transactions" class="box-link">
         <div class="dashboard-box-product">
             <h4>Top Selling Products</h4>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Sales</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($topSellingProducts as $product)
-                    <tr>
-                        <td>{{ $product->product_name }}</td>
-                        <td>{{ $product->sales }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+            <div class="table-scroll-container">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Sales</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($topSellingProducts as $product)
+                        <tr>
+                            <td>{{ $product->product_name }}</td>
+                            <td>{{ $product->sales }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </>
+    </a>
     <a href="/products" class="box-link">
-        <div class="dashboard-box-product">
+        <div class="dashboard-box-lowstock">
             <h4>Low Stock Alerts</h4>
-            <table class="table table-bordered">
-                <thead>
+            <div class="table-scroll-container">
+                <table class="table table-bordered">
+                    <thead>
                         <tr>
                             <th>Product</th>
                             <th>Stock Left</th>
                         </tr>
-                </thead>
+                    </thead>
                     <tbody>
                         @foreach($lowStockProducts as $product)
                         <tr>
@@ -68,7 +69,8 @@
                         </tr>
                         @endforeach
                     </tbody>
-            </table>
+                </table>
+            </div>
         </div>
     </a>
 </div>
@@ -93,11 +95,11 @@
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true, // Allow flexible sizing
+            maintainAspectRatio: true,
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 1500, // Adjusted max value
+                    max: 1500,
                     ticks: {
                         font: {
                             size: 12

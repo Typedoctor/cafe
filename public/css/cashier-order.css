@@ -5,6 +5,7 @@
 * {
     font-family: 'Poppins', sans-serif;
     font-weight: 400;
+    box-sizing: border-box;
 }
 
 /* Main Container */
@@ -22,7 +23,7 @@
     color: #333;
     text-align: center;
     margin: 10px 0 0 10px;
-    color: rgb(0, 0, 0); /* Adjusted to match the image */
+    color: rgb(0, 0, 0);
     margin-bottom: 50px;
 }
 
@@ -37,14 +38,16 @@
 .csh-add-order-btn {
     background-color: white;
     color: #000000;
-    padding: 8px;
-    border-radius: 5px;
+    padding: 8px 16px;
+    border-radius: 3px;
     font-size: 12px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     display: flex;
     align-items: center;
     gap: 5px;
+    height: 34px;
+    line-height: 1;
 }
 
 .csh-add-order-btn::before {
@@ -187,23 +190,29 @@
 .csh-tabs {
     display: flex;
     gap: 8px;
+    margin-bottom: 15px;
+    justify-content: center;
 }
 
 .csh-tab-link {
-    padding: 10px;
-    background: #e0e0e0;
+    padding: 8px 16px;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
-    transition: background 0.3s;
     font-size: 12px;
     text-transform: uppercase;
-    color: #333;
+    color: #ffffff;
+    background: none; /* Remove background */
+    border-radius: 0; /* Remove border-radius */
+    transition: color 0.3s; /* Smooth transition for color change */
 }
 
-.csh-tab-link:hover, .csh-tab-link.active {
-    background: #4285f4;
-    color: white;
+.csh-tab-link:hover {
+    color: #636060; /* Optional: Change text color on hover */
+}
+
+.csh-tab-link.active {
+    color: #ffffff;
+    border-bottom: 2px solid white; /* Add white bottom border for active tab */
 }
 
 .csh-tab-content {
@@ -389,20 +398,22 @@
 }
 
 /* Order Details Fields */
-.csh-order-details-payment{
+.csh-order-details-payment {
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
     color: #333;
     font-size: 12px;
 }
-.csh-order-details-total{
+
+.csh-order-details-total {
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
     color: #333;
     font-size: 12px;
 }
+
 .csh-order-details-instructions {
     display: flex;
     justify-content: space-between;
@@ -412,18 +423,16 @@
     margin-bottom: 100px;
 }
 
-
-
 .csh-order-details-value {
     color: #333;
     font-size: 12px;
     white-space: pre-line;
-    text-align: right; /* Aligns values to the right for consistency */
+    text-align: right;
 }
 
 /* Optional: Adjust specific sections if needed */
 .csh-order-details-instructions .csh-order-details-value {
-    flex: 1; /* Allows the instructions to take available space */
+    flex: 1;
 }
 
 .csh-order-details-actions {
@@ -431,8 +440,8 @@
     flex-direction: column;
     gap: 15px;
     justify-content: flex-end;
-    width: 250px; /* Set a specific width */
-    margin: 0 auto; /* Center the container */
+    width: 250px;
+    margin: 0 auto;
 }
 
 .csh-cancel-btn, .csh-complete-btn {
@@ -446,7 +455,7 @@
     color: white;
     user-select: none;
     text-transform: uppercase;
-    width: 100%; /* Buttons still take the full width of the container */
+    width: 100%;
 }
 
 .csh-cancel-btn:hover, .csh-complete-btn:hover {
@@ -549,7 +558,6 @@
     .csh-order-details-label,
     .csh-order-details-value {
         font-size: 11px;
-        
     }
 
     .csh-order-details-actions {
