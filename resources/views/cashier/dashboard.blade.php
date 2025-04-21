@@ -3,231 +3,237 @@
 @section('title', 'Cashier Dashboard')
 
 @section('content')
-    <h1 class="csh-dashboard-title">Cashier Dashboard</h1>
+    
+        <h1 class="csh-dashboard-title">Cashier Dashboard</h1>
+        <div class="csh-main-container">
+        <!-- Add Order Button -->
+        <div class="csh-button-container">
+            <button id="openModalBtn" class="csh-add-order-btn">
+               New Order
+            </button>
+            <!-- Tabs for filtering orders -->
+            <div class="csh-tabs">
+                <button type="button" class="csh-tab-link active" data-tab="all">ALL</button>
+                <button type="button" class="csh-tab-link" data-tab="completed">Completed</button>
+            </div>
+        </div>
 
-    <!-- Add Order Button -->
-    <div class="csh-button-container">
-        <button id="openModalBtn" class="csh-add-order-btn">
-            Add Order
-        </button>
-    </div>
+        <!-- Modal -->
+        <div id="orderModal" class="csh-modal">
+            <div class="csh-modal-content">
+                <h2 class="csh-modal-title">Create New Order</h2>
+                <form action="{{ route('order.store') }}" method="POST" id="orderForm">
+                    @csrf
+                    @if ($errors->any())
+                        <div class="csh-error-message">
+                            <ul class="csh-error-list">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
 
-    <!-- Modal -->
-    <div id="orderModal" class="csh-modal">
-        <div class="csh-modal-content">
-            <h2 class="csh-modal-title">Create New Order</h2>
-            <form action="{{ route('order.store') }}" method="POST" id="orderForm">
-                @csrf
-                @if ($errors->any())
-                    <div class="csh-error-message">
-                        <ul class="csh-error-list">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+                    <div class="csh-form-group">
+                        <label for="customer_name" class="csh-form-label">Customer Name:</label>
+                        <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}" required class="csh-form-input" placeholder="Enter customer name here">
                     </div>
-                @endif
 
-                <div class="csh-form-group">
-                    <label for="customer_name" class="csh-form-label">Customer Name:</label>
-                    <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}" required class="csh-form-input" placeholder="Enter customer name here">
-                </div>
+                    <!-- Tabs for Categories -->
+                    <div class="csh-tabs">
+                        <button type="button" class="csh-tab-link active" data-tab="meal">Meal</button>
+                        <button type="button" class="csh-tab-link" data-tab="drink">Drink</button>
+                        <button type="button" class="csh-tab-link" data-tab="dessert">Dessert</button>
+                        <button type="button" class="csh-tab-link" data-tab="snack">Snack</button>
+                    </div>
 
-                <!-- Tabs for Categories -->
-                <div class="csh-tabs">
-                    <button type="button" class="csh-tab-link active" data-tab="meal">Meal</button>
-                    <button type="button" class="csh-tab-link" data-tab="drink">Drink</button>
-                    <button type="button" class="csh-tab-link" data-tab="dessert">Dessert</button>
-                    <button type="button" class="csh-tab-link" data-tab="snack">Snack</button>
-                </div>
-
-                <!-- Product Table -->
-                <div id="product-table-container">
-                    @foreach (['meal', 'drink', 'dessert', 'snack'] as $category)
-                        <div id="{{ $category }}-tab" class="csh-tab-content" style="display: {{ $category == 'meal' ? 'block' : 'none' }};">
-                            <table class="csh-product-table">
-                                <thead>
-                                    <tr>
-                                        <th>Product Name</th>
-                                        <th>Price</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($products->where('category', $category) as $product)
+                    <!-- Product Table -->
+                    <div id="product-table-container">
+                        @foreach (['meal', 'drink', 'dessert', 'snack'] as $category)
+                            <div id="{{ $category }}-tab" class="csh-tab-content" style="display: {{ $category == 'meal' ? 'block' : 'none' }};">
+                                <table class="csh-product-table">
+                                    <thead>
                                         <tr>
-                                            <td>{{ $product->product_name }}</td>
-                                            <td>₱{{ number_format($product->price, 2) }}</td>
-                                            <td>
-                                                <button type="button" class="csh-add-product-btn" 
-                                                        data-product-id="{{ $product->id }}" 
-                                                        data-product-name="{{ $product->product_name }}" 
-                                                        data-product-price="{{ $product->price }}">  
-                                                        Add to Order
-                                                </button>
-                                            </td>
+                                            <th>Product Name</th>
+                                            <th>Price</th>
+                                            <th>Action</th>
                                         </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($products->where('category', $category) as $product)
+                                            <tr>
+                                                <td>{{ $product->product_name }}</td>
+                                                <td>₱{{ number_format($product->price, 2) }}</td>
+                                                <td>
+                                                    <button type="button" class="csh-add-product-btn" 
+                                                            data-product-id="{{ $product->id }}" 
+                                                            data-product-name="{{ $product->product_name }}" 
+                                                            data-product-price="{{ $product->price }}">  
+                                                            Add to Order
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        @if ($products->where('category', $category)->isEmpty())
+                                            <tr>
+                                                <td colspan="3">No {{ $category }} products available.</td>
+                                            </tr>
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <!-- Selected Products -->
+                    <div id="selected-products">
+                        <h3>Selected Products</h3>
+                        <table class="csh-selected-products-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="selected-products-body">
+                                <!-- Dynamically added rows will appear here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="csh-form-group">
+                        <label class="csh-form-label">Order Type:</label>
+                        <div class="csh-radio-group">
+                            <input type="radio" name="order_type" id="order_type_dine_in" value="Dine-in" {{ old('order_type', 'Dine-in') == 'Dine-in' ? 'checked' : '' }} required>
+                            <label for="order_type_dine_in" class="csh-radio-label">Dine-in</label>
+                            <input type="radio" name="order_type" id="order_type_takeout" value="Takeout" {{ old('order_type') == 'Takeout' ? 'checked' : '' }}>
+                            <label for="order_type_takeout" class="csh-radio-label">Takeout</label>
+                        </div>
+                    </div>
+
+                    <div class="csh-form-group">
+                        <label for="special_instructions" class="csh-form-label">Special Instructions:</label>
+                        <textarea placeholder="Any special instructions? Add here" name="special_instructions" id="special_instructions" class="csh-form-textarea">{{ old('special_instructions') }}</textarea>
+                    </div>
+
+                    <div class="csh-form-actions">
+                        <button type="submit" class="csh-submit-btn">Place Order</button>
+                        <button type="button" id="closeModalBtn" class="csh-close-btn">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if (session('success'))
+            <div class="csh-success-message" id="successMessage">
+                {{ session('success') }}
+            </div>
+            <style>
+                .csh-success-message {
+                    transition: opacity 0.5s ease;
+                }
+                .csh-success-message.hidden {
+                    opacity: 0;
+                    display: none;
+                }
+            </style>
+            <script>
+                // Fade out the success message after 2 seconds
+                setTimeout(() => {
+                    const successMessage = document.getElementById('successMessage');
+                    if (successMessage) {
+                        successMessage.style.opacity = '0';
+                        setTimeout(() => {
+                            successMessage.classList.add('hidden');
+                        }, 500); // Match the transition duration (0.5s)
+                    }
+                }, 2000); // 2000 milliseconds = 2 seconds
+            </script>
+        @endif
+
+        <div class="csh-orders-container">
+            <div class="csh-orders-list">
+                @if ($orders->isEmpty())
+                    <p class="csh-no-orders">No orders have been placed yet.</p>
+                @else
+                    @foreach ($orders as $order)
+                        @php
+                            // Build the products string for data-products attribute
+                            $productsString = '';
+                            foreach ($order->orderItems as $index => $item) {
+                                $productsString .= $item->quantity . ' x ' . ($item->product->product_name ?? 'N/A');
+                                if ($index < $order->orderItems->count() - 1) {
+                                    $productsString .= ', ';
+                                }
+                            }
+                        @endphp
+                        <div class="csh-order-card" data-order-id="{{ $order->id }}" role="button" tabindex="0"
+                             data-customer-name="{{ $order->customer_name }}"
+                             data-order-type="{{ $order->order_type }}"
+                             data-special-instructions="{{ $order->special_instructions ?? 'None' }}"
+                             data-total-price="{{ number_format($order->total_price, 2) }}"
+                             data-time="{{ $order->created_at->format('h:i A') }}"
+                             data-products="{{ $productsString }}">
+                            <div class="csh-order-header">
+                                <span class="csh-order-id">{{ $order->id }}</span>
+                                <span class="csh-order-products">
+                                    @foreach ($order->orderItems as $item)
+                                        {{ $item->product->product_name ?? 'N/A' }}
+                                        @if (!$loop->last), @endif
                                     @endforeach
-                                    @if ($products->where('category', $category)->isEmpty())
-                                        <tr>
-                                            <td colspan="3">No {{ $category }} products available.</td>
-                                        </tr>
-                                    @endif
-                                </tbody>
-                            </table>
+                                </span>
+                            </div>
+                            <div class="csh-order-details">
+                                <span class="csh-order-time">{{ $order->created_at->format('h:i A') }}</span>
+                                <span class="csh-order-customer">{{ $order->customer_name }}</span>
+                                <span class="csh-order-type">{{ $order->order_type }}</span>
+                            </div>
                         </div>
                     @endforeach
-                </div>
+                @endif
+            </div>
 
-                <!-- Selected Products -->
-                <div id="selected-products">
-                    <h3>Selected Products</h3>
-                    <table class="csh-selected-products-table">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="selected-products-body">
-                            <!-- Dynamically added rows will appear here -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="csh-form-group">
-                    <label class="csh-form-label">Order Type:</label>
-                    <div class="csh-radio-group">
-                        <input type="radio" name="order_type" id="order_type_dine_in" value="Dine-in" {{ old('order_type', 'Dine-in') == 'Dine-in' ? 'checked' : '' }} required>
-                        <label for="order_type_dine_in" class="csh-radio-label">Dine-in</label>
-                        <input type="radio" name="order_type" id="order_type_takeout" value="Takeout" {{ old('order_type') == 'Takeout' ? 'checked' : '' }}>
-                        <label for="order_type_takeout" class="csh-radio-label">Takeout</label>
+            <!-- Order Details Form -->
+            <div id="orderDetailsForm" class="csh-order-details-form">
+                <form id="orderDetailsFormInner" method="POST">
+                    @csrf
+                    <input type="hidden" name="order_id" id="orderDetailsId">
+                    <div class="csh-order-details-header">
+                        <span id="orderDetailsIdDisplay">Select an order</span>
+                        <span id="orderDetailsCustomer"></span>
                     </div>
-                </div>
-
-                <div class="csh-form-group">
-                    <label for="special_instructions" class="csh-form-label">Special Instructions:</label>
-                    <textarea placeholder="Any special instructions? Add here" name="special_instructions" id="special_instructions" class="csh-form-textarea">{{ old('special_instructions') }}</textarea>
-                </div>
-
-                <div class="csh-form-actions">
-                    <button type="submit" class="csh-submit-btn">Place Order</button>
-                    <button type="button" id="closeModalBtn" class="csh-close-btn">Close</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    @if (session('success'))
-        <div class="csh-success-message" id="successMessage">
-            {{ session('success') }}
-        </div>
-        <style>
-            .csh-success-message {
-                transition: opacity 0.5s ease;
-            }
-            .csh-success-message.hidden {
-                opacity: 0;
-                display: none;
-            }
-        </style>
-        <script>
-            // Fade out the success message after 2 seconds
-            setTimeout(() => {
-                const successMessage = document.getElementById('successMessage');
-                if (successMessage) {
-                    successMessage.style.opacity = '0';
-                    setTimeout(() => {
-                        successMessage.classList.add('hidden');
-                    }, 500); // Match the transition duration (0.5s)
-                }
-            }, 2000); // 2000 milliseconds = 2 seconds
-        </script>
-    @endif
-
-    <h2 class="csh-orders-title">Placed Orders</h2>
-    <div class="csh-orders-container">
-        <div class="csh-orders-list">
-            @if ($orders->isEmpty())
-                <p class="csh-no-orders">No orders have been placed yet.</p>
-            @else
-                @foreach ($orders as $order)
-                    @php
-                        // Build the products string for data-products attribute
-                        $productsString = '';
-                        foreach ($order->orderItems as $index => $item) {
-                            $productsString .= $item->quantity . ' x ' . ($item->product->product_name ?? 'N/A');
-                            if ($index < $order->orderItems->count() - 1) {
-                                $productsString .= ', ';
-                            }
-                        }
-                    @endphp
-                    <div class="csh-order-card" data-order-id="{{ $order->id }}" role="button" tabindex="0"
-                         data-customer-name="{{ $order->customer_name }}"
-                         data-order-type="{{ $order->order_type }}"
-                         data-special-instructions="{{ $order->special_instructions ?? 'None' }}"
-                         data-total-price="{{ number_format($order->total_price, 2) }}"
-                         data-time="{{ $order->created_at->format('h:i A') }}"
-                         data-products="{{ $productsString }}">
-                        <div class="csh-order-header">
-                            <span class="csh-order-id">{{ $order->id }}</span>
-                            <span class="csh-order-products">
-                                @foreach ($order->orderItems as $item)
-                                    {{ $item->product->product_name ?? 'N/A' }}
-                                    @if (!$loop->last), @endif
-                                @endforeach
-                            </span>
-                        </div>
-                        <div class="csh-order-details">
-                            <span class="csh-order-time">{{ $order->created_at->format('h:i A') }}</span>
-                            <span class="csh-order-customer">{{ $order->customer_name }}</span>
-                            <span class="csh-order-type">{{ $order->order_type }}</span>
-                        </div>
+                    <div class="csh-order-details-time-type">
+                        <span id="orderDetailsTime"></span>
+                        <span id="orderDetailsType"></span>
                     </div>
-                @endforeach
-            @endif
-        </div>
-
-        <!-- Order Details Form -->
-        <div id="orderDetailsForm" class="csh-order-details-form">
-            <form id="orderDetailsFormInner" method="POST">
-                @csrf
-                <input type="hidden" name="order_id" id="orderDetailsId">
-                <div class="csh-order-details-header">
-                    <span id="orderDetailsIdDisplay">Select an order</span>
-                    <span id="orderDetailsCustomer"></span>
-                </div>
-                <div class="csh-order-details-time-type">
-                    <span id="orderDetailsTime"></span>
-                    <span id="orderDetailsType"></span>
-                </div>
-                <div class="csh-order-details-products" id="orderDetailsProducts"></div>
-                <div class="csh-order-details-field">
-                    <span>Payment mode</span>
-                    <span>Cash</span>
-                </div>
-                <div class="csh-order-details-field">
-                    <span>TOTAL</span>
-                    <span id="orderDetailsTotal">₱ 0.00</span>
-                </div>
-                <div class="csh-order-details-field">
-                    <span>Special Instructions</span>
-                    <div id="orderDetailsInstructions"></div>
-                </div>
-                <div class="csh-order-details-actions">
-                    <button type="submit" formaction="{{ route('order.cancel') }}" class="csh-cancel-btn">Cancel Order</button>
-                    <button type="submit" formaction="{{ route('order.complete') }}" class="csh-complete-btn">Mark as Completed</button>
-                </div>
-            </form>
+                    <div class="csh-order-details-products" id="orderDetailsProducts"></div>
+                    <div class="csh-order-details-payment">
+                        <span class="csh-order-details-label">Payment mode</span>
+                        <span class="csh-order-details-value">Cash</span>
+                    </div>
+                    <div class="csh-order-details-total">
+                        <span class="csh-order-details-label">TOTAL</span>
+                        <span class="csh-order-details-value" id="orderDetailsTotal">₱ 0.00</span>
+                    </div>
+                    <div class="csh-order-details-instructions">
+                        <span class="csh-order-details-label">Special Instructions</span>
+                        <div class="csh-order-details-value" id="orderDetailsInstructions"></div>
+                    </div>
+                    <div class="csh-order-details-actions">
+                        <button type="submit" formaction="{{ route('order.cancel') }}" class="csh-cancel-btn">Cancel Order</button>
+                        <button type="submit" formaction="{{ route('order.complete') }}" class="csh-complete-btn">Mark as Completed</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <script>
         let productIndex = 0;
 
-        // Tab Switching
+        // Tab Switching for Categories
         document.querySelectorAll('.csh-tab-link').forEach(button => {
             button.addEventListener('click', () => {
                 document.querySelectorAll('.csh-tab-link').forEach(btn => btn.classList.remove('active'));

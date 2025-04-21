@@ -63,15 +63,7 @@ body {
     max-width: calc(100% - 250px);
 }
 
-/* Headings */
-h1 {
-    font-size: 32px;
-    font-weight: 700;
-    color: #10394f;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-   
-}
+
 
 /* Responsive Considerations */
 @media (max-width: 768px) {

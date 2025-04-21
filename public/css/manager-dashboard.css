@@ -98,7 +98,6 @@ h1 {
     border-radius: 8px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden; /* Prevents the chart from spilling out */
-    display: flex;
     justify-content: center;
     align-items: center;
 }
