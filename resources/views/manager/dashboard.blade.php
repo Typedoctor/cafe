@@ -66,12 +66,16 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($lowStockProducts as $product)
+                        @forelse ($lowStockProducts as $product)
                         <tr>
                             <td>{{ $product->product_name }}</td>
                             <td>{{ $product->quantity }}</td>
                         </tr>
-                        @endforeach
+                        @empty
+                         <tr>
+                            <td colspan="2">No low stock.</td>
+                         </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

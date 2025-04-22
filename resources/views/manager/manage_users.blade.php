@@ -136,7 +136,6 @@
                 document.getElementById("password").value = "";
                 document.getElementById("password").placeholder = "Change pass? if no leave it blank";
                 confirmPasswordGroup.style.display = "none";
-                userForm.reset();
                 passwordInput.required = false;
                 confirmPasswordInput.required = false;
                 saveBtn.innerText = "UPDATE";

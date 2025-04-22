@@ -1,3 +1,4 @@
+
 @extends('cashier.layout')
 
 @section('title', 'Manage Trash')
@@ -49,10 +50,20 @@
     <div class="modal-content">
         <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
         <h2 id="modalTitle" style="text-align: center;">Add New Trash Entry</h2>
+        
+        <!-- Category Tabs -->
+        <div class="category-tabs">
+            <button class="tab-btn active" data-category="snack">Snack</button>
+            <button class="tab-btn" data-category="drink">Drink</button>
+            <button class="tab-btn" data-category="meal">Meal</button>
+            <button class="tab-btn" data-category="dessert">Dessert</button>
+        </div>
+
         <form id="trashForm" method="POST">
             @csrf
             <input type="hidden" name="_method" id="methodField" value="POST">
             <input type="hidden" name="trash_id" id="trashId">
+            <input type="hidden" name="category" id="category" value="snack">
 
             <div class="form-group">
                 <label>What product are you discarding?</label>
@@ -60,22 +71,15 @@
                     <option value="">-- Choose a Product --</option>
                     @if(!empty($products) && $products->count() > 0)
                         @foreach($products as $product)
-                            <option value="{{ e(trim($product->product_name)) }}" data-price="{{ $product->price }}">{{ e(trim($product->product_name)) }} (Stock: {{ $product->quantity }})</option>
+                            <option value="{{ e(trim($product->product_name)) }}" 
+                                    data-price="{{ $product->price }}" 
+                                    data-category="{{ $product->category }}">
+                                {{ e(trim($product->product_name)) }} (Stock: {{ $product->quantity }})
+                            </option>
                         @endforeach
                     @else
                         <option value="" disabled>No products available</option>
                     @endif
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Product Type</label>
-                <select name="category" id="category" required>
-                    <option value="">-- Choose a Type --</option>
-                    <option value="snack">Snack</option>
-                    <option value="drink">Drink</option>
-                    <option value="meal">Meal</option>
-                    <option value="dessert">Dessert</option>
                 </select>
             </div>
 
@@ -89,15 +93,14 @@
                 <input type="text" name="reason" id="reason" placeholder="e.g., Expired, Damaged" required>
             </div>
             <div class="total-loss-display">
-            <label>Total Loss (₱)</label>
-            <div id="totalLossDisplay">Enter product and quantity to see total loss.</div>
-        </div>
+                <label>Total Loss (₱)</label>
+                <div id="totalLossDisplay">Enter product and quantity to see total loss.</div>
+            </div>
             <button type="submit" class="btn save-btn" id="saveBtn">Add</button>
         </form>
         <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 10px;">
             <i class="fa-solid fa-spinner fa-spin"></i> Saving...
         </div>
-       
     </div>
 </div>
 
@@ -170,6 +173,30 @@
     box-sizing: border-box;
     color: #333;
 }
+.category-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+.tab-btn {
+    padding: 10px 20px;
+    margin: 0 5px;
+    border: none;
+    background: #f1f1f1;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+.tab-btn.active {
+    background: #007bff;
+    color: white;
+}
+.tab-btn:hover {
+    background: #ddd;
+}
+.tab-btn.active:hover {
+    background: #0056b3;
+}
 </style>
 
 <script>
@@ -187,6 +214,36 @@ document.addEventListener('DOMContentLoaded', function () {
     const productSelect = document.getElementById('productName');
     const quantityInput = document.getElementById('quantity');
     const totalLossDisplay = document.getElementById('totalLossDisplay');
+    const categoryInput = document.getElementById('category');
+    const tabButtons = document.querySelectorAll('.tab-btn');
+
+    // Store all product options
+    const allProductOptions = Array.from(productSelect.options).slice(1); // Exclude the "-- Choose a Product --" option
+
+    // Function to filter products by category
+    function filterProductsByCategory(category) {
+        // Clear current options except the placeholder
+        while (productSelect.options.length > 1) {
+            productSelect.remove(1);
+        }
+
+        // Add filtered options
+        const filteredOptions = allProductOptions.filter(option => 
+            option.getAttribute('data-category') === category || !option.getAttribute('data-category')
+        );
+        filteredOptions.forEach(option => {
+            const newOption = document.createElement('option');
+            newOption.value = option.value;
+            newOption.text = option.text;
+            newOption.setAttribute('data-price', option.getAttribute('data-price'));
+            newOption.setAttribute('data-category', option.getAttribute('data-category'));
+            productSelect.appendChild(newOption);
+        });
+
+        // Reset product selection
+        productSelect.value = '';
+        updateTotalLoss();
+    }
 
     // Function to calculate and update total loss display
     function updateTotalLoss() {
@@ -200,6 +257,20 @@ document.addEventListener('DOMContentLoaded', function () {
     // Event listeners for real-time total loss calculation
     productSelect.addEventListener('change', updateTotalLoss);
     quantityInput.addEventListener('input', updateTotalLoss);
+
+    // Tab click event
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            // Update active tab
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            // Update category input and filter products
+            const category = this.getAttribute('data-category');
+            categoryInput.value = category;
+            filterProductsByCategory(category);
+        });
+    });
 
     // Show modal for new trash entry
     document.getElementById('addTrashBtn').addEventListener('click', function () {
@@ -217,18 +288,23 @@ document.addEventListener('DOMContentLoaded', function () {
         saveBtn.innerText = 'Add';
         trashForm.reset();
         productSelect.value = '';
-        document.getElementById('category').value = '';
+        categoryInput.value = 'snack';
         totalLossDisplay.textContent = 'Enter product and quantity to see total loss.';
         loadingSpinner.style.display = 'none';
         saveBtn.disabled = false;
-        updateTotalLoss(); // Initialize total loss display
+
+        // Reset tabs
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabButtons[0].classList.add('active');
+        filterProductsByCategory('snack');
+        updateTotalLoss();
     });
 
     // Show modal for editing trash entry
     document.querySelectorAll('.edit-btn').forEach(button => {
         button.addEventListener('click', function () {
             const productName = this.dataset.name ? this.dataset.name.trim() : '';
-            const productSelect = document.getElementById('productName');
+            const productCategory = this.dataset.category || 'snack';
 
             // Debug
             console.log('Editing product name:', productName);
@@ -243,6 +319,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 newOption.value = productName;
                 newOption.text = productName + ' (Not in current inventory)';
                 newOption.setAttribute('data-price', '0');
+                newOption.setAttribute('data-category', productCategory);
                 newOption.selected = true;
                 productSelect.appendChild(newOption);
             } else {
@@ -260,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function () {
             methodField.value = 'PUT';
             trashForm.action = '{{ url('trash') }}/' + this.dataset.id;
             document.getElementById('trashId').value = this.dataset.id;
-            document.getElementById('category').value = this.dataset.category || '';
+            categoryInput.value = productCategory;
             document.getElementById('quantity').value = this.dataset.quantity || '';
             document.getElementById('reason').value = this.dataset.reason || '';
             saveBtn.innerText = 'Update';
@@ -268,7 +345,12 @@ document.addEventListener('DOMContentLoaded', function () {
             loadingSpinner.style.display = 'none';
             saveBtn.disabled = false;
 
-            // Initialize total loss display
+            // Set active tab
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            const activeTab = Array.from(tabButtons).find(btn => btn.getAttribute('data-category') === productCategory);
+            if (activeTab) activeTab.classList.add('active');
+            filterProductsByCategory(productCategory);
+            productSelect.value = productName || '';
             updateTotalLoss();
         });
     });
