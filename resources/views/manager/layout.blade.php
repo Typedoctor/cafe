@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/manager-inventory.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manager-reports.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manager-user.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/transaction.css') }}">
     <script src="https://kit.fontawesome.com/2952e58222.js" crossorigin="anonymous"></script>
 </head>
 <body>

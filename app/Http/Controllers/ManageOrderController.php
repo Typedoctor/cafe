@@ -142,10 +142,10 @@ class ManageOrderController extends Controller
         $validated = $request->validate([
             'order_id' => 'required|exists:orders,id',
         ]);
-
+    
         try {
             DB::beginTransaction();
-
+    
             $order = Order::with('orderItems.product')->findOrFail($validated['order_id']);
             
             if ($order->status === 'completed') {
@@ -154,18 +154,19 @@ class ManageOrderController extends Controller
                 return view('cashier.dashboard', compact('products', 'orders'))
                     ->withErrors(['error' => 'Order is already completed.']);
             }
-
+    
             // Create transaction records
             foreach ($order->orderItems as $item) {
                 if (!$item->product) {
                     \Log::warning("OrderItem {$item->id} has no associated product. Skipping.");
                     continue;
                 }
-
+    
                 Transaction::create([
                     'customer_name' => $order->customer_name,
                     'user_id' => $order->user_id ?? Auth::id() ?? throw new \Exception('No user ID available'),
                     'product_id' => $item->product_id,
+                    'product_name' => $item->product->product_name, // Fetch product_name from the Product model
                     'quantity' => $item->quantity,
                     'total_price' => $item->price,
                     'special_instructions' => $order->special_instructions ?? '',
@@ -173,17 +174,17 @@ class ManageOrderController extends Controller
                     'status' => 'completed',
                 ]);
             }
-
+    
             // Update order status
             $order->status = 'completed';
             $order->save();
-
+    
             // Delete order items and order
             $order->orderItems()->delete();
             $order->delete();
-
+    
             DB::commit();
-
+    
             $orders = Order::with('orderItems.product')->get();
             $products = Product::all();
             return view('cashier.dashboard', compact('products', 'orders'))
