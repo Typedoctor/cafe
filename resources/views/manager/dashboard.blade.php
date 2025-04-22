@@ -31,22 +31,26 @@
         <div class="dashboard-box-product">
             <h4>Top Selling Products</h4>
             <div class="table-scroll-container">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Sales</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($topSellingProducts as $product)
-                        <tr>
-                            <td>{{ $product->product_name }}</td>
-                            <td>{{ $product->sales }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Sales</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($topSellingProducts as $item)
+                <tr>
+                    <td>{{ $item->product->product_name ?? 'Unknown Product' }}</td>
+                    <td>{{ $item->total_quantity }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="2">No top-selling products found.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
             </div>
         </div>
     </a>
