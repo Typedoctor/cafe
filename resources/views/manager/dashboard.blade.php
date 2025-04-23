@@ -10,7 +10,7 @@
         <div class="dashboard-box">Income</div> 
     </a>
     <a href="/reports?tab=loss" class="box-link">
-        <div class="dashboard-box">Loss from thrown items ₱{{ number_format($totalLoss, 2) }}</div>
+        <div class="dashboard-box">Loss from thrown items<div style="color:red;">₱{{ number_format($totalLoss, 2) }}</div> </div>
     </a>
     <a href="/reports?tab=profit" class="box-link">
         <div class="dashboard-box">Revenue</div>
@@ -30,8 +30,8 @@
     <a href="/transactions" class="box-link">
         <div class="dashboard-box-product">
             <h4>Top Selling Products</h4>
-            <div class="table-scroll-container">
-            <table class="table table-striped">
+            <div class="top-selling-scroll-container">
+            <table class="top-selling-table">
         <thead>
             <tr>
                 <th>Product</th>
@@ -57,8 +57,8 @@
     <a href="/products" class="box-link">
         <div class="dashboard-box-lowstock">
             <h4>Low Stock Alerts</h4>
-            <div class="table-scroll-container">
-                <table class="table table-bordered">
+            <div class="low-stock-scroll-container">
+                <table class="low-stock-table">
                     <thead>
                         <tr>
                             <th>Product</th>
@@ -88,18 +88,12 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
     const ctx = document.getElementById('salesChart').getContext('2d');
+    const salesData = @json($salesData);
     new Chart(ctx, {
-        type: 'bar',
+        type: 'line',
         data: {
-            labels: ['Shabu', 'Juana', 'Coke'],
-            datasets: [{
-                label: 'Inventory Status',
-                data: [1200, 900, 700],
-                backgroundColor: ['#10394f', '#0d2c3a', '#007bff'],
-                borderRadius: 5,
-                barPercentage: 0.5,
-                categoryPercentage: 0.6
-            }]
+            labels: salesData.labels,
+            datasets: salesData.datasets
         },
         options: {
             responsive: true,
@@ -107,11 +101,15 @@
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 1500,
+                    max: {{ $maxY }}, // Dynamic max value
                     ticks: {
                         font: {
                             size: 12
                         }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Units Sold'
                     }
                 },
                 x: {
@@ -119,6 +117,10 @@
                         font: {
                             size: 14
                         }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Time Period'
                     }
                 }
             },

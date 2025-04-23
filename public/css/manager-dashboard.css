@@ -133,34 +133,63 @@ h1 {
     transition: 0.3s ease-in-out;
 }
 
-.table-scroll-container {
+.top-selling-scroll-container {
     max-height: 150px;
     overflow-y: auto;
     width: 100%;
 }
 
-.table-scroll-container table {
+.top-selling-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.table-scroll-container th,
-.table-scroll-container td {
+.top-selling-table th,
+.top-selling-table td {
     padding: 8px;
     text-align: left;
     font-size: 14px;
 }
 
-.table-scroll-container th {
+.top-selling-table th {
     background-color: #f0f0f0;
     position: sticky;
     top: 0;
     z-index: 1;
 }
 
-/* Remove the striped effect */
-.table-scroll-container tbody tr {
-    background-color: white; /* Ensure all rows are white */
+.top-selling-table tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+.low-stock-scroll-container {
+    max-height: 150px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.low-stock-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.low-stock-table th,
+.low-stock-table td {
+    padding: 8px;
+    text-align: left;
+    font-size: 14px;
+    border: 1px solid #ddd;
+}
+
+.low-stock-table th {
+    background-color: #f0f0f0;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.low-stock-table tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
 }
 
 /* Hover effects for widgets */
