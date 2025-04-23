@@ -1,0 +1,51 @@
+services:
+  app:
+    container_name: cafe_app
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    command: >
+      sh -c "sleep 5 && php artisan migrate --force && apache2-foreground"
+    networks:
+      - laravel-net
+
+
+  db:
+    image: mysql:8
+    container_name: db
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cafe
+      MYSQL_USER: cafe_admin
+      MYSQL_PASSWORD: cafe_password
+    volumes:
+      - mysql_data:/var/lib/mysql  # This will persist your database data
+    networks:
+      - laravel-net
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: cafe_phpmyadmin
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - laravel-net
+      
+networks:
+  laravel-net:       
+
+volumes:
+  mysql_data:  # This defines the named volume for MySQL
