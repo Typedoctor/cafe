@@ -98,8 +98,6 @@
     </tbody>
 </table>
 </div>
-
-
 @endsection
 
 <!-- for functionality -->
