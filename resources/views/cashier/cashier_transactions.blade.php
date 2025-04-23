@@ -1,4 +1,4 @@
-@extends('manager.layout')
+@extends('cashier.layout')
 
 @section('title', 'Transaction')
 
@@ -34,9 +34,10 @@
                         @endfor
                     </select>
                     <!-- Filter and Reset Buttons -->
+                    
                     <a href="{{ route('transactions.index') }}" class="btn reset-btn">Reset</a>
                     <!-- Export Button -->
-                    <a class="btn export-btn">Export to CSV</a>
+                    <a  class="btn export-btn">Export to CSV</a>
                 </div>
             </div>
         </div>
@@ -45,7 +46,7 @@
     <!-- Transaction Table -->
     <div class="table-container active" id="transaction-table">
         <div class="section-title">Transaction List</div>
-        <div class="table-scroll-container" style="max-height: none; overflow-y: visible;">
+        <div class="table-scroll-container">
             <table class="inventory-table table-striped">
                 <thead>
                     <tr>

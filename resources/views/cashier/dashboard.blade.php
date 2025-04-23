@@ -12,10 +12,6 @@
                New Order
             </button>
             <!-- Tabs for filtering orders -->
-            <div class="csh-tabs">
-                <button type="button" class="csh-tab-link active" data-tab="all">ALL</button>
-                <button type="button" class="csh-tab-link" data-tab="completed">Completed</button>
-            </div>
         </div>
 
         <!-- Modal -->
