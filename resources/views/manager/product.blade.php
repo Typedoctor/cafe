@@ -72,38 +72,41 @@
 </div>
 
 <!-- Inventory Table -->
-<table class="inventory-table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Product Name</th>
-            <th>Category</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th style="width: 100px;">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($products as $product)
-        <tr>
-            <td>{{ $product->id }}</td>
-            <td>{{ $product->product_name }}</td>
-            <td>{{ $product->category }}</td>
-            <td>{{ $product->quantity }}</td>
-            <td>₱{{ $product->price }}</td>
-            <td>
-                <button class="btn edit-btn" data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-category="{{ $product->category }}" data-price="{{ $product->price }}" data-quantity="{{ $product->quantity }}" >
-                    <i class="fa-solid fa-pencil"></i>
-                </button>
-                <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline; " onsubmit="return confirm('Are you sure you want to delete this product?');">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="btn delete-btn"><i class="fa-solid fa-trash"></i></button>
-                </form>
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
+<div class="prd-table-container" id="transaction-table"> 
+    <table class="inventory-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th style="width: 100px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($products as $product)
+            <tr>
+                <td>{{ $product->id }}</td>
+                <td>{{ $product->product_name }}</td>
+                <td>{{ $product->category }}</td>
+                <td>{{ $product->quantity }}</td>
+                <td>₱{{ $product->price }}</td>
+                <td>
+                    <button class="btn edit-btn" data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-category="{{ $product->category }}" data-price="{{ $product->price }}" data-quantity="{{ $product->quantity }}" >
+                        <i class="fa-solid fa-pencil"></i>
+                    </button>
+                    <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline; " onsubmit="return confirm('Are you sure you want to delete this product?');">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="btn delete-btn"><i class="fa-solid fa-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+
 
 <!-- already existing Product Warning Modal -->
 <div id="duplicateModal" class="modal">

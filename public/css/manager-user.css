@@ -29,13 +29,13 @@
 }
 
 .user-add-btn {
-    background-color: #4CAF50;
+    background-color:  #3980cd;
     color: white;
     margin-left: 10px;
 }
 
 .user-add-btn:hover {
-    background-color: #0f601d;
+    background-color:  #013b78;
     transform: translateY(-3px); /* Lift effect */
     box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5); /* Glow effect */
 }
@@ -195,7 +195,15 @@
     transform: translateY(-3px); /* Lift effect */
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5); /* Glow effect */
 }
-
+.usr-table-container{
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    margin: 20px 0px;
+    max-width: 100%;
+    overflow: visible;
+}
 /* Modal Styles */
 .user-modal {
     display: none;

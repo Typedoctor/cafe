@@ -37,7 +37,7 @@
                     
                     <a href="{{ route('transactions.index') }}" class="btn reset-btn">Reset</a>
                     <!-- Export Button -->
-                    <a  class="btn export-btn">Export to CSV</a>
+                    <a  class="btn export-btn">Export to Excel</a>
                 </div>
             </div>
         </div>
@@ -64,7 +64,7 @@
                         <tr>
                             <td>{{ $transaction->product_names }}</td>
                             <td>{{ $transaction->customer_name }}</td>
-                            <td>{{ $transaction->special_instruction ?? 'N/A' }}</td>
+                            <td>{{ $transaction->special_instructions ?: 'N/A' }}</td>
                             <td>{{ $transaction->order_type }}</td>
                             <td>{{ $transaction->status }}</td>
                             <td>{{ $transaction->total_quantity }}</td>

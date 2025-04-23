@@ -63,7 +63,7 @@
                         <tr>
                             <td>{{ $transaction->product_names }}</td>
                             <td>{{ $transaction->customer_name }}</td>
-                            <td>{{ $transaction->special_instruction ?? 'N/A' }}</td>
+                            <td>{{ $transaction->special_instructions ?: 'N/A' }}</td>
                             <td>{{ $transaction->order_type }}</td>
                             <td>{{ $transaction->status }}</td>
                             <td>{{ $transaction->total_quantity }}</td>

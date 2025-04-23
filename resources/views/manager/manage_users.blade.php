@@ -65,6 +65,7 @@
 </div>
 
 <!-- Users Table -->
+<div class="usr-table-container" id="transaction-table">
 <table class="user-table">
     <thead>
         <tr>
@@ -96,6 +97,8 @@
         @endforeach
     </tbody>
 </table>
+</div>
+
 
 @endsection
 

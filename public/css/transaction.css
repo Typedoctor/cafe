@@ -4,13 +4,14 @@
     padding: 15px;
     background: #fff;
     border-radius: 8px;
+    width: 100%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Single Row for Filters */
 .filter-row {
     display: flex;
-    flex-wrap: wrap;
+    
     gap: 15px;
     align-items: center;
 }
@@ -112,7 +113,7 @@
 }
 
 .export-btn:hover {
-    background-color: #0056b3;
+    background-color: #07600a;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }

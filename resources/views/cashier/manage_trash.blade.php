@@ -6,7 +6,7 @@
 @section('content')
 <h1 class="inventory-title">Manage Trash</h1>
 
-<div class="top-bar">
+<div class="trsh-top-bar">
     <button id="addTrashBtn" class="btn add-trash">+ Add Trash Entry</button>
     <button id="exportExcel" class="btn export-btn">Export to Excel</button>
 </div>
@@ -115,45 +115,48 @@
 </div>
 
 <!-- Trash Table -->
-<table class="inventory-table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Product Name</th>
-            <th>Category</th>
-            <th>Quantity</th>
-            <th>Reason</th>
-            <th>Total Loss</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($trashes as $trash)
-        <tr>
-            <td>{{ $trash->id }}</td>
-            <td>{{ $trash->product_name }}</td>
-            <td>{{ $trash->category }}</td>
-            <td>{{ $trash->quantity }}</td>
-            <td>{{ $trash->reason }}</td>
-            <td>₱{{ number_format($trash->total_loss, 2) }}</td>
-            <td>
-                <button class="btn edit-btn" data-id="{{ $trash->id }}" 
-                        data-name="{{ e(trim($trash->product_name)) }}" 
-                        data-category="{{ $trash->category }}" 
-                        data-quantity="{{ $trash->quantity }}" 
-                        data-reason="{{ $trash->reason }}"
-                        data-total-loss="{{ $trash->total_loss }}">
-                    <i class="fa-solid fa-pencil"></i>
-                </button>
-                <form action="{{ route('trash.destroy', $trash) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this trash entry?');">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="btn delete-btn"><i class="fa-solid fa-trash"></i></button>
-                </form>
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
+<div class="trsh-table-container" id="transaction-table">
+    <table class="inventory-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Reason</th>
+                <th>Total Loss</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($trashes as $trash)
+            <tr>
+                <td>{{ $trash->id }}</td>
+                <td>{{ $trash->product_name }}</td>
+                <td>{{ $trash->category }}</td>
+                <td>{{ $trash->quantity }}</td>
+                <td>{{ $trash->reason }}</td>
+                <td>₱{{ number_format($trash->total_loss, 2) }}</td>
+                <td>
+                    <button class="btn edit-btn" data-id="{{ $trash->id }}" 
+                            data-name="{{ e(trim($trash->product_name)) }}" 
+                            data-category="{{ $trash->category }}" 
+                            data-quantity="{{ $trash->quantity }}" 
+                            data-reason="{{ $trash->reason }}"
+                            data-total-loss="{{ $trash->total_loss }}">
+                        <i class="fa-solid fa-pencil"></i>
+                    </button>
+                    <form action="{{ route('trash.destroy', $trash) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this trash entry?');">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="btn delete-btn"><i class="fa-solid fa-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+
 
 <style>
 .total-loss-display {
