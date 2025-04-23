@@ -9,8 +9,6 @@ services:
       - .:/var/www/html
     depends_on:
       - db
-    environment:
-      - APACHE_DOCUMENT_ROOT=/var/www/html/public
 
   db:
     image: mysql:8.0
@@ -24,7 +22,7 @@ services:
       MYSQL_USER: cafe_admin
       MYSQL_PASSWORD: cafe_password
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql  # This will persist your database data
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -35,8 +33,6 @@ services:
     environment:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: root
-    depends_on:
-      - db
 
 volumes:
-  mysql_data:
+  mysql_data:  # This defines the named volume for MySQL
