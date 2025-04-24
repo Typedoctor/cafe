@@ -41,55 +41,57 @@
 <div id="profit-content" style="display: {{ $tab === 'profit' ? 'block' : 'none' }};">
     <div class="metrics">
         <div class="metric-box">
-            <div class="metric-title">Profit</div>
-            <div class="metric-value profit">P9,876</div>
+            <div class="metric-title">Revenue</div>
+            <div class="metric-value profit">₱{{ number_format($revenue, 2) }}</div>
         </div>
         <div class="metric-box">
             <div class="metric-title">Loss from thrown items</div>
             <div class="metric-value loss">₱{{ number_format($totalLoss, 2) }}</div>
         </div>
+        <div class="metric-box">
+            <div class="metric-title">Profit</div>
+            <div class="metric-value profit">₱{{ number_format($revenue-$totalLoss, 2) }}</div>
+        </div>
     </div>
 
-    <div class="table-container active" id="profit-table">
-        <div class="section-title">List of sales</div>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Product</th>
-                    <th>Category</th>
-                    <th>Unit Price</th>
-                    <th>Quantity Sold</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1001</td>
-                    <td>Premium Coffee</td>
-                    <td>Beverages</td>
-                    <td>P120</td>
-                    <td>45</td>
-                    <td>P5,400</td>
-                </tr>
-                <tr>
-                    <td>1002</td>
-                    <td>Chocolate Cake</td>
-                    <td>Desserts</td>
-                    <td>P85</td>
-                    <td>32</td>
-                    <td>P2,720</td>
-                </tr>
-                <tr>
-                    <td>1003</td>
-                    <td>Sandwich</td>
-                    <td>Meals</td>
-                    <td>P65</td>
-                    <td>27</td>
-                    <td>P1,755</td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="table-container active" id="transaction-table">
+        <div class="section-title">Transaction List</div>
+        <div class="table-scroll-container" style="max-height: none; overflow-y: visible;">
+            <table class="inventory-table table-striped">
+                <thead>
+                    <tr>
+                        <th>Products Ordered</th>
+                        <th>Customer Name</th>
+                        <th>Special Instruction</th>
+                        <th>Order Type</th>
+                        <th>Status</th>
+                        <th>Total Quantity</th>
+                        <th>Total Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($transactions as $transaction)
+                        <tr>
+                            <td>{{ $transaction->product_name }}</td>
+                            <td>{{ $transaction->customer_name }}</td>
+                            <td>{{ $transaction->special_instructions ?: 'N/A' }}</td>
+                            <td>{{ $transaction->order_type }}</td>
+                            <td>{{ $transaction->status }}</td>
+                            <td>{{ $transaction->quantity }}</td>
+                            <td>₱{{ number_format($transaction->total_price, 2) }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7">No transactions found for this period.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination Links -->
+        <div style="margin-top: 20px;">
+            {{ $transactions->appends(request()->query())->links() }}
+        </div>
     </div>
 </div>
 
