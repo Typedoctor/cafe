@@ -34,10 +34,9 @@
                         @endfor
                     </select>
                     <!-- Filter and Reset Buttons -->
-                    
                     <a href="{{ route('transactions.index') }}" class="btn reset-btn">Reset</a>
                     <!-- Export Button -->
-                    <a  class="btn export-btn">Export to Excel</a>
+                    <a class="btn export-btn">Export to Excel</a>
                 </div>
             </div>
         </div>
@@ -77,11 +76,10 @@
                     @endforelse
                 </tbody>
             </table>
+          
         </div>
-        <!-- Pagination Links -->
-        <div style="margin-top: 20px;">
-            {{ $summarizedTransactions->appends(request()->query())->links() }}
-        </div>
+       
+      
     </div>
 
     <script>

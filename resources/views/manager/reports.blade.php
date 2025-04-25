@@ -89,9 +89,7 @@
             </table>
         </div>
         <!-- Pagination Links -->
-        <div style="margin-top: 20px;">
-            {{ $transactions->appends(request()->query())->links() }}
-        </div>
+        
     </div>
 </div>
 

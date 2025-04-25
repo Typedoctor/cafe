@@ -100,7 +100,7 @@
                         @forelse ($lowStockProducts as $product)
                             <tr>
                                 <td>{{ $product->product_name }}</td>
-                                <td>{{ $product->quantity }}</td>
+                                <td style="color:red;">{{ $product->quantity }}</td>
                             </tr>
                         @empty
                             <tr>

@@ -55,7 +55,7 @@ class CashierTransactionController extends Controller
             'special_instructions',
             'created_at',
             'updated_at'
-        )->paginate(10);
+        )->get();
 
         return view('cashier.cashier_transactions', compact('summarizedTransactions'));
     }

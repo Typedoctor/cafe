@@ -25,12 +25,12 @@ class ReportController extends Controller
             // Only include data if the selected month/year matches today
             if (($month !== 'all' && $month != $today->month) || ($year !== 'all' && $year != $today->year)) {
                 $trashes = collect([]); // Return empty collection if month/year doesn't match today
-                $transactions = collect([])->paginate(10); // Return empty paginated result
+                $transactions = collect([]); 
             } else {
                 $queryTrash->whereDate('created_at', $today);
                 $trashes = $queryTrash->get();
                 $queryTransaction->whereDate('created_at', $today);
-                $transactions = $queryTransaction->paginate(10); // Paginate transactions
+                $transactions = $queryTransaction->get();
             }
         } elseif ($period === 'monthly') {
             // Apply month and year filters, default to current month/year if not specified
@@ -49,7 +49,7 @@ class ReportController extends Controller
                 $queryTransaction->whereYear('created_at', now()->year);
             }
             $trashes = $queryTrash->get();
-            $transactions = $queryTransaction->paginate(10); // Paginate transactions
+            $transactions = $queryTransaction->get();
         } elseif ($period === 'yearly') {
             // Apply year filter, default to current year if not specified
             if ($year !== 'all') {
@@ -60,7 +60,7 @@ class ReportController extends Controller
                 $queryTransaction->whereYear('created_at', now()->year);
             }
             $trashes = $queryTrash->get();
-            $transactions = $queryTransaction->paginate(10); // Paginate transactions
+            $transactions = $queryTransaction->get(); // Paginate transactions
         }
 
         $totalLoss = $trashes->sum('total_loss');

@@ -175,8 +175,8 @@ class DashboardController extends Controller
         // Colors for each product
         $colors = [
             ['border' => '#10394f', 'background' => 'rgba(16, 57, 79, 0.2)'],
-            ['border' => '#0d2c3a', 'background' => 'rgba(13, 44, 58, 0.2)'],
-            ['border' => '#007bff', 'background' => 'rgba(0, 123, 255, 0.2)']
+            ['border' => 'blue', 'background' => 'rgba(0, 174, 255, 0.2)'],
+            ['border' => 'green', 'background' => 'rgba(65, 196, 21, 0.2)']
         ];
 
         // Fetch sales data for each product per interval
