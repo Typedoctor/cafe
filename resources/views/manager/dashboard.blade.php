@@ -7,9 +7,8 @@
 
 <form class="dash-filter-content" id="filterForm" method="GET" action="{{ route('manager.dashboard') }}">
     <select class="dash-period-filter" name="period" onchange="submitForm()">
-        <option value="daily" {{ old('period', session('filter_period', request('period', 'daily'))) == 'daily' ? 'selected' : '' }}>Daily</option>
-        <option value="monthly" {{ old('period', session('filter_period', request('period', 'daily'))) == 'monthly' ? 'selected' : '' }}>Monthly</option>
-        <option value="yearly" {{ old('period', session('filter_period', request('period', 'daily'))) == 'yearly' ? 'selected' : '' }}>Yearly</option>
+        <option value="monthly" {{ old('period', session('filter_period', request('period', 'monthly'))) == 'monthly' ? 'selected' : '' }}>Monthly</option>
+        <option value="yearly" {{ old('period', session('filter_period', request('period', 'monthly'))) == 'yearly' ? 'selected' : '' }}>Yearly</option>
     </select>
     <select class="dash-month-filter" name="month" onchange="submitForm()">
         <option value="all" {{ old('month', session('filter_month', request('month', 'all'))) == 'all' ? 'selected' : '' }}>All Months</option>
@@ -112,7 +111,7 @@ function submitForm() {
     document.getElementById('filterForm').submit();
 }
 function resetFilters() {
-    document.querySelector('.dash-period-filter').value = 'daily';
+    document.querySelector('.dash-period-filter').value = 'monthly';
     document.querySelector('.dash-month-filter').value = 'all';
     document.querySelector('.dash-year-filter').value = 'all';
     const form = document.getElementById('filterForm');

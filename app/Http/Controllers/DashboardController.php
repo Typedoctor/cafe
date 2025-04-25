@@ -16,12 +16,12 @@ class DashboardController extends Controller
             // Clear session values
             $request->session()->forget(['filter_period', 'filter_month', 'filter_year']);
             // Set default values
-            $period = 'daily';
+            $period = 'monthly';
             $month = 'all';
             $year = 'all';
         } else {
             // Get filter inputs from request, falling back to session values
-            $period = $request->input('period', $request->session()->get('filter_period', 'daily'));
+            $period = $request->input('period', $request->session()->get('filter_period', 'monthly'));
             $month = $request->input('month', $request->session()->get('filter_month', 'all'));
             $year = $request->input('year', $request->session()->get('filter_year', 'all'));
         }
@@ -38,25 +38,8 @@ class DashboardController extends Controller
         $queryTopSelling = Transaction::query();
         $querySalesChart = Transaction::query();
 
-        // Apply period-based filtering (same as ReportController)
-        if ($period === 'daily') {
-            // For daily, always filter by today's date
-            $today = Carbon::today();
-            // Only include data if the selected month/year matches today
-            if (($month !== 'all' && $month != $today->month) || ($year !== 'all' && $year != $today->year)) {
-                $trashes = collect([]); // Empty collection for trashes
-                $transactions = collect([]); // Empty collection for transactions
-                $topSellingProducts = collect([]); // Empty for top-selling
-                $salesTransactions = collect([]); // Empty for sales chart
-            } else {
-                $queryTrash->whereDate('created_at', $today);
-                $queryTransaction->whereDate('created_at', $today);
-                $queryTopSelling->whereDate('created_at', $today);
-                $querySalesChart->whereDate('created_at', $today);
-                $trashes = $queryTrash->get();
-                $transactions = $queryTransaction->get();
-            }
-        } elseif ($period === 'monthly') {
+        // Apply period-based filtering
+        if ($period === 'monthly') {
             // Apply month and year filters, default to current month/year if not specified
             if ($month !== 'all') {
                 $queryTrash->whereMonth('created_at', $month);
@@ -118,12 +101,7 @@ class DashboardController extends Controller
 
         // Fetch sales data for the chart (sales volume over time)
         // Adjust the date range based on the period
-        if ($period === 'daily') {
-            $startDate = Carbon::today();
-            $endDate = Carbon::today();
-            $labels = ['Today'];
-            $intervals = [['start' => $startDate, 'end' => $endDate, 'label' => 'Today']];
-        } elseif ($period === 'yearly') {
+        if ($period === 'yearly') {
             $selectedYear = $year !== 'all' ? $year : now()->year;
             $startDate = Carbon::create($selectedYear, 1, 1)->startOfDay();
             $endDate = Carbon::create($selectedYear, 12, 31)->endOfDay();
@@ -208,9 +186,5 @@ class DashboardController extends Controller
         $maxY = $maxY > 0 ? ceil($maxY / 100) * 100 : 100; // Default to 100 if no sales
 
         return view('manager.dashboard', compact('trashes', 'revenue', 'topSellingProducts', 'totalLoss', 'lowStockProducts', 'salesData', 'maxY', 'period', 'month', 'year'));
-    }
-
-    public function dashboard() {
-        // Empty for now, or you can redirect to index if not needed
     }
 }
