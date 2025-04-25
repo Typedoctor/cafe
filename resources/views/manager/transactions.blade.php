@@ -78,9 +78,7 @@
             </table>
         </div>
         <!-- Pagination Links -->
-        <div style="margin-top: 20px;">
-            {{ $summarizedTransactions->appends(request()->query())->links() }}
-        </div>
+     
     </div>
 
     <script>
