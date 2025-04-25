@@ -1,12 +1,12 @@
 @extends('cashier.layout')
 
-@section('title', 'Transaction')
+@section('title', 'Transaction_cashier')
 
 @section('content')
     <div class="trn-header">Transactions</div>
 
     <!-- Search and Filter Form -->
-    <form id="transactionFilterForm" action="{{ route('transactions.index') }}" method="GET" class="trn-search-filter-form">
+    <form id="transactionFilterForm" action="{{ route('cashier.cashier_transactions') }}" method="GET" class="trn-search-filter-form">
         <div class="trn-search-filter-container">
             <!-- Single Row for Search, Filters, Buttons, and Export -->
             <div class="trn-filter-row">
@@ -34,9 +34,10 @@
                         @endfor
                     </select>
                     <!-- Filter and Reset Buttons -->
-                    <a href="{{ route('transactions.index') }}" class="trn-btn trn-reset-btn">Reset</a>
+                    <a href="{{ route('cashier.cashier_transactions') }}" class="trn-btn trn-reset-btn">Reset</a>
                     <!-- Export Button -->
-                    <a class="trn-btn trn-export-btn">Export to Excel</a>
+                    <a href="{{ route('cashier.transactions.export') . (request()->query() ? '?' . http_build_query(request()->query()) : '') }}" 
+                       class="trn-btn trn-export-btn">Export to Excel</a>
                 </div>
             </div>
         </div>
@@ -77,6 +78,8 @@
                 </tbody>
             </table>
         </div>
+    
+
     </div>
 
     <script>

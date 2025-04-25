@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 class ManageOrderController extends Controller
 {
-
     public function index()
     {
         $orders = Order::with('orderItems.product')->get();
@@ -43,26 +42,47 @@ class ManageOrderController extends Controller
 
             $total_price = 0;
             $orderItems = [];
+            $productQuantities = []; // Track total quantities per product
 
-            // Process each product
+            // Aggregate quantities by product
             foreach ($validated['products'] as $index => $productData) {
                 $product = Product::findOrFail($productData['product_id']);
+                $quantity = $productData['quantity'];
 
-                // Check stock
-                if ($product->quantity < $productData['quantity']) {
+                // Sum quantities for the same product
+                if (!isset($productQuantities[$product->id])) {
+                    $productQuantities[$product->id] = [
+                        'name' => $product->product_name,
+                        'available' => $product->quantity,
+                        'requested' => 0,
+                    ];
+                }
+                $productQuantities[$product->id]['requested'] += $quantity;
+
+                // Check stock for this item
+                if ($product->quantity < $quantity) {
                     return back()->withErrors([
                         'products.' . $index . '.quantity' => "Insufficient stock for {$product->product_name}. Available: {$product->quantity}"
                     ])->withInput();
                 }
 
-                $item_price = $product->price * $productData['quantity'];
+                $item_price = $product->price * $quantity;
                 $total_price += $item_price;
 
                 $orderItems[] = [
                     'product_id' => $product->id,
-                    'quantity' => $productData['quantity'],
+                    'quantity' => $quantity,
                     'price' => $item_price,
                 ];
+            }
+
+            // Check cumulative stock for each product
+            foreach ($productQuantities as $productId => $data) {
+                if ($data['requested'] > $data['available']) {
+                    return back()->withErrors([
+                        'products' => "Insufficient stock for {$data['name']}. Total requested: {$data['requested']}, Available: {$data['available']}"
+                    ])->withInput();
+                }
             }
 
             // Create order
@@ -86,6 +106,9 @@ class ManageOrderController extends Controller
                 ]);
 
                 $product->quantity -= $item['quantity'];
+                if ($product->quantity < 0) {
+                    throw new \Exception("Stock for {$product->product_name} cannot go below zero.");
+                }
                 $product->save();
             }
 
@@ -116,17 +139,23 @@ class ManageOrderController extends Controller
                     ->withErrors(['error' => 'Cannot cancel a completed order.']);
             }
 
+            // Restore stock
+            foreach ($order->orderItems as $item) {
+                $product = Product::findOrFail($item->product_id);
+                $product->quantity += $item->quantity;
+                $product->save();
+            }
+
             // Delete the order and its items
             $order->orderItems()->delete();
             $order->delete();
 
             DB::commit();
 
-            // Fetch updated orders and products for the view
             $orders = Order::with('orderItems.product')->get();
             $products = Product::all();
             return view('cashier.dashboard', compact('products', 'orders'))
-                ->with('success', 'Order canceled successfully and transaction recorded.');
+                ->with('success', 'Order canceled successfully and stock restored.');
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Cancel Order Error: ' . $e->getMessage());
@@ -166,7 +195,7 @@ class ManageOrderController extends Controller
                     'customer_name' => $order->customer_name,
                     'user_id' => $order->user_id ?? Auth::id() ?? throw new \Exception('No user ID available'),
                     'product_id' => $item->product_id,
-                    'product_name' => $item->product->product_name, // Fetch product_name from the Product model
+                    'product_name' => $item->product->product_name,
                     'quantity' => $item->quantity,
                     'total_price' => $item->price,
                     'special_instructions' => $order->special_instructions ?? '',

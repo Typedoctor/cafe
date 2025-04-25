@@ -7,6 +7,13 @@
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
 }
+.inv-section-title{
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+    
+}
 
 .inv-btn {
     padding: 10px 20px;

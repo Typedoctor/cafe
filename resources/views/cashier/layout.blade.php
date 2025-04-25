@@ -15,7 +15,7 @@
         <div class="sidebar">
             <ul>   
                 <li><a href="{{ route('order.index') }}" ><i class="fa-solid fa-mug-hot"></i>Manage orders</a></li>
-                <li><a href="{{ route('transaction.index') }}" ><i class="fa-solid fa-receipt"></i><span>Transactions</a></li>
+                <li><a href="{{ route('cashier.cashier_transactions') }}" ><i class="fa-solid fa-receipt"></i><span>Transactions</a></li>
                 <li><a href="{{ route('trash.index') }}"><i class="fa-solid fa-trash"></i>Record Thrown Items</a></li>
                 <li><a href="{{ route('logout') }}"><i class="fa-solid fa-sign-out-alt"></i>Logout</a></li>
             </ul>

@@ -10,7 +10,7 @@ use App\Exports\TransactionsExport;
 
 class CashierTransactionController extends Controller
 {
-    public function index(Request $request)
+    public function index_cashier(Request $request)
     {
         // Get filter values
         $month = $request->input('month', 'all');
@@ -60,8 +60,15 @@ class CashierTransactionController extends Controller
         return view('cashier.cashier_transactions', compact('summarizedTransactions'));
     }
 
-    public function export(Request $request)
+    public function export_cashier(Request $request)
     {
-        return Excel::download(new TransactionsExport($request->all()), 'transactions_' . Carbon::now()->format('Ymd_His') . '.xlsx');
+        try {
+            return Excel::download(
+                new TransactionsExport($request->all()),
+                'transactions_' . Carbon::now()->format('Ymd_His') . '.xlsx'
+            );
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to export transactions: ' . $e->getMessage());
+        }
     }
 }

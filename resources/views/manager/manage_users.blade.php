@@ -55,7 +55,9 @@
     </div>
 </div>
 
+
 <div class="usr-table-container">
+<div class="usr-section-title">Users List</div>
     <table class="usr-table">
         <thead>
             <tr>

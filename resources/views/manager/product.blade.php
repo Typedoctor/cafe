@@ -64,7 +64,9 @@
     </div>
 </div>
 
+
 <div class="inv-table-container" id="transaction-table"> 
+<div class="inv-section-title">Products List</div>
     <table class="inv-table">
         <thead>
             <tr>

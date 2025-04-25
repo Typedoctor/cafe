@@ -52,6 +52,7 @@
                                         <tr>
                                             <th>Product Name</th>
                                             <th>Price</th>
+                                            <th>Stock</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -60,6 +61,7 @@
                                             <tr>
                                                 <td>{{ $product->product_name }}</td>
                                                 <td>₱{{ number_format($product->price, 2) }}</td>
+                                                <td>{{ $product->quantity }}</td>
                                                 <td>
                                                     <button type="button" class="csh-add-product-btn" 
                                                             data-product-id="{{ $product->id }}" 
@@ -72,7 +74,7 @@
                                         @endforeach
                                         @if ($products->where('category', $category)->isEmpty())
                                             <tr>
-                                                <td colspan="3">No {{ $category }} products available.</td>
+                                                <td colspan="4">No {{ $category }} products available.</td>
                                             </tr>
                                         @endif
                                     </tbody>
@@ -249,20 +251,31 @@
                 const productPrice = button.dataset.productPrice;
 
                 const selectedProductsBody = document.getElementById('selected-products-body');
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${productName}</td>
-                    <td>${parseFloat(productPrice).toFixed(2)}</td>
-                    <td>
-                        <input type="number" name="products[${productIndex}][quantity]" min="1" value="1" required class="csh-form-input">
-                        <input type="hidden" name="products[${productIndex}][product_id]" value="${productId}">
-                    </td>
-                    <td>
-                        <button type="button" class="csh-remove-product-btn">Remove</button>
-                    </td>
-                `;
-                selectedProductsBody.appendChild(row);
-                productIndex++;
+                const existingRow = Array.from(selectedProductsBody.rows).find(row => 
+                    row.querySelector(`input[name$="[product_id]"]`).value === productId
+                );
+
+                if (existingRow) {
+                    // Update quantity
+                    const quantityInput = existingRow.querySelector('input[type="number"]');
+                    quantityInput.value = parseInt(quantityInput.value) + 1;
+                } else {
+                    // Add new row
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${productName}</td>
+                        <td>${parseFloat(productPrice).toFixed(2)}</td>
+                        <td>
+                            <input type="number" name="products[${productIndex}][quantity]" min="1" value="1" required class="csh-form-input">
+                            <input type="hidden" name="products[${productIndex}][product_id]" value="${productId}">
+                        </td>
+                        <td>
+                            <button type="button" class="csh-remove-product-btn">Remove</button>
+                        </td>
+                    `;
+                    selectedProductsBody.appendChild(row);
+                    productIndex++;
+                }
             });
         });
 
