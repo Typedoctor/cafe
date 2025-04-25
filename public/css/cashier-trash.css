@@ -51,13 +51,13 @@
 }
 
 .export-btn {
-    background-color: #3590C0;
+    background-color: #4CAF50;
     color: white;
     margin-left: 10px;
 }
 
 .export-btn:hover {
-    background-color: #0056b3;
+    background-color: #106813;
     transform: translateY(-3px); /* Lift effect */
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5); /* Glow effect */
 }
@@ -166,6 +166,9 @@
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 .inventory-table th {

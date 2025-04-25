@@ -3,20 +3,19 @@
 @section('title', 'Product Inventory')
 
 @section('content')
-<h1 class="inventory-title">Product Inventory</h1>
+<h1 class="inv-title">Product Inventory</h1>
 
-<div class="top-bar">
-    <button id="addStockBtn" class="btn add-stock">+ Add Product</button>
-    <button id="exportExcel" class="btn export-btn">Export to Excel</button>
+<div class="inv-top-bar">
+    <button id="addStockBtn" class="inv-btn inv-add-stock">+ Add Product</button>
+    <button id="exportExcel" class="inv-btn inv-export-btn">Export to Excel</button>
 </div>
 
-<!-- Search and Filter Section -->
-<div class="search-filter-container">
-    <form id="searchFilterForm" class="search-filter-form" method="GET">
-        <div class="search-box">
+<div class="inv-search-filter-container">
+    <form id="searchFilterForm" class="inv-search-filter-form" method="GET">
+        <div class="inv-search-box">
             <input type="text" name="search" placeholder="Search products..." value="{{ request('search') }}">
         </div>
-        <div class="filter-box">
+        <div class="inv-filter-box">
             <select name="category">
                 <option value="all">All Categories</option>
                 <option value="snack" {{ request('category') == 'snack' ? 'selected' : '' }}>Snack</option>
@@ -24,28 +23,25 @@
                 <option value="meal" {{ request('category') == 'meal' ? 'selected' : '' }}>Meal</option>
                 <option value="dessert" {{ request('category') == 'dessert' ? 'selected' : '' }}>Dessert</option>
             </select>
-            <button type="submit" class="btn filter-btn">Apply Filter</button>
-            <a href="{{ route('products.index') }}" class="btn reset-btn">Reset</a>
+            <button type="submit" class="inv-btn inv-filter-btn">Apply Filter</button>
+            <a href="{{ route('products.index') }}" class="inv-btn inv-reset-btn">Reset</a>
         </div>
     </form>
 </div>
 
-<!-- Add & Edit Product Modal -->
-<div id="productModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
+<div id="productModal" class="inv-modal">
+    <div class="inv-modal-content">
+        <span class="inv-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
         <h2 id="modalTitle">Add New Product</h2>
         <form id="productForm" method="POST">
             @csrf
             <input type="hidden" name="_method" id="methodField" value="POST">
             <input type="hidden" name="product_id" id="productId">
-            
-            <div class="form-group">
+            <div class="inv-form-group">
                 <label>Product Name:</label>
                 <input type="text" name="product_name" id="productName" required value="{{ old('product_name', $product->product_name ?? '') }}">
             </div>
-
-            <div class="form-group">
+            <div class="inv-form-group">
                 <label>Category:</label>
                 <select name="category" id="category" required>
                     <option value="">Select Category</option>
@@ -55,25 +51,21 @@
                     <option value="dessert">Dessert</option>
                 </select>
             </div>
-
-            <div class="form-group">
+            <div class="inv-form-group">
                 <label>Quantity:</label>
                 <input type="number" name="quantity" id="quantity" min="0" max="999999" required>
             </div>
-
-            <div class="form-group">
+            <div class="inv-form-group">
                 <label>Price:</label>
                 <input type="float" step="0.5" name="price" id="price" min="0" max="999999" required >
             </div>
-
-            <button type="submit" class="btn save-btn" id="SaveBtn">ADD</button>
+            <button type="submit" class="inv-btn inv-save-btn" id="SaveBtn">ADD</button>
         </form>
     </div>
 </div>
 
-<!-- Inventory Table -->
-<div class="prd-table-container" id="transaction-table"> 
-    <table class="inventory-table">
+<div class="inv-table-container" id="transaction-table"> 
+    <table class="inv-table">
         <thead>
             <tr>
                 <th>ID</th>
@@ -93,12 +85,12 @@
                 <td>{{ $product->quantity }}</td>
                 <td>₱{{ $product->price }}</td>
                 <td>
-                    <button class="btn edit-btn" data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-category="{{ $product->category }}" data-price="{{ $product->price }}" data-quantity="{{ $product->quantity }}" >
+                    <button class="inv-btn inv-edit-btn" data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-category="{{ $product->category }}" data-price="{{ $product->price }}" data-quantity="{{ $product->quantity }}" >
                         <i class="fa-solid fa-pencil"></i>
                     </button>
                     <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline; " onsubmit="return confirm('Are you sure you want to delete this product?');">
                         @csrf @method('DELETE')
-                        <button type="submit" class="btn delete-btn"><i class="fa-solid fa-trash"></i></button>
+                        <button type="submit" class="inv-btn inv-delete-btn"><i class="fa-solid fa-trash"></i></button>
                     </form>
                 </td>
             </tr>
@@ -107,44 +99,37 @@
     </table>
 </div>
 
-
-<!-- already existing Product Warning Modal -->
-<div id="duplicateModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn">&times;</span>
+<div id="inv-duplicateModal" class="inv-modal">
+    <div class="inv-modal-content">
+        <span class="inv-close-btn">×</span>
         <h2>Warning!</h2>
         <p id="duplicateMessage">This product already exists.</p>
-        <button class="btn close-duplicate">OK</button>
+        <button class="inv-btn inv-close-duplicate">OK</button>
     </div>
 </div>
 @endsection
 
-<!-- adi tanan na functionality ngan logic -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const productModal = document.getElementById("productModal");
-    const duplicateModal = document.getElementById("duplicateModal");
+    const duplicateModal = document.getElementById("inv-duplicateModal");
     const productForm = document.getElementById("productForm");
     const modalTitle = document.getElementById("modalTitle");
     const methodField = document.getElementById("methodField");
     const SaveBtn = document.getElementById("SaveBtn");
-    const closeBtns = document.querySelectorAll(".close-btn");
-    const closeDuplicateBtn = document.querySelector(".close-duplicate");
-
+    const closeBtns = document.querySelectorAll(".inv-close-btn");
+    const closeDuplicateBtn = document.querySelector(".inv-close-duplicate");
     const quantityInput = document.getElementById("quantity");
     const priceInput = document.getElementById("price");
 
-    // Prevent negative values and invalid input
     function enforceValidInput(input, allowDecimals = false) {
         input.addEventListener("input", function () {
             this.value = allowDecimals ? this.value.replace(/[^0-9.]/g, "") : Math.max(0, this.value);
         });
     }
-
     enforceValidInput(quantityInput);
     enforceValidInput(priceInput, true);
 
-    // para mag pakita an modal han new product form
     document.getElementById("addStockBtn").addEventListener("click", function () {
         modalTitle.innerText = "Add New Product";
         methodField.value = "POST";
@@ -154,31 +139,26 @@ document.addEventListener("DOMContentLoaded", function () {
         productForm.reset();
     });
 
-    // para mag pakita liwat an edit product form na modal
-    document.querySelectorAll(".edit-btn").forEach(button => {
+    document.querySelectorAll(".inv-edit-btn").forEach(button => {
         button.addEventListener("click", function () {
             modalTitle.innerText = "Edit Product";
             methodField.value = "PUT";
             productForm.action = `/products/${this.dataset.id}`;
-            
             document.getElementById("productId").value = this.dataset.id;
             document.getElementById("productName").value = this.dataset.name;
             document.getElementById("category").value = this.dataset.category;
             document.getElementById("quantity").value = Math.max(0, this.dataset.quantity);
             document.getElementById("price").value = Math.max(0, this.dataset.price);
-            
             SaveBtn.innerText = "UPDATE";
             productModal.style.display = "block";
         });
     });
 
-    // adi an para prompt han duplicate product names error
     productForm.addEventListener("submit", function (event) {
         if (methodField.value === "POST") {
             const existingProducts = Array.from(document.querySelectorAll("tbody tr")).map(row =>
                 row.querySelector("td:nth-child(2)").innerText.trim().toLowerCase()
             );
-
             if (existingProducts.includes(document.getElementById("productName").value.trim().toLowerCase())) {
                 event.preventDefault();
                 duplicateModal.style.display = "block";
@@ -186,13 +166,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Close modals
     closeBtns.forEach(btn => btn.addEventListener("click", () => {
         productModal.style.display = "none";
         duplicateModal.style.display = "none";
     }));
     closeDuplicateBtn.addEventListener("click", () => duplicateModal.style.display = "none");
-
 });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>

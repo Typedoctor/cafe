@@ -3,21 +3,19 @@
 @section('title', 'Manager Reports')
 
 @section('content')
-<div class="header">Reports</div>
+<div class="rep-header">Reports</div>
 
-<!-- All Tabs (Profit, Loss, Daily, Monthly, Yearly) -->
 <form id="timePeriodForm" action="{{ route('reports.index') }}" method="GET">
-    <div class="all-tabs">
-        <div class="tab profit {{ $tab === 'profit' ? 'active' : '' }}" onclick="showTab('profit')">PROFIT</div>
-        <div class="tab loss {{ $tab === 'loss' ? 'active' : '' }}" onclick="showTab('loss')">LOSS</div>
-        <div class="gap"></div>
-        <div class="time-tab {{ $period === 'daily' ? 'active' : '' }}" onclick="changeTimePeriod('daily')">Daily</div>
-        <div class="time-tab {{ $period === 'monthly' ? 'active' : '' }}" onclick="changeTimePeriod('monthly')">Monthly</div>
-        <div class="time-tab {{ $period === 'yearly' ? 'active' : '' }}" onclick="changeTimePeriod('yearly')">Yearly</div>
+    <div class="rep-all-tabs">
+        <div class="rep-tab rep-profit {{ $tab === 'profit' ? 'active' : '' }}" onclick="showTab('profit')">PROFIT</div>
+        <div class="rep-tab rep-loss {{ $tab === 'loss' ? 'active' : '' }}" onclick="showTab('loss')">LOSS</div>
+        <div class="rep-gap"></div>
+        <div class="rep-time-tab {{ $period === 'daily' ? 'active' : '' }}" onclick="changeTimePeriod('daily')">Daily</div>
+        <div class="rep-time-tab {{ $period === 'monthly' ? 'active' : '' }}" onclick="changeTimePeriod('monthly')">Monthly</div>
+        <div class="rep-time-tab {{ $period === 'yearly' ? 'active' : '' }}" onclick="changeTimePeriod('yearly')">Yearly</div>
     </div>
-    <div class="filter-box">
-        <!-- Month Filter -->
-        <select class="month-filter" name="month" onchange="submitForm()">
+    <div class="rep-filter-box">
+        <select class="rep-month-filter" name="month" onchange="submitForm()">
             <option value="all">All Months</option>
             @for ($m = 1; $m <= 12; $m++)
                 <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>
@@ -25,8 +23,7 @@
                 </option>
             @endfor
         </select>
-        <!-- Year Filter -->
-        <select class="year-filter" name="year" onchange="submitForm()">
+        <select class="rep-year-filter" name="year" onchange="submitForm()">
             <option value="all">All Years</option>
             @for ($y = now()->year; $y >= now()->year - 5; $y--)
                 <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
@@ -37,78 +34,70 @@
     <input type="hidden" name="tab" id="tabInput" value="{{ $tab }}">
 </form>
 
-<!-- Profit Content -->
 <div id="profit-content" style="display: {{ $tab === 'profit' ? 'block' : 'none' }};">
-    <div class="metrics">
-        <div class="metric-box">
-            <div class="metric-title">Revenue</div>
-            <div class="metric-value profit">₱{{ number_format($revenue, 2) }}</div>
+    <div class="rep-metrics">
+        <div class="rep-metric-box">
+            <div class="rep-metric-title">Revenue</div>
+            <div class="rep-metric-value rep-profit">₱{{ number_format($revenue, 2) }}</div>
         </div>
-        <div class="metric-box">
-            <div class="metric-title">Loss from thrown items</div>
-            <div class="metric-value loss">₱{{ number_format($totalLoss, 2) }}</div>
+        <div class="rep-metric-box">
+            <div class="rep-metric-title">Loss from thrown items</div>
+            <div class="rep-metric-value rep-loss">₱{{ number_format($totalLoss, 2) }}</div>
         </div>
-        <div class="metric-box">
-            <div class="metric-title">Profit</div>
-            <div class="metric-value profit">₱{{ number_format($revenue-$totalLoss, 2) }}</div>
+        <div class="rep-metric-box">
+            <div class="rep-metric-title">Profit</div>
+            <div class="rep-metric-value rep-profit">₱{{ number_format($revenue-$totalLoss, 2) }}</div>
         </div>
     </div>
-
-    <div class="table-container active" id="transaction-table">
-        <div class="section-title">Transaction List</div>
-        <div class="table-scroll-container" style="max-height: none; overflow-y: visible;">
-            <table class="inventory-table table-striped">
-                <thead>
+    <div class="inv-table-container" id="transaction-table">
+        <div class="rep-section-title">Transaction List</div>
+        <table class="rep-table rep-table-striped">
+            <thead>
+                <tr>
+                    <th>Products Ordered</th>
+                    <th>Customer Name</th>
+                    <th>Special Instruction</th>
+                    <th>Order Type</th>
+                    <th>Status</th>
+                    <th>Total Quantity</th>
+                    <th>Total Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($transactions as $transaction)
                     <tr>
-                        <th>Products Ordered</th>
-                        <th>Customer Name</th>
-                        <th>Special Instruction</th>
-                        <th>Order Type</th>
-                        <th>Status</th>
-                        <th>Total Quantity</th>
-                        <th>Total Price</th>
+                        <td>{{ $transaction->product_name }}</td>
+                        <td>{{ $transaction->customer_name }}</td>
+                        <td>{{ $transaction->special_instructions ?: 'N/A' }}</td>
+                        <td>{{ $transaction->order_type }}</td>
+                        <td>{{ $transaction->status }}</td>
+                        <td>{{ $transaction->quantity }}</td>
+                        <td>₱{{ number_format($transaction->total_price, 2) }}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    @forelse ($transactions as $transaction)
-                        <tr>
-                            <td>{{ $transaction->product_name }}</td>
-                            <td>{{ $transaction->customer_name }}</td>
-                            <td>{{ $transaction->special_instructions ?: 'N/A' }}</td>
-                            <td>{{ $transaction->order_type }}</td>
-                            <td>{{ $transaction->status }}</td>
-                            <td>{{ $transaction->quantity }}</td>
-                            <td>₱{{ number_format($transaction->total_price, 2) }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7">No transactions found for this period.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <!-- Pagination Links -->
-        
+                @empty
+                    <tr>
+                        <td colspan="7">No transactions found for this period.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
 
-<!-- Loss Content -->
 <div id="loss-content" style="display: {{ $tab === 'loss' ? 'block' : 'none' }};">
-    <div class="metrics">
-        <div class="metric-box">
-            <div class="metric-title">Total Loss</div>
-            <div class="metric-value loss">₱{{ number_format($totalLoss, 2) }}</div>
+    <div class="rep-metrics">
+        <div class="rep-metric-box">
+            <div class="rep-metric-title">Total Loss</div>
+            <div class="rep-metric-value rep-loss">₱{{ number_format($totalLoss, 2) }}</div>
         </div>
-        <div class="metric-box">
-            <div class="metric-title">Items Thrown</div>
-            <div class="metric-value">{{ $trashCount }}</div>
+        <div class="rep-metric-box">
+            <div class="rep-metric-title">Items Thrown</div>
+            <div class="rep-metric-value">{{ $trashCount }}</div>
         </div>
     </div>
-
-    <div class="table-container active" id="loss-table">
-        <div class="section-title">List of thrown away items</div>
-        <table class="inventory-table">
+    <div class="inv-table-container" id="loss-table">
+        <div class="rep-section-title">List of thrown away items</div>
+        <table class="rep-table">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -140,40 +129,30 @@
 </div>
 
 <script>
-    function showTab(tabName) {
-        // Update active tab styling
-        document.querySelectorAll('.all-tabs .tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        event.target.classList.add('active');
-
-        // Update hidden tab input
-        document.getElementById('tabInput').value = tabName;
-
-        // Show/hide content
-        if (tabName === 'profit') {
-            document.getElementById('profit-content').style.display = 'block';
-            document.getElementById('loss-content').style.display = 'none';
-        } else {
-            document.getElementById('profit-content').style.display = 'none';
-            document.getElementById('loss-content').style.display = 'block';
-        }
+function showTab(tabName) {
+    document.querySelectorAll('.rep-all-tabs .rep-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    document.getElementById('tabInput').value = tabName;
+    if (tabName === 'profit') {
+        document.getElementById('profit-content').style.display = 'block';
+        document.getElementById('loss-content').style.display = 'none';
+    } else {
+        document.getElementById('profit-content').style.display = 'none';
+        document.getElementById('loss-content').style.display = 'block';
     }
-
-    function changeTimePeriod(period) {
-        // Update active time-tab styling
-        document.querySelectorAll('.all-tabs .time-tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        event.target.classList.add('active');
-
-        // Update hidden period input and submit form
-        document.getElementById('periodInput').value = period;
-        document.getElementById('timePeriodForm').submit();
-    }
-
-    function submitForm() {
-        document.getElementById('timePeriodForm').submit();
-    }
+}
+function changeTimePeriod(period) {
+    document.querySelectorAll('.rep-all-tabs .rep-time-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    document.getElementById('periodInput').value = period;
+    document.getElementById('timePeriodForm').submit();
+}
+function submitForm() {
+    document.getElementById('timePeriodForm').submit();
+}
 </script>
 @endsection

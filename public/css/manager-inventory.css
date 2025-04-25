@@ -1,5 +1,5 @@
 /* Main Styles */
-.inventory-title {
+.inv-title {
     font-size: 20px;
     margin-bottom: 30px;
     text-align: center;
@@ -8,9 +8,7 @@
     font-weight: 600;
 }
 
-
-
-.btn {
+.inv-btn {
     padding: 10px 20px;
     font-size: 16px;
     font-weight: 500;
@@ -24,20 +22,20 @@
 }
 
 /* Button Styles */
-.export-btn {
-    background-color: #3590C0;
+.inv-export-btn {
+    background-color: rgb(8, 188, 8);
     color: white;
     margin-left: 10px;
 }
 
-.export-btn:hover {
-    background-color: #0056b3;
+.inv-export-btn:hover {
+    background-color: green;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-.add-stock {
-    background-color:  #3980cd;
+.inv-add-stock {
+    background-color: #3980cd;
     color: white;
     padding: 10px 20px;
     font-size: 16px;
@@ -49,13 +47,14 @@
     margin-left: 160px;
 }
 
-.add-stock:hover,
+.inv-add-stock:hover,
 .add-user:hover {
     background-color: #0056b3;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
-.prd-table-container{
+
+.inv-table-container {
     background: #ffffff;
     border-radius: 8px;
     padding: 20px;
@@ -66,7 +65,7 @@
 }
 
 /* Search and Filter Styles */
-.search-filter-container {
+.inv-search-filter-container {
     background: #ffffff;
     border-radius: 8px;
     padding: 20px;
@@ -76,19 +75,19 @@
     overflow: visible;
 }
 
-.search-filter-form {
+.inv-search-filter-form {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
     align-items: center;
 }
 
-.search-box {
+.inv-search-box {
     flex: 1;
     min-width: 200px;
 }
 
-.search-box input {
+.inv-search-box input {
     width: 100%;
     padding: 12px 15px;
     height: 48px;
@@ -101,22 +100,22 @@
     transition: all 0.3s ease;
 }
 
-.search-box input:focus {
+.inv-search-box input:focus {
     outline: none;
     border-color: #4CAF50;
     background-color: #fff;
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
-.filter-box {
+.inv-filter-box {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     align-items: center;
 }
 
-.filter-box select,
-.filter-box input {
+.inv-filter-box select,
+.inv-filter-box input {
     padding: 12px 15px;
     height: 48px;
     font-size: 16px;
@@ -128,15 +127,15 @@
     transition: all 0.3s ease;
 }
 
-.filter-box select:focus,
-.filter-box input:focus {
+.inv-filter-box select:focus,
+.inv-filter-box input:focus {
     outline: none;
     border-color: #4CAF50;
     background-color: #fff;
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
-.filter-btn {
+.inv-filter-btn {
     background-color: #4CAF50;
     color: white;
     padding: 8px 15px;
@@ -150,13 +149,13 @@
     border: none;
 }
 
-.filter-btn:hover {
+.inv-filter-btn:hover {
     opacity: 0.9;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5);
 }
 
-.reset-btn {
+.inv-reset-btn {
     background-color: #666;
     color: white;
     padding: 8px 15px;
@@ -170,14 +169,14 @@
     border: none;
 }
 
-.reset-btn:hover {
+.inv-reset-btn:hover {
     opacity: 0.9;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(102, 102, 102, 0.5);
 }
 
 /* Modal Styles */
-.modal {
+.inv-modal {
     display: none;
     position: fixed;
     top: 50%;
@@ -202,7 +201,7 @@
     z-index: 999;
 }
 
-.modal h2 {
+.inv-modal h2 {
     font-size: 24px;
     margin-bottom: 25px;
     color: #333;
@@ -227,7 +226,7 @@
     overflow-y: auto;
 }
 
-.modal-content {
+.inv-modal-content {
     font-size: 16px;
     font-weight: 500;
     color: #000000;
@@ -244,7 +243,7 @@
 }
 
 /* Form Styles */
-.form-group {
+.inv-form-group {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -252,7 +251,7 @@
     width: 100%;
 }
 
-.form-group label {
+.inv-form-group label {
     font-size: 16px;
     font-weight: 500;
     color: #555;
@@ -260,8 +259,8 @@
     font-family: 'Poppins', sans-serif;
 }
 
-.form-group input,
-.form-group select {
+.inv-form-group input,
+.inv-form-group select {
     width: 100%;
     padding: 12px 15px;
     height: 48px;
@@ -274,8 +273,10 @@
     transition: all 0.3s ease;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.inv-form-group input:focus,
+.inv-form-group select:focus {
+
+
     outline: none;
     border-color: #4CAF50;
     background-color: #fff;
@@ -283,7 +284,7 @@
 }
 
 /* Button Styles */
-.save-btn {
+.inv-save-btn {
     background-color: #3590C0;
     color: white;
     padding: 10px 20px;
@@ -298,13 +299,13 @@
     margin-top: 10px;
 }
 
-.save-btn:hover {
+.inv-save-btn:hover {
     background-color: #0056b3;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-.close-btn {
+.inv-close-btn {
     margin-left: 380px;
     cursor: pointer;
     color: rgb(162, 5, 5);
@@ -321,7 +322,7 @@
     padding: 5px 10px;
 }
 
-.warning-close-duplicate {
+.inv-close-duplicate {
     background-color: #fafafa;
     padding: 10px 20px;
     font-size: 16px;
@@ -338,43 +339,45 @@
     display: inline-block;
 }
 
-.warning-close-duplicate:hover {
+.inv-close-duplicate:hover {
     background-color: #e0e0e0;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* Table Styles */
-.inventory-table {
+.inv-table {
     width: 100%;
     border-collapse: collapse;
-    
 }
 
-.inventory-table th,
-.inventory-table td {
+.inv-table th,
+.inv-table td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
 }
 
-.inventory-table th {
+.inv-table th {
     background-color: #10394f;
     color: white;
     font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
-.inventory-table tr:nth-child(even) {
+.inv-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-.inventory-table tr:hover {
+.inv-table tr:hover {
     background-color: #f0f0f0;
 }
 
 /* Action Buttons */
-.edit-btn,
-.delete-btn {
+.inv-edit-btn,
+.inv-delete-btn {
     padding: 5px 10px;
     font-size: 14px;
     border-radius: 5px;
@@ -384,22 +387,27 @@
     border: none;
     cursor: pointer;
 }
+.inv-top-bar{
+    display: flex;
+    justify-content: flex-end;
+       
+}
 
-.edit-btn {
+.inv-edit-btn {
     background-color: #3590C0;
 }
 
-.edit-btn:hover {
+.inv-edit-btn:hover {
     background-color: #0056b3;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-.delete-btn {
+.inv-delete-btn {
     background-color: #dc3545;
 }
 
-.delete-btn:hover {
+.inv-delete-btn:hover {
     background-color: #c82333;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
@@ -407,31 +415,31 @@
 
 /* Responsive Styles */
 @media (max-width: 768px) {
-    .search-filter-form {
+    .inv-search-filter-form {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .search-box input {
+    .inv-search-box input {
         width: 100%;
     }
 
-    .modal,
+    .inv-modal,
     .warning-modal {
         width: 90%;
         max-width: 400px;
         padding: 20px;
     }
 
-    .close-btn,
+    .inv-close-btn,
     .close-warning {
         margin-left: auto;
         display: block;
     }
 
-    .add-stock,
+    .inv-add-stock,
     .add-user,
-    .warning-close-duplicate {
+    .inv-close-duplicate {
         margin-left: auto;
         margin-right: auto;
         display: block;

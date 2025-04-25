@@ -3,22 +3,22 @@
 @section('title', 'Transaction')
 
 @section('content')
-    <div class="header">Transactions</div>
+    <div class="trn-header">Transactions</div>
 
     <!-- Search and Filter Form -->
-    <form id="transactionFilterForm" action="{{ route('transactions.index') }}" method="GET" class="search-filter-form">
+    <form id="transactionFilterForm" action="{{ route('transactions.index') }}" method="GET" class="trn-search-filter-form">
         <div class="trn-search-filter-container">
             <!-- Single Row for Search, Filters, Buttons, and Export -->
-            <div class="filter-row">
+            <div class="trn-filter-row">
                 <!-- Search Box -->
-                <div class="search-box">
+                <div class="trn-search-box">
                     <input type="text" name="search" placeholder="Search by customer name..." value="{{ request('search') }}"
                            autocomplete="off">
                 </div>
                 <!-- Filter Box -->
-                <div class="filter-box">
+                <div class="trn-filter-box">
                     <!-- Month Filter -->
-                    <select class="month-filter" name="month">
+                    <select class="trn-month-filter" name="month">
                         <option value="all" {{ request('month') === 'all' ? 'selected' : '' }}>All Months</option>
                         @for ($m = 1; $m <= 12; $m++)
                             <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>
@@ -27,26 +27,26 @@
                         @endfor
                     </select>
                     <!-- Year Filter -->
-                    <select class="year-filter" name="year">
+                    <select class="trn-year-filter" name="year">
                         <option value="all" {{ request('year') === 'all' ? 'selected' : '' }}>All Years</option>
                         @for ($y = now()->year; $y >= now()->year - 5; $y--)
                             <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
                         @endfor
                     </select>
                     <!-- Filter and Reset Buttons -->
-                    <a href="{{ route('transactions.index') }}" class="btn reset-btn">Reset</a>
+                    <a href="{{ route('transactions.index') }}" class="trn-btn trn-reset-btn">Reset</a>
                     <!-- Export Button -->
-                    <a class="btn export-btn">Export to Excel</a>
+                    <a class="trn-btn trn-export-btn">Export to Excel</a>
                 </div>
             </div>
         </div>
     </form>
 
     <!-- Transaction Table -->
-    <div class="table-container active" id="transaction-table">
-        <div class="section-title">Transaction List</div>
-        <div class="table-scroll-container">
-            <table class="inventory-table table-striped">
+    <div class="trn-table-container active" id="transaction-table">
+        <div class="trn-section-title">Transaction List</div>
+        <div class="trn-table-scroll-container">
+            <table class="trn-inventory-table trn-table-striped">
                 <thead>
                     <tr>
                         <th>Products Ordered</th>
@@ -76,15 +76,12 @@
                     @endforelse
                 </tbody>
             </table>
-          
         </div>
-       
-      
     </div>
 
     <script>
         // Handle select changes
-        document.querySelectorAll('.month-filter, .year-filter').forEach(select => {
+        document.querySelectorAll('.trn-month-filter, .trn-year-filter').forEach(select => {
             select.addEventListener('change', function() {
                 document.getElementById('transactionFilterForm').submit();
             });
