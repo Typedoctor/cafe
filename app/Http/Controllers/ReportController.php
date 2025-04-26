@@ -60,7 +60,7 @@ class ReportController extends Controller
                 $queryTransaction->whereYear('created_at', now()->year);
             }
             $trashes = $queryTrash->get();
-            $transactions = $queryTransaction->get(); // Paginate transactions
+            $transactions = $queryTransaction->get(); 
         }
 
         $totalLoss = $trashes->sum('total_loss');

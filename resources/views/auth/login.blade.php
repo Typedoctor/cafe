@@ -19,8 +19,8 @@
 
         <form action="{{ route('login.process') }}" method="POST">
             @csrf
-            <label for="username">Username</label>
-            <input type="text" name="name" id="username" placeholder="Enter username here" required>
+            <label for="username">Username</label> 
+            <input pattern= "[a-zA-Z]" oninvalid="setCustomValidity()"type="text" name="name" id="username" placeholder="Enter username here" min= "6" required>
             
             <label for="password">Password</label>
             <input type="password" name="password" id="password" placeholder="Enter password here" required>

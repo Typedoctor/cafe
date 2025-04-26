@@ -31,7 +31,7 @@
                     @endif
 
                     <div class="csh-form-group">
-                        <label for="customer_name" class="csh-form-label">Customer Name:</label>
+                        <label for="customer_name" class="csh-form-label">Customer Name:</label> 
                         <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}" required class="csh-form-input" placeholder="Enter customer name here">
                     </div>
 

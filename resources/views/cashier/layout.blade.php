@@ -19,7 +19,7 @@
                 <li><a href="{{ route('trash.index') }}"><i class="fa-solid fa-trash"></i>Record Thrown Items</a></li>
                 <li><a href="{{ route('logout') }}"><i class="fa-solid fa-sign-out-alt"></i>Logout</a></li>
             </ul>
-        </div>
+        </div>c
         <div class="content">
             @yield('content')
         </div>

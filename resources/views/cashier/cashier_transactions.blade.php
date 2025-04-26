@@ -36,7 +36,7 @@
                     <!-- Filter and Reset Buttons -->
                     <a href="{{ route('cashier.cashier_transactions') }}" class="trn-btn trn-reset-btn">Reset</a>
                     <!-- Export Button -->
-                    <a href="{{ route('cashier.transactions.export') . (request()->query() ? '?' . http_build_query(request()->query()) : '') }}" 
+                    <a
                        class="trn-btn trn-export-btn">Export to Excel</a>
                 </div>
             </div>

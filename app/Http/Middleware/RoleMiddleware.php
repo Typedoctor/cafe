@@ -11,10 +11,10 @@ class RoleMiddleware {
             return redirect()->route('login')->withErrors(['error' => 'Please login first']);
         }
         
-        if (Auth::user()->privilege !== $role) {
-            $redirectRoute = Auth::user()->isManager() ? 'manager.dashboard' : 'cashier.dashboard';
-            return redirect()->route($redirectRoute)->withErrors(['error' => 'Unauthorized Access']);
-        }
+        //if (Auth::user()->privilege !== $role) {
+            //$redirectRoute = Auth::user()->isManager() ? 'manager.dashboard' : 'cashier.dashboard';
+          //  return redirect()->route($redirectRoute)->withErrors(['error' => 'Unauthorized Access']);
+        //}
         
         return $next($request);
     }
