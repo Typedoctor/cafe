@@ -66,7 +66,7 @@ class ManagerShelfController extends Controller
                 if ($existingItem) {
                     $existingItem->quantity_added += $itemData['quantity_added'];
                     $existingItem->price = $itemData['price'] ?? $existingItem->price;
-                    $existingItem->category = $product->category; // Set category from product
+                    
                     $existingItem->save();
                 } else {
                     ShelfItem::create([
