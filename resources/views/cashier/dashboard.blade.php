@@ -3,15 +3,13 @@
 @section('title', 'Cashier Dashboard')
 
 @section('content')
-    
-        <h1 class="csh-dashboard-title">Cashier Dashboard</h1>
-        <div class="csh-main-container">
+    <h1 class="csh-dashboard-title">Cashier Dashboard</h1>
+    <div class="csh-main-container">
         <!-- Add Order Button -->
         <div class="csh-button-container">
             <button id="openModalBtn" class="csh-add-order-btn">
-               New Order
+                New Order
             </button>
-            <!-- Tabs for filtering orders -->
         </div>
 
         <!-- Modal -->
@@ -57,22 +55,22 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($products->where('category', $category) as $product)
+                                        @foreach ($shelfItems->where('product.category', $category) as $shelfItem)
                                             <tr>
-                                                <td>{{ $product->product_name }}</td>
-                                                <td>₱{{ number_format($product->price, 2) }}</td>
-                                                <td>{{ $product->quantity }}</td>
+                                                <td>{{ $shelfItem->product->product_name }}</td>
+                                                <td>₱{{ number_format($shelfItem->price, 2) }}</td>
+                                                <td>{{ $shelfItem->quantity_added }}</td>
                                                 <td>
                                                     <button type="button" class="csh-add-product-btn" 
-                                                            data-product-id="{{ $product->id }}" 
-                                                            data-product-name="{{ $product->product_name }}" 
-                                                            data-product-price="{{ $product->price }}">  
+                                                            data-product-id="{{ $shelfItem->product_id }}" 
+                                                            data-product-name="{{ $shelfItem->product->product_name }}" 
+                                                            data-product-price="{{ $shelfItem->price }}">  
                                                             Add to Order
                                                     </button>
                                                 </td>
                                             </tr>
                                         @endforeach
-                                        @if ($products->where('category', $category)->isEmpty())
+                                        @if ($shelfItems->where('product.category', $category)->isEmpty())
                                             <tr>
                                                 <td colspan="4">No {{ $category }} products available.</td>
                                             </tr>

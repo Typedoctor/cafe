@@ -17,28 +17,28 @@ class ProductsSeeder extends Seeder
         Product::create([
             'product_name' => 'Coffee Latte',
             'category' => 'Drink',
-            'price' => 120,
+            'supplier' => 'lebron',
             'quantity' => 50,
         ]);
 
         Product::create([
             'product_name' => 'Green Tea',
             'category' => 'Drink',
-            'price' => 95,
+            'supplier' => 'lebron',
             'quantity' => 30,
         ]);
 
         Product::create([
             'product_name' => 'Iced Americano',
             'category' => 'Drink',
-            'price' => 110,
+            'supplier' => 'lebron',
             'quantity' => 40,
         ]);
 
         Product::create([
             'product_name' => 'Mango Smoothie',
             'category' => 'Drink',
-            'price' => 150,
+            'supplier' => 'lebron',
             'quantity' => 25,
         ]);
 
@@ -46,21 +46,21 @@ class ProductsSeeder extends Seeder
         Product::create([
             'product_name' => 'Blueberry Muffin',
             'category' => 'Snack',
-            'price' => 60,
+            'supplier' => 'lebron',
             'quantity' => 20,
         ]);
 
         Product::create([
             'product_name' => 'Chocolate Chip Cookie',
             'category' => 'Snack',
-            'price' => 45,
+            'supplier' => 'lebron',
             'quantity' => 30,
         ]);
 
         Product::create([
             'product_name' => 'Mixed Nuts Pack',
             'category' => 'Snack',
-            'price' => 80,
+            'supplier' => 'lebron',
             'quantity' => 15,
         ]);
 
@@ -68,21 +68,21 @@ class ProductsSeeder extends Seeder
         Product::create([
             'product_name' => 'Chicken Caesar Salad',
             'category' => 'Meal',
-            'price' => 200,
+            'supplier' => 'lebron',
             'quantity' => 10,
         ]);
 
         Product::create([
             'product_name' => 'Grilled Cheese Sandwich',
             'category' => 'Meal',
-            'price' => 150,
+            'supplier' => 'lebron',
             'quantity' => 12,
         ]);
 
         Product::create([
             'product_name' => 'Vegetarian Wrap',
             'category' => 'Meal',
-            'price' => 180,
+            'supplier' => 'lebron',
             'quantity' => 8,
         ]);
 
@@ -90,21 +90,21 @@ class ProductsSeeder extends Seeder
         Product::create([
             'product_name' => 'Chocolate Lava Cake',
             'category' => 'Dessert',
-            'price' => 120,
+           'supplier' => 'lebron',
             'quantity' => 15,
         ]);
 
         Product::create([
             'product_name' => 'Cheesecake Slice',
             'category' => 'Dessert',
-            'price' => 100,
+            'supplier' => 'lebron',
             'quantity' => 10,
         ]);
 
         Product::create([
             'product_name' => 'Fruit Tart',
             'category' => 'Dessert',
-            'price' => 90,
+            'supplier' => 'lebron',
             'quantity' => 20,
         ]);
     }
