@@ -6,48 +6,13 @@
     <div class="trn-header">Transactions</div>
 
     <!-- Search and Filter Form -->
-    <form id="transactionFilterForm" action="{{ route('cashier.cashier_transactions') }}" method="GET" class="trn-search-filter-form">
-        <div class="trn-search-filter-container">
-            <!-- Single Row for Search, Filters, Buttons, and Export -->
-            <div class="trn-filter-row">
-                <!-- Search Box -->
-                <div class="trn-search-box">
-                    <input type="text" name="search" placeholder="Search by customer name..." value="{{ request('search') }}"
-                           autocomplete="off">
-                </div>
-                <!-- Filter Box -->
-                <div class="trn-filter-box">
-                    <!-- Month Filter -->
-                    <select class="trn-month-filter" name="month">
-                        <option value="all" {{ request('month') === 'all' ? 'selected' : '' }}>All Months</option>
-                        @for ($m = 1; $m <= 12; $m++)
-                            <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>
-                                {{ \Carbon\Carbon::create()->month($m)->format('F') }}
-                            </option>
-                        @endfor
-                    </select>
-                    <!-- Year Filter -->
-                    <select class="trn-year-filter" name="year">
-                        <option value="all" {{ request('year') === 'all' ? 'selected' : '' }}>All Years</option>
-                        @for ($y = now()->year; $y >= now()->year - 5; $y--)
-                            <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
-                        @endfor
-                    </select>
-                    <!-- Filter and Reset Buttons -->
-                    <a href="{{ route('cashier.cashier_transactions') }}" class="trn-btn trn-reset-btn">Reset</a>
-                    <!-- Export Button -->
-                    <a
-                       class="trn-btn trn-export-btn">Export to Excel</a>
-                </div>
-            </div>
-        </div>
-    </form>
+   
 
     <!-- Transaction Table -->
     <div class="trn-table-container active" id="transaction-table">
         <div class="trn-section-title">Transaction List</div>
         <div class="trn-table-scroll-container">
-            <table class="trn-inventory-table trn-table-striped">
+            <table class="trn-inventory-table trn-table-striped" id="transactionsTable">
                 <thead>
                     <tr>
                         <th>Products Ordered</th>
@@ -78,16 +43,40 @@
                 </tbody>
             </table>
         </div>
-    
-
     </div>
 
+    <!-- Include DataTables CSS and JS -->
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+
     <script>
-        // Handle select changes
-        document.querySelectorAll('.trn-month-filter, .trn-year-filter').forEach(select => {
-            select.addEventListener('change', function() {
-                document.getElementById('transactionFilterForm').submit();
+        $(document).ready(function() {
+            // Initialize DataTables
+            $('#transactionsTable').DataTable({
+                // Enable DataTables search
+                searching: true,
+                // Enable pagination
+                paging: true,
+                // Enable sorting
+                ordering: true,
+                // Add export buttons (Excel, etc.)
+            
+                // Optional: Customize language for empty table
+                language: {
+                    emptyTable: "No transactions found for this period."
+                }
             });
+
+            // Handle select changes for month and year filters
+            $('.trn-month-filter, .trn-year-filter').on('change', function() {
+                $('#transactionFilterForm').submit();
+            });
+
+          
         });
     </script>
 @endsection

@@ -13,6 +13,7 @@
     font-weight: 600;
     margin-bottom: 10px;
     color: #333;
+    text-align: center;
 }
 
 .shelf-btn {
@@ -59,7 +60,7 @@
     border: none;
     width: 300px;
     text-align: center;
-    margin: 20px auto; /* Consistent margin for all positions */
+    margin: 20px auto;
     display: block;
 }
 
@@ -69,7 +70,9 @@
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-.shelf-delete-btn {
+.shelf-delete-btn,
+.shelf-error-remove-btn,
+.shelf-edit-btn {
     background-color: #dc3545;
     padding: 5px 10px;
     font-size: 14px;
@@ -80,10 +83,21 @@
     margin: 3px;
 }
 
-.shelf-delete-btn:hover {
+.shelf-edit-btn {
+    background-color: #28a745;
+}
+
+.shelf-delete-btn:hover,
+.shelf-error-remove-btn:hover,
+.shelf-edit-btn:hover {
     background-color: #c82333;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
+}
+
+.shelf-edit-btn:hover {
+    background-color: #218838;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.5);
 }
 
 .shelf-product-add-btn,
@@ -174,22 +188,17 @@
 
 .shelf-product-table th:nth-child(1),
 .shelf-product-table td:nth-child(1) {
-    width: 40%; /* Product Name */
+    width: 50%; /* Product Name */
 }
 
 .shelf-product-table th:nth-child(2),
 .shelf-product-table td:nth-child(2) {
-    width: 15%; /* Stock */
+    width: 20%; /* Stock */
 }
 
 .shelf-product-table th:nth-child(3),
 .shelf-product-table td:nth-child(3) {
-    width: 25%; /* Supplier */
-}
-
-.shelf-product-table th:nth-child(4),
-.shelf-product-table td:nth-child(4) {
-    width: 20%; /* Action */
+    width: 30%; /* Action */
 }
 
 .shelf-product-table th {
@@ -254,14 +263,55 @@
     background-color: #f5f5f5;
 }
 
-/* Adjust input fields in tables */
-.shelf-selected-products-table .shelf-form-input {
-    width: 80px;
-    height: 30px;
-    padding: 5px;
-    font-size: 14px;
+/* Error Products Table Styles (Error Modal) */
+.shelf-error-products-table {
+    width: 100%;
+    min-width: 700px;
+    border-collapse: collapse;
 }
 
+.shelf-error-products-table th,
+.shelf-error-products-table td {
+    border: 1px solid #e0e0e0;
+    padding: 8px;
+    text-align: center;
+}
+
+.shelf-error-products-table th:nth-child(1),
+.shelf-error-products-table td:nth-child(1) {
+    width: 40%; /* Product Name */
+}
+
+.shelf-error-products-table th:nth-child(2),
+.shelf-error-products-table td:nth-child(2) {
+    width: 20%; /* Quantity Added */
+}
+
+.shelf-error-products-table th:nth-child(3),
+.shelf-error-products-table td:nth-child(3) {
+    width: 20%; /* Price */
+}
+
+.shelf-error-products-table th:nth-child(4),
+.shelf-error-products-table td:nth-child(4) {
+    width: 20%; /* Action */
+}
+
+.shelf-error-products-table th {
+    font-size: 13px;
+    background-color: #fafafa;
+    color: #444;
+}
+
+.shelf-error-products-table tr:nth-child(even) {
+    background-color: #fdfdfd;
+}
+
+.shelf-error-products-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Adjust input fields in tables */
 .shelf-form-input[name*="[price]"] {
     width: 80px;
 }
@@ -326,6 +376,13 @@
     overflow-y: auto;
 }
 
+#editShelfItemModal {
+    width: 360px;
+    
+    box-sizing: border-box;
+    overflow-x: hidden; /* Disable horizontal scrolling */
+}
+
 .shelf-modal h2 {
     font-size: 24px;
     margin-bottom: 25px;
@@ -336,14 +393,16 @@
 }
 
 .shelf-modal-content {
+    align-items: center !important;
     font-size: 16px;
     font-weight: 500;
     color: #000000;
     margin-bottom: 8px;
     font-family: 'Poppins', sans-serif;
-    text-align: center;
-    position: relative; /* For positioning the close button */
-    padding-top: 30px; /* Add padding to avoid overlap with close button */
+    position: relative;
+    padding-top: 30px;
+    max-width: 100%; /* Ensure content doesn't exceed modal width */
+    overflow-x: hidden; /* Prevent content from causing horizontal scroll */
 }
 
 .shelf-modal-content form {
@@ -362,6 +421,28 @@
     font-weight: bold;
 }
 
+.shelf-close-error-btn {
+    background-color: #6c757d;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    border-radius: 10px;
+    border: none;
+    width: 300px;
+    text-align: center;
+    margin: 20px auto;
+    display: block;
+}
+
+.shelf-close-error-btn:hover {
+    background-color: #5a6268;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.5);
+}
+
 /* Form Styles */
 .shelf-form-input {
     width: 100%;
@@ -374,6 +455,7 @@
     border-radius: 8px;
     box-sizing: border-box;
     transition: all 0.3s ease;
+    max-width: 100%; /* Prevent inputs from overflowing */
 }
 
 .shelf-form-input:focus {
@@ -381,6 +463,28 @@
     border-color: #4CAF50;
     background-color: #fff;
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+/* Form Group for Edit Modal */
+.shelf-form-group {
+    width: 100%;
+    max-width: 100%; /* Ensure form elements fit within the modal */
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+.shelf-form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 5px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.shelf-form-group input[readonly] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
 }
 
 /* Tab Styles */
@@ -400,7 +504,7 @@
     color: #ffffff;
     background: none;
     border-radius: 0;
-    transition: all 0.3s ease; /* Smooth transition for transform and box-shadow */
+    transition: all 0.3s ease;
     padding: 8px 16px;
     border-radius: 8px;
     background-color: #3590BF;
@@ -473,6 +577,12 @@
         overflow-y: auto;
     }
 
+    #editShelfItemModal {
+        width: 95%;
+        max-width: 450px;
+        overflow-x: hidden; /* Maintain no horizontal scroll */
+    }
+
     .shelf-close-btn {
         top: 5px;
         right: 5px;
@@ -491,10 +601,16 @@
     .shelf-tab-content {
         width: 100%;
         max-width: 100%;
+        align-items: center;
     }
 
     .shelf-product-table,
-    .shelf-selected-products-table {
+    .shelf-selected-products-table,
+    .shelf-error-products-table {
         min-width: 600px;
+    }
+
+    .shelf-form-group {
+        max-width: 100%;
     }
 }

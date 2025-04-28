@@ -59,13 +59,15 @@
                                             <tr>
                                                 <td>{{ $shelfItem->product->product_name }}</td>
                                                 <td>₱{{ number_format($shelfItem->price, 2) }}</td>
-                                                <td>{{ $shelfItem->quantity_added }}</td>
+                                                <td class="csh-stock" data-product-id="{{ $shelfItem->product_id }}">{{ $shelfItem->quantity_added }}</td>
                                                 <td>
                                                     <button type="button" class="csh-add-product-btn" 
                                                             data-product-id="{{ $shelfItem->product_id }}" 
                                                             data-product-name="{{ $shelfItem->product->product_name }}" 
-                                                            data-product-price="{{ $shelfItem->price }}">  
-                                                            Add to Order
+                                                            data-product-price="{{ $shelfItem->price }}"
+                                                            data-product-stock="{{ $shelfItem->quantity_added }}"
+                                                            {{ $shelfItem->quantity_added <= 0 ? 'disabled' : '' }}>
+                                                        {{ $shelfItem->quantity_added <= 0 ? 'Out of Stock' : 'Add to Order' }}
                                                     </button>
                                                 </td>
                                             </tr>
@@ -90,6 +92,7 @@
                                     <th>Product</th>
                                     <th>Price</th>
                                     <th>Quantity</th>
+                                    <th>Stock Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -115,7 +118,7 @@
                     </div>
 
                     <div class="csh-form-actions">
-                        <button type="submit" class="csh-submit-btn">Place Order</button>
+                        <button type="submit" class="csh-submit-btn" id="submitOrderBtn">Place Order</button>
                         <button type="button" id="closeModalBtn" class="csh-close-btn">Close</button>
                     </div>
                 </form>
@@ -224,162 +227,254 @@
                 </form>
             </div>
         </div>
-    </div>
 
-    <script>
-        let productIndex = 0;
+        <style>
+            .csh-selected-products-table .quantity-container {
+                position: relative;
+            }
+            .csh-selected-products-table .quantity-container input[type="number"] {
+                width: 100%;
+                padding: 8px;
+                border: 2px solid #28a745; /* Green border like the image */
+                border-radius: 4px;
+            }
+            .csh-selected-products-table .quantity-error {
+                color: red;
+                font-size: 12px;
+                margin-top: 5px;
+                display: none;
+            }
+            .csh-submit-btn:disabled {
+                background-color: #cccccc;
+                cursor: not-allowed;
+            }
+        </style>
 
-        // Tab Switching for Categories
-        document.querySelectorAll('.csh-tab-link-categ').forEach(button => {
-            button.addEventListener('click', () => {
-                document.querySelectorAll('.csh-tab-link-categ').forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
+        <script>
+            let productIndex = 0;
 
-                document.querySelectorAll('.csh-tab-content').forEach(content => {
-                    content.style.display = content.id === `${button.dataset.tab}-tab` ? 'block' : 'none';
-                });
-            });
-        });
-
-        // Add Product to Selected Products Table
-        document.querySelectorAll('.csh-add-product-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const productId = button.dataset.productId;
-                const productName = button.dataset.productName;
-                const productPrice = button.dataset.productPrice;
-
+            // Function to check stock and update submit button state
+            function updateSubmitButtonState() {
                 const selectedProductsBody = document.getElementById('selected-products-body');
-                const existingRow = Array.from(selectedProductsBody.rows).find(row => 
-                    row.querySelector(`input[name$="[product_id]"]`).value === productId
-                );
+                const submitBtn = document.getElementById('submitOrderBtn');
+                let hasInsufficientStock = false;
 
-                if (existingRow) {
-                    // Update quantity
-                    const quantityInput = existingRow.querySelector('input[type="number"]');
-                    quantityInput.value = parseInt(quantityInput.value) + 1;
-                } else {
-                    // Add new row
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${productName}</td>
-                        <td>${parseFloat(productPrice).toFixed(2)}</td>
-                        <td>
-                            <input type="number" name="products[${productIndex}][quantity]" min="1" value="1" required class="csh-form-input">
-                            <input type="hidden" name="products[${productIndex}][product_id]" value="${productId}">
-                        </td>
-                        <td>
-                            <button type="button" class="csh-remove-product-btn">Remove</button>
-                        </td>
-                    `;
-                    selectedProductsBody.appendChild(row);
-                    productIndex++;
-                }
-            });
-        });
+                Array.from(selectedProductsBody.rows).forEach(row => {
+                    const productId = row.querySelector(`input[name$="[product_id]"]`).value;
+                    const quantityInput = row.querySelector('input[type="number"]');
+                    const quantity = parseInt(quantityInput.value);
+                    const stockCell = document.querySelector(`.csh-stock[data-product-id="${productId}"]`);
+                    const stock = parseInt(stockCell.textContent);
+                    const stockStatusCell = row.cells[3]; // Stock Status column
+                    const quantityError = row.querySelector('.quantity-error');
 
-        // Remove Product from Selected Products
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('csh-remove-product-btn')) {
-                e.target.closest('tr').remove();
-            }
-        });
-
-        // Modal Handling
-        const openModalBtn = document.getElementById('openModalBtn');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const orderModal = document.getElementById('orderModal');
-
-        openModalBtn.addEventListener('click', () => {
-            orderModal.style.display = 'flex';
-        });
-
-        closeModalBtn.addEventListener('click', () => {
-            orderModal.style.display = 'none';
-        });
-
-        orderModal.addEventListener('click', (e) => {
-            if (e.target === orderModal) {
-                orderModal.style.display = 'none';
-            }
-        });
-
-        // Ensure at least one product is selected before submission
-        document.getElementById('orderForm').addEventListener('submit', (e) => {
-            const selectedProducts = document.querySelectorAll('#selected-products-body tr');
-            if (selectedProducts.length === 0) {
-                e.preventDefault();
-                alert('Please add at least one product to the order.');
-            }
-        });
-
-        // Reopen modal if errors exist
-        @if ($errors->any())
-            document.getElementById('orderModal').style.display = 'flex';
-        @endif
-
-        // Add click and keyboard interaction to show order details
-        const orderDetailsForm = document.getElementById('orderDetailsForm');
-        const orderDetailsId = document.getElementById('orderDetailsId');
-        const orderDetailsIdDisplay = document.getElementById('orderDetailsIdDisplay');
-        const orderDetailsCustomer = document.getElementById('orderDetailsCustomer');
-        const orderDetailsTime = document.getElementById('orderDetailsTime');
-        const orderDetailsType = document.getElementById('orderDetailsType');
-        const orderDetailsProducts = document.getElementById('orderDetailsProducts');
-        const orderDetailsTotal = document.getElementById('orderDetailsTotal');
-        const orderDetailsInstructions = document.getElementById('orderDetailsInstructions');
-
-        // Function to update order details
-        function updateOrderDetails(card) {
-            // Highlight the selected card
-            document.querySelectorAll('.csh-order-card').forEach(c => c.classList.remove('csh-order-card-selected'));
-            card.classList.add('csh-order-card-selected');
-
-            // Populate the order details form
-            orderDetailsId.value = card.dataset.orderId;
-            orderDetailsIdDisplay.textContent = `Order ${card.dataset.orderId}`;
-            orderDetailsCustomer.textContent = card.dataset.customerName;
-            orderDetailsTime.textContent = card.dataset.time;
-            orderDetailsType.textContent = card.dataset.orderType;
-            orderDetailsProducts.textContent = card.dataset.products;
-            orderDetailsTotal.textContent = `₱ ${card.dataset.totalPrice}`;
-            orderDetailsInstructions.textContent = card.dataset.specialInstructions;
-
-            // Show the form
-            orderDetailsForm.style.display = 'block';
-        }
-
-        // Attach event listeners to order cards
-        document.querySelectorAll('.csh-order-card').forEach(card => {
-            card.addEventListener('click', () => updateOrderDetails(card));
-
-            card.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    updateOrderDetails(card);
-                }
-            });
-        });
-
-        // Automatically select the most recent order on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            const orderCards = document.querySelectorAll('.csh-order-card');
-            if (orderCards.length > 0) {
-                // Find the card with the highest order ID (most recent)
-                let latestCard = null;
-                let highestId = -1;
-
-                orderCards.forEach(card => {
-                    const orderId = parseInt(card.dataset.orderId, 10);
-                    if (orderId > highestId) {
-                        highestId = orderId;
-                        latestCard = card;
+                    if (quantity > stock) {
+                        hasInsufficientStock = true;
+                        stockStatusCell.textContent = 'Insufficient Stock';
+                        stockStatusCell.style.color = 'red';
+                        quantityError.style.display = 'block'; // Show inline error message
+                    } else {
+                        stockStatusCell.textContent = 'In Stock';
+                        stockStatusCell.style.color = 'green';
+                        quantityError.style.display = 'none'; // Hide inline error message
                     }
                 });
 
-                // Trigger updateOrderDetails for the latest card
-                if (latestCard) {
-                    updateOrderDetails(latestCard);
-                }
+                submitBtn.disabled = hasInsufficientStock || selectedProductsBody.rows.length === 0;
             }
-        });
-    </script>
+
+            // Tab Switching for Categories
+            document.querySelectorAll('.csh-tab-link-categ').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.csh-tab-link-categ').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    document.querySelectorAll('.csh-tab-content').forEach(content => {
+                        content.style.display = content.id === `${button.dataset.tab}-tab` ? 'block' : 'none';
+                    });
+                });
+            });
+
+            // Add Product to Selected Products Table
+            document.querySelectorAll('.csh-add-product-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const productId = button.dataset.productId;
+                    const productName = button.dataset.productName;
+                    const productPrice = button.dataset.productPrice;
+                    const productStock = parseInt(button.dataset.productStock);
+
+                    const selectedProductsBody = document.getElementById('selected-products-body');
+                    const existingRow = Array.from(selectedProductsBody.rows).find(row => 
+                        row.querySelector(`input[name$="[product_id]"]`).value === productId
+                    );
+
+                    if (existingRow) {
+                        // Update quantity
+                        const quantityInput = existingRow.querySelector('input[type="number"]');
+                        const newQuantity = parseInt(quantityInput.value) + 1;
+                        if (newQuantity <= productStock) {
+                            quantityInput.value = newQuantity;
+                        } else {
+                            const quantityError = existingRow.querySelector('.quantity-error');
+                            quantityError.style.display = 'block'; // Show inline error message
+                        }
+                    } else {
+                        // Add new row
+                        if (productStock > 0) {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${productName}</td>
+                                <td>${parseFloat(productPrice).toFixed(2)}</td>
+                                <td class="quantity-container">
+                                    <input type="number" name="products[${productIndex}][quantity]" min="1" max="${productStock}" value="1" required class="csh-form-input">
+                                    <input type="hidden" name="products[${productIndex}][product_id]" value="${productId}">
+                                    <div class="quantity-error">Insufficient stock!</div>
+                                </td>
+                                <td>In Stock</td>
+                                <td>
+                                    <button type="button" class="csh-remove-product-btn">Remove</button>
+                                </td>
+                            `;
+                            selectedProductsBody.appendChild(row);
+                            productIndex++;
+                        } else {
+                            alert(`Cannot add ${productName}. Out of stock.`);
+                        }
+                    }
+                    updateSubmitButtonState();
+                });
+            });
+
+            // Update stock status when quantity changes
+            document.getElementById('selected-products-body').addEventListener('change', (e) => {
+                if (e.target.type === 'number') {
+                    updateSubmitButtonState();
+                }
+            });
+
+            // Remove Product from Selected Products
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('csh-remove-product-btn')) {
+                    e.target.closest('tr').remove();
+                    updateSubmitButtonState();
+                }
+            });
+
+            // Modal Handling
+            const openModalBtn = document.getElementById('openModalBtn');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const orderModal = document.getElementById('orderModal');
+
+            openModalBtn.addEventListener('click', () => {
+                orderModal.style.display = 'flex';
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                orderModal.style.display = 'none';
+            });
+
+            orderModal.addEventListener('click', (e) => {
+                if (e.target === orderModal) {
+                    orderModal.style.display = 'none';
+                }
+            });
+
+            // Ensure at least one product is selected before submission
+            document.getElementById('orderForm').addEventListener('submit', (e) => {
+                const selectedProducts = document.querySelectorAll('#selected-products-body tr');
+                if (selectedProducts.length === 0) {
+                    e.preventDefault();
+                    alert('Please add at least one product to the order.');
+                    return;
+                }
+
+                let hasInsufficientStock = false;
+                Array.from(selectedProducts).forEach(row => {
+                    const productId = row.querySelector(`input[name$="[product_id]"]`).value;
+                    const quantity = parseInt(row.querySelector('input[type="number"]').value);
+                    const stock = parseInt(document.querySelector(`.csh-stock[data-product-id="${productId}"]`).textContent);
+                    if (quantity > stock) {
+                        hasInsufficientStock = true;
+                    }
+                });
+
+                if (hasInsufficientStock) {
+                    e.preventDefault();
+                    // No alert here; the inline error message handles it
+                }
+            });
+
+            // Reopen modal if errors exist
+            @if ($errors->any())
+                document.getElementById('orderModal').style.display = 'flex';
+            @endif
+
+            // Add click and keyboard interaction to show order details
+            const orderDetailsForm = document.getElementById('orderDetailsForm');
+            const orderDetailsId = document.getElementById('orderDetailsId');
+            const orderDetailsIdDisplay = document.getElementById('orderDetailsIdDisplay');
+            const orderDetailsCustomer = document.getElementById('orderDetailsCustomer');
+            const orderDetailsTime = document.getElementById('orderDetailsTime');
+            const orderDetailsType = document.getElementById('orderDetailsType');
+            const orderDetailsProducts = document.getElementById('orderDetailsProducts');
+            const orderDetailsTotal = document.getElementById('orderDetailsTotal');
+            const orderDetailsInstructions = document.getElementById('orderDetailsInstructions');
+
+            // Function to update order details
+            function updateOrderDetails(card) {
+                // Highlight the selected card
+                document.querySelectorAll('.csh-order-card').forEach(c => c.classList.remove('csh-order-card-selected'));
+                card.classList.add('csh-order-card-selected');
+
+                // Populate the order details form
+                orderDetailsId.value = card.dataset.orderId;
+                orderDetailsIdDisplay.textContent = `Order ${card.dataset.orderId}`;
+                orderDetailsCustomer.textContent = card.dataset.customerName;
+                orderDetailsTime.textContent = card.dataset.time;
+                orderDetailsType.textContent = card.dataset.orderType;
+                orderDetailsProducts.textContent = card.dataset.products;
+                orderDetailsTotal.textContent = `₱ ${card.dataset.totalPrice}`;
+                orderDetailsInstructions.textContent = card.dataset.specialInstructions;
+
+                // Show the form
+                orderDetailsForm.style.display = 'block';
+            }
+
+            // Attach event listeners to order cards
+            document.querySelectorAll('.csh-order-card').forEach(card => {
+                card.addEventListener('click', () => updateOrderDetails(card));
+
+                card.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        updateOrderDetails(card);
+                    }
+                });
+            });
+
+            // Automatically select the most recent order on page load
+            document.addEventListener('DOMContentLoaded', () => {
+                const orderCards = document.querySelectorAll('.csh-order-card');
+                if (orderCards.length > 0) {
+                    // Find the card with the highest order ID (most recent)
+                    let latestCard = null;
+                    let highestId = -1;
+
+                    orderCards.forEach(card => {
+                        const orderId = parseInt(card.dataset.orderId, 10);
+                        if (orderId > highestId) {
+                            highestId = orderId;
+                            latestCard = card;
+                        }
+                    });
+
+                    // Trigger updateOrderDetails for the latest card
+                    if (latestCard) {
+                        updateOrderDetails(latestCard);
+                    }
+                }
+                // Initial check for submit button state
+                updateSubmitButtonState();
+            });
+        </script>
+    </div>
 @endsection

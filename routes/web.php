@@ -36,6 +36,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::post('/orders/complete', [CashierManageOrderController::class, 'complete'])->name('order.complete');
     Route::get('cashier/transactions', [CashierTransactionController::class, 'index_cashier'])->name('cashier.cashier_transactions');
     //Route::get('cashier/transactions/export', [CashierTransactionController::class, 'export_cashier'])->name('cashier.transactions.export');
+    Route::post('/add-to-shelf/check', [ManagerShelfController::class, 'check'])->name('add-to-shelf.check');
     Route::resource('order', CashierManageOrderController::class);
     Route::resource('trash', ManageTrashController::class);
 //});
