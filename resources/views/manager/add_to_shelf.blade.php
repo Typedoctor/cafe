@@ -199,7 +199,7 @@
                                     data-price="{{ $item->price ?? '' }}"
                                     data-product-id="{{ $item->product_id }}"
                                     data-available-stock="{{ $item->product->quantity }}">
-                                <i class="fa-solid fa-edit"></i>
+                                    <i class="fa-solid fa-pencil"></i>
                             </button>
                             <form action="{{ route('add-to-shelf.destroy', $item) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to remove this item from the shelf?');">
                                 @csrf @method('DELETE')

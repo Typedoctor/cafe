@@ -84,7 +84,7 @@
 }
 
 .shelf-edit-btn {
-    background-color: #28a745;
+    background-color: #3980cd;
 }
 
 .shelf-delete-btn:hover,
@@ -96,7 +96,7 @@
 }
 
 .shelf-edit-btn:hover {
-    background-color: #218838;
+    background-color: #043b76;
     box-shadow: 0 4px 12px rgba(40, 167, 69, 0.5);
 }
 

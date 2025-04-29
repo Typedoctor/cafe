@@ -10,17 +10,9 @@ class ManageUserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::query();
+        $users = User::all();
 
-        if ($request->has('search')) {
-            $searchTerm = $request->search;
-            $query->where(function($q) use ($searchTerm) {
-                $q->where('name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('privilege', 'like', '%' . $searchTerm . '%');
-            });
-        }
 
-        $users = $query->get();
         return view('manager.manage_users', compact('users'));
     }
 
@@ -30,12 +22,14 @@ class ManageUserController extends Controller
             'name' => 'required|string|max:255',
             'password' => 'required|string|min:6|confirmed',
             'privilege' => 'required|in:cashier,manager',
+            'is_active' => 'required|boolean'
         ]);
 
         User::create([
             'name' => $request->name,
             'password' => bcrypt($request->password),
             'privilege' => $request->privilege,
+            'is_active' => $request->is_active
         ]);
 
         return redirect()->route('manage_users.index')->with('success', 'User added successfully');
@@ -48,17 +42,35 @@ class ManageUserController extends Controller
             'name' => 'required|string|max:255',
             'password' => 'nullable|string|min:6',
             'privilege' => 'required|in:cashier,manager',
+            'is_active' => 'required|boolean'
         ]);
 
         $user = User::findOrFail($id);
         $user->name = $request->name;
         $user->privilege = $request->privilege;
+        $user->is_active = $request->is_active;
         if ($request->password) {
             $user->password = bcrypt($request->password);
         }
         $user->save();
 
         return redirect()->route('manage_users.index')->with('success', 'User updated successfully');
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        \Log::info('Update status method called', ['id' => $id, 'input' => $request->all()]);
+        
+        $request->validate([
+            'is_active' => 'required|boolean',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->is_active = $request->is_active;
+        $user->save();
+        
+        $status = $user->is_active ? 'activated' : 'deactivated';
+        return redirect()->route('manage_users.index')->with('success', "User {$status} successfully");
     }
 
     public function destroy($id)

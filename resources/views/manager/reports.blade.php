@@ -2,6 +2,11 @@
 
 @section('title', 'Manager Reports')
 
+@push('styles')
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+@endpush
+
 @section('content')
 <div class="rep-header">Reports</div>
 
@@ -16,17 +21,15 @@
     </div>
     <div class="rep-filter-box">
         <select class="rep-month-filter" name="month" onchange="submitForm()">
-            <option value="all">All Months</option>
             @for ($m = 1; $m <= 12; $m++)
-                <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>
+                <option value="{{ $m }}" {{ request('month', now()->month) == $m ? 'selected' : '' }}>
                     {{ \Carbon\Carbon::create()->month($m)->format('F') }}
                 </option>
             @endfor
         </select>
         <select class="rep-year-filter" name="year" onchange="submitForm()">
-            <option value="all">All Years</option>
             @for ($y = now()->year; $y >= now()->year - 5; $y--)
-                <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
+                <option value="{{ $y }}" {{ request('year', now()->year) == $y ? 'selected' : '' }}>{{ $y }}</option>
             @endfor
         </select>
     </div>
@@ -51,7 +54,7 @@
     </div>
     <div class="inv-table-container" id="transaction-table">
         <div class="rep-section-title">Transaction List</div>
-        <table class="rep-table rep-table-striped">
+        <table class="rep-table rep-table-striped" id="transactionsTable">
             <thead>
                 <tr>
                     <th>Products Ordered</th>
@@ -76,7 +79,13 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7">No transactions found for this period.</td>
+                        <td>No transactions found for this period.</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                     </tr>
                 @endforelse
             </tbody>
@@ -97,7 +106,7 @@
     </div>
     <div class="inv-table-container" id="loss-table">
         <div class="rep-section-title">List of thrown away items</div>
-        <table class="rep-table">
+        <table class="rep-table" id="trashTable">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -120,22 +129,54 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6">No items found for this period.</td>
+                    <td>No items found for this period.</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 </div>
+@endsection
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
+$(document).ready(function () {
+    // Initialize DataTables for Transactions Table
+    $('#transactionsTable').DataTable({
+        pageLength: 10,
+        responsive: true,
+        order: [[0, 'asc']],
+        columnDefs: [
+            { orderable: true, targets: '_all' } // Allow sorting on all columns
+        ]
+    });
+
+    // Initialize DataTables for Trash Table
+    $('#trashTable').DataTable({
+        pageLength: 10,
+        responsive: true,
+        order: [[0, 'asc']],
+        columnDefs: [
+            { orderable: true, targets: '_all' } // Allow sorting on all columns
+        ]
+    });
+});
+
 function showTab(tabName) {
     document.querySelectorAll('.rep-all-tabs .rep-tab').forEach(tab => {
         tab.classList.remove('active');
     });
     event.target.classList.add('active');
     document.getElementById('tabInput').value = tabName;
-    if (tabName === 'profit') {
+    if (tabNames === 'profit') {
         document.getElementById('profit-content').style.display = 'block';
         document.getElementById('loss-content').style.display = 'none';
     } else {
@@ -143,6 +184,7 @@ function showTab(tabName) {
         document.getElementById('loss-content').style.display = 'block';
     }
 }
+
 function changeTimePeriod(period) {
     document.querySelectorAll('.rep-all-tabs .rep-time-tab').forEach(tab => {
         tab.classList.remove('active');
@@ -151,8 +193,9 @@ function changeTimePeriod(period) {
     document.getElementById('periodInput').value = period;
     document.getElementById('timePeriodForm').submit();
 }
+
 function submitForm() {
     document.getElementById('timePeriodForm').submit();
 }
 </script>
-@endsection
+@endpush

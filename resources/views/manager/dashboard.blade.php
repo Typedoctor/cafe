@@ -7,21 +7,19 @@
 
 <form class="dash-filter-content" id="filterForm" method="GET" action="{{ route('manager.dashboard') }}">
     <select class="dash-period-filter" name="period" onchange="submitForm()">
-        <option value="monthly" {{ old('period', session('filter_period', request('period', 'monthly'))) == 'monthly' ? 'selected' : '' }}>Monthly</option>
-        <option value="yearly" {{ old('period', session('filter_period', request('period', 'monthly'))) == 'yearly' ? 'selected' : '' }}>Yearly</option>
+        <option value="monthly" {{ $period == 'monthly' ? 'selected' : '' }}>Monthly</option>
+        <option value="yearly" {{ $period == 'yearly' ? 'selected' : '' }}>Yearly</option>
     </select>
     <select class="dash-month-filter" name="month" onchange="submitForm()">
-        <option value="all" {{ old('month', session('filter_month', request('month', 'all'))) == 'all' ? 'selected' : '' }}>All Months</option>
         @for ($m = 1; $m <= 12; $m++)
-            <option value="{{ $m }}" {{ old('month', session('filter_month', request('month', 'all'))) == $m ? 'selected' : '' }}>
+            <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>
                 {{ \Carbon\Carbon::create()->month($m)->format('F') }}
             </option>
         @endfor
     </select>
     <select class="dash-year-filter" name="year" onchange="submitForm()">
-        <option value="all" {{ old('year', session('filter_year', request('year', 'all'))) == 'all' ? 'selected' : '' }}>All Years</option>
         @for ($y = now()->year; $y >= now()->year - 5; $y--)
-            <option value="{{ $y }}" {{ old('year', session('filter_year', request('year', 'all'))) == $y ? 'selected' : '' }}>{{ $y }}</option>
+            <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
         @endfor
     </select>
     <button type="button" class="dash-reset-filter" onclick="resetFilters()">Reset Filters</button>
@@ -35,7 +33,7 @@
         <div class="dash-box">Loss from thrown items<div class="dash-content-box-loss">₱{{ number_format($totalLoss, 2) }}</div> </div>
     </a>
     <a href="/reports?tab=profit" class="dash-box-link">
-        <div class="dash-box">Profit<div class="dash-content-box-profit">₱{{ number_format($revenue-$totalLoss, 2) }}</div></div>
+        <div class="dash-box">Profit<div class="dash-content-box-profit">₱{{ number_format($revenue - $totalLoss, 2) }}</div></div>
     </a>
     <a href="/reports" class="dash-box-link">
         <div class="container mt-4">
@@ -52,26 +50,26 @@
         <div class="dash-box-product">
             <h4>Top Selling Products</h4>
             <div class="dash-top-selling-scroll-container">
-            <table class="dash-top-selling-table">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Sales</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($topSellingProducts as $item)
+                <table class="dash-top-selling-table">
+                    <thead>
                         <tr>
-                            <td>{{ $item->product->product_name ?? 'Unknown Product' }}</td>
-                            <td>{{ $item->total_quantity }}</td>
+                            <th>Product</th>
+                            <th>Sales</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="2">No top-selling products found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @forelse ($topSellingProducts as $item)
+                            <tr>
+                                <td>{{ $item->product->product_name ?? 'Unknown Product' }}</td>
+                                <td>{{ $item->total_quantity }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="2">No top-selling products found.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </a>
@@ -112,8 +110,8 @@ function submitForm() {
 }
 function resetFilters() {
     document.querySelector('.dash-period-filter').value = 'monthly';
-    document.querySelector('.dash-month-filter').value = 'all';
-    document.querySelector('.dash-year-filter').value = 'all';
+    document.querySelector('.dash-month-filter').value = '{{ now()->month }}';
+    document.querySelector('.dash-year-filter').value = '{{ now()->year }}';
     const form = document.getElementById('filterForm');
     const resetInput = document.createElement('input');
     resetInput.type = 'hidden';
@@ -139,37 +137,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 y: {
                     beginAtZero: true,
                     max: {{ $maxY }},
-                    ticks: {
-                        font: {
-                            size: 12
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Units Sold'
-                    }
+                    ticks: { font: { size: 12 } },
+                    title: { display: true, text: 'Units Sold' }
                 },
                 x: {
-                    ticks: {
-                        font: {
-                            size: 14
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Time Period'
-                    }
+                    ticks: { font: { size: 14 } },
+                    title: { display: true, text: 'Time Period' }
                 }
             },
             plugins: {
                 legend: {
                     display: true,
                     position: 'top',
-                    labels: {
-                        font: {
-                            size: 12
-                        }
-                    }
+                    labels: { font: { size: 12 } }
                 }
             }
         }

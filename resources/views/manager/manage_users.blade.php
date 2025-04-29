@@ -2,6 +2,11 @@
 
 @section('title', 'Manage Users')
 
+@push('styles')
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+@endpush
+
 @section('content')
 <h1 class="usr-manage-title">Manage Users</h1>
 
@@ -9,28 +14,17 @@
     <button id="addUserBtn" class="usr-btn usr-add-btn">+ Add User</button>
 </div>
 
-<div class="usr-search-filter-container">
-    <form action="{{ route('manage_users.index') }}" method="GET" class="usr-search-filter-form">
-        <div class="usr-search-box">
-            <input type="text" name="search" placeholder="Search by name or privilege..." value="{{ request('search') }}">
-        </div>
-        <div class="usr-filter-box">
-            <button type="submit" class="usr-btn usr-filter-btn">Search</button>
-            <a href="{{ route('manage_users.index') }}" class="usr-btn usr-reset-btn">Reset</a>
-        </div>
-    </form>
-</div>
-
 <div id="userModal" class="usr-modal">
     <span class="usr-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
     <div class="usr-modal-content">
         <h2 id="modalTitle">Add New User</h2>
+        <div id="errorMessages" class="usr-error-messages" style="display: none; color: red; margin-bottom: 10px;"></div>
         <form id="userForm" method="POST">
             @csrf
             <input type="hidden" name="_method" id="methodField" value="POST">
             <input type="hidden" name="user_id" id="userId">
             <div class="usr-form-group">
-                <label>Name:</label>
+                <label>User name:</label>
                 <input type="text" name="name" id="name" required>
             </div>
             <div class="usr-form-group" name="pass">
@@ -48,6 +42,13 @@
                     <option value="manager">Manager</option>
                 </select>
             </div>
+            <div class="usr-form-group">
+                <label>Status:</label>
+                <select name="is_active" id="isActive" required>
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
+            </div>
             <div class="usr-button-group">
                 <button type="submit" class="usr-btn usr-save-btn" id="saveBtn">Save</button>
             </div>
@@ -55,16 +56,16 @@
     </div>
 </div>
 
-
 <div class="usr-table-container">
-<div class="usr-section-title">Users List</div>
-    <table class="usr-table">
+    <div class="usr-section-title">Users List</div>
+    <table class="usr-table" id="usersTable">
         <thead>
             <tr>
                 <th style="width: 50px;">ID</th>
-                <th>Name</th>
+                <th>User name</th>
                 <th>Privilege</th>
-                <th style="width: 100px;">Actions</th>
+                <th>Status</th>
+                <th style="width: 150px;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -74,10 +75,17 @@
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->privilege }}</td>
                     <td>
+                        <select class="status-dropdown" data-user-id="{{ $user->id }}">
+                            <option value="1" {{ $user->is_active ? 'selected' : '' }}>Active</option>
+                            <option value="0" {{ !$user->is_active ? 'selected' : '' }}>Inactive</option>
+                        </select>
+                    </td>
+                    <td>
                         <button class="usr-btn usr-edit-btn" 
                             data-id="{{ $user->id }}" 
                             data-name="{{ $user->name }}" 
-                            data-privilege="{{ $user->privilege }}"><i class="fa-solid fa-pencil"></i>
+                            data-privilege="{{ $user->privilege }}"
+                            data-active="{{ $user->is_active }}"><i class="fa-solid fa-pencil"></i>
                         </button>
                         <form action="{{ route('manage_users.destroy', $user->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
                             @csrf
@@ -90,9 +98,59 @@
         </tbody>
     </table>
 </div>
+
+<form id="status-form" method="POST" style="display: none;">
+    @csrf
+    @method('PUT')
+    <input type="hidden" name="is_active" id="status-value">
+</form>
 @endsection
 
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+
 <script>
+$(document).ready(function () {
+    let table = $('#usersTable').DataTable({
+        pageLength: 10,
+        responsive: true,
+        order: [[0, 'asc']],
+        columnDefs: [
+            { orderable: false, targets: 4 } // Disable sorting on Actions column
+        ]
+    });
+
+    // Ensure edit buttons work with DataTables
+    $('#usersTable').on('click', '.usr-edit-btn', function() {
+        const modalTitle = document.getElementById("modalTitle");
+        const methodField = document.getElementById("methodField");
+        const userForm = document.getElementById("userForm");
+        const userModal = document.getElementById("userModal");
+        const saveBtn = document.getElementById("saveBtn");
+        const confirmPasswordGroup = document.getElementById("confirmPasswordGroup");
+        const passwordInput = document.getElementById("password");
+        const confirmPasswordInput = document.getElementById("passwordConfirmation");
+
+        modalTitle.innerText = "Edit User";
+        methodField.value = "PUT";
+        userForm.action = `/manage_users/${this.dataset.id}`;
+        document.getElementById("userId").value = this.dataset.id;
+        document.getElementById("name").value = this.dataset.name;
+        document.getElementById("privilege").value = this.dataset.privilege;
+        document.getElementById("isActive").value = this.dataset.active;
+        document.getElementById("password").value = "";
+        document.getElementById("password").placeholder = "Change pass? (If no, leave blank)";
+        confirmPasswordGroup.style.display = "none";
+        passwordInput.required = false;
+        confirmPasswordInput.required = false;
+        saveBtn.innerText = "UPDATE";
+        userModal.style.display = "block";
+        document.getElementById("errorMessages").style.display = "none";
+    });
+});
+
 document.addEventListener("DOMContentLoaded", function () {
     const userModal = document.getElementById("userModal");
     const closeBtn = document.querySelector(".usr-close-btn");
@@ -102,50 +160,128 @@ document.addEventListener("DOMContentLoaded", function () {
     const confirmPasswordGroup = document.getElementById("confirmPasswordGroup");
     const passwordInput = document.getElementById("password");
     const confirmPasswordInput = document.getElementById("passwordConfirmation");
+    const nameInput = document.getElementById("name");
     const saveBtn = document.getElementById("saveBtn");
+    const errorMessages = document.getElementById("errorMessages");
+    const statusForm = document.getElementById("status-form");
+    const statusValue = document.getElementById("status-value");
+
+    // Function to display error messages
+    function showError(message) {
+        errorMessages.style.display = 'block';
+        errorMessages.innerHTML = message;
+    }
+
+    // Function to clear error messages
+    function clearErrors() {
+        errorMessages.style.display = 'none';
+        errorMessages.innerHTML = '';
+    }
+
+    // Function to validate name (letters and spaces only)
+    function validateName(name) {
+        const nameRegex = /^[A-Za-z\s]+$/;
+        return nameRegex.test(name);
+    }
+
+    // Function to validate password (minimum 6 characters)
+    function validatePassword(password) {
+        return password.length >= 6;
+    }
+
+    // Handle status dropdown change
+    document.querySelectorAll('.status-dropdown').forEach(dropdown => {
+        dropdown.addEventListener('change', function() {
+            const userId = this.getAttribute('data-user-id');
+            const newStatus = this.value;
+            
+            // Set form action and status value
+            statusForm.action = `/manage_users/${userId}/update_status`;
+            statusValue.value = newStatus;
+            
+            // Submit the form
+            statusForm.submit();
+        });
+    });
 
     document.getElementById("addUserBtn").addEventListener("click", function () {
         modalTitle.innerText = "Add New User";
         methodField.value = "POST";
         userForm.action = "{{ route('manage_users.store') }}";
-        passwordInput.placeholder = ""; 
+        passwordInput.placeholder = "";
         passwordInput.required = true;
         confirmPasswordGroup.style.display = "block";
         confirmPasswordInput.required = true;
+        document.getElementById("isActive").value = "1"; // Default to active for new users
         saveBtn.innerText = "ADD";
         userModal.style.display = "block";
         userForm.reset();
+        clearErrors();
     });
 
     document.querySelectorAll(".usr-edit-btn").forEach(button => {
         button.addEventListener("click", function () {
             modalTitle.innerText = "Edit User";
-            methodField.value = "PUT"; 
+            methodField.value = "PUT";
             userForm.action = `/manage_users/${this.dataset.id}`;
             document.getElementById("userId").value = this.dataset.id;
             document.getElementById("name").value = this.dataset.name;
             document.getElementById("privilege").value = this.dataset.privilege;
+            document.getElementById("isActive").value = this.dataset.active;
             document.getElementById("password").value = "";
-            document.getElementById("password").placeholder = "Change pass? if no leave it blank";
+            document.getElementById("password").placeholder = "Change pass? (If no, leave blank)";
             confirmPasswordGroup.style.display = "none";
             passwordInput.required = false;
             confirmPasswordInput.required = false;
             saveBtn.innerText = "UPDATE";
             userModal.style.display = "block";
+            clearErrors();
         });
     });
 
-    closeBtn.addEventListener("click", () => userModal.style.display = "none");
-    window.addEventListener("click", event => event.target === userModal && (userModal.style.display = "none"));
+    closeBtn.addEventListener("click", () => {
+        userModal.style.display = "none";
+        clearErrors();
+    });
+
+    window.addEventListener("click", event => {
+        if (event.target === userModal) {
+            userModal.style.display = "none";
+            clearErrors();
+        }
+    });
 
     userForm.addEventListener("submit", function (event) {
+        clearErrors();
+        let errors = [];
+
+        // Validate name
+        if (!validateName(nameInput.value)) {
+            errors.push("Name must contain letters only.");
+        }
+
         if (methodField.value === "POST") {
-            if (passwordInput.value !== confirmPasswordInput.value) {
-                event.preventDefault();
-                alert("Passwords do not match!");
+            // Validate password
+            if (!validatePassword(passwordInput.value)) {
+                errors.push("Password must be at least 6 characters long.");
             }
+
+            // Validate password confirmation
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                errors.push("Passwords do not match!");
+            }
+        } else if (methodField.value === "PUT" && passwordInput.value) {
+            // Validate password when updating if provided
+            if (!validatePassword(passwordInput.value)) {
+                errors.push("New password must be at least 6 characters long.");
+            }
+        }
+
+        if (errors.length > 0) {
+            event.preventDefault();
+            showError(errors.join("<br>"));
         }
     });
 });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+@endpush
