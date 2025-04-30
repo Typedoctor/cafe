@@ -2,6 +2,11 @@
 
 @section('title', 'Transaction_cashier')
 
+@push('styles')
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    
+@endpush
 @section('content')
     <div class="trn-header">Transactions</div>
 

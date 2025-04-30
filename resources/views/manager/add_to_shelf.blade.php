@@ -6,7 +6,7 @@
 @push('styles')
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="{{ asset('css/shelf-styles.css') }}">
+    
 @endpush
 
 @section('content')

@@ -19,7 +19,7 @@
 <div id="trashModal" class="modal">
     <div class="modal-content">
         <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
-        <h2 id="modalTitle" style="text-align: center;">Add New Trash Entry</h2>
+        <h2 id="modalTitle" style="text-align: center;">Add New Spoilage Entry</h2>
         
         <!-- Category Tabs -->
         <div class="category-tabs">
@@ -81,7 +81,7 @@
     <div class="warning-modal-content">
         <span class="close-warning" name="close-button"><i class="fa-solid fa-circle-xmark"></i></span>
         <h2 style="text-align: center;">Already Added!</h2>
-        <p style="text-align: center;" id="duplicateMessage">This product is already in the trash list. Please edit the existing entry instead.</p>
+        <p style="text-align: center;" id="duplicateMessage">This product is already in the list. Please edit the existing entry instead.</p>
         <button class="warning-close-duplicate">OK</button>
     </div>
 </div>
@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert(`The product "${productName}" is not available in the current inventory. Please select another product or contact support.`);
             }
 
-            modalTitle.innerText = 'Edit Trash Entry';
+            modalTitle.innerText = 'Edit Spoilage Entry';
             methodField.value = 'PUT';
             trashForm.action = '{{ url('trash') }}/' + this.dataset.id;
             document.getElementById('trashId').value = this.dataset.id;

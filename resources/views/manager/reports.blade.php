@@ -176,7 +176,7 @@ function showTab(tabName) {
     });
     event.target.classList.add('active');
     document.getElementById('tabInput').value = tabName;
-    if (tabNames === 'profit') {
+    if (tabName === 'profit') {
         document.getElementById('profit-content').style.display = 'block';
         document.getElementById('loss-content').style.display = 'none';
     } else {

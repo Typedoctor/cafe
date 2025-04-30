@@ -195,7 +195,7 @@
 }
 
 #productsTable_wrapper .dataTables_filter input {
-    border: 1px solid #ccc;
+    border: 1px solid black;
     padding: 6px;
     border-radius: 4px;
     margin-left: 10px;

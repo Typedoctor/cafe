@@ -66,7 +66,7 @@
                     <th>ID</th>
                     <th>Product Name</th>
                     <th>Category</th>
-                    <th>Quantity</th>
+                    <th>In stock</th>
                     <th>Supplier</th>
                     <th style="width: 100px;">Actions</th>
                 </tr>

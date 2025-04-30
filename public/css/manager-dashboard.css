@@ -32,10 +32,20 @@ body {
     font-size: 18px;
     font-weight: 500;
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: row; /* Maintain horizontal layout */
+    align-items: center; /* Vertically center icon and text */
+    gap: 10px; /* Consistent spacing between icon and text */
     padding: 10px;
     border-radius: 5px;
+    margin-left:1px;
+}
+
+.sidebar ul li a img, .sidebar ul li a i {
+    width: 20px; /* Standardize icon size */
+    height: 20px;
+    font-size: 20px; /* For FontAwesome icons */
+    line-height: 20px; /* Ensure FontAwesome icons align vertically */
+    margin: 0; /* Remove any default margins */
 }
 
 .sidebar ul li a.active {
@@ -288,6 +298,8 @@ h1 {
     background-color: #f8f9fa;
     padding: 15px;
 }
+
+/*/ icons style */
 
 /* Responsive Design */
 @media screen and (max-width: 768px) {
