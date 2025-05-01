@@ -29,8 +29,11 @@
                     @endif
 
                     <div class="csh-form-group">
-                        <label for="customer_name" class="csh-form-label">Customer Name:</label> 
-                        <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}" required class="csh-form-input" placeholder="Enter customer name here">
+                        <label for="customer_name" class="csh-form-label">Customer Name:</label>
+                        <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}"
+                               required class="csh-form-input" placeholder="Enter customer name here"
+                               pattern="[A-Za-z\s]+" title="Only letters and spaces are allowed">
+                        <div class="csh-customer-name-error" style="display: none;">Only letters and spaces are allowed.</div>
                     </div>
 
                     <!-- Tabs for Categories -->
@@ -61,9 +64,9 @@
                                                 <td>₱{{ number_format($shelfItem->price, 2) }}</td>
                                                 <td class="csh-stock" data-product-id="{{ $shelfItem->product_id }}">{{ $shelfItem->quantity_added }}</td>
                                                 <td>
-                                                    <button type="button" class="csh-add-product-btn" 
-                                                            data-product-id="{{ $shelfItem->product_id }}" 
-                                                            data-product-name="{{ $shelfItem->product->product_name }}" 
+                                                    <button type="button" class="csh-add-product-btn"
+                                                            data-product-id="{{ $shelfItem->product_id }}"
+                                                            data-product-name="{{ $shelfItem->product->product_name }}"
                                                             data-product-price="{{ $shelfItem->price }}"
                                                             data-product-stock="{{ $shelfItem->quantity_added }}"
                                                             {{ $shelfItem->quantity_added <= 0 ? 'disabled' : '' }}>
@@ -97,7 +100,29 @@
                                 </tr>
                             </thead>
                             <tbody id="selected-products-body">
-                                <!-- Dynamically added rows will appear here -->
+                                @if (old('products'))
+                                    @foreach (old('products') as $index => $product)
+                                        @php
+                                            $shelfItem = $shelfItems->firstWhere('product_id', $product['product_id']);
+                                            $productName = $shelfItem ? $shelfItem->product->product_name : 'Unknown';
+                                            $productPrice = $shelfItem ? $shelfItem->price : 0;
+                                            $productStock = $shelfItem ? $shelfItem->quantity_added : 0;
+                                        @endphp
+                                        <tr>
+                                            <td>{{ $productName }}</td>
+                                            <td>{{ number_format($productPrice, 2) }}</td>
+                                            <td class="quantity-container">
+                                                <input type="number" name="products[{{ $index }}][quantity]" min="1" max="{{ $productStock }}" value="{{ $product['quantity'] }}" required class="csh-form-input">
+                                                <input type="hidden" name="products[{{ $index }}][product_id]" value="{{ $product['product_id'] }}">
+                                                <div class="quantity-error">Insufficient stock!</div>
+                                            </td>
+                                            <td>{{ $product['quantity'] <= $productStock ? 'In Stock' : 'Insufficient Stock' }}</td>
+                                            <td>
+                                                <button type="button" class="csh-remove-product-btn">Remove</button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
                             </tbody>
                         </table>
                     </div>
@@ -114,7 +139,8 @@
 
                     <div class="csh-form-group">
                         <label for="special_instructions" class="csh-form-label">Special Instructions:</label>
-                        <textarea placeholder="Any special instructions? Add here" name="special_instructions" id="special_instructions" class="csh-form-textarea">{{ old('special_instructions') }}</textarea>
+                        <textarea placeholder="Any special instructions? Add here" name="special_instructions" id="special_instructions" class="csh-form-textarea" maxlength="255">{{ old('special_instructions') }}</textarea>
+                        <div class="csh-char-counter" id="charCounter">255 characters</div>
                     </div>
 
                     <div class="csh-form-actions">
@@ -139,16 +165,15 @@
                 }
             </style>
             <script>
-                // Fade out the success message after 2 seconds
                 setTimeout(() => {
                     const successMessage = document.getElementById('successMessage');
                     if (successMessage) {
                         successMessage.style.opacity = '0';
                         setTimeout(() => {
                             successMessage.classList.add('hidden');
-                        }, 500); // Match the transition duration (0.5s)
+                        }, 500);
                     }
-                }, 2000); // 2000 milliseconds = 2 seconds
+                }, 2000);
             </script>
         @endif
 
@@ -159,7 +184,6 @@
                 @else
                     @foreach ($orders as $order)
                         @php
-                            // Build the products string for data-products attribute
                             $productsString = '';
                             foreach ($order->orderItems as $index => $item) {
                                 $productsString .= $item->quantity . ' x ' . ($item->product->product_name ?? 'N/A');
@@ -235,10 +259,16 @@
             .csh-selected-products-table .quantity-container input[type="number"] {
                 width: 100%;
                 padding: 8px;
-                border: 2px solid #28a745; /* Green border like the image */
+                border: 2px solid #28a745;
                 border-radius: 4px;
             }
             .csh-selected-products-table .quantity-error {
+                color: red;
+                font-size: 12px;
+                margin-top: 5px;
+                display: none;
+            }
+            .csh-customer-name-error {
                 color: red;
                 font-size: 12px;
                 margin-top: 5px;
@@ -248,10 +278,42 @@
                 background-color: #cccccc;
                 cursor: not-allowed;
             }
+            .csh-char-counter {
+                font-size: 12px;
+                color: #555;
+                margin-top: 5px;
+                font-family: 'Poppins', sans-serif;
+            }
         </style>
 
         <script>
-            let productIndex = 0;
+            let productIndex = {{ old('products') ? count(old('products')) : 0 }};
+
+            // Validate customer name input
+            const customerNameInput = document.getElementById('customer_name');
+            const customerNameError = document.querySelector('.csh-customer-name-error');
+            const nameRegex = /^[A-Za-z\s]+$/;
+
+            customerNameInput.addEventListener('input', () => {
+                const value = customerNameInput.value;
+                if (value && !nameRegex.test(value)) {
+                    customerNameError.style.display = 'block';
+                    customerNameInput.setCustomValidity('Only letters and spaces are allowed.');
+                } else {
+                    customerNameError.style.display = 'none';
+                    customerNameInput.setCustomValidity('');
+                }
+            });
+
+            // Character counter for special instructions
+            const specialInstructions = document.getElementById('special_instructions');
+            const charCounter = document.getElementById('charCounter');
+            const maxLength = 255;
+
+            specialInstructions.addEventListener('input', () => {
+                const remaining = maxLength - specialInstructions.value.length;
+                charCounter.textContent = `${remaining} characters remaining`;
+            });
 
             // Function to check stock and update submit button state
             function updateSubmitButtonState() {
@@ -265,18 +327,18 @@
                     const quantity = parseInt(quantityInput.value);
                     const stockCell = document.querySelector(`.csh-stock[data-product-id="${productId}"]`);
                     const stock = parseInt(stockCell.textContent);
-                    const stockStatusCell = row.cells[3]; // Stock Status column
+                    const stockStatusCell = row.cells[3];
                     const quantityError = row.querySelector('.quantity-error');
 
                     if (quantity > stock) {
                         hasInsufficientStock = true;
                         stockStatusCell.textContent = 'Insufficient Stock';
                         stockStatusCell.style.color = 'red';
-                        quantityError.style.display = 'block'; // Show inline error message
+                        quantityError.style.display = 'block';
                     } else {
                         stockStatusCell.textContent = 'In Stock';
                         stockStatusCell.style.color = 'green';
-                        quantityError.style.display = 'none'; // Hide inline error message
+                        quantityError.style.display = 'none';
                     }
                 });
 
@@ -304,22 +366,20 @@
                     const productStock = parseInt(button.dataset.productStock);
 
                     const selectedProductsBody = document.getElementById('selected-products-body');
-                    const existingRow = Array.from(selectedProductsBody.rows).find(row => 
+                    const existingRow = Array.from(selectedProductsBody.rows).find(row =>
                         row.querySelector(`input[name$="[product_id]"]`).value === productId
                     );
 
                     if (existingRow) {
-                        // Update quantity
                         const quantityInput = existingRow.querySelector('input[type="number"]');
                         const newQuantity = parseInt(quantityInput.value) + 1;
                         if (newQuantity <= productStock) {
                             quantityInput.value = newQuantity;
                         } else {
                             const quantityError = existingRow.querySelector('.quantity-error');
-                            quantityError.style.display = 'block'; // Show inline error message
+                            quantityError.style.display = 'block';
                         }
                     } else {
-                        // Add new row
                         if (productStock > 0) {
                             const row = document.createElement('tr');
                             row.innerHTML = `
@@ -400,13 +460,23 @@
 
                 if (hasInsufficientStock) {
                     e.preventDefault();
-                    // No alert here; the inline error message handles it
+                }
+
+                // Validate customer name before submission
+                if (!nameRegex.test(customerNameInput.value)) {
+                    e.preventDefault();
+                    customerNameError.style.display = 'block';
+                    customerNameInput.setCustomValidity('Only letters and spaces are allowed.');
                 }
             });
 
             // Reopen modal if errors exist
             @if ($errors->any())
                 document.getElementById('orderModal').style.display = 'flex';
+                // Trigger initial validation for customer name
+                customerNameInput.dispatchEvent(new Event('input'));
+                // Trigger initial character count update
+                specialInstructions.dispatchEvent(new Event('input'));
             @endif
 
             // Add click and keyboard interaction to show order details
@@ -420,13 +490,10 @@
             const orderDetailsTotal = document.getElementById('orderDetailsTotal');
             const orderDetailsInstructions = document.getElementById('orderDetailsInstructions');
 
-            // Function to update order details
             function updateOrderDetails(card) {
-                // Highlight the selected card
                 document.querySelectorAll('.csh-order-card').forEach(c => c.classList.remove('csh-order-card-selected'));
                 card.classList.add('csh-order-card-selected');
 
-                // Populate the order details form
                 orderDetailsId.value = card.dataset.orderId;
                 orderDetailsIdDisplay.textContent = `Order ${card.dataset.orderId}`;
                 orderDetailsCustomer.textContent = card.dataset.customerName;
@@ -436,11 +503,9 @@
                 orderDetailsTotal.textContent = `₱ ${card.dataset.totalPrice}`;
                 orderDetailsInstructions.textContent = card.dataset.specialInstructions;
 
-                // Show the form
                 orderDetailsForm.style.display = 'block';
             }
 
-            // Attach event listeners to order cards
             document.querySelectorAll('.csh-order-card').forEach(card => {
                 card.addEventListener('click', () => updateOrderDetails(card));
 
@@ -451,11 +516,9 @@
                 });
             });
 
-            // Automatically select the most recent order on page load
             document.addEventListener('DOMContentLoaded', () => {
                 const orderCards = document.querySelectorAll('.csh-order-card');
                 if (orderCards.length > 0) {
-                    // Find the card with the highest order ID (most recent)
                     let latestCard = null;
                     let highestId = -1;
 
@@ -467,12 +530,10 @@
                         }
                     });
 
-                    // Trigger updateOrderDetails for the latest card
                     if (latestCard) {
                         updateOrderDetails(latestCard);
                     }
                 }
-                // Initial check for submit button state
                 updateSubmitButtonState();
             });
         </script>

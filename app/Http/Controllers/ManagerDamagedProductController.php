@@ -65,11 +65,11 @@ class ManagerDamagedProductController extends Controller
     public function destroy($id)
     {
         \Log::info('Destroy method called', ['id' => $id]);
-        $user = DamagedProduct::find($id);
-        if (!$user) {
-            return redirect()->route('damaged-products.index')->with('error', 'User not found');
+        $product = DamagedProduct::find($id);
+        if (!$product) {
+            return redirect()->route('damaged-products.index')->with('error', 'product not found');
         }
-        $user->delete();
-        return redirect()->route('damaged-products.index')->with('success', 'User deleted successfully');
+        $product->delete();
+        return redirect()->route('damaged-products.index')->with('success', 'product deleted successfully');
     }
 }

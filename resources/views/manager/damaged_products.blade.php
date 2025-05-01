@@ -5,8 +5,6 @@
 @push('styles')
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ asset('css/damaged-products.css') }}">
 @endpush
 
 @section('content')
@@ -21,7 +19,7 @@
         <span class="dmg-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
         <h2 id="modalTitle">Report Damaged Product</h2>
         <div id="errorMessages" class="dmg-error-messages" style="display: none;"></div>
-        <form id="damagedProductForm" method="POST">
+        <form id="damagedProductForm" method="POST" action="{{ route('damaged-products.store') }}">
             @csrf
             <input type="hidden" name="_method" id="methodField" value="POST">
             <input type="hidden" name="id" id="damagedProductId">
@@ -74,7 +72,7 @@
                 <td>{{ $damagedProduct->quantity }}</td>
                 <td>{{ $damagedProduct->reason }}</td>
                 <td>{{ $damagedProduct->supplier }}</td>
-                <td>{{ $damagedProduct->reported_at->format('Y-m-d H:i') }}</td>
+                <td>{{ $damagedProduct->reported_at->setTimezone('Asia/Manila')->format('Y-m-d H:i') }}</td>
                 <td>
                     <button class="dmg-btn dmg-edit-btn" 
                         data-id="{{ $damagedProduct->id }}"
@@ -82,7 +80,7 @@
                         data-quantity="{{ $damagedProduct->quantity }}"
                         data-reason="{{ $damagedProduct->reason }}"
                         data-supplier="{{ $damagedProduct->supplier }}"
-                        data-reported_at="{{ $damagedProduct->reported_at->format('Y-m-d\TH:i') }}">
+                        data-reported_at="{{ $damagedProduct->reported_at->setTimezone('Asia/Manila')->format('Y-m-d\TH:i') }}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
                     <form action="{{ route('damaged-products.destroy', $damagedProduct) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this damaged product report?');">
@@ -95,8 +93,6 @@
         </tbody>
     </table>
 </div>
-
-@endsection
 
 @push('scripts')
     <!-- jQuery -->
@@ -113,7 +109,7 @@
                 columnDefs: [
                     { orderable: false, targets: 6 } // Disable sorting on Actions column
                 ],
-                pagingType: 'simple_numbers', // Ensure "Previous", page numbers, and "Next" are shown
+                pagingType: 'simple_numbers',
                 language: {
                     paginate: {
                         previous: 'Previous',
@@ -216,7 +212,14 @@
                 SaveBtn.innerText = "ADD";
                 damagedProductForm.reset();
                 quantityInput.value = 1; // Default to 1
-                document.getElementById("reportedAt").value = new Date().toISOString().slice(0, 16);
+                // Set reported_at to current local time (PHT)
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                document.getElementById("reportedAt").value = `${year}-${month}-${day}T${hours}:${minutes}`; // Format: YYYY-MM-DDThh:mm
                 clearErrors();
             });
 
@@ -240,14 +243,14 @@
                                 response.damagedProduct.quantity,
                                 response.damagedProduct.reason,
                                 response.damagedProduct.supplier,
-                                new Date(response.damagedProduct.reported_at).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+                                new Date(response.damagedProduct.reported_at).toLocaleString('en-PH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }),
                                 `<button class="dmg-btn dmg-edit-btn" 
                                     data-id="${response.damagedProduct.id}" 
                                     data-product_name="${response.damagedProduct.product_name}" 
                                     data-quantity="${response.damagedProduct.quantity}" 
                                     data-reason="${response.damagedProduct.reason}" 
                                     data-supplier="${response.damagedProduct.supplier}" 
-                                    data-reported_at="${new Date(response.damagedProduct.reported_at).toISOString().slice(0, 16)}">
+                                    data-reported_at="${new Date(response.damagedProduct.reported_at).toLocaleString('en-PH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(/, /, 'T').replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2')}">
                                     <i class="fa-solid fa-pencil"></i>
                                 </button>
                                 <form action="/damaged-products/${response.damagedProduct.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this damaged product report?');">
@@ -265,14 +268,14 @@
                                 response.damagedProduct.quantity,
                                 response.damagedProduct.reason,
                                 response.damagedProduct.supplier,
-                                new Date(response.damagedProduct.reported_at).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+                                new Date(response.damagedProduct.reported_at).toLocaleString('en-PH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }),
                                 `<button class="dmg-btn dmg-edit-btn" 
                                     data-id="${response.damagedProduct.id}" 
                                     data-product_name="${response.damagedProduct.product_name}" 
                                     data-quantity="${response.damagedProduct.quantity}" 
                                     data-reason="${response.damagedProduct.reason}" 
                                     data-supplier="${response.damagedProduct.supplier}" 
-                                    data-reported_at="${new Date(response.damagedProduct.reported_at).toISOString().slice(0, 16)}">
+                                    data-reported_at="${new Date(response.damagedProduct.reported_at).toLocaleString('en-PH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(/, /, 'T').replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2')}">
                                     <i class="fa-solid fa-pencil"></i>
                                 </button>
                                 <form action="/damaged-products/${response.damagedProduct.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this damaged product report?');">
@@ -312,3 +315,4 @@
         });
     </script>
 @endpush
+@endsection

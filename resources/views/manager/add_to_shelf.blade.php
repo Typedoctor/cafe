@@ -1,16 +1,16 @@
 @extends('manager.layout')
 
-@section('title', 'Add to Shelf')
+@section('title', 'Add to Shelve')
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 @endpush
 
 @section('content')
-    <h1 class="shelf-title">Add to Shelf</h1>
+    <h1 class="shelf-title">Add to Shelve</h1>
 
     <div class="shelf-top-bar">
-        <button id="openModalBtn" class="shelf-btn shelf-add-btn">+ Add to Shelf</button>
+        <button id="openModalBtn" class="shelf-btn shelf-add-btn">+ Add to Shelve</button>
     </div>
 
     <div id="shelfModal" class="shelf-modal">
@@ -73,7 +73,7 @@
                 </div>
 
                 <div id="selected-products">
-                    <h3>Shelf Items</h3>
+                    <h3>Selected Items</h3>
                     <table class="shelf-selected-products-table">
                         <thead>
                             <tr>
@@ -89,7 +89,7 @@
                 </div>
 
                 <div class="shelf-form-actions">
-                    <button type="submit" class="shelf-btn shelf-save-btn">Add to Shelf</button>
+                    <button type="submit" class="shelf-btn shelf-save-btn">Add to Shelve</button>
                 </div>
             </form>
         </div>
@@ -132,7 +132,7 @@
     <div id="errorShelfModal" class="shelf-modal">
         <div class="shelf-add-modal-content">
             <span class="shelf-close-btn" id="closeErrorModalBtn"><i class="fa-solid fa-circle-xmark"></i></span>
-            <h2>Existing Shelf Items</h2>
+            <h2> Shelve Items</h2>
             <p>The following products are already on the shelf. Remove them to add new quantities.</p>
             <table class="shelf-error-products-table">
                 <thead>
@@ -172,7 +172,7 @@
     </div>
 
     <div class="shelf-table-container">
-        <div class="shelf-section-title">Shelf Items</div>
+        <div class="shelf-section-title">Shelved Items</div>
         <table class="shelf-items-table" id="shelfItemsTable">
             <thead>
                 <tr>

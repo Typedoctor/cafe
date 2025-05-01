@@ -115,12 +115,13 @@
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
     margin: 20px 0px;
     max-width: 100%;
-    overflow: visible;
+    overflow-x: auto; /* Ensure horizontal scrolling for overflow */
 }
 
 .dmg-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed; /* Prevent columns from resizing based on content */
 }
 
 .dmg-table th,
@@ -128,6 +129,9 @@
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
+    overflow: hidden; /* Prevent content from spilling out */
+    text-overflow: ellipsis; /* Add ellipsis for overflow */
+    white-space: nowrap; /* Prevent wrapping by default */
 }
 
 .dmg-table th {
@@ -157,7 +161,45 @@
 #damagedProductsTable td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid henshaw;
+    border-bottom: 1px solid #ddd; /* Fixed 'henshaw' typo */
+}
+
+/* Column Widths for DataTable */
+#damagedProductsTable th:nth-child(1), /* ID */
+#damagedProductsTable td:nth-child(1) {
+    width: 60px; /* Fixed width for ID */
+}
+
+#damagedProductsTable th:nth-child(2), /* Product Name */
+#damagedProductsTable td:nth-child(2) {
+    max-width: 150px; /* Limit Product Name width */
+}
+
+#damagedProductsTable th:nth-child(3), /* Quantity */
+#damagedProductsTable td:nth-child(3) {
+    width: 80px; /* Fixed width for Quantity */
+}
+
+#damagedProductsTable th:nth-child(4), /* Reason */
+#damagedProductsTable td:nth-child(4) {
+    max-width: 200px; /* Limit Reason width to prevent elongation */
+    word-wrap: break-word; /* Allow wrapping for long descriptions */
+    white-space: normal; /* Override nowrap for Reason to wrap text */
+}
+
+#damagedProductsTable th:nth-child(5), /* Supplier */
+#damagedProductsTable td:nth-child(5) {
+    max-width: 150px; /* Limit Supplier width */
+}
+
+#damagedProductsTable th:nth-child(6), /* Reported At */
+#damagedProductsTable td:nth-child(6) {
+    width: 120px; /* Fixed width for Reported At */
+}
+
+#damagedProductsTable th:nth-child(7), /* Actions */
+#damagedProductsTable td:nth-child(7) {
+    width: 100px; /* Fixed width for Actions */
 }
 
 #damagedProductsTable_wrapper .dataTables_filter input {
@@ -182,13 +224,12 @@
     border: 1px solid #ddd;
     cursor: pointer;
 }
-/*#damagedProductsTable_wrapper .dataTables_paginate .paginate_button:hover*/ 
-#damagedProductsTable_wrapper .dataTables_paginate .paginate_button.current{
-    background-color: #007bff;;
+
+#damagedProductsTable_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: #007bff;
     color: white;
-    border-color: #007bff;;
+    border-color: #007bff;
     transform: translateY(-3px);
- 
 }
 
 /* Modal Styles */
@@ -197,7 +238,7 @@
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-30%, -50%);
+    transform: translate(-50%, -50%); /* Fixed transform for centering */
     width: 400px;
     background: white;
     padding: 30px;
@@ -224,7 +265,7 @@
 }
 
 .dmg-close-btn {
-    margin-left: 380px;
+    margin-left: 350px; /* Adjusted for modal width */
     cursor: pointer;
     color: rgb(162, 5, 5);
     font-size: 18px;
@@ -303,7 +344,6 @@
     justify-content: flex-end;
 }
 
-
 /* Responsive Styles */
 @media (max-width: 768px) {
     .dmg-modal {
@@ -325,5 +365,11 @@
 
     .dmg-table-container {
         overflow-x: auto;
+    }
+
+    /* Adjust column widths for smaller screens */
+    #damagedProductsTable th:nth-child(4),
+    #damagedProductsTable td:nth-child(4) {
+        max-width: 150px; /* Smaller width for Reason on mobile */
     }
 }

@@ -60,10 +60,11 @@
                 <span id="quantityError" style="color: red; display: none;">Insufficient stock!</span>
             </div>
 
-            <div class="form-group">
-                <label>Why are you discarding it?</label>
-                <input type="text" name="reason" id="reason" placeholder="e.g., Expired, Damaged" pattern="[A-Za-z\s]+" title="Only letters and spaces are allowed" required>
-            </div>
+         <div class="form-group">
+            <label>Why are you discarding it?</label>
+            <textarea type="text" name="reason" id="reason" placeholder="e.g., Expired, Damaged" pattern="[A-Za-z\s]+" maxlength="255"></textarea>
+            <div class="trsh-char-counter" id="charCounter">255 characters remaining</div>
+        </div>
             <div class="total-loss-display">
                 <label>Total Loss (₱)</label>
                 <div id="totalLossDisplay">Enter product and quantity to see total loss.</div>
@@ -154,6 +155,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Character counter for reason textarea
+    const reasonInput = document.getElementById('reason');
+    const charCounter = document.getElementById('charCounter');
+    const maxLength = 255;
+
+    reasonInput.addEventListener('input', () => {
+        const remaining = maxLength - reasonInput.value.length;
+        charCounter.textContent = `${remaining} characters remaining`;
+    });
+
+    // Existing code for modals, form handling, etc.
     const trashModal = document.getElementById('trashModal');
     const duplicateModal = document.getElementById('duplicateModal');
     const trashForm = document.getElementById('trashForm');
@@ -167,7 +179,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const productSelect = document.getElementById('productName');
     const quantityInput = document.getElementById('quantity');
     const quantityError = document.getElementById('quantityError');
-    const reasonInput = document.getElementById('reason');
     const totalLossDisplay = document.getElementById('totalLossDisplay');
     const categoryInput = document.getElementById('category');
     const tabButtons = document.querySelectorAll('.tab-btn');
@@ -183,6 +194,21 @@ document.addEventListener('DOMContentLoaded', function () {
     reasonInput.addEventListener('input', function () {
         this.value = this.value.replace(/[^A-Za-z\s]/g, '');
     });
+    document.addEventListener('DOMContentLoaded', function () {
+    // Existing code...
+
+    // Character counter for reason textarea
+    const reasonInput = document.getElementById('reason');
+    const charCounter = document.getElementById('charCounter');
+    const maxLength = 255;
+
+    reasonInput.addEventListener('input', () => {
+        const remaining = maxLength - reasonInput.value.length;
+        charCounter.textContent = `${remaining} characters remaining`;
+    });
+
+    // Rest of your existing code...
+});
 
     // Store all product options
     const allProductOptions = Array.from(productSelect.options).slice(1);
