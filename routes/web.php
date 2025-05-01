@@ -23,7 +23,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     // Add this route to your routes file (web.php)
     Route::put('/manage_users/{id}/update_status', [ManageUserController::class, 'updateStatus'])
     ->name('manage_users.update_status');
-    Route::resource('damaged-items',  ManagerDamagedProductController::class);
+    Route::resource('damaged-products',  ManagerDamagedProductController::class);
     Route::resource('add-to-shelf',  ManagerShelfController::class);
     Route::resource('manage_users', ManageUserController::class);
     Route::resource('reports', ReportController::class);

@@ -5,6 +5,9 @@
 @push('styles')
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <style>
+       
+    </style>
 @endpush
 
 @section('content')
@@ -18,6 +21,7 @@
         <div class="inv-modal-content">
             <span class="inv-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
             <h2 id="modalTitle">Add New Product</h2>
+            <div id="errorMessages" class="inv-error-messages" style="display: none; color: red; margin-bottom: 10px;"></div>
             <form id="productForm" method="POST">
                 @csrf
                 <input type="hidden" name="_method" id="methodField" value="POST">
@@ -49,12 +53,11 @@
         </div>
     </div>
 
-    <div id="inv-duplicateModal" class="inv-modal">
+    <!-- Success Modal -->
+    <div id="tableSuccessModal" class="inv-modal-success">
         <div class="inv-modal-content">
-            <span class="inv-close-btn">×</span>
-            <h2>Warning!</h2>
-            <p id="duplicateMessage">This product already exists.</p>
-            <button class="inv-btn inv-close-duplicate">OK</button>
+            <p>Product saved successfully!</p>
+            <button class="inv-close-success-btn" onclick="closeModal()">Close</button>
         </div>
     </div>
 
@@ -100,7 +103,6 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-   
 
     <script>
         $(document).ready(function () {
@@ -131,22 +133,48 @@
                 document.getElementById("supplier").value = this.dataset.supplier;
                 SaveBtn.innerText = "UPDATE";
                 productModal.style.display = "block";
+                document.getElementById("errorMessages").style.display = "none";
             });
         });
 
-        // JavaScript for modals, add product, duplicate checks, and input validation
+        // JavaScript for modals, add product, and input validation
         document.addEventListener("DOMContentLoaded", function () {
             const productModal = document.getElementById("productModal");
-            const duplicateModal = document.getElementById("inv-duplicateModal");
             const productForm = document.getElementById("productForm");
             const modalTitle = document.getElementById("modalTitle");
             const methodField = document.getElementById("methodField");
             const SaveBtn = document.getElementById("SaveBtn");
-            const closeBtns = document.querySelectorAll(".inv-close-btn");
-            const closeDuplicateBtn = document.querySelector(".inv-close-duplicate");
+            const closeBtn = document.querySelector(".inv-close-btn");
             const productNameInput = document.getElementById("productName");
             const quantityInput = document.getElementById("quantity");
             const supplierInput = document.getElementById("supplier");
+            const errorMessages = document.getElementById("errorMessages");
+            const tableSuccessModal = document.getElementById("tableSuccessModal");
+
+            // Function to show success modal
+            function showTableSuccessModal() {
+                tableSuccessModal.style.display = 'block';
+                setTimeout(() => {
+                    tableSuccessModal.style.display = 'none';
+                }, 2000);
+            }
+
+            // Function to close success modal
+            function closeModal() {
+                tableSuccessModal.style.display = 'none';
+            }
+
+            // Function to display error messages
+            function showError(message) {
+                errorMessages.style.display = 'block';
+                errorMessages.innerHTML = message;
+            }
+
+            // Function to clear error messages
+            function clearErrors() {
+                errorMessages.style.display = 'none';
+                errorMessages.innerHTML = '';
+            }
 
             // Validate product name (letters and spaces only)
             function enforceValidProductName(input) {
@@ -180,25 +208,84 @@
                 SaveBtn.innerText = "ADD";
                 productForm.reset();
                 quantityInput.value = 1; // Default to 1
+                clearErrors();
             });
 
             productForm.addEventListener("submit", function (event) {
-                if (methodField.value === "POST") {
-                    const existingProducts = Array.from(document.querySelectorAll("#productsTable tbody tr")).map(row =>
-                        row.querySelector("td:nth-child(2)").innerText.trim().toLowerCase()
-                    );
-                    if (existingProducts.includes(document.getElementById("productName").value.trim().toLowerCase())) {
-                        event.preventDefault();
-                        duplicateModal.style.display = "block";
+                event.preventDefault();
+                clearErrors();
+
+                $.ajax({
+                    url: productForm.action,
+                    type: methodField.value === "POST" ? "POST" : "PUT",
+                    data: $(productForm).serialize(),
+                    success: function(response) {
+                        showTableSuccessModal();
+                        let table = $('#productsTable').DataTable();
+                        if (methodField.value === "POST") {
+                            // Add new row for create
+                            table.row.add([
+                                response.product.id,
+                                response.product.product_name,
+                                response.product.category,
+                                response.product.quantity,
+                                response.product.supplier,
+                                `<button class="inv-btn inv-edit-btn" data-id="${response.product.id}" data-name="${response.product.product_name}" data-category="${response.product.category}" data-supplier="${response.product.supplier}" data-quantity="${response.product.quantity}">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </button>
+                                <form action="/products/${response.product.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                    <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="inv-btn inv-delete-btn"><i class="fa-solid fa-trash"></i></button>
+                                </form>`
+                            ]).draw();
+                        } else {
+                            // Update existing row for edit
+                            let row = table.row($(`button[data-id="${response.product.id}"]`).closest('tr'));
+                            row.data([
+                                response.product.id,
+                                response.product.product_name,
+                                response.product.category,
+                                response.product.quantity,
+                                response.product.supplier,
+                                `<button class="inv-btn inv-edit-btn" data-id="${response.product.id}" data-name="${response.product.product_name}" data-category="${response.product.category}" data-supplier="${response.product.supplier}" data-quantity="${response.product.quantity}">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </button>
+                                <form action="/products/${response.product.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                    <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="inv-btn inv-delete-btn"><i class="fa-solid fa-trash"></i></button>
+                                </form>`
+                            ]).draw();
+                        }
+                        productModal.style.display = "none";
+                        productForm.reset();
+                        quantityInput.value = 1;
+                    },
+                    error: function(xhr) {
+                        let errorMsg = xhr.responseJSON?.message || 'An error occurred while saving the product.';
+                        if (xhr.status === 422) {
+                            errorMsg = Object.values(xhr.responseJSON.errors || {}).flat().join('<br>');
+                        }
+                        showError(errorMsg);
                     }
-                }
+                });
             });
 
-            closeBtns.forEach(btn => btn.addEventListener("click", () => {
+            closeBtn.addEventListener("click", () => {
                 productModal.style.display = "none";
-                duplicateModal.style.display = "none";
-            }));
-            closeDuplicateBtn.addEventListener("click", () => duplicateModal.style.display = "none");
+                clearErrors();
+            });
+
+            window.addEventListener("click", event => {
+                if (event.target === productModal) {
+                    productModal.style.display = "none";
+                    clearErrors();
+                }
+                if (event.target === tableSuccessModal) {
+                    tableSuccessModal.style.display = "none";
+                }
+            });
         });
     </script>
 @endpush

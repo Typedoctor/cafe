@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="{{ asset('css/manager-dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manager-inventory.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manager-reports.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/manager-damaged.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manager-user.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manager-add-to-shelf.css') }}">
     <link rel="stylesheet" href="{{ asset('css/transaction.css') }}">
@@ -15,10 +16,10 @@
 <body>
 <div class="sidebar">
     <ul>
-        <li><a href="{{ route('manager.dashboard') }}" class="active " ><img src="{{ asset('icons/dashboard.ico') }}"></i>Dashboard</a></li>
-        <li><a href="{{ route('products.index') }}"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a></li>
-        <li><a href="{{ route('add-to-shelf.index') }}"><img src="{{ asset('icons/stock.ico') }}" alt="Add to Shelves Icon" >Add to Shelves</a></li>
-        <li><a href="{{ route('damaged-items.index') }}"><img src="{{ asset('icons/broken_package.ico') }}" alt="Damaged Items Icon" style ="width:28px; height:28px;">Damaged Items</a></li>
+        <li><a href="{{ route('manager.dashboard') }}" class="active " ><i class="fa-solid fa-grip"></i>Dashboard</a></li>
+        <li><a href="{{ route('products.index') }}"><i class="fa-solid fa-box"></i>Inventory</a></li>
+        <li><a href="{{ route('add-to-shelf.index') }}"><i class="fa-solid fa-boxes-stacked"></i>Add to Shelves</a></li>
+        <li><a href="{{ route('damaged-products.index') }}"><i class="fa-sharp fa-solid fa-dolly"></i>Damaged Items</a></li>
         <li><a href="{{ route('reports.index') }}"><i class="fa-solid fa-chart-line" ></i>Reports</a></li>
         <li><a href="{{ route('manage_users.index') }}"><i class="fa-solid fa-users"></i>Manage Users</a></li>
         <li><a href="{{ route('transactions.index') }}"><i class="fa-solid fa-receipt" ></i><span>Transactions</span></a></li>

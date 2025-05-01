@@ -7,7 +7,8 @@ services:
     environment:
       - APACHE_DOCUMENT_ROOT=/var/www/html
     volumes:
-      - .:/var/www/html
+      - .:/var/www/html/
+     
     depends_on:
       - db
     command: >

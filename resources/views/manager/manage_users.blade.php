@@ -189,6 +189,19 @@ document.addEventListener("DOMContentLoaded", function () {
         return password.length >= 6;
     }
 
+    // Function to check if user name already exists
+    function isUserNameExists(name) {
+        let exists = false;
+        $('#usersTable tbody tr').each(function() {
+            const rowName = $(this).find('td').eq(1).text().trim();
+            if (rowName.toLowerCase() === name.toLowerCase()) {
+                exists = true;
+                return false; // Break the loop
+            }
+        });
+        return exists;
+    }
+
     // Handle status dropdown change
     document.querySelectorAll('.status-dropdown').forEach(dropdown => {
         dropdown.addEventListener('change', function() {
@@ -258,6 +271,11 @@ document.addEventListener("DOMContentLoaded", function () {
         // Validate name
         if (!validateName(nameInput.value)) {
             errors.push("Name must contain letters only.");
+        }
+
+        // Check for existing user name when adding new user
+        if (methodField.value === "POST" && isUserNameExists(nameInput.value)) {
+            errors.push("User name already exists. Please select a different username.");
         }
 
         if (methodField.value === "POST") {

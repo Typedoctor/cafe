@@ -107,7 +107,7 @@ class ManagerShelfController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('add-to-shelf.index')->with('success', 'Items added to shelf successfully.');
+            return response()->json(['message' => 'Items added to shelf successfully.']);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Add to Shelf Error: ' . $e->getMessage());
@@ -144,7 +144,6 @@ class ManagerShelfController extends Controller
             $oldQuantity = $shelfItem->quantity_added;
             $quantityDifference = $newQuantity - $oldQuantity;
 
-            // If increasing quantity, check available stock
             if ($quantityDifference > 0 && $product->quantity < $quantityDifference) {
                 return response()->json([
                     'errors' => [
@@ -153,17 +152,13 @@ class ManagerShelfController extends Controller
                 ], 422);
             }
 
-            // Update shelf item
             $shelfItem->quantity_added = $newQuantity;
             $shelfItem->price = $validated['price'] ?? null;
             $shelfItem->save();
 
-            // Adjust product stock
             if ($quantityDifference > 0) {
-                // Reduce stock for additional quantity
                 $product->quantity -= $quantityDifference;
             } elseif ($quantityDifference < 0) {
-                // Restore stock for reduced quantity
                 $product->quantity += abs($quantityDifference);
             }
             $product->save();

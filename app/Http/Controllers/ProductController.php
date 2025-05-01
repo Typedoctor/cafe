@@ -34,10 +34,18 @@ class ProductController extends Controller
             ]);
 
             DB::commit();
+
+            if ($request->ajax()) {
+                return response()->json(['product' => $product], 201);
+            }
+
             return redirect()->route('products.index')->with('success', 'Product added successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Store Product Error: ' . $e->getMessage());
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Failed to add product: ' . $e->getMessage()], 500);
+            }
             return back()->withErrors(['error' => 'Failed to add product: ' . $e->getMessage()])->withInput();
         }
     }
@@ -62,10 +70,18 @@ class ProductController extends Controller
             ]);
 
             DB::commit();
+
+            if ($request->ajax()) {
+                return response()->json(['product' => $product], 200);
+            }
+
             return redirect()->route('products.index')->with('success', 'Product updated successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Update Product Error: ' . $e->getMessage());
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Failed to update product: ' . $e->getMessage()], 500);
+            }
             return back()->withErrors(['error' => 'Failed to update product: ' . $e->getMessage()])->withInput();
         }
     }

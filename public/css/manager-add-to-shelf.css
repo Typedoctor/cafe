@@ -1,3 +1,20 @@
+
+.price-error {
+    border: 2px solid red;
+}
+
+.price-note {
+    font-size: 0.8em;
+    color: red;
+    font-style: italic;
+}
+
+.shelf-error-message-inline {
+    color: red;
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
 /* Main Styles */
 .shelf-title {
     font-size: 20px;
@@ -358,7 +375,8 @@
     color: white;
     border-color: #007bff;
 }
-div.dataTables_wrapper div.dataTables_length select  {
+
+div.dataTables_wrapper div.dataTables_length select {
     border: 1px solid #e0e0e0 !important;
     padding: 6px !important;
     border-radius: 4px !important;
@@ -369,6 +387,38 @@ div.dataTables_wrapper div.dataTables_length select  {
 }
 
 /* Modal Styles */
+.shelf-modal-success {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    max-height: 80vh;
+    background: rgb(4, 186, 150);
+    padding: 30px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.shelf-delete-modal-success {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    max-height: 80vh;
+    background: rgb(220, 53, 69);
+    padding: 30px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
 .shelf-modal {
     display: none;
     position: fixed;
@@ -387,37 +437,61 @@ div.dataTables_wrapper div.dataTables_length select  {
 
 #editShelfItemModal {
     width: 360px;
-    
     box-sizing: border-box;
-    overflow-x: hidden; /* Disable horizontal scrolling */
+    overflow-x: hidden;
 }
 
+/* General modal header style */
 .shelf-modal h2 {
     font-size: 24px;
     margin-bottom: 25px;
-    color: #333;
     font-weight: 600;
     text-align: center;
     font-family: 'Poppins', sans-serif;
 }
 
-.shelf-modal-content {
+/* Success and Delete Success Modal Content */
+.shelf-modal-content,
+.shelf-delete-modal-content {
     align-items: center !important;
     font-size: 16px;
     font-weight: 500;
-    color: #000000;
+    color: #ffffff; /* White text for colored backgrounds */
     margin-bottom: 8px;
     font-family: 'Poppins', sans-serif;
     position: relative;
     padding-top: 30px;
-    max-width: 100%; /* Ensure content doesn't exceed modal width */
-    overflow-x: hidden; /* Prevent content from causing horizontal scroll */
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
-.shelf-modal-content form {
+/* Add/Edit/Error Modal Content */
+.shelf-add-modal-content {
+    align-items: center !important;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333; /* Dark text for white background */
+    margin-bottom: 8px;
+    font-family: 'Poppins', sans-serif;
+    position: relative;
+    padding-top: 30px;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Specific header color for modals with white backgrounds */
+.shelf-add-modal-content h2 {
+    color: #333; /* Dark header text for white background */
+}
+
+/* Ensure form elements inherit the correct color */
+.shelf-modal-content form,
+.shelf-delete-modal-content form,
+.shelf-add-modal-content form {
     display: flex;
     flex-direction: column;
     align-items: center;
+    color: inherit; /* Inherit color from parent */
 }
 
 .shelf-close-btn {
@@ -430,9 +504,11 @@ div.dataTables_wrapper div.dataTables_length select  {
     font-weight: bold;
 }
 
-.shelf-close-error-btn {
-    background-color: #6c757d;
-    color: white;
+.shelf-close-error-btn,
+.shelf-close-success-btn,
+.shelf-close-delete-success-btn {
+    background-color: #ebf0f4;
+    color: rgb(47, 40, 40);
     padding: 10px 20px;
     font-size: 16px;
     font-weight: 500;
@@ -440,13 +516,16 @@ div.dataTables_wrapper div.dataTables_length select  {
     cursor: pointer;
     border-radius: 10px;
     border: none;
-    width: 300px;
+    justify-content: center;
+    width: 100px;
     text-align: center;
     margin: 20px auto;
     display: block;
 }
 
-.shelf-close-error-btn:hover {
+.shelf-close-error-btn:hover,
+.shelf-close-success-btn:hover,
+.shelf-close-delete-success-btn:hover {
     background-color: #5a6268;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(108, 117, 125, 0.5);
@@ -464,7 +543,7 @@ div.dataTables_wrapper div.dataTables_length select  {
     border-radius: 8px;
     box-sizing: border-box;
     transition: all 0.3s ease;
-    max-width: 100%; /* Prevent inputs from overflowing */
+    max-width: 100%;
 }
 
 .shelf-form-input:focus {
@@ -477,7 +556,7 @@ div.dataTables_wrapper div.dataTables_length select  {
 /* Form Group for Edit Modal */
 .shelf-form-group {
     width: 100%;
-    max-width: 100%; /* Ensure form elements fit within the modal */
+    max-width: 100%;
     margin-bottom: 15px;
     box-sizing: border-box;
 }
@@ -589,7 +668,7 @@ div.dataTables_wrapper div.dataTables_length select  {
     #editShelfItemModal {
         width: 95%;
         max-width: 450px;
-        overflow-x: hidden; /* Maintain no horizontal scroll */
+        overflow-x: hidden;
     }
 
     .shelf-close-btn {

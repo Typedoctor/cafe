@@ -1,5 +1,5 @@
 /* Main Styles */
-.inv-title {
+.dmg-title {
     font-size: 20px;
     margin-bottom: 30px;
     text-align: center;
@@ -8,15 +8,18 @@
     font-weight: 600;
 }
 
-.inv-section-title {
+.dmg-section-title {
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 10px;
     color: #333;
     text-align: center;
+    font-family: 'Poppins', sans-serif;
 }
 
-.inv-btn {
+.dmg-btn {
+    background-color: #177ead;
+    color: white;
     padding: 10px 20px;
     font-size: 16px;
     font-weight: 500;
@@ -30,21 +33,7 @@
 }
 
 /* Button Styles */
-.inv-export-btn {
-    background-color: rgb(8, 188, 8);
-    color: white;
-    margin-left: 10px;
-    padding: 8px 16px;
-    border-radius: 4px;
-}
-
-.inv-export-btn:hover {
-    background-color: green;
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
-}
-
-.inv-add-stock {
+.dmg-add-btn {
     background-color: #3980cd;
     color: white;
     padding: 10px 20px;
@@ -57,13 +46,13 @@
     margin-left: 160px;
 }
 
-.inv-add-stock:hover {
+.dmg-add-btn:hover {
     background-color: #0056b3;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-.inv-save-btn {
+.dmg-save-btn {
     background-color: #3590C0;
     color: white;
     padding: 10px 20px;
@@ -78,13 +67,13 @@
     margin-top: 10px;
 }
 
-.inv-save-btn:hover {
+.dmg-save-btn:hover {
     background-color: #0056b3;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-.inv-edit-btn {
+.dmg-edit-btn {
     background-color: #3590C0;
     padding: 5px 10px;
     font-size: 14px;
@@ -95,13 +84,13 @@
     margin: 3px;
 }
 
-.inv-edit-btn:hover {
+.dmg-edit-btn:hover {
     background-color: #0056b3;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-.inv-delete-btn {
+.dmg-delete-btn {
     background-color: #dc3545;
     padding: 5px 10px;
     font-size: 14px;
@@ -112,37 +101,14 @@
     margin: 3px;
 }
 
-.inv-delete-btn:hover {
+.dmg-delete-btn:hover {
     background-color: #c82333;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
 }
 
-.inv-close-duplicate {
-    background-color: #fafafa;
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: 500;
-    font-family: 'Poppins', sans-serif;
-    color: rgb(0, 0, 0);
-    cursor: pointer;
-    text-decoration: none;
-    border: none;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    margin-top: 50px;
-    margin-left: 180px;
-    display: inline-block;
-}
-
-.inv-close-duplicate:hover {
-    background-color: #e0e0e0;
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
 /* Table Styles */
-.inv-table-container {
+.dmg-table-container {
     background: #ffffff;
     border-radius: 8px;
     padding: 20px;
@@ -152,19 +118,19 @@
     overflow: visible;
 }
 
-.inv-table {
+.dmg-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.inv-table th,
-.inv-table td {
+.dmg-table th,
+.dmg-table td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
 }
 
-.inv-table th {
+.dmg-table th {
     background-color: #10394f;
     color: white;
     font-weight: bold;
@@ -173,36 +139,42 @@
     z-index: 1;
 }
 
-.inv-table tr:nth-child(even) {
+.dmg-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-.inv-table tr:hover {
+.dmg-table tr:hover {
     background-color: #f0f0f0;
 }
 
 /* DataTables Styles */
-#productsTable {
+#damagedProductsTable {
     width: 100%;
     border-collapse: collapse;
 }
 
-#productsTable th,
-#productsTable td {
+#damagedProductsTable th,
+#damagedProductsTable td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid henshaw;
 }
 
-#productsTable_wrapper .dataTables_filter input {
-    border: 1px solid black;
+#damagedProductsTable_wrapper .dataTables_filter input {
+    border: 1px solid #000000;
     padding: 6px;
     border-radius: 4px;
     margin-left: 10px;
-    margin-bottom: 10px;
 }
 
-#productsTable_wrapper .dataTables_paginate .paginate_button {
+#damagedProductsTable_wrapper .dataTables_filter input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+#damagedProductsTable_wrapper .dataTables_paginate .paginate_button {
     padding: 6px 12px;
     margin: 0 2px;
     border-radius: 4px;
@@ -210,15 +182,17 @@
     border: 1px solid #ddd;
     cursor: pointer;
 }
-
-#productsTable_wrapper .dataTables_paginate .paginate_button.current {
-    background-color: #007bff;
+/*#damagedProductsTable_wrapper .dataTables_paginate .paginate_button:hover*/ 
+#damagedProductsTable_wrapper .dataTables_paginate .paginate_button.current{
+    background-color: #007bff;;
     color: white;
-    border-color: #007bff;
+    border-color: #007bff;;
+    transform: translateY(-3px);
+ 
 }
 
 /* Modal Styles */
-.inv-modal {
+.dmg-modal {
     display: none;
     position: fixed;
     top: 50%;
@@ -232,7 +206,7 @@
     z-index: 1000;
 }
 
-.inv-modal h2 {
+.dmg-modal h2 {
     font-size: 24px;
     margin-bottom: 25px;
     color: #333;
@@ -241,7 +215,7 @@
     font-family: 'Poppins', sans-serif;
 }
 
-.inv-modal-content {
+.dmg-modal-content {
     font-size: 16px;
     font-weight: 500;
     color: #000000;
@@ -249,7 +223,7 @@
     font-family: 'Poppins', sans-serif;
 }
 
-.inv-close-btn {
+.dmg-close-btn {
     margin-left: 380px;
     cursor: pointer;
     color: rgb(162, 5, 5);
@@ -258,7 +232,7 @@
 }
 
 /* Form Styles */
-.inv-form-group {
+.dmg-form-group {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -266,7 +240,7 @@
     width: 100%;
 }
 
-.inv-form-group label {
+.dmg-form-group label {
     font-size: 16px;
     font-weight: 500;
     color: #555;
@@ -274,8 +248,8 @@
     font-family: 'Poppins', sans-serif;
 }
 
-.inv-form-group input,
-.inv-form-group select {
+.dmg-form-group input,
+.dmg-form-group textarea {
     width: 100%;
     padding: 12px 15px;
     height: 48px;
@@ -288,117 +262,68 @@
     transition: all 0.3s ease;
 }
 
-.inv-form-group input:focus,
-.inv-form-group select:focus {
+.dmg-form-group textarea {
+    height: auto;
+    min-height: 100px;
+    resize: vertical;
+}
+
+.dmg-form-group input:focus,
+.dmg-form-group textarea:focus {
     outline: none;
     border-color: #4CAF50;
     background-color: #fff;
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
+/* Error and Success Messages */
+.dmg-error-messages {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.dmg-success-message {
+    background-color: #ffffff;
+    color: #1aa528;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    max-width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 /* Top Bar */
-.inv-top-bar {
+.dmg-top-bar {
     display: flex;
     justify-content: flex-end;
 }
-/* success message */
-
-       /* Success Modal */
-       .inv-modal-success {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 200px;
-        max-height: 80vh;
-        background: rgb(4, 186, 150);
-        padding: 30px;
-        box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
-        border-radius: 12px;
-        z-index: 1000;
-        overflow-y: auto;
-    }
-
-    /* Success Modal Content */
-    /* Success Modal */
-    .shelf-modal-success {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 200px;
-        max-height: 80vh;
-        background: rgb(4, 186, 150);
-        padding: 30px;
-        box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
-        border-radius: 12px;
-        z-index: 1000;
-        overflow-y: auto;
-    }
-
-    /* Success Modal Content */
-    .inv-modal-content {
-        align-items: center;
-        font-size: 16px;
-        font-weight: 500;
-        color: #ffffff;
-        margin-bottom: 8px;
-        font-family: 'Poppins', sans-serif;
-        position: relative;
-        padding-top: 30px;
-        max-width: 100%;
-        overflow-x: hidden;
-        text-align: center;
-    }
-
-    /* Close Button */
-    .inv-close-success-btn {
-        background-color: #ebf0f4;
-        color: rgb(47, 40, 40);
-        padding: 10px 20px;
-        font-size: 16px;
-        font-weight: 500;
-        font-family: 'Poppins', sans-serif;
-        cursor: pointer;
-        border-radius: 10px;
-        border: none;
-        justify-content: center;
-        width: 100px;
-        text-align: center;
-        margin: 20px auto;
-        display: block;
-    }
-
-    .inv-close-success-btn:hover {
-        background-color: #5a6268;
-        transform: translateY(-3px);
-        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.5);
-    }
 
 
 /* Responsive Styles */
 @media (max-width: 768px) {
-    .inv-modal {
+    .dmg-modal {
         width: 90%;
         max-width: 400px;
         padding: 20px;
     }
 
-    .inv-close-btn {
+    .dmg-close-btn {
         margin-left: auto;
         display: block;
     }
 
-    .inv-add-stock,
-    .inv-close-duplicate {
+    .dmg-add-btn {
         margin-left: auto;
         margin-right: auto;
         display: block;
     }
 
-    .inv-table-container {
+    .dmg-table-container {
         overflow-x: auto;
     }
 }

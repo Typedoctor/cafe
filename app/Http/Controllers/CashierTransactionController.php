@@ -55,7 +55,7 @@ class CashierTransactionController extends Controller
             'updated_at'
         )->get();
 
-        return view('cashier.cashier_transactions', compact('summarizedTransactions'));
+        return view('cashier.transactions', compact('summarizedTransactions'));
     }
 
  /*   public function export_cashier(Request $request)
