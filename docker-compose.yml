@@ -11,7 +11,7 @@ services:
     depends_on:
       - db
     command: >
-      sh -c "sleep 5 && php artisan migrate --force && apache2-foreground"
+      sh -c "until mysqladmin ping -h db -u root -proot --silent; do echo 'waiting for mysql'; sleep 2; done; php artisan migrate --force && apache2-foreground"
     networks:
       - laravel-net
 
@@ -41,6 +41,7 @@ services:
     environment:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: root
+      APACHE_SERVER_NAME: localhost
     networks:
       - laravel-net
       
