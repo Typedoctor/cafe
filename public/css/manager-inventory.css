@@ -376,6 +376,11 @@
         transform: translateY(-3px);
         box-shadow: 0 4px 12px rgba(108, 117, 125, 0.5);
     }
+    #productNameCount {
+        font-size: 12px;
+        color: gray;
+        float: right;
+    }
 
 
 /* Responsive Styles */

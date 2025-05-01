@@ -73,17 +73,25 @@
     padding: 16px;
     border-radius: 5px;
     width: 90%;
-    max-width: 500px;
+    max-width: 600px; /* Increased from 500px to make modal wider */
     max-height: 95vh;
     overflow-y: auto;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 0 auto; /* Ensure content remains centered */
+    text-align: center; /* Center-align text and inline elements */
 }
 
-.csh-modal-title {
-    font-size: 18px;
-    color: #333;
-    margin-bottom: 16px;
-    text-align: center;
+.csh-modal-content > * {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%; /* Prevent content from overflowing */
+}
+
+/* Ensure form and table content is centered */
+.csh-modal-content form,
+.csh-modal-content table {
+    width: 100%;
+    margin: 0 auto;
 }
 
 /* Form Styles */
@@ -96,6 +104,7 @@
     color: #555;
     margin-bottom: 4px;
     margin-top: 16px;
+    text-align: left;
 }
 
 .csh-form-input, .csh-form-textarea {
@@ -267,6 +276,71 @@
 
 .csh-product-table th, .csh-selected-products-table th {
     background: #f4f4f4;
+}
+
+/* Product Table Column Widths */
+.csh-product-table th:nth-child(1),
+.csh-product-table td:nth-child(1) {
+    width: 40%; /* Product Name */
+    word-break: break-word; /* Break long words */
+    white-space: normal; /* Allow text to wrap */
+}
+
+.csh-product-table th:nth-child(2),
+.csh-product-table td:nth-child(2) {
+    width: 20%; /* Price */
+    word-break: break-word;
+    white-space: normal;
+}
+
+.csh-product-table th:nth-child(3),
+.csh-product-table td:nth-child(3) {
+    width: 20%; /* Stock */
+    word-break: break-word;
+    white-space: normal;
+}
+
+.csh-product-table th:nth-child(4),
+.csh-product-table td:nth-child(4) {
+    width: 20%; /* Action */
+    word-break: break-word;
+    white-space: normal;
+}
+
+/* Selected Products Table Column Widths */
+.csh-selected-products-table th:nth-child(1),
+.csh-selected-products-table td:nth-child(1) {
+    width: 30%; /* Product */
+    word-break: break-word; /* Break long words */
+    white-space: normal; /* Allow text to wrap */
+}
+
+.csh-selected-products-table th:nth-child(2),
+.csh-selected-products-table td:nth-child(2) {
+    width: 15%; /* Price */
+    word-break: break-word;
+    white-space: normal;
+}
+
+.csh-selected-products-table th:nth-child(3),
+.csh-selected-products-table td:nth-child(3) {
+    width: 20%; /* Quantity */
+    word-break: break-word;
+    white-space: normal;
+}
+
+.csh-selected-products-table th:nth-child(4),
+.csh-selected-products-table td:nth-child(4) {
+    width: 20%; /* Stock Status */
+    word-break: break-word;
+    white-space: normal;
+}
+
+.csh-selected-products-table th:nth-child(5),
+.csh-selected-products-table td:nth-child(5) {
+    width: 15%; /* Action */
+    word-break: break-word;
+    white-space: normal;
 }
 
 .csh-add-product-btn, .csh-remove-product-btn {
@@ -524,6 +598,7 @@
 
     .csh-modal-content {
         width: 95%;
+        max-width: 95%; /* Ensure modal doesn't exceed screen width */
         padding: 12px;
         max-height: 70vh;
     }
@@ -542,7 +617,7 @@
         flex-wrap: wrap;
     }
 
-    .csh- tab-link {
+    .csh-tab-link {
         padding: 8px;
         font-size: 11px;
     }
@@ -619,5 +694,43 @@
     .csh-cancel-btn, .csh-complete-btn {
         width: 100%;
         padding: 8px;
+    }
+
+    /* Responsive Table Adjustments */
+    .csh-product-table, .csh-selected-products-table {
+        display: block;
+        overflow-x: auto; /* Enable horizontal scrolling for small screens */
+        white-space: nowrap; /* Prevent text wrapping in small screens */
+    }
+
+    /* Adjust column widths for smaller screens */
+    .csh-product-table th:nth-child(1),
+    .csh-product-table td:nth-child(1) {
+        width: 50%; /* Increase Product Name width */
+    }
+
+    .csh-product-table th:nth-child(2),
+    .csh-product-table td:nth-child(2),
+    .csh-product-table th:nth-child(3),
+    .csh-product-table td:nth-child(3),
+    .csh-product-table th:nth-child(4),
+    .csh-product-table td:nth-child(4) {
+        width: 16.66%; /* Equalize other columns */
+    }
+
+    .csh-selected-products-table th:nth-child(1),
+    .csh-selected-products-table td:nth-child(1) {
+        width: 40%; /* Increase Product width */
+    }
+
+    .csh-selected-products-table th:nth-child(2),
+    .csh-selected-products-table td:nth-child(2),
+    .csh-selected-products-table th:nth-child(3),
+    .csh-selected-products-table td:nth-child(3),
+    .csh-selected-products-table th:nth-child(4),
+    .csh-selected-products-table td:nth-child(4),
+    .csh-selected-products-table th:nth-child(5),
+    .csh-selected-products-table td:nth-child(5) {
+        width: 15%; /* Equalize other columns */
     }
 }

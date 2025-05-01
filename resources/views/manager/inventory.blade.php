@@ -28,7 +28,8 @@
                 <input type="hidden" name="product_id" id="productId">
                 <div class="inv-form-group">
                     <label>Product Name:</label>
-                    <input type="text" name="product_name" id="productName" required value="{{ old('product_name', $product->product_name ?? '') }}">
+                    <input type="text" name="product_name" id="productName" required maxlength="50" value="{{ old('product_name', $product->product_name ?? '') }}">
+                    <small id="productNameCount">0 / 50</small>
                 </div>
                 <div class="inv-form-group">
                     <label>Category:</label>
@@ -99,193 +100,186 @@
 @endsection
 
 @push('scripts')
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-    <script>
-        $(document).ready(function () {
-            let table = $('#productsTable').DataTable({
-                pageLength: 10,
-                responsive: true,
-                order: [[0, 'asc']],
-                columnDefs: [
-                    { orderable: false, targets: 5 } // Disable sorting on Actions column
-                ]
-            });
-
-            // Ensure edit buttons work with DataTables
-            $('#productsTable').on('click', '.inv-edit-btn', function() {
-                const modalTitle = document.getElementById("modalTitle");
-                const methodField = document.getElementById("methodField");
-                const productForm = document.getElementById("productForm");
-                const productModal = document.getElementById("productModal");
-                const SaveBtn = document.getElementById("SaveBtn");
-
-                modalTitle.innerText = "Edit Product";
-                methodField.value = "PUT";
-                productForm.action = `/products/${this.dataset.id}`;
-                document.getElementById("productId").value = this.dataset.id;
-                document.getElementById("productName").value = this.dataset.name;
-                document.getElementById("category").value = this.dataset.category;
-                document.getElementById("quantity").value = Math.max(1, this.dataset.quantity);
-                document.getElementById("supplier").value = this.dataset.supplier;
-                SaveBtn.innerText = "UPDATE";
-                productModal.style.display = "block";
-                document.getElementById("errorMessages").style.display = "none";
-            });
+<script>
+    $(document).ready(function () {
+        let table = $('#productsTable').DataTable({
+            pageLength: 10,
+            responsive: true,
+            order: [[0, 'asc']],
+            columnDefs: [
+                { orderable: false, targets: 5 }
+            ]
         });
 
-        // JavaScript for modals, add product, and input validation
-        document.addEventListener("DOMContentLoaded", function () {
-            const productModal = document.getElementById("productModal");
-            const productForm = document.getElementById("productForm");
+        $('#productsTable').on('click', '.inv-edit-btn', function() {
             const modalTitle = document.getElementById("modalTitle");
             const methodField = document.getElementById("methodField");
+            const productForm = document.getElementById("productForm");
+            const productModal = document.getElementById("productModal");
             const SaveBtn = document.getElementById("SaveBtn");
-            const closeBtn = document.querySelector(".inv-close-btn");
-            const productNameInput = document.getElementById("productName");
-            const quantityInput = document.getElementById("quantity");
-            const supplierInput = document.getElementById("supplier");
-            const errorMessages = document.getElementById("errorMessages");
-            const tableSuccessModal = document.getElementById("tableSuccessModal");
 
-            // Function to show success modal
-            function showTableSuccessModal() {
-                tableSuccessModal.style.display = 'block';
-                setTimeout(() => {
-                    tableSuccessModal.style.display = 'none';
-                }, 2000);
-            }
+            modalTitle.innerText = "Edit Product";
+            methodField.value = "PUT";
+            productForm.action = `/products/${this.dataset.id}`;
+            document.getElementById("productId").value = this.dataset.id;
+            document.getElementById("productName").value = this.dataset.name;
+            document.getElementById("category").value = this.dataset.category;
+            document.getElementById("quantity").value = Math.max(1, this.dataset.quantity);
+            document.getElementById("supplier").value = this.dataset.supplier;
+            SaveBtn.innerText = "UPDATE";
+            productModal.style.display = "block";
+            document.getElementById("errorMessages").style.display = "none";
 
-            // Function to close success modal
-            function closeModal() {
+            // Update character counter
+            updateCharacterCount();
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const productModal = document.getElementById("productModal");
+        const productForm = document.getElementById("productForm");
+        const modalTitle = document.getElementById("modalTitle");
+        const methodField = document.getElementById("methodField");
+        const SaveBtn = document.getElementById("SaveBtn");
+        const closeBtn = document.querySelector(".inv-close-btn");
+        const productNameInput = document.getElementById("productName");
+        const productNameCount = document.getElementById("productNameCount");
+        const quantityInput = document.getElementById("quantity");
+        const supplierInput = document.getElementById("supplier");
+        const errorMessages = document.getElementById("errorMessages");
+        const tableSuccessModal = document.getElementById("tableSuccessModal");
+
+        function showTableSuccessModal() {
+            tableSuccessModal.style.display = 'block';
+            setTimeout(() => {
                 tableSuccessModal.style.display = 'none';
-            }
+            }, 2000);
+        }
 
-            // Function to display error messages
-            function showError(message) {
-                errorMessages.style.display = 'block';
-                errorMessages.innerHTML = message;
-            }
+        function closeModal() {
+            tableSuccessModal.style.display = 'none';
+        }
 
-            // Function to clear error messages
-            function clearErrors() {
-                errorMessages.style.display = 'none';
-                errorMessages.innerHTML = '';
-            }
+        function showError(message) {
+            errorMessages.style.display = 'block';
+            errorMessages.innerHTML = message;
+        }
 
-            // Validate product name (letters and spaces only)
-            function enforceValidProductName(input) {
-                input.addEventListener("input", function () {
-                    this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
-                });
-            }
-            if (productNameInput) enforceValidProductName(productNameInput);
+        function clearErrors() {
+            errorMessages.style.display = 'none';
+            errorMessages.innerHTML = '';
+        }
 
-            // Validate quantity (positive integers only)
-            function enforceValidQuantity(input) {
-                input.addEventListener("input", function () {
-                    this.value = Math.max(1, parseInt(this.value) || 1);
-                });
-            }
-            if (quantityInput) enforceValidQuantity(quantityInput);
-
-            // Validate supplier (letters and spaces only)
-            function enforceValidSupplier(input) {
-                input.addEventListener("input", function () {
-                    this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
-                });
-            }
-            if (supplierInput) enforceValidSupplier(supplierInput);
-
-            document.getElementById("addStockBtn").addEventListener("click", function () {
-                modalTitle.innerText = "Add New Product";
-                methodField.value = "POST";
-                productForm.action = "{{ route('products.store') }}";
-                productModal.style.display = "block";
-                SaveBtn.innerText = "ADD";
-                productForm.reset();
-                quantityInput.value = 1; // Default to 1
-                clearErrors();
+        function enforceValidProductName(input) {
+            input.addEventListener("input", function () {
+                this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
             });
+        }
 
-            productForm.addEventListener("submit", function (event) {
-                event.preventDefault();
-                clearErrors();
+        function enforceValidQuantity(input) {
+            input.addEventListener("input", function () {
+                this.value = Math.max(1, parseInt(this.value) || 1);
+            });
+        }
 
-                $.ajax({
-                    url: productForm.action,
-                    type: methodField.value === "POST" ? "POST" : "PUT",
-                    data: $(productForm).serialize(),
-                    success: function(response) {
-                        showTableSuccessModal();
-                        let table = $('#productsTable').DataTable();
-                        if (methodField.value === "POST") {
-                            // Add new row for create
-                            table.row.add([
-                                response.product.id,
-                                response.product.product_name,
-                                response.product.category,
-                                response.product.quantity,
-                                response.product.supplier,
-                                `<button class="inv-btn inv-edit-btn" data-id="${response.product.id}" data-name="${response.product.product_name}" data-category="${response.product.category}" data-supplier="${response.product.supplier}" data-quantity="${response.product.quantity}">
-                                    <i class="fa-solid fa-pencil"></i>
-                                </button>
-                                <form action="/products/${response.product.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
-                                    <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="inv-btn inv-delete-btn"><i class="fa-solid fa-trash"></i></button>
-                                </form>`
-                            ]).draw();
-                        } else {
-                            // Update existing row for edit
-                            let row = table.row($(`button[data-id="${response.product.id}"]`).closest('tr'));
-                            row.data([
-                                response.product.id,
-                                response.product.product_name,
-                                response.product.category,
-                                response.product.quantity,
-                                response.product.supplier,
-                                `<button class="inv-btn inv-edit-btn" data-id="${response.product.id}" data-name="${response.product.product_name}" data-category="${response.product.category}" data-supplier="${response.product.supplier}" data-quantity="${response.product.quantity}">
-                                    <i class="fa-solid fa-pencil"></i>
-                                </button>
-                                <form action="/products/${response.product.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
-                                    <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="inv-btn inv-delete-btn"><i class="fa-solid fa-trash"></i></button>
-                                </form>`
-                            ]).draw();
-                        }
-                        productModal.style.display = "none";
-                        productForm.reset();
-                        quantityInput.value = 1;
-                    },
-                    error: function(xhr) {
-                        let errorMsg = xhr.responseJSON?.message || 'An error occurred while saving the product.';
-                        if (xhr.status === 422) {
-                            errorMsg = Object.values(xhr.responseJSON.errors || {}).flat().join('<br>');
-                        }
-                        showError(errorMsg);
+        function enforceValidSupplier(input) {
+            input.addEventListener("input", function () {
+                this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+            });
+        }
+
+        function updateCharacterCount() {
+            const count = productNameInput.value.length;
+            productNameCount.textContent = `${count} / 50`;
+        }
+
+        if (productNameInput) {
+            enforceValidProductName(productNameInput);
+            productNameInput.addEventListener("input", updateCharacterCount);
+            updateCharacterCount(); // Initial value
+        }
+
+        if (quantityInput) enforceValidQuantity(quantityInput);
+        if (supplierInput) enforceValidSupplier(supplierInput);
+
+        document.getElementById("addStockBtn").addEventListener("click", function () {
+            modalTitle.innerText = "Add New Product";
+            methodField.value = "POST";
+            productForm.action = "{{ route('products.store') }}";
+            productModal.style.display = "block";
+            SaveBtn.innerText = "ADD";
+            productForm.reset();
+            quantityInput.value = 1;
+            clearErrors();
+            updateCharacterCount(); // Reset counter to 0
+        });
+
+        productForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            clearErrors();
+
+            $.ajax({
+                url: productForm.action,
+                type: methodField.value === "POST" ? "POST" : "PUT",
+                data: $(productForm).serialize(),
+                success: function(response) {
+                    showTableSuccessModal();
+                    let table = $('#productsTable').DataTable();
+                    const newRow = [
+                        response.product.id,
+                        response.product.product_name,
+                        response.product.category,
+                        response.product.quantity,
+                        response.product.supplier,
+                        `<button class="inv-btn inv-edit-btn" data-id="${response.product.id}" data-name="${response.product.product_name}" data-category="${response.product.category}" data-supplier="${response.product.supplier}" data-quantity="${response.product.quantity}">
+                            <i class="fa-solid fa-pencil"></i>
+                        </button>
+                        <form action="/products/${response.product.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                            <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="inv-btn inv-delete-btn"><i class="fa-solid fa-trash"></i></button>
+                        </form>`
+                    ];
+
+                    if (methodField.value === "POST") {
+                        table.row.add(newRow).draw();
+                    } else {
+                        let row = table.row($(`button[data-id="${response.product.id}"]`).closest('tr'));
+                        row.data(newRow).draw();
                     }
-                });
-            });
 
-            closeBtn.addEventListener("click", () => {
-                productModal.style.display = "none";
-                clearErrors();
-            });
-
-            window.addEventListener("click", event => {
-                if (event.target === productModal) {
                     productModal.style.display = "none";
-                    clearErrors();
-                }
-                if (event.target === tableSuccessModal) {
-                    tableSuccessModal.style.display = "none";
+                    productForm.reset();
+                    quantityInput.value = 1;
+                    updateCharacterCount();
+                },
+                error: function(xhr) {
+                    let errorMsg = xhr.responseJSON?.message || 'An error occurred while saving the product.';
+                    if (xhr.status === 422) {
+                        errorMsg = Object.values(xhr.responseJSON.errors || {}).flat().join('<br>');
+                    }
+                    showError(errorMsg);
                 }
             });
         });
-    </script>
+
+        closeBtn.addEventListener("click", () => {
+            productModal.style.display = "none";
+            clearErrors();
+        });
+
+        window.addEventListener("click", event => {
+            if (event.target === productModal) {
+                productModal.style.display = "none";
+                clearErrors();
+            }
+            if (event.target === tableSuccessModal) {
+                tableSuccessModal.style.display = "none";
+            }
+        });
+    });
+</script>
 @endpush

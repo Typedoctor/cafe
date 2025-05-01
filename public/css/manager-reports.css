@@ -263,7 +263,7 @@
 }
 
 #trashTable_wrapper 
-dataTables_length select:focus {
+.dataTables_length select:focus {
     outline: none;
     border-color: #4CAF50;
     background-color: #fff;

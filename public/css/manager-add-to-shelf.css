@@ -206,6 +206,7 @@
 .shelf-product-table th:nth-child(1),
 .shelf-product-table td:nth-child(1) {
     width: 50%; /* Product Name */
+    word-break: break-all; 
 }
 
 .shelf-product-table th:nth-child(2),
