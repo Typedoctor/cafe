@@ -167,17 +167,17 @@
 /* Column Widths for DataTable */
 #damagedProductsTable th:nth-child(1), /* ID */
 #damagedProductsTable td:nth-child(1) {
-    width: 60px; /* Fixed width for ID */
+    width: 10px; /* Fixed width for ID */
 }
 
 #damagedProductsTable th:nth-child(2), /* Product Name */
 #damagedProductsTable td:nth-child(2) {
-    max-width: 150px; /* Limit Product Name width */
+    max-width: 100px; /* Limit Product Name width */
 }
 
 #damagedProductsTable th:nth-child(3), /* Quantity */
 #damagedProductsTable td:nth-child(3) {
-    width: 80px; /* Fixed width for Quantity */
+    width: 50px; /* Fixed width for Quantity */
 }
 
 #damagedProductsTable th:nth-child(4), /* Reason */

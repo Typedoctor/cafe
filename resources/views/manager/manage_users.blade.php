@@ -5,6 +5,14 @@
 @push('styles')
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <style>
+        .usr-form-group small {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.8em;
+            color: #666;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -25,7 +33,8 @@
             <input type="hidden" name="user_id" id="userId">
             <div class="usr-form-group">
                 <label>User name:</label>
-                <input type="text" name="name" id="name" required>
+                <input type="text" name="name" id="name" required maxlength="24">
+                <small id="nameCount">0 / 24</small>
             </div>
             <div class="usr-form-group" name="pass">
                 <label>Password:</label>
@@ -148,6 +157,9 @@ $(document).ready(function () {
         saveBtn.innerText = "UPDATE";
         userModal.style.display = "block";
         document.getElementById("errorMessages").style.display = "none";
+
+        // Update character counter
+        updateCharacterCount('name', 'nameCount', 24);
     });
 });
 
@@ -202,6 +214,21 @@ document.addEventListener("DOMContentLoaded", function () {
         return exists;
     }
 
+    // Update character count
+    function updateCharacterCount(inputId, countId, maxLength) {
+        const input = document.getElementById(inputId);
+        const count = document.getElementById(countId);
+        if (input && count) {
+            const currentCount = input.value.length;
+            count.textContent = `${currentCount} / ${maxLength}`;
+        }
+    }
+
+    if (nameInput) {
+        nameInput.addEventListener("input", () => updateCharacterCount('name', 'nameCount', 24));
+        updateCharacterCount('name', 'nameCount', 24); // Initial value
+    }
+
     // Handle status dropdown change
     document.querySelectorAll('.status-dropdown').forEach(dropdown => {
         dropdown.addEventListener('change', function() {
@@ -230,6 +257,7 @@ document.addEventListener("DOMContentLoaded", function () {
         userModal.style.display = "block";
         userForm.reset();
         clearErrors();
+        updateCharacterCount('name', 'nameCount', 24); // Reset counter
     });
 
     document.querySelectorAll(".usr-edit-btn").forEach(button => {
@@ -249,6 +277,7 @@ document.addEventListener("DOMContentLoaded", function () {
             saveBtn.innerText = "UPDATE";
             userModal.style.display = "block";
             clearErrors();
+            updateCharacterCount('name', 'nameCount', 24); // Update counter
         });
     });
 

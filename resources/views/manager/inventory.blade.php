@@ -5,8 +5,25 @@
 @push('styles')
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ asset('css/inventory.css') }}">
     <style>
-       
+        .quantity-note {
+            font-size: 0.8em;
+            color: red;
+            font-style: italic;
+        }
+
+        .quantity-error {
+            border: 2px solid red;
+        }
+
+        .inv-form-group small {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.8em;
+            color: #666;
+        }
     </style>
 @endpush
 
@@ -42,12 +59,13 @@
                     </select>
                 </div>
                 <div class="inv-form-group">
-                    <label>Quantity:</label>
-                    <input type="number" name="quantity" id="quantity" min="1" required>
+                    <label>Quantity: <span class="quantity-note">Must be between 1 and 1200</span></label>
+                    <input type="number" name="quantity" id="quantity" min="1" max="1200" required>
                 </div>
                 <div class="inv-form-group">
                     <label>Supplier:</label>
-                    <input type="text" name="supplier" id="supplier" required>
+                    <input type="text" name="supplier" id="supplier" required maxlength="50" value="{{ old('supplier', $product->supplier ?? '') }}">
+                    <small id="supplierCount">0 / 50</small>
                 </div>
                 <button type="submit" class="inv-btn inv-save-btn" id="SaveBtn">ADD</button>
             </form>
@@ -72,17 +90,17 @@
                     <th>Category</th>
                     <th>In stock</th>
                     <th>Supplier</th>
-                    <th style="width: 100px;">Actions</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($products as $product)
                 <tr>
                     <td>{{ $product->id }}</td>
-                    <td>{{ $product->product_name }}</td>
-                    <td>{{ $product->category }}</td>
+                    <td title="{{ $product->product_name }}">{{ $product->product_name }}</td>
+                    <td title="{{ $product->category }}">{{ $product->category }}</td>
                     <td>{{ $product->quantity }}</td>
-                    <td>{{ $product->supplier }}</td>
+                    <td title="{{ $product->supplier }}">{{ $product->supplier }}</td>
                     <td>
                         <button class="inv-btn inv-edit-btn" data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-category="{{ $product->category }}" data-supplier="{{ $product->supplier }}" data-quantity="{{ $product->quantity }}">
                             <i class="fa-solid fa-pencil"></i>
@@ -127,14 +145,15 @@
             document.getElementById("productId").value = this.dataset.id;
             document.getElementById("productName").value = this.dataset.name;
             document.getElementById("category").value = this.dataset.category;
-            document.getElementById("quantity").value = Math.max(1, this.dataset.quantity);
+            document.getElementById("quantity").value = Math.max(1, parseInt(this.dataset.quantity));
             document.getElementById("supplier").value = this.dataset.supplier;
             SaveBtn.innerText = "UPDATE";
             productModal.style.display = "block";
             document.getElementById("errorMessages").style.display = "none";
 
-            // Update character counter
-            updateCharacterCount();
+            // Update character counters
+            updateCharacterCount('productName', 'productNameCount');
+            updateCharacterCount('supplier', 'supplierCount');
         });
     });
 
@@ -149,6 +168,7 @@
         const productNameCount = document.getElementById("productNameCount");
         const quantityInput = document.getElementById("quantity");
         const supplierInput = document.getElementById("supplier");
+        const supplierCount = document.getElementById("supplierCount");
         const errorMessages = document.getElementById("errorMessages");
         const tableSuccessModal = document.getElementById("tableSuccessModal");
 
@@ -181,29 +201,47 @@
 
         function enforceValidQuantity(input) {
             input.addEventListener("input", function () {
-                this.value = Math.max(1, parseInt(this.value) || 1);
+                let val = parseInt(this.value) || 1;
+                if (val < 1) {
+                    this.value = 1;
+                } else if (val > 1200) {
+                    this.value = 1200;
+                } else {
+                    this.value = val;
+                }
             });
         }
 
         function enforceValidSupplier(input) {
             input.addEventListener("input", function () {
-                this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+                // Allow letters, numbers, spaces, and common punctuation
+                this.value = this.value.replace(/[^a-zA-Z0-9\s.,-]/g, '');
             });
         }
 
-        function updateCharacterCount() {
-            const count = productNameInput.value.length;
-            productNameCount.textContent = `${count} / 50`;
+        function updateCharacterCount(inputId, countId) {
+            const input = document.getElementById(inputId);
+            const count = document.getElementById(countId);
+            if (input && count) {
+                const currentCount = input.value.length;
+                count.textContent = `${currentCount} / 50 characters`;
+            } else {
+                console.error(`Element not found: inputId=${inputId}, countId=${countId}`);
+            }
         }
 
         if (productNameInput) {
             enforceValidProductName(productNameInput);
-            productNameInput.addEventListener("input", updateCharacterCount);
-            updateCharacterCount(); // Initial value
+            productNameInput.addEventListener("input", () => updateCharacterCount('productName', 'productNameCount'));
+            updateCharacterCount('productName', 'productNameCount'); // Initial value
         }
 
         if (quantityInput) enforceValidQuantity(quantityInput);
-        if (supplierInput) enforceValidSupplier(supplierInput);
+        if (supplierInput) {
+            enforceValidSupplier(supplierInput);
+            supplierInput.addEventListener("input", () => updateCharacterCount('supplier', 'supplierCount'));
+            updateCharacterCount('supplier', 'supplierCount'); // Initial value
+        }
 
         document.getElementById("addStockBtn").addEventListener("click", function () {
             modalTitle.innerText = "Add New Product";
@@ -214,12 +252,26 @@
             productForm.reset();
             quantityInput.value = 1;
             clearErrors();
-            updateCharacterCount(); // Reset counter to 0
+            updateCharacterCount('productName', 'productNameCount'); // Reset counter to 0
+            updateCharacterCount('supplier', 'supplierCount'); // Reset counter to 0
         });
 
         productForm.addEventListener("submit", function (event) {
             event.preventDefault();
             clearErrors();
+
+            const quantity = parseInt(quantityInput.value);
+            if (quantity > 1200) {
+                showError("Quantity cannot exceed 1200.");
+                quantityInput.classList.add('quantity-error');
+                return;
+            } else if (quantity < 1) {
+                showError("Quantity must be at least 1.");
+                quantityInput.classList.add('quantity-error');
+                return;
+            } else {
+                quantityInput.classList.remove('quantity-error');
+            }
 
             $.ajax({
                 url: productForm.action,
@@ -254,7 +306,8 @@
                     productModal.style.display = "none";
                     productForm.reset();
                     quantityInput.value = 1;
-                    updateCharacterCount();
+                    updateCharacterCount('productName', 'productNameCount');
+                    updateCharacterCount('supplier', 'supplierCount');
                 },
                 error: function(xhr) {
                     let errorMsg = xhr.responseJSON?.message || 'An error occurred while saving the product.';

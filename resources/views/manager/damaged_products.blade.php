@@ -5,6 +5,24 @@
 @push('styles')
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <style>
+        .quantity-note {
+            font-size: 0.8em;
+            color: red;
+            font-style: italic;
+        }
+
+        .quantity-error {
+            border: 2px solid red;
+        }
+
+        .dmg-form-group small {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.8em;
+            color: #666;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -28,16 +46,18 @@
                 <input type="text" name="product_name" id="productName" required>
             </div>
             <div class="dmg-form-group">
-                <label>Quantity:</label>
-                <input type="number" name="quantity" id="quantity" min="1" required>
+                <label>Quantity:<br><span class="quantity-note">Must be between 1 and 1200</span></label>
+                <input type="number" name="quantity" id="quantity" min="1" max="1200" required>
             </div>
             <div class="dmg-form-group">
                 <label>Reason:</label>
-                <textarea name="reason" id="reason" required></textarea>
+                <textarea name="reason" id="reason" required maxlength="100"></textarea>
+                <small id="reasonCount">0 / 100</small>
             </div>
             <div class="dmg-form-group">
                 <label>Supplier:</label>
-                <input type="text" name="supplier" id="supplier" required>
+                <input type="text" name="supplier" id="supplier" required maxlength="50">
+                <small id="supplierCount">0 / 50</small>
             </div>
             <div class="dmg-form-group">
                 <label>Reported At:</label>
@@ -142,6 +162,10 @@
                 SaveBtn.innerText = "UPDATE";
                 damagedProductModal.style.display = "block";
                 document.getElementById("errorMessages").style.display = "none";
+
+                // Update character counters
+                updateCharacterCount('reason', 'reasonCount', 100);
+                updateCharacterCount('supplier', 'supplierCount', 50);
             });
         });
 
@@ -155,7 +179,10 @@
             const closeBtn = document.querySelector(".dmg-close-btn");
             const productNameInput = document.getElementById("productName");
             const quantityInput = document.getElementById("quantity");
+            const reasonInput = document.getElementById("reason");
             const supplierInput = document.getElementById("supplier");
+            const reasonCount = document.getElementById("reasonCount");
+            const supplierCount = document.getElementById("supplierCount");
             const errorMessages = document.getElementById("errorMessages");
             const tableSuccessMessage = document.getElementById("tableSuccessMessage");
 
@@ -187,21 +214,55 @@
             }
             if (productNameInput) enforceValidProductName(productNameInput);
 
-            // Validate quantity (positive integers only)
+            // Validate quantity (positive integers up to 1200)
             function enforceValidQuantity(input) {
                 input.addEventListener("input", function () {
-                    this.value = Math.max(1, parseInt(this.value) || 1);
+                    let val = parseInt(this.value) || 1;
+                    if (val < 1) {
+                        this.value = 1;
+                    } else if (val > 1200) {
+                        this.value = 1200;
+                    } else {
+                        this.value = val;
+                    }
                 });
             }
             if (quantityInput) enforceValidQuantity(quantityInput);
 
-            // Validate supplier (letters and spaces only)
+            // Validate reason (allow letters, numbers, and common punctuation)
+            function enforceValidReason(input) {
+                input.addEventListener("input", function () {
+                    this.value = this.value.replace(/[^a-zA-Z0-9\s.,-]/g, '');
+                });
+            }
+            if (reasonInput) enforceValidReason(reasonInput);
+
+            // Validate supplier (allow letters, numbers, and common punctuation)
             function enforceValidSupplier(input) {
                 input.addEventListener("input", function () {
-                    this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+                    this.value = this.value.replace(/[^a-zA-Z0-9\s.,-]/g, '');
                 });
             }
             if (supplierInput) enforceValidSupplier(supplierInput);
+
+            // Update character count
+            function updateCharacterCount(inputId, countId, maxLength) {
+                const input = document.getElementById(inputId);
+                const count = document.getElementById(countId);
+                if (input && count) {
+                    const currentCount = input.value.length;
+                    count.textContent = `${currentCount} / ${maxLength}`;
+                }
+            }
+
+            if (reasonInput) {
+                reasonInput.addEventListener("input", () => updateCharacterCount('reason', 'reasonCount', 100));
+                updateCharacterCount('reason', 'reasonCount', 100); // Initial value
+            }
+            if (supplierInput) {
+                supplierInput.addEventListener("input", () => updateCharacterCount('supplier', 'supplierCount', 50));
+                updateCharacterCount('supplier', 'supplierCount', 50); // Initial value
+            }
 
             // Open modal for adding new damaged product
             document.getElementById("addDamagedProductBtn").addEventListener("click", function () {
@@ -221,12 +282,27 @@
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 document.getElementById("reportedAt").value = `${year}-${month}-${day}T${hours}:${minutes}`; // Format: YYYY-MM-DDThh:mm
                 clearErrors();
+                updateCharacterCount('reason', 'reasonCount', 100);
+                updateCharacterCount('supplier', 'supplierCount', 50);
             });
 
             // Form submission with AJAX
             damagedProductForm.addEventListener("submit", function (event) {
                 event.preventDefault();
                 clearErrors();
+
+                const quantity = parseInt(quantityInput.value);
+                if (quantity > 1200) {
+                    showError("Quantity cannot exceed 1200.");
+                    quantityInput.classList.add('quantity-error');
+                    return;
+                } else if (quantity < 1) {
+                    showError("Quantity must be at least 1.");
+                    quantityInput.classList.add('quantity-error');
+                    return;
+                } else {
+                    quantityInput.classList.remove('quantity-error');
+                }
 
                 $.ajax({
                     url: damagedProductForm.action,
@@ -288,6 +364,8 @@
                         damagedProductModal.style.display = "none";
                         damagedProductForm.reset();
                         quantityInput.value = 1;
+                        updateCharacterCount('reason', 'reasonCount', 100);
+                        updateCharacterCount('supplier', 'supplierCount', 50);
                     },
                     error: function(xhr) {
                         let errorMsg = xhr.responseJSON?.message || 'An error occurred while saving the damaged product.';

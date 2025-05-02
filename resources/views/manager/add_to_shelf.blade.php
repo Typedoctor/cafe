@@ -1,9 +1,11 @@
+
 @extends('manager.layout')
 
 @section('title', 'Add to Shelve')
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+   
 @endpush
 
 @section('content')
@@ -28,6 +30,11 @@
                         </ul>
                     </div>
                 @endif
+
+                <div id="shelf-warning-message" class="shelf-warning-message">
+                    <span class="close-warning">×</span>
+                    <span id="warning-text"></span>
+                </div>
 
                 <div class="shelf-tabs-categ">
                     <button type="button" class="shelf-tab-link-categ active" data-tab="meal">Meal</button>
@@ -78,9 +85,9 @@
                         <thead>
                             <tr>
                                 <th>Product</th>
-                                <th>Price (₱)<br><span class="price-note">Must not be zero</span></th>
+                                <th>Price (₱)<br><span class="price-note">Must not be zero, max 1200</span></th>
                                 <th>Quantity</th>
-                                <th>Action</th>
+                                <th style = "width:10px;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="selected-products-body"></tbody>
@@ -108,11 +115,11 @@
                 <input type="hidden" name="shelf_item_id" id="edit-shelf-item-id">
                 <div class="shelf-form-group">
                     <label for="edit-product-name">Product Name</label>
-                    <input type="text" id="edit-product-name" class="shelf-form-input" readonly>
+                    <input type="text" id="edit-product-name" class="shelf-form-input" value="">
                 </div>
                 <div class="shelf-form-group">
                     <label for="edit-available-stock">Available Stock</label>
-                    <input type="number" id="edit-available-stock" class="shelf-form-input" readonly>
+                    <input type="number" id="edit-available-stock" class="shelf-form-input" value="">
                 </div>
                 <div class="shelf-form-group">
                     <label for="edit-quantity-added">Quantity Added</label>
@@ -120,34 +127,12 @@
                 </div>
                 <div class="shelf-form-group">
                     <label for="edit-price">Price (₱)</label>
-                    <input type="number" name="price" id="edit-price" class="shelf-form-input" step="0.01" min="0">
+                    <input type="number" name="price" id="edit-price" class="shelf-form-input" step="0.01" min="0" max="1200">
                 </div>
                 <div class="shelf-form-actions">
                     <button type="submit" class="shelf-btn shelf-save-btn">Save Changes</button>
                 </div>
             </form>
-        </div>
-    </div>
-
-    <div id="errorShelfModal" class="shelf-modal">
-        <div class="shelf-add-modal-content">
-            <span class="shelf-close-btn" id="closeErrorModalBtn"><i class="fa-solid fa-circle-xmark"></i></span>
-            <h2> Shelve Items</h2>
-            <p>The following products are already on the shelf. Remove them to add new quantities.</p>
-            <table class="shelf-error-products-table">
-                <thead>
-                    <tr>
-                        <th>Product Name</th>
-                        <th>Quantity Added</th>
-                        <th>Price (₱)</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="error-products-body"></tbody>
-            </table>
-            <div class="shelf-form-actions">
-                <button type="button" class="shelf-btn shelf-close-error-btn" id="closeErrorModalBtnSecondary">Close</button>
-            </div>
         </div>
     </div>
 
@@ -230,6 +215,11 @@
             @if ($errors->any())
                 openModal('shelfModal');
             @endif
+
+            // Close warning message
+            document.querySelector('.close-warning')?.addEventListener('click', () => {
+                document.getElementById('shelf-warning-message').style.display = 'none';
+            });
         });
 
         const openModal = (modalId, clearErrors = false) => {
@@ -257,6 +247,15 @@
             }, SUCCESS_MODAL_DURATION);
         };
 
+        const showWarningMessage = (productName) => {
+            const warningDiv = document.getElementById('shelf-warning-message');
+            document.getElementById('warning-text').textContent = `The product "${productName}" is already on the shelf.`;
+            warningDiv.style.display = 'block';
+            setTimeout(() => {
+                warningDiv.style.display = 'none';
+            }, 3000);
+        };
+
         document.querySelectorAll('.shelf-tab-link-categ').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.shelf-tab-link-categ').forEach(b => b.classList.remove('active'));
@@ -276,20 +275,7 @@
                     data: { product_id: productId, _token: '{{ csrf_token() }}' },
                     success: (res) => {
                         if (res.exists) {
-                            document.getElementById('error-products-body').innerHTML = res.items.map(item => `
-                                <tr>
-                                    <td>${item.product_name}</td>
-                                    <td>${item.quantity_added}</td>
-                                    <td>${item.price ? parseFloat(item.price).toFixed(2) : 'N/A'}</td>
-                                    <td>
-                                        <button type="button" class="shelf-btn shelf-error-remove-btn" 
-                                                data-shelf-item-id="${item.id}">
-                                            Remove
-                                        </button>
-                                    </td>
-                                </tr>
-                            `).join('');
-                            openModal('errorShelfModal');
+                            showWarningMessage(productName);
                         } else {
                             addProductToTable(productId, productName);
                         }
@@ -310,7 +296,7 @@
                     <tr>
                         <td style="text-align: center;">${name}</td>
                         <td style="text-align: center;">
-                            <input type="number" name="items[${idx}][price]" step="0.01" min="0" class="shelf-form-input" placeholder="0.00">
+                            <input type="number" name="items[${idx}][price]" step="0.01" min="0" max="1200" class="shelf-form-input" placeholder="0.00">
                         </td>
                         <td style="text-align: center;">
                             <input type="number" name="items[${idx}][quantity_added]" min="1" value="1" required class="shelf-form-input">
@@ -333,21 +319,6 @@
             if (tgt.classList.contains('shelf-product-remove-btn')) {
                 tgt.closest('tr').remove();
                 document.getElementById('price-error-message').style.display = 'none';
-            } else if (tgt.classList.contains('shelf-error-remove-btn')) {
-                const id = tgt.dataset.shelfItemId;
-                if (confirm('Are you sure you want to remove this item from the shelf?')) {
-                    $.ajax({
-                        url: '{{ route("add-to-shelf.destroy", ":id") }}'.replace(':id', id),
-                        method: 'DELETE',
-                        data: { _token: '{{ csrf_token() }}' },
-                        success: (res) => {
-                            tgt.closest('tr').remove();
-                            if (!document.querySelector('#error-products-body tr')) closeModal('errorShelfModal');
-                            showSuccessModal(res.message, 'deleteSuccessModal');
-                        },
-                        error: (xhr) => alert('Error removing shelf item: ' + (xhr.responseJSON?.message || 'Unknown error'))
-                    });
-                }
             } else if (tgt.closest('.shelf-delete-btn')) {
                 const btn = tgt.closest('.shelf-delete-btn');
                 const id = btn.dataset.shelfItemId;
@@ -369,7 +340,7 @@
                 document.getElementById('edit-product-name').value = productName;
                 document.getElementById('edit-available-stock').value = availableStock;
                 document.getElementById('edit-quantity-added').value = quantityAdded;
-                document.getElementById('edit-price').value = price;
+                document.getElementById('edit-price').value = price || ''; // Ensure price is set correctly
                 document.getElementById('editShelfForm').action = '{{ route("add-to-shelf.update", ":id") }}'.replace(':id', shelfItemId);
                 openModal('editShelfItemModal', true);
             } else if (tgt.id === 'openModalBtn') {
@@ -377,7 +348,7 @@
             } else if (closeBtn) {
                 const modalId = closeBtn.closest('.shelf-modal').id;
                 closeModal(modalId, modalId === 'editShelfItemModal');
-            } else if (tgt.classList.contains('shelf-close-error-btn') || tgt.classList.contains('shelf-close-success-btn') || tgt.classList.contains('shelf-close-delete-success-btn')) {
+            } else if (tgt.classList.contains('shelf-close-success-btn') || tgt.classList.contains('shelf-close-delete-success-btn')) {
                 const modalId = tgt.closest('.shelf-modal').id;
                 closeModal(modalId);
             } else if (modal && tgt === modal) {
@@ -425,7 +396,7 @@
             items.forEach(row => {
                 const priceInput = row.querySelector('input[name$="[price]"]');
                 const price = parseFloat(priceInput.value);
-                if (isNaN(price) || price <= 0) {
+                if (isNaN(price) || price <= 0 || price > 1200) {
                     priceInput.classList.add('price-error');
                     hasPriceError = true;
                 } else {
@@ -434,7 +405,7 @@
             });
 
             if (hasPriceError) {
-                errorDiv.textContent = 'All prices must be greater than zero.';
+                errorDiv.textContent = 'All prices must be greater than zero and not exceed 1200.';
                 errorDiv.style.display = 'block';
                 return;
             }
@@ -454,17 +425,23 @@
         });
 
         document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('input', () => {
+            input.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value) || 0;
                 if (input.name.includes('quantity_added')) {
-                    input.value = Math.max(1, parseInt(input.value) || 1);
+                    input.value = Math.max(1, parseInt(val) || 1);
                 } else if (input.name.includes('price')) {
-                    let val = parseFloat(input.value);
-                    input.value = isNaN(val) || val < 0 ? '' : val.toFixed(2);
+                    if (isNaN(val) || val < 0) {
+                        input.value = '';
+                    } else if (val > 1200) {
+                        input.value = 1200;
+                    } else {
+                        input.value = val; // Allow whole numbers without forcing .00
+                    }
                     const errorDiv = document.getElementById('price-error-message');
                     errorDiv.style.display = 'none';
                     const row = input.closest('tr');
                     if (row) {
-                        if (isNaN(val) || val <= 0) {
+                        if (isNaN(val) || val <= 0 || val > 1200) {
                             input.classList.add('price-error');
                         } else {
                             input.classList.remove('price-error');

@@ -1,4 +1,3 @@
-
 .price-error {
     border: 2px solid red;
 }
@@ -15,7 +14,31 @@
     font-size: 0.9em;
 }
 
-/* Main Styles */
+.shelf-warning-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    width: 100%;
+    text-align: center;
+    font-size: 0.9em;
+    position: relative;
+    box-sizing: border-box;
+    word-break: break-word;
+    display: none;
+}
+
+.shelf-warning-message .close-warning {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+    color: #721c24;
+    font-size: 16px;
+    line-height: 1;
+}
+
 .shelf-title {
     font-size: 32px;
     margin-bottom: 30px;
@@ -46,7 +69,6 @@
     transition: all 0.3s ease;
 }
 
-/* Button Styles */
 .shelf-add-btn {
     background-color: #3980cd;
     color: white;
@@ -88,7 +110,6 @@
 }
 
 .shelf-delete-btn,
-.shelf-error-remove-btn,
 .shelf-edit-btn {
     background-color: #dc3545;
     padding: 5px 10px;
@@ -105,7 +126,6 @@
 }
 
 .shelf-delete-btn:hover,
-.shelf-error-remove-btn:hover,
 .shelf-edit-btn:hover {
     background-color: #c82333;
     transform: translateY(-3px);
@@ -149,7 +169,6 @@
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
 }
 
-/* Table Container */
 .shelf-table-container {
     background: #ffffff;
     border-radius: 8px;
@@ -160,7 +179,6 @@
     overflow: visible;
 }
 
-/* Shelf Items Table Styles */
 .shelf-items-table {
     width: 100%;
     border-collapse: collapse;
@@ -189,7 +207,6 @@
     background-color: #f0f0f0;
 }
 
-/* Product Table Styles (Add to Shelf Modal) */
 .shelf-product-table {
     width: 100%;
     min-width: 700px;
@@ -205,18 +222,18 @@
 
 .shelf-product-table th:nth-child(1),
 .shelf-product-table td:nth-child(1) {
-    width: 50%; /* Product Name */
-    word-break: break-all; 
+    width: 50%;
+    word-break: break-all;
 }
 
 .shelf-product-table th:nth-child(2),
 .shelf-product-table td:nth-child(2) {
-    width: 20%; /* Stock */
+    width: 20%;
 }
 
 .shelf-product-table th:nth-child(3),
 .shelf-product-table td:nth-child(3) {
-    width: 30%; /* Action */
+    width: 30%;
 }
 
 .shelf-product-table th {
@@ -233,7 +250,6 @@
     background-color: #f5f5f5;
 }
 
-/* Selected Products Table Styles (Add to Shelf Modal) */
 .shelf-selected-products-table {
     width: 100%;
     min-width: 700px;
@@ -249,22 +265,22 @@
 
 .shelf-selected-products-table th:nth-child(1),
 .shelf-selected-products-table td:nth-child(1) {
-    width: 40%; /* Product */
+    width: 40%;
 }
 
 .shelf-selected-products-table th:nth-child(2),
 .shelf-selected-products-table td:nth-child(2) {
-    width: 20%; /* Price */
+    width: 20%;
 }
 
 .shelf-selected-products-table th:nth-child(3),
 .shelf-selected-products-table td:nth-child(3) {
-    width: 20%; /* Quantity */
+    width: 20%;
 }
 
 .shelf-selected-products-table th:nth-child(4),
 .shelf-selected-products-table td:nth-child(4) {
-    width: 20%; /* Action */
+    width: 20%;
 }
 
 .shelf-selected-products-table th {
@@ -281,60 +297,10 @@
     background-color: #f5f5f5;
 }
 
-/* Error Products Table Styles (Error Modal) */
-.shelf-error-products-table {
-    width: 100%;
-    min-width: 700px;
-    border-collapse: collapse;
-}
-
-.shelf-error-products-table th,
-.shelf-error-products-table td {
-    border: 1px solid #e0e0e0;
-    padding: 8px;
-    text-align: center;
-}
-
-.shelf-error-products-table th:nth-child(1),
-.shelf-error-products-table td:nth-child(1) {
-    width: 40%; /* Product Name */
-}
-
-.shelf-error-products-table th:nth-child(2),
-.shelf-error-products-table td:nth-child(2) {
-    width: 20%; /* Quantity Added */
-}
-
-.shelf-error-products-table th:nth-child(3),
-.shelf-error-products-table td:nth-child(3) {
-    width: 20%; /* Price */
-}
-
-.shelf-error-products-table th:nth-child(4),
-.shelf-error-products-table td:nth-child(4) {
-    width: 20%; /* Action */
-}
-
-.shelf-error-products-table th {
-    font-size: 13px;
-    background-color: #fafafa;
-    color: #444;
-}
-
-.shelf-error-products-table tr:nth-child(even) {
-    background-color: #fdfdfd;
-}
-
-.shelf-error-products-table tr:hover {
-    background-color: #f5f5f5;
-}
-
-/* Adjust input fields in tables */
 .shelf-form-input[name*="[price]"] {
     width: 80px;
 }
 
-/* DataTables Styles for Shelf Items Table */
 #shelfItemsTable {
     width: 100%;
     border-collapse: collapse;
@@ -345,6 +311,8 @@
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
+    
+    
 }
 
 #shelfItemsTable th {
@@ -387,7 +355,6 @@ div.dataTables_wrapper div.dataTables_length select {
     transition: all 0.3s ease !important;
 }
 
-/* Modal Styles */
 .shelf-modal-success {
     display: none;
     position: fixed;
@@ -442,7 +409,6 @@ div.dataTables_wrapper div.dataTables_length select {
     overflow-x: hidden;
 }
 
-/* General modal header style */
 .shelf-modal h2 {
     font-size: 24px;
     margin-bottom: 25px;
@@ -451,13 +417,12 @@ div.dataTables_wrapper div.dataTables_length select {
     font-family: 'Poppins', sans-serif;
 }
 
-/* Success and Delete Success Modal Content */
 .shelf-modal-content,
 .shelf-delete-modal-content {
     align-items: center !important;
     font-size: 16px;
     font-weight: 500;
-    color: #ffffff; /* White text for colored backgrounds */
+    color: #ffffff;
     margin-bottom: 8px;
     font-family: 'Poppins', sans-serif;
     position: relative;
@@ -466,12 +431,11 @@ div.dataTables_wrapper div.dataTables_length select {
     overflow-x: hidden;
 }
 
-/* Add/Edit/Error Modal Content */
 .shelf-add-modal-content {
     align-items: center !important;
     font-size: 16px;
     font-weight: 500;
-    color: #333; /* Dark text for white background */
+    color: #333;
     margin-bottom: 8px;
     font-family: 'Poppins', sans-serif;
     position: relative;
@@ -480,19 +444,17 @@ div.dataTables_wrapper div.dataTables_length select {
     overflow-x: hidden;
 }
 
-/* Specific header color for modals with white backgrounds */
 .shelf-add-modal-content h2 {
-    color: #333; /* Dark header text for white background */
+    color: #333;
 }
 
-/* Ensure form elements inherit the correct color */
 .shelf-modal-content form,
 .shelf-delete-modal-content form,
 .shelf-add-modal-content form {
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: inherit; /* Inherit color from parent */
+    color: inherit;
 }
 
 .shelf-close-btn {
@@ -505,7 +467,6 @@ div.dataTables_wrapper div.dataTables_length select {
     font-weight: bold;
 }
 
-.shelf-close-error-btn,
 .shelf-close-success-btn,
 .shelf-close-delete-success-btn {
     background-color: #ebf0f4;
@@ -524,7 +485,6 @@ div.dataTables_wrapper div.dataTables_length select {
     display: block;
 }
 
-.shelf-close-error-btn:hover,
 .shelf-close-success-btn:hover,
 .shelf-close-delete-success-btn:hover {
     background-color: #5a6268;
@@ -532,7 +492,6 @@ div.dataTables_wrapper div.dataTables_length select {
     box-shadow: 0 4px 12px rgba(108, 117, 125, 0.5);
 }
 
-/* Form Styles */
 .shelf-form-input {
     width: 100%;
     padding: 12px 15px;
@@ -554,7 +513,6 @@ div.dataTables_wrapper div.dataTables_length select {
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
-/* Form Group for Edit Modal */
 .shelf-form-group {
     width: 100%;
     max-width: 100%;
@@ -576,7 +534,6 @@ div.dataTables_wrapper div.dataTables_length select {
     cursor: not-allowed;
 }
 
-/* Tab Styles */
 .shelf-tabs-categ {
     display: flex;
     justify-content: center;
@@ -610,7 +567,6 @@ div.dataTables_wrapper div.dataTables_length select {
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-/* Tab Content */
 .shelf-tab-content {
     width: 100%;
     max-width: 100%;
@@ -622,7 +578,6 @@ div.dataTables_wrapper div.dataTables_length select {
     box-sizing: border-box;
 }
 
-/* Error and Success Messages */
 .shelf-error-message, .shelf-success-message {
     background-color: #f8d7da;
     color: #721c24;
@@ -649,14 +604,12 @@ div.dataTables_wrapper div.dataTables_length select {
     margin-bottom: 5px;
 }
 
-/* Top Bar */
 .shelf-top-bar {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 20px;
 }
 
-/* Responsive Styles */
 @media (max-width: 768px) {
     .shelf-modal {
         width: 95%;
@@ -694,12 +647,17 @@ div.dataTables_wrapper div.dataTables_length select {
     }
 
     .shelf-product-table,
-    .shelf-selected-products-table,
-    .shelf-error-products-table {
+    .shelf-selected-products-table {
         min-width: 600px;
     }
 
     .shelf-form-group {
         max-width: 100%;
+    }
+
+    .shelf-warning-message {
+        width: 90%;
+        margin-left: 5%;
+        margin-right: 5%;
     }
 }
