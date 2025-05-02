@@ -170,7 +170,6 @@ div.dataTables_wrapper div.dataTables_filter {
 .trn-table-scroll-container {
     width: 100%;
     max-width: 100%; /* Ensure container doesn't exceed parent width */
-
     box-sizing: border-box;
 }
 
