@@ -224,7 +224,7 @@
             const count = document.getElementById(countId);
             if (input && count) {
                 const currentCount = input.value.length;
-                count.textContent = `${currentCount} / 50 characters`;
+                count.textContent = `${currentCount} / 50`;
             } else {
                 console.error(`Element not found: inputId=${inputId}, countId=${countId}`);
             }
