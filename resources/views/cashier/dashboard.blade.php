@@ -32,7 +32,7 @@
                         <label for="customer_name" class="csh-form-label">Customer Name:</label>
                         <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}"
                                required class="csh-form-input" placeholder="Enter customer name here"
-                               pattern="[A-Za-z\s]+" title="Only letters and spaces are allowed">
+                               pattern="[A-Za-z\s]+" title="Only letters and spaces are allowed" maxlength="24">
                         <div class="csh-customer-name-error" style="display: none;">Only letters and spaces are allowed.</div>
                     </div>
 

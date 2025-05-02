@@ -12,7 +12,7 @@
             font-style: italic;
         }
 
-        .quantity-error {
+        .quantity-error, .product-name-error {
             border: 2px solid red;
         }
 
@@ -21,6 +21,13 @@
             margin-top: 5px;
             font-size: 0.8em;
             color: #666;
+        }
+
+        .invalid-indicator {
+            color: red;
+            font-size: 0.8em;
+            display: none;
+            margin-top: 5px;
         }
     </style>
 @endpush
@@ -43,7 +50,9 @@
             <input type="hidden" name="id" id="damagedProductId">
             <div class="dmg-form-group">
                 <label>Product Name:</label>
-                <input type="text" name="product_name" id="productName" required>
+                <input type="text" name="product_name" id="productName" required maxlength="24">
+                <small id="productNameCount">0 / 24</small>
+                <span id="productNameInvalid" class="invalid-indicator">Only letters and spaces allowed</span>
             </div>
             <div class="dmg-form-group">
                 <label>Quantity:<br><span class="quantity-note">Must be between 1 and 1200</span></label>
@@ -127,7 +136,7 @@
                 responsive: true,
                 order: [[0, 'asc']],
                 columnDefs: [
-                    { orderable: false, targets: 6 } // Disable sorting on Actions column
+                    { orderable: false, targets: 6 }
                 ],
                 pagingType: 'simple_numbers',
                 language: {
@@ -138,11 +147,9 @@
                 }
             });
 
-            // Log the number of rows to debug pagination
             console.log('Total rows in table:', table.rows().count());
             console.log('Number of pages:', table.page.info().pages);
 
-            // Handle edit button clicks
             $('#damagedProductsTable').on('click', '.dmg-edit-btn', function() {
                 const modalTitle = document.getElementById("modalTitle");
                 const methodField = document.getElementById("methodField");
@@ -162,14 +169,14 @@
                 SaveBtn.innerText = "UPDATE";
                 damagedProductModal.style.display = "block";
                 document.getElementById("errorMessages").style.display = "none";
+                document.getElementById("productNameInvalid").style.display = "none";
 
-                // Update character counters
+                updateCharacterCount('productName', 'productNameCount', 24);
                 updateCharacterCount('reason', 'reasonCount', 100);
                 updateCharacterCount('supplier', 'supplierCount', 50);
             });
         });
 
-        // JavaScript for modals, add/edit damaged product, and input validation
         document.addEventListener("DOMContentLoaded", function () {
             const damagedProductModal = document.getElementById("damagedProductModal");
             const damagedProductForm = document.getElementById("damagedProductForm");
@@ -181,24 +188,25 @@
             const quantityInput = document.getElementById("quantity");
             const reasonInput = document.getElementById("reason");
             const supplierInput = document.getElementById("supplier");
+            const productNameCount = document.getElementById("productNameCount");
             const reasonCount = document.getElementById("reasonCount");
             const supplierCount = document.getElementById("supplierCount");
             const errorMessages = document.getElementById("errorMessages");
             const tableSuccessMessage = document.getElementById("tableSuccessMessage");
+            const productNameInvalid = document.getElementById("productNameInvalid");
 
-            // Function to display error messages
             function showError(message) {
                 errorMessages.style.display = 'block';
                 errorMessages.innerHTML = message;
             }
 
-            // Function to clear error messages
             function clearErrors() {
                 errorMessages.style.display = 'none';
                 errorMessages.innerHTML = '';
+                productNameInvalid.style.display = 'none';
+                productNameInput.classList.remove('product-name-error');
             }
 
-            // Function to show success message above table
             function showTableSuccessMessage() {
                 tableSuccessMessage.style.display = 'block';
                 setTimeout(() => {
@@ -206,15 +214,22 @@
                 }, 2000);
             }
 
-            // Validate product name (letters, numbers, and spaces only)
             function enforceValidProductName(input) {
                 input.addEventListener("input", function () {
-                    this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '');
+                    const value = this.value;
+                    const validValue = value.replace(/[^a-zA-Z\s]/g, '');
+                    this.value = validValue;
+                    if (value !== validValue) {
+                        productNameInvalid.style.display = 'block';
+                        productNameInput.classList.add('product-name-error');
+                    } else {
+                        productNameInvalid.style.display = 'none';
+                        productNameInput.classList.remove('product-name-error');
+                    }
+                    updateCharacterCount('productName', 'productNameCount', 24);
                 });
             }
-            if (productNameInput) enforceValidProductName(productNameInput);
 
-            // Validate quantity (positive integers up to 1200)
             function enforceValidQuantity(input) {
                 input.addEventListener("input", function () {
                     let val = parseInt(this.value) || 1;
@@ -227,25 +242,19 @@
                     }
                 });
             }
-            if (quantityInput) enforceValidQuantity(quantityInput);
 
-            // Validate reason (allow letters, numbers, and common punctuation)
             function enforceValidReason(input) {
                 input.addEventListener("input", function () {
                     this.value = this.value.replace(/[^a-zA-Z0-9\s.,-]/g, '');
                 });
             }
-            if (reasonInput) enforceValidReason(reasonInput);
 
-            // Validate supplier (allow letters, numbers, and common punctuation)
             function enforceValidSupplier(input) {
                 input.addEventListener("input", function () {
                     this.value = this.value.replace(/[^a-zA-Z0-9\s.,-]/g, '');
                 });
             }
-            if (supplierInput) enforceValidSupplier(supplierInput);
 
-            // Update character count
             function updateCharacterCount(inputId, countId, maxLength) {
                 const input = document.getElementById(inputId);
                 const count = document.getElementById(countId);
@@ -255,16 +264,23 @@
                 }
             }
 
+            if (productNameInput) {
+                enforceValidProductName(productNameInput);
+                productNameInput.addEventListener("input", () => updateCharacterCount('productName', 'productNameCount', 24));
+                updateCharacterCount('productName', 'productNameCount', 24);
+            }
+            if (quantityInput) enforceValidQuantity(quantityInput);
             if (reasonInput) {
+                enforceValidReason(reasonInput);
                 reasonInput.addEventListener("input", () => updateCharacterCount('reason', 'reasonCount', 100));
-                updateCharacterCount('reason', 'reasonCount', 100); // Initial value
+                updateCharacterCount('reason', 'reasonCount', 100);
             }
             if (supplierInput) {
+                enforceValidSupplier(supplierInput);
                 supplierInput.addEventListener("input", () => updateCharacterCount('supplier', 'supplierCount', 50));
-                updateCharacterCount('supplier', 'supplierCount', 50); // Initial value
+                updateCharacterCount('supplier', 'supplierCount', 50);
             }
 
-            // Open modal for adding new damaged product
             document.getElementById("addDamagedProductBtn").addEventListener("click", function () {
                 modalTitle.innerText = "Report Damaged Product";
                 methodField.value = "POST";
@@ -272,24 +288,31 @@
                 damagedProductModal.style.display = "block";
                 SaveBtn.innerText = "ADD";
                 damagedProductForm.reset();
-                quantityInput.value = 1; // Default to 1
-                // Set reported_at to current local time (PHT)
+                quantityInput.value = 1;
                 const now = new Date();
                 const year = now.getFullYear();
                 const month = String(now.getMonth() + 1).padStart(2, '0');
                 const day = String(now.getDate()).padStart(2, '0');
                 const hours = String(now.getHours()).padStart(2, '0');
                 const minutes = String(now.getMinutes()).padStart(2, '0');
-                document.getElementById("reportedAt").value = `${year}-${month}-${day}T${hours}:${minutes}`; // Format: YYYY-MM-DDThh:mm
+                document.getElementById("reportedAt").value = `${year}-${month}-${day}T${hours}:${minutes}`;
                 clearErrors();
+                updateCharacterCount('productName', 'productNameCount', 24);
                 updateCharacterCount('reason', 'reasonCount', 100);
                 updateCharacterCount('supplier', 'supplierCount', 50);
             });
 
-            // Form submission with AJAX
             damagedProductForm.addEventListener("submit", function (event) {
                 event.preventDefault();
                 clearErrors();
+
+                const productName = productNameInput.value;
+                if (!/^[a-zA-Z\s]+$/.test(productName)) {
+                    showError("Product name must contain only letters and spaces.");
+                    productNameInput.classList.add('product-name-error');
+                    productNameInvalid.style.display = 'block';
+                    return;
+                }
 
                 const quantity = parseInt(quantityInput.value);
                 if (quantity > 1200) {
@@ -312,7 +335,6 @@
                         showTableSuccessMessage();
                         let table = $('#damagedProductsTable').DataTable();
                         if (methodField.value === "POST") {
-                            // Add new row for create
                             table.row.add([
                                 response.damagedProduct.id,
                                 response.damagedProduct.product_name,
@@ -336,7 +358,6 @@
                                 </form>`
                             ]).draw();
                         } else {
-                            // Update existing row for edit
                             let row = table.row($(`button[data-id="${response.damagedProduct.id}"]`).closest('tr'));
                             row.data([
                                 response.damagedProduct.id,
@@ -364,6 +385,7 @@
                         damagedProductModal.style.display = "none";
                         damagedProductForm.reset();
                         quantityInput.value = 1;
+                        updateCharacterCount('productName', 'productNameCount', 24);
                         updateCharacterCount('reason', 'reasonCount', 100);
                         updateCharacterCount('supplier', 'supplierCount', 50);
                     },
@@ -377,13 +399,11 @@
                 });
             });
 
-            // Close modal
             closeBtn.addEventListener("click", () => {
                 damagedProductModal.style.display = "none";
                 clearErrors();
             });
 
-            // Close modal when clicking outside
             window.addEventListener("click", event => {
                 if (event.target === damagedProductModal) {
                     damagedProductModal.style.display = "none";

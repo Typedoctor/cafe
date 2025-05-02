@@ -220,7 +220,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const count = document.getElementById(countId);
         if (input && count) {
             const currentCount = input.value.length;
-            count.textContent = `${currentCount} / ${maxLength}`;
+            count.textContent = `${currentCount} / 24 characters`;
         }
     }
 
@@ -299,7 +299,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Validate name
         if (!validateName(nameInput.value)) {
-            errors.push("Name must contain letters only.");
+            errors.push("User name must contain letters only.");
         }
 
         // Check for existing user name when adding new user

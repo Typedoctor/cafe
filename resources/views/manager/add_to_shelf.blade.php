@@ -1,11 +1,10 @@
-
 @extends('manager.layout')
 
 @section('title', 'Add to Shelve')
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-   
+
 @endpush
 
 @section('content')
@@ -17,19 +16,13 @@
 
     <div id="shelfModal" class="shelf-modal">
         <div class="shelf-add-modal-content">
-            <span class="shelf-close-btn" id="closeModalBtn"><i class="fa-solid fa-circle-xmark"></i></span>
+            <span class="shelf-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
             <h2>Add to Shelf</h2>
             <form id="shelfForm" method="POST" action="{{ route('add-to-shelf.store') }}">
                 @csrf
-                @if ($errors->any())
-                    <div class="shelf-error-message">
-                        <ul class="shelf-error-list">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+                <div id="shelf-error-message" class="shelf-error-message" style="display: none;">
+                    <ul class="shelf-error-list"></ul>
+                </div>
 
                 <div id="shelf-warning-message" class="shelf-warning-message">
                     <span class="close-warning">×</span>
@@ -62,7 +55,8 @@
                                             <td>
                                                 <button type="button" class="shelf-btn shelf-product-add-btn" 
                                                         data-product-id="{{ $product->id }}" 
-                                                        data-product-name="{{ $product->product_name }}">
+                                                        data-product-name="{{ $product->product_name }}"
+                                                        data-product-stock="{{ $product->quantity }}">
                                                     Add to Shelf
                                                 </button>
                                             </td>
@@ -87,7 +81,7 @@
                                 <th>Product</th>
                                 <th>Price (₱)<br><span class="price-note">Must not be zero, max 1200</span></th>
                                 <th>Quantity</th>
-                                <th style = "width:10px;">Action</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="selected-products-body"></tbody>
@@ -103,8 +97,8 @@
     </div>
 
     <div id="editShelfItemModal" class="shelf-modal">
-        <div class="shelf-add-modal-content">
-            <span class="shelf-close-btn" id="closeEditModalBtn"><i class="fa-solid fa-circle-xmark"></i></span>
+        <div class="shelf-edit-modal-content">
+            <span class="shelf-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
             <h2>Edit Shelf Item</h2>
             <form id="editShelfForm" method="POST" action="">
                 @csrf
@@ -115,11 +109,11 @@
                 <input type="hidden" name="shelf_item_id" id="edit-shelf-item-id">
                 <div class="shelf-form-group">
                     <label for="edit-product-name">Product Name</label>
-                    <input type="text" id="edit-product-name" class="shelf-form-input" value="">
+                    <input type="text" id="edit-product-name" class="shelf-form-input" readonly>
                 </div>
                 <div class="shelf-form-group">
                     <label for="edit-available-stock">Available Stock</label>
-                    <input type="number" id="edit-available-stock" class="shelf-form-input" value="">
+                    <input type="number" id="edit-available-stock" class="shelf-form-input" readonly>
                 </div>
                 <div class="shelf-form-group">
                     <label for="edit-quantity-added">Quantity Added</label>
@@ -141,7 +135,7 @@
             <h2>Success</h2>
             <p id="successModalMessage"></p>
             <div class="shelf-form-actions">
-                <button type="button" class="shelf-btn shelf-close-success-btn" id="closeSuccessModalBtnSecondary">Close</button>
+                <button type="button" class="shelf-btn shelf-close-success-btn">Close</button>
             </div>
         </div>
     </div>
@@ -151,7 +145,7 @@
             <h2>Deleted</h2>
             <p id="deleteSuccessModalMessage"></p>
             <div class="shelf-form-actions">
-                <button type="button" class="shelf-btn shelf-close-delete-success-btn" id="closeDeleteSuccessModalBtnSecondary">Close</button>
+                <button type="button" class="shelf-btn shelf-close-delete-success-btn">Close</button>
             </div>
         </div>
     </div>
@@ -185,9 +179,11 @@
                                     data-price="{{ $item->price ?? '' }}"
                                     data-product-id="{{ $item->product_id }}"
                                     data-available-stock="{{ $item->product->quantity }}">
-                                    <i class="fa-solid fa-pencil"></i>
+                                <i class="fa-solid fa-pencil"></i>
                             </button>
-                            <button type="button" class="shelf-btn shelf-delete-btn" data-shelf-item-id="{{ $item->id }}"><i class="fa-solid fa-trash"></i></button>
+                            <button type="button" class="shelf-btn shelf-delete-btn" data-shelf-item-id="{{ $item->id }}">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
                 @endforeach
@@ -199,7 +195,6 @@
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
     <script>
         const SUCCESS_MODAL_DURATION = 2000;
         let idx = 0;
@@ -212,30 +207,31 @@
                 columnDefs: [{ orderable: false, targets: 5 }]
             });
 
-            @if ($errors->any())
-                openModal('shelfModal');
-            @endif
-
-            // Close warning message
             document.querySelector('.close-warning')?.addEventListener('click', () => {
                 document.getElementById('shelf-warning-message').style.display = 'none';
             });
         });
 
         const openModal = (modalId, clearErrors = false) => {
-            const modal = document.getElementById(modalId);
-            modal.style.display = 'flex';
-            if (clearErrors) {
-                const errDiv = modal.querySelector('.shelf-error-message');
-                if (errDiv) {
-                    errDiv.style.display = 'none';
-                    errDiv.querySelector('ul').innerHTML = '';
-                }
+            document.getElementById(modalId).style.display = 'flex';
+            if (clearErrors && modalId === 'editShelfItemModal') {
+                const errDiv = document.getElementById('edit-error-message');
+                errDiv.style.display = 'none';
+                errDiv.querySelector('ul').innerHTML = '';
             }
         };
 
         const closeModal = (modalId) => {
             document.getElementById(modalId).style.display = 'none';
+            if (modalId === 'shelfModal') idx = 0; // Reset idx when closing main modal
+        };
+
+        const handleModalClose = (target) => {
+            const closeBtn = target.closest('.shelf-close-btn');
+            const modal = target.closest('.shelf-modal, .shelf-modal-success, .shelf-delete-modal-success');
+            if (closeBtn || (modal && target === modal) || target.classList.contains('shelf-close-success-btn') || target.classList.contains('shelf-close-delete-success-btn')) {
+                closeModal(modal.id);
+            }
         };
 
         const showSuccessModal = (msg, modalId = 'successModal') => {
@@ -247,13 +243,34 @@
             }, SUCCESS_MODAL_DURATION);
         };
 
-        const showWarningMessage = (productName) => {
-            const warningDiv = document.getElementById('shelf-warning-message');
-            document.getElementById('warning-text').textContent = `The product "${productName}" is already on the shelf.`;
-            warningDiv.style.display = 'block';
-            setTimeout(() => {
-                warningDiv.style.display = 'none';
-            }, 3000);
+        const showWarning = (msg) => {
+            const warning = document.getElementById('shelf-warning-message');
+            document.getElementById('warning-text').textContent = msg;
+            warning.style.display = 'block';
+            setTimeout(() => warning.style.display = 'none', 3000);
+        };
+
+        const hideErrorMessage = () => {
+            const errorDiv = document.getElementById('price-error-message');
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+        };
+
+        const updateSubmitButton = () => {
+            const submitBtn = document.querySelector('.shelf-save-btn');
+            const items = document.querySelectorAll('#selected-products-body tr');
+            let hasError = false;
+
+            items.forEach(row => {
+                const price = parseFloat(row.querySelector('input[name$="[price]"]').value);
+                const qty = parseInt(row.querySelector('input[name$="[quantity_added]"]').value);
+                const maxStock = parseInt(row.dataset.productStock);
+                if (isNaN(price) || price <= 0 || price > 1200 || qty > maxStock) {
+                    hasError = true;
+                }
+            });
+
+            submitBtn.disabled = hasError || !items.length;
         };
 
         document.querySelectorAll('.shelf-tab-link-categ').forEach(btn => {
@@ -268,39 +285,49 @@
 
         document.querySelectorAll('.shelf-product-add-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const { productId, productName } = btn.dataset;
+                const { productId, productName, productStock } = btn.dataset;
                 $.ajax({
                     url: '{{ route("add-to-shelf.check") }}',
                     method: 'POST',
                     data: { product_id: productId, _token: '{{ csrf_token() }}' },
                     success: (res) => {
                         if (res.exists) {
-                            showWarningMessage(productName);
+                            showWarning(`"${productName}" is already on the shelf.`);
                         } else {
-                            addProductToTable(productId, productName);
+                            addProduct(productId, productName, productStock);
                         }
                     },
-                    error: (xhr) => alert('Error checking shelf items: ' + (xhr.responseJSON?.message || 'Unknown error'))
+                    error: (xhr) => showWarning(xhr.responseJSON?.message || 'Failed to check product status.')
                 });
             });
         });
 
-        const addProductToTable = (id, name) => {
+        const addProduct = (id, name, stock) => {
             const tbody = document.getElementById('selected-products-body');
             const row = Array.from(tbody.rows).find(r => r.querySelector(`input[name$="[product_id]"]`).value === id);
             if (row) {
                 const qtyInput = row.querySelector('input[name$="[quantity_added]"]');
-                qtyInput.value = parseInt(qtyInput.value) + 1;
-            } else {
+                const currentQty = parseInt(qtyInput.value);
+                if (currentQty + 1 <= stock) {
+                    qtyInput.value = currentQty + 1;
+                    qtyInput.classList.remove('quantity-error');
+                    row.querySelector('.shelf-quantity-error').style.display = 'none';
+                } else {
+                    qtyInput.classList.add('quantity-error');
+                    row.querySelector('.shelf-quantity-error').style.display = 'block';
+                    showWarning(`Cannot add more of "${name}". Stock limit: ${stock}.`);
+                }
+            } else if (stock > 0) {
                 tbody.insertAdjacentHTML('beforeend', `
-                    <tr>
+                    <tr data-product-stock="${stock}">
                         <td style="text-align: center;">${name}</td>
                         <td style="text-align: center;">
                             <input type="number" name="items[${idx}][price]" step="0.01" min="0" max="1200" class="shelf-form-input" placeholder="0.00">
                         </td>
                         <td style="text-align: center;">
-                            <input type="number" name="items[${idx}][quantity_added]" min="1" value="1" required class="shelf-form-input">
+                            <input type="number" name="items[${idx}][quantity_added]" min="1" max="${stock}" value="1" required class="shelf-form-input">
                             <input type="hidden" name="items[${idx}][product_id]" value="${id}">
+                            <div class="shelf-quantity-error">Insufficient stock for ${name}. Stock availlable (${stock}) </div>
                         </td>
                         <td style="text-align: center;">
                             <button type="button" class="shelf-btn shelf-product-remove-btn">Remove</button>
@@ -308,29 +335,28 @@
                     </tr>
                 `);
                 idx++;
+            } else {
+                showWarning(`Cannot add "${name}". Out of stock.`);
             }
+            updateSubmitButton();
         };
 
         document.addEventListener('click', (e) => {
             const tgt = e.target;
-            const closeBtn = tgt.closest('.shelf-close-btn');
-            const modal = tgt.closest('.shelf-modal');
 
             if (tgt.classList.contains('shelf-product-remove-btn')) {
                 tgt.closest('tr').remove();
-                document.getElementById('price-error-message').style.display = 'none';
+                hideErrorMessage();
+                updateSubmitButton();
             } else if (tgt.closest('.shelf-delete-btn')) {
-                const btn = tgt.closest('.shelf-delete-btn');
-                const id = btn.dataset.shelfItemId;
+                const id = tgt.closest('.shelf-delete-btn').dataset.shelfItemId;
                 if (confirm('Are you sure you want to remove this item from the shelf?')) {
                     $.ajax({
                         url: '{{ route("add-to-shelf.destroy", ":id") }}'.replace(':id', id),
                         method: 'DELETE',
                         data: { _token: '{{ csrf_token() }}' },
-                        success: (res) => {
-                            showSuccessModal(res.message, 'deleteSuccessModal');
-                        },
-                        error: (xhr) => alert('Error removing shelf item: ' + (xhr.responseJSON?.message || 'Unknown error'))
+                        success: (res) => showSuccessModal(res.message, 'deleteSuccessModal'),
+                        error: (xhr) => showWarning(xhr.responseJSON?.message || 'Failed to delete item.')
                     });
                 }
             } else if (tgt.closest('.shelf-edit-btn')) {
@@ -340,19 +366,13 @@
                 document.getElementById('edit-product-name').value = productName;
                 document.getElementById('edit-available-stock').value = availableStock;
                 document.getElementById('edit-quantity-added').value = quantityAdded;
-                document.getElementById('edit-price').value = price || ''; // Ensure price is set correctly
+                document.getElementById('edit-price').value = price || '';
                 document.getElementById('editShelfForm').action = '{{ route("add-to-shelf.update", ":id") }}'.replace(':id', shelfItemId);
                 openModal('editShelfItemModal', true);
             } else if (tgt.id === 'openModalBtn') {
                 openModal('shelfModal');
-            } else if (closeBtn) {
-                const modalId = closeBtn.closest('.shelf-modal').id;
-                closeModal(modalId, modalId === 'editShelfItemModal');
-            } else if (tgt.classList.contains('shelf-close-success-btn') || tgt.classList.contains('shelf-close-delete-success-btn')) {
-                const modalId = tgt.closest('.shelf-modal').id;
-                closeModal(modalId);
-            } else if (modal && tgt === modal) {
-                closeModal(modal.id, modal.id === 'editShelfItemModal');
+            } else {
+                handleModalClose(tgt);
             }
         });
 
@@ -371,7 +391,7 @@
                     showSuccessModal(res.message);
                 },
                 error: (xhr) => {
-                    const errors = xhr.responseJSON?.errors || { error: [xhr.responseJSON?.message || 'Unknown error'] };
+                    const errors = xhr.responseJSON?.errors || { error: [xhr.responseJSON?.message || 'Failed to update item.'] };
                     const errList = document.getElementById('edit-error-message').querySelector('ul');
                     errList.innerHTML = Object.values(errors).flat().map(error => `<li>${error}</li>`).join('');
                     document.getElementById('edit-error-message').style.display = 'block';
@@ -382,73 +402,97 @@
         document.getElementById('shelfForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const form = e.target;
-            const formData = new FormData(form);
             const items = document.querySelectorAll('#selected-products-body tr');
-            const errorDiv = document.getElementById('price-error-message');
-            errorDiv.style.display = 'none';
+            const errorDiv = document.getElementById('shelf-error-message');
+            hideErrorMessage();
 
             if (!items.length) {
-                alert('Please add at least one product to the shelf.');
+                showWarning('Please add at least one product to the shelf.');
                 return;
             }
 
-            let hasPriceError = false;
+            let hasError = false;
             items.forEach(row => {
                 const priceInput = row.querySelector('input[name$="[price]"]');
+                const qtyInput = row.querySelector('input[name$="[quantity_added]"]');
                 const price = parseFloat(priceInput.value);
+                const qty = parseInt(qtyInput.value) || 0;
+                const maxStock = parseInt(row.dataset.productStock);
+                const qtyError = row.querySelector('.shelf-quantity-error');
+
                 if (isNaN(price) || price <= 0 || price > 1200) {
                     priceInput.classList.add('price-error');
-                    hasPriceError = true;
+                    hasError = true;
                 } else {
                     priceInput.classList.remove('price-error');
                 }
+
+                if (qty > maxStock) {
+                    qtyInput.classList.add('quantity-error');
+                    qtyError.style.display = 'block';
+                    hasError = true;
+                } else {
+                    qtyInput.classList.remove('quantity-error');
+                    qtyError.style.display = 'none';
+                }
             });
 
-            if (hasPriceError) {
-                errorDiv.textContent = 'All prices must be greater than zero and not exceed 1200.';
-                errorDiv.style.display = 'block';
+            if (hasError) {
+                document.getElementById('price-error-message').textContent = 'Fix price (0-1200) or quantity (within stock) errors.';
+                document.getElementById('price-error-message').style.display = 'block';
                 return;
             }
 
             $.ajax({
                 url: form.action,
                 method: 'POST',
-                data: formData,
+                data: new FormData(form),
                 processData: false,
                 contentType: false,
                 success: (res) => {
                     closeModal('shelfModal');
                     showSuccessModal(res.message);
                 },
-                error: () => openModal('shelfModal')
+                error: (xhr) => {
+                    const errors = xhr.responseJSON?.errors || { error: [xhr.responseJSON?.message || 'Failed to add items to shelf.'] };
+                    const errList = errorDiv.querySelector('ul');
+                    errList.innerHTML = Object.values(errors).flat().map(error => `<li>${error}</li>`).join('');
+                    errorDiv.style.display = 'block';
+                    openModal('shelfModal');
+                }
             });
         });
 
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('input', (e) => {
-                const val = parseFloat(e.target.value) || 0;
-                if (input.name.includes('quantity_added')) {
-                    input.value = Math.max(1, parseInt(val) || 1);
-                } else if (input.name.includes('price')) {
-                    if (isNaN(val) || val < 0) {
-                        input.value = '';
-                    } else if (val > 1200) {
-                        input.value = 1200;
-                    } else {
-                        input.value = val; // Allow whole numbers without forcing .00
-                    }
-                    const errorDiv = document.getElementById('price-error-message');
-                    errorDiv.style.display = 'none';
-                    const row = input.closest('tr');
-                    if (row) {
-                        if (isNaN(val) || val <= 0 || val > 1200) {
-                            input.classList.add('price-error');
-                        } else {
-                            input.classList.remove('price-error');
-                        }
-                    }
+        document.getElementById('selected-products').addEventListener('input', (e) => {
+            if (e.target.type !== 'number') return;
+            const input = e.target;
+            const row = input.closest('tr');
+            hideErrorMessage();
+
+            if (input.name.includes('quantity_added') && row) {
+                const val = parseInt(input.value) || 0;
+                const maxStock = parseInt(row.dataset.productStock);
+                const qtyError = row.querySelector('.shelf-quantity-error');
+
+                if (val > maxStock) {
+                    input.value = maxStock;
+                    input.classList.add('quantity-error');
+                    qtyError.style.display = 'block';
+                } else {
+                    input.classList.remove('quantity-error');
+                    qtyError.style.display = 'none';
+                    if (val <= 0) input.value = 1;
                 }
-            });
+            } else if (input.name.includes('price')) {
+                const val = parseFloat(input.value) || 0;
+                if (val < 0) {
+                    input.value = '';
+                } else if (val > 1200) {
+                    input.value = 1200;
+                }
+                input.classList.toggle('price-error', isNaN(val) || val <= 0 || val > 1200);
+            }
+            updateSubmitButton();
         });
     </script>
 @endpush

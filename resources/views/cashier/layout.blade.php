@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ asset('css/cashier-trash.css') }}">
     <link rel="stylesheet" href="{{ asset('css/cashier-order.css') }}">
     <link rel="stylesheet" href="{{ asset('css/transaction.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/manager-reports.css') }}">
     <script src="https://kit.fontawesome.com/2952e58222.js" crossorigin="anonymous"></script>
 </head>
 <body>
