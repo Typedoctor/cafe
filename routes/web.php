@@ -11,6 +11,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CashierTransactionController;
 use App\Http\Controllers\ManagerShelfController;
 use App\Http\Controllers\ManagerDamagedProductController;
+use App\Http\Controllers\AuditLogController;
 
 // Public routes
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -20,7 +21,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 // Manager routes
 //Route::middleware(['auth', 'can:manager'])->group(function () {
     Route::get('/manager/dashboard', [DashboardController::class, 'index'])->name('manager.dashboard');
-    // Add this route to your routes file (web.php)
+    Route::get('/manager/audit-logs', [AuditLogController::class, 'index'])->name('audit.index');
     Route::put('/manage_users/{id}/update_status', [ManageUserController::class, 'updateStatus'])
     ->name('manage_users.update_status');
     Route::resource('damaged-products',  ManagerDamagedProductController::class);
