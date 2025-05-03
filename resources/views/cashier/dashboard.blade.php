@@ -3,15 +3,13 @@
 @section('title', 'Cashier Dashboard')
 
 @section('content')
-    
-        <h1 class="csh-dashboard-title">Cashier Dashboard</h1>
-        <div class="csh-main-container">
+    <h1 class="csh-dashboard-title">Cashier Dashboard</h1>
+    <div class="csh-main-container">
         <!-- Add Order Button -->
         <div class="csh-button-container">
             <button id="openModalBtn" class="csh-add-order-btn">
-               New Order
+                New Order
             </button>
-            <!-- Tabs for filtering orders -->
         </div>
 
         <!-- Modal -->
@@ -32,7 +30,10 @@
 
                     <div class="csh-form-group">
                         <label for="customer_name" class="csh-form-label">Customer Name:</label>
-                        <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}" required class="csh-form-input" placeholder="Enter customer name here">
+                        <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}"
+                               required class="csh-form-input" placeholder="Enter customer name here"
+                               pattern="[A-Za-z\s]+" title="Only letters and spaces are allowed" maxlength="24">
+                        <div class="csh-customer-name-error" style="display: none;">Only letters and spaces are allowed.</div>
                     </div>
 
                     <!-- Tabs for Categories -->
@@ -52,27 +53,31 @@
                                         <tr>
                                             <th>Product Name</th>
                                             <th>Price</th>
+                                            <th>Stock</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($products->where('category', $category) as $product)
+                                        @foreach ($shelfItems->where('product.category', $category) as $shelfItem)
                                             <tr>
-                                                <td>{{ $product->product_name }}</td>
-                                                <td>₱{{ number_format($product->price, 2) }}</td>
+                                                <td>{{ $shelfItem->product->product_name }}</td>
+                                                <td>₱{{ number_format($shelfItem->price, 2) }}</td>
+                                                <td class="csh-stock" data-product-id="{{ $shelfItem->product_id }}">{{ $shelfItem->quantity_added }}</td>
                                                 <td>
-                                                    <button type="button" class="csh-add-product-btn" 
-                                                            data-product-id="{{ $product->id }}" 
-                                                            data-product-name="{{ $product->product_name }}" 
-                                                            data-product-price="{{ $product->price }}">  
-                                                            Add to Order
+                                                    <button type="button" class="csh-add-product-btn"
+                                                            data-product-id="{{ $shelfItem->product_id }}"
+                                                            data-product-name="{{ $shelfItem->product->product_name }}"
+                                                            data-product-price="{{ $shelfItem->price }}"
+                                                            data-product-stock="{{ $shelfItem->quantity_added }}"
+                                                            {{ $shelfItem->quantity_added <= 0 ? 'disabled' : '' }}>
+                                                        {{ $shelfItem->quantity_added <= 0 ? 'Out of Stock' : 'Add to Order' }}
                                                     </button>
                                                 </td>
                                             </tr>
                                         @endforeach
-                                        @if ($products->where('category', $category)->isEmpty())
+                                        @if ($shelfItems->where('product.category', $category)->isEmpty())
                                             <tr>
-                                                <td colspan="3">No {{ $category }} products available.</td>
+                                                <td colspan="4">No {{ $category }} products available.</td>
                                             </tr>
                                         @endif
                                     </tbody>
@@ -90,11 +95,34 @@
                                     <th>Product</th>
                                     <th>Price</th>
                                     <th>Quantity</th>
+                                    <th>Stock Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody id="selected-products-body">
-                                <!-- Dynamically added rows will appear here -->
+                                @if (old('products'))
+                                    @foreach (old('products') as $index => $product)
+                                        @php
+                                            $shelfItem = $shelfItems->firstWhere('product_id', $product['product_id']);
+                                            $productName = $shelfItem ? $shelfItem->product->product_name : 'Unknown';
+                                            $productPrice = $shelfItem ? $shelfItem->price : 0;
+                                            $productStock = $shelfItem ? $shelfItem->quantity_added : 0;
+                                        @endphp
+                                        <tr>
+                                            <td>{{ $productName }}</td>
+                                            <td>{{ number_format($productPrice, 2) }}</td>
+                                            <td class="quantity-container">
+                                                <input type="number" name="products[{{ $index }}][quantity]" min="1" max="{{ $productStock }}" value="{{ $product['quantity'] }}" required class="csh-form-input">
+                                                <input type="hidden" name="products[{{ $index }}][product_id]" value="{{ $product['product_id'] }}">
+                                                <div class="quantity-error">Insufficient stock!</div>
+                                            </td>
+                                            <td>{{ $product['quantity'] <= $productStock ? 'In Stock' : 'Insufficient Stock' }}</td>
+                                            <td>
+                                                <button type="button" class="csh-remove-product-btn">Remove</button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
                             </tbody>
                         </table>
                     </div>
@@ -111,11 +139,12 @@
 
                     <div class="csh-form-group">
                         <label for="special_instructions" class="csh-form-label">Special Instructions:</label>
-                        <textarea placeholder="Any special instructions? Add here" name="special_instructions" id="special_instructions" class="csh-form-textarea">{{ old('special_instructions') }}</textarea>
+                        <textarea placeholder="Any special instructions? Add here" name="special_instructions" id="special_instructions" class="csh-form-textarea" maxlength="255">{{ old('special_instructions') }}</textarea>
+                        <div class="csh-char-counter" id="charCounter">255 characters</div>
                     </div>
 
                     <div class="csh-form-actions">
-                        <button type="submit" class="csh-submit-btn">Place Order</button>
+                        <button type="submit" class="csh-submit-btn" id="submitOrderBtn">Place Order</button>
                         <button type="button" id="closeModalBtn" class="csh-close-btn">Close</button>
                     </div>
                 </form>
@@ -136,16 +165,15 @@
                 }
             </style>
             <script>
-                // Fade out the success message after 2 seconds
                 setTimeout(() => {
                     const successMessage = document.getElementById('successMessage');
                     if (successMessage) {
                         successMessage.style.opacity = '0';
                         setTimeout(() => {
                             successMessage.classList.add('hidden');
-                        }, 500); // Match the transition duration (0.5s)
+                        }, 500);
                     }
-                }, 2000); // 2000 milliseconds = 2 seconds
+                }, 2000);
             </script>
         @endif
 
@@ -156,7 +184,6 @@
                 @else
                     @foreach ($orders as $order)
                         @php
-                            // Build the products string for data-products attribute
                             $productsString = '';
                             foreach ($order->orderItems as $index => $item) {
                                 $productsString .= $item->quantity . ' x ' . ($item->product->product_name ?? 'N/A');
@@ -224,151 +251,291 @@
                 </form>
             </div>
         </div>
-    </div>
 
-    <script>
-        let productIndex = 0;
-
-        // Tab Switching for Categories
-        document.querySelectorAll('.csh-tab-link-categ').forEach(button => {
-            button.addEventListener('click', () => {
-                document.querySelectorAll('.csh-tab-link-categ').forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-
-                document.querySelectorAll('.csh-tab-content').forEach(content => {
-                    content.style.display = content.id === `${button.dataset.tab}-tab` ? 'block' : 'none';
-                });
-            });
-        });
-
-        // Add Product to Selected Products Table
-        document.querySelectorAll('.csh-add-product-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const productId = button.dataset.productId;
-                const productName = button.dataset.productName;
-                const productPrice = button.dataset.productPrice;
-
-                const selectedProductsBody = document.getElementById('selected-products-body');
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${productName}</td>
-                    <td>${parseFloat(productPrice).toFixed(2)}</td>
-                    <td>
-                        <input type="number" name="products[${productIndex}][quantity]" min="1" value="1" required class="csh-form-input">
-                        <input type="hidden" name="products[${productIndex}][product_id]" value="${productId}">
-                    </td>
-                    <td>
-                        <button type="button" class="csh-remove-product-btn">Remove</button>
-                    </td>
-                `;
-                selectedProductsBody.appendChild(row);
-                productIndex++;
-            });
-        });
-
-        // Remove Product from Selected Products
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('csh-remove-product-btn')) {
-                e.target.closest('tr').remove();
+        <style>
+            .csh-selected-products-table .quantity-container {
+                position: relative;
             }
-        });
-
-        // Modal Handling
-        const openModalBtn = document.getElementById('openModalBtn');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const orderModal = document.getElementById('orderModal');
-
-        openModalBtn.addEventListener('click', () => {
-            orderModal.style.display = 'flex';
-        });
-
-        closeModalBtn.addEventListener('click', () => {
-            orderModal.style.display = 'none';
-        });
-
-        orderModal.addEventListener('click', (e) => {
-            if (e.target === orderModal) {
-                orderModal.style.display = 'none';
+            .csh-selected-products-table .quantity-container input[type="number"] {
+                width: 100%;
+                padding: 8px;
+                border: 2px solid #28a745;
+                border-radius: 4px;
             }
-        });
-
-        // Ensure at least one product is selected before submission
-        document.getElementById('orderForm').addEventListener('submit', (e) => {
-            const selectedProducts = document.querySelectorAll('#selected-products-body tr');
-            if (selectedProducts.length === 0) {
-                e.preventDefault();
-                alert('Please add at least one product to the order.');
+            .csh-selected-products-table .quantity-error {
+                color: red;
+                font-size: 12px;
+                margin-top: 5px;
+                display: none;
             }
-        });
+            .csh-customer-name-error {
+                color: red;
+                font-size: 12px;
+                margin-top: 5px;
+                display: none;
+            }
+            .csh-submit-btn:disabled {
+                background-color: #cccccc;
+                cursor: not-allowed;
+            }
+            .csh-char-counter {
+                font-size: 12px;
+                color: #555;
+                margin-top: 5px;
+                font-family: 'Poppins', sans-serif;
+            }
+        </style>
 
-        // Reopen modal if errors exist
-        @if ($errors->any())
-            document.getElementById('orderModal').style.display = 'flex';
-        @endif
+        <script>
+            let productIndex = {{ old('products') ? count(old('products')) : 0 }};
 
-        // Add click and keyboard interaction to show order details
-        const orderDetailsForm = document.getElementById('orderDetailsForm');
-        const orderDetailsId = document.getElementById('orderDetailsId');
-        const orderDetailsIdDisplay = document.getElementById('orderDetailsIdDisplay');
-        const orderDetailsCustomer = document.getElementById('orderDetailsCustomer');
-        const orderDetailsTime = document.getElementById('orderDetailsTime');
-        const orderDetailsType = document.getElementById('orderDetailsType');
-        const orderDetailsProducts = document.getElementById('orderDetailsProducts');
-        const orderDetailsTotal = document.getElementById('orderDetailsTotal');
-        const orderDetailsInstructions = document.getElementById('orderDetailsInstructions');
+            // Validate customer name input
+            const customerNameInput = document.getElementById('customer_name');
+            const customerNameError = document.querySelector('.csh-customer-name-error');
+            const nameRegex = /^[A-Za-z\s]+$/;
 
-        // Function to update order details
-        function updateOrderDetails(card) {
-            // Highlight the selected card
-            document.querySelectorAll('.csh-order-card').forEach(c => c.classList.remove('csh-order-card-selected'));
-            card.classList.add('csh-order-card-selected');
-
-            // Populate the order details form
-            orderDetailsId.value = card.dataset.orderId;
-            orderDetailsIdDisplay.textContent = `Order ${card.dataset.orderId}`;
-            orderDetailsCustomer.textContent = card.dataset.customerName;
-            orderDetailsTime.textContent = card.dataset.time;
-            orderDetailsType.textContent = card.dataset.orderType;
-            orderDetailsProducts.textContent = card.dataset.products;
-            orderDetailsTotal.textContent = `₱ ${card.dataset.totalPrice}`;
-            orderDetailsInstructions.textContent = card.dataset.specialInstructions;
-
-            // Show the form
-            orderDetailsForm.style.display = 'block';
-        }
-
-        // Attach event listeners to order cards
-        document.querySelectorAll('.csh-order-card').forEach(card => {
-            card.addEventListener('click', () => updateOrderDetails(card));
-
-            card.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    updateOrderDetails(card);
+            customerNameInput.addEventListener('input', () => {
+                const value = customerNameInput.value;
+                if (value && !nameRegex.test(value)) {
+                    customerNameError.style.display = 'block';
+                    customerNameInput.setCustomValidity('Only letters and spaces are allowed.');
+                } else {
+                    customerNameError.style.display = 'none';
+                    customerNameInput.setCustomValidity('');
                 }
             });
-        });
 
-        // Automatically select the most recent order on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            const orderCards = document.querySelectorAll('.csh-order-card');
-            if (orderCards.length > 0) {
-                // Find the card with the highest order ID (most recent)
-                let latestCard = null;
-                let highestId = -1;
+            // Character counter for special instructions
+            const specialInstructions = document.getElementById('special_instructions');
+            const charCounter = document.getElementById('charCounter');
+            const maxLength = 255;
 
-                orderCards.forEach(card => {
-                    const orderId = parseInt(card.dataset.orderId, 10);
-                    if (orderId > highestId) {
-                        highestId = orderId;
-                        latestCard = card;
+            specialInstructions.addEventListener('input', () => {
+                const remaining = maxLength - specialInstructions.value.length;
+                charCounter.textContent = `${remaining} characters remaining`;
+            });
+
+            // Function to check stock and update submit button state
+            function updateSubmitButtonState() {
+                const selectedProductsBody = document.getElementById('selected-products-body');
+                const submitBtn = document.getElementById('submitOrderBtn');
+                let hasInsufficientStock = false;
+
+                Array.from(selectedProductsBody.rows).forEach(row => {
+                    const productId = row.querySelector(`input[name$="[product_id]"]`).value;
+                    const quantityInput = row.querySelector('input[type="number"]');
+                    const quantity = parseInt(quantityInput.value);
+                    const stockCell = document.querySelector(`.csh-stock[data-product-id="${productId}"]`);
+                    const stock = parseInt(stockCell.textContent);
+                    const stockStatusCell = row.cells[3];
+                    const quantityError = row.querySelector('.quantity-error');
+
+                    if (quantity > stock) {
+                        hasInsufficientStock = true;
+                        stockStatusCell.textContent = 'Insufficient Stock';
+                        stockStatusCell.style.color = 'red';
+                        quantityError.style.display = 'block';
+                    } else {
+                        stockStatusCell.textContent = 'In Stock';
+                        stockStatusCell.style.color = 'green';
+                        quantityError.style.display = 'none';
                     }
                 });
 
-                // Trigger updateOrderDetails for the latest card
-                if (latestCard) {
-                    updateOrderDetails(latestCard);
-                }
+                submitBtn.disabled = hasInsufficientStock || selectedProductsBody.rows.length === 0;
             }
-        });
-    </script>
+
+            // Tab Switching for Categories
+            document.querySelectorAll('.csh-tab-link-categ').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.csh-tab-link-categ').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    document.querySelectorAll('.csh-tab-content').forEach(content => {
+                        content.style.display = content.id === `${button.dataset.tab}-tab` ? 'block' : 'none';
+                    });
+                });
+            });
+
+            // Add Product to Selected Products Table
+            document.querySelectorAll('.csh-add-product-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const productId = button.dataset.productId;
+                    const productName = button.dataset.productName;
+                    const productPrice = button.dataset.productPrice;
+                    const productStock = parseInt(button.dataset.productStock);
+
+                    const selectedProductsBody = document.getElementById('selected-products-body');
+                    const existingRow = Array.from(selectedProductsBody.rows).find(row =>
+                        row.querySelector(`input[name$="[product_id]"]`).value === productId
+                    );
+
+                    if (existingRow) {
+                        const quantityInput = existingRow.querySelector('input[type="number"]');
+                        const newQuantity = parseInt(quantityInput.value) + 1;
+                        if (newQuantity <= productStock) {
+                            quantityInput.value = newQuantity;
+                        } else {
+                            const quantityError = existingRow.querySelector('.quantity-error');
+                            quantityError.style.display = 'block';
+                        }
+                    } else {
+                        if (productStock > 0) {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${productName}</td>
+                                <td>${parseFloat(productPrice).toFixed(2)}</td>
+                                <td class="quantity-container">
+                                    <input type="number" name="products[${productIndex}][quantity]" min="1" max="${productStock}" value="1" required class="csh-form-input">
+                                    <input type="hidden" name="products[${productIndex}][product_id]" value="${productId}">
+                                    <div class="quantity-error">Insufficient stock!</div>
+                                </td>
+                                <td>In Stock</td>
+                                <td>
+                                    <button type="button" class="csh-remove-product-btn">Remove</button>
+                                </td>
+                            `;
+                            selectedProductsBody.appendChild(row);
+                            productIndex++;
+                        } else {
+                            alert(`Cannot add ${productName}. Out of stock.`);
+                        }
+                    }
+                    updateSubmitButtonState();
+                });
+            });
+
+            // Update stock status when quantity changes
+            document.getElementById('selected-products-body').addEventListener('change', (e) => {
+                if (e.target.type === 'number') {
+                    updateSubmitButtonState();
+                }
+            });
+
+            // Remove Product from Selected Products
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('csh-remove-product-btn')) {
+                    e.target.closest('tr').remove();
+                    updateSubmitButtonState();
+                }
+            });
+
+            // Modal Handling
+            const openModalBtn = document.getElementById('openModalBtn');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const orderModal = document.getElementById('orderModal');
+
+            openModalBtn.addEventListener('click', () => {
+                orderModal.style.display = 'flex';
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                orderModal.style.display = 'none';
+            });
+
+            orderModal.addEventListener('click', (e) => {
+                if (e.target === orderModal) {
+                    orderModal.style.display = 'none';
+                }
+            });
+
+            // Ensure at least one product is selected before submission
+            document.getElementById('orderForm').addEventListener('submit', (e) => {
+                const selectedProducts = document.querySelectorAll('#selected-products-body tr');
+                if (selectedProducts.length === 0) {
+                    e.preventDefault();
+                    alert('Please add at least one product to the order.');
+                    return;
+                }
+
+                let hasInsufficientStock = false;
+                Array.from(selectedProducts).forEach(row => {
+                    const productId = row.querySelector(`input[name$="[product_id]"]`).value;
+                    const quantity = parseInt(row.querySelector('input[type="number"]').value);
+                    const stock = parseInt(document.querySelector(`.csh-stock[data-product-id="${productId}"]`).textContent);
+                    if (quantity > stock) {
+                        hasInsufficientStock = true;
+                    }
+                });
+
+                if (hasInsufficientStock) {
+                    e.preventDefault();
+                }
+
+                // Validate customer name before submission
+                if (!nameRegex.test(customerNameInput.value)) {
+                    e.preventDefault();
+                    customerNameError.style.display = 'block';
+                    customerNameInput.setCustomValidity('Only letters and spaces are allowed.');
+                }
+            });
+
+            // Reopen modal if errors exist
+            @if ($errors->any())
+                document.getElementById('orderModal').style.display = 'flex';
+                // Trigger initial validation for customer name
+                customerNameInput.dispatchEvent(new Event('input'));
+                // Trigger initial character count update
+                specialInstructions.dispatchEvent(new Event('input'));
+            @endif
+
+            // Add click and keyboard interaction to show order details
+            const orderDetailsForm = document.getElementById('orderDetailsForm');
+            const orderDetailsId = document.getElementById('orderDetailsId');
+            const orderDetailsIdDisplay = document.getElementById('orderDetailsIdDisplay');
+            const orderDetailsCustomer = document.getElementById('orderDetailsCustomer');
+            const orderDetailsTime = document.getElementById('orderDetailsTime');
+            const orderDetailsType = document.getElementById('orderDetailsType');
+            const orderDetailsProducts = document.getElementById('orderDetailsProducts');
+            const orderDetailsTotal = document.getElementById('orderDetailsTotal');
+            const orderDetailsInstructions = document.getElementById('orderDetailsInstructions');
+
+            function updateOrderDetails(card) {
+                document.querySelectorAll('.csh-order-card').forEach(c => c.classList.remove('csh-order-card-selected'));
+                card.classList.add('csh-order-card-selected');
+
+                orderDetailsId.value = card.dataset.orderId;
+                orderDetailsIdDisplay.textContent = `Order ${card.dataset.orderId}`;
+                orderDetailsCustomer.textContent = card.dataset.customerName;
+                orderDetailsTime.textContent = card.dataset.time;
+                orderDetailsType.textContent = card.dataset.orderType;
+                orderDetailsProducts.textContent = card.dataset.products;
+                orderDetailsTotal.textContent = `₱ ${card.dataset.totalPrice}`;
+                orderDetailsInstructions.textContent = card.dataset.specialInstructions;
+
+                orderDetailsForm.style.display = 'block';
+            }
+
+            document.querySelectorAll('.csh-order-card').forEach(card => {
+                card.addEventListener('click', () => updateOrderDetails(card));
+
+                card.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        updateOrderDetails(card);
+                    }
+                });
+            });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const orderCards = document.querySelectorAll('.csh-order-card');
+                if (orderCards.length > 0) {
+                    let latestCard = null;
+                    let highestId = -1;
+
+                    orderCards.forEach(card => {
+                        const orderId = parseInt(card.dataset.orderId, 10);
+                        if (orderId > highestId) {
+                            highestId = orderId;
+                            latestCard = card;
+                        }
+                    });
+
+                    if (latestCard) {
+                        updateOrderDetails(latestCard);
+                    }
+                }
+                updateSubmitButtonState();
+            });
+        </script>
+    </div>
 @endsection

@@ -10,81 +10,158 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller 
 {
-    public function index() {
-        // For loss widget
-        $trashes = Trash::all();
-        $totalLoss = $trashes->sum('total_loss');
+    public function index(Request $request) {
+        // Clean up session if 'all' is present
+        if ($request->session()->get('filter_month') === 'all' || $request->session()->get('filter_year') === 'all') {
+            $request->session()->forget(['filter_period', 'filter_month', 'filter_year']);
+        }
 
-        // For best product widget
-        $topSellingProducts = Transaction::select('product_id', \DB::raw('SUM(quantity) as total_quantity'))
+        // Handle reset
+        if ($request->has('reset') && $request->input('reset') === 'true') {
+            $request->session()->forget(['filter_period', 'filter_month', 'filter_year']);
+        }
+
+        // Validate and set filter inputs
+        $period = in_array($request->input('period'), ['monthly', 'yearly'])
+            ? $request->input('period')
+            : $request->session()->get('filter_period', 'monthly');
+
+        $month = is_numeric($request->input('month')) && $request->input('month') >= 1 && $request->input('month') <= 12
+            ? (int) $request->input('month')
+            : $request->session()->get('filter_month', now()->month);
+
+        $year = is_numeric($request->input('year')) && $request->input('year') >= now()->year - 5 && $request->input('year') <= now()->year
+            ? (int) $request->input('year')
+            : $request->session()->get('filter_year', now()->year);
+
+        // Store filters in session
+        $request->session()->put('filter_period', $period);
+        $request->session()->put('filter_month', $month);
+        $request->session()->put('filter_year', $year);
+
+        // Initialize queries
+        $queryTrash = Trash::query();
+        $queryTransaction = Transaction::query();
+        $queryTopSelling = Transaction::query();
+        $querySalesChart = Transaction::query();
+
+        // Apply filters
+        if ($period === 'monthly') {
+            $queryTrash->whereMonth('created_at', $month)->whereYear('created_at', $year);
+            $queryTransaction->whereMonth('created_at', $month)->whereYear('created_at', $year);
+            $queryTopSelling->whereMonth('created_at', $month)->whereYear('created_at', $year);
+            $querySalesChart->whereMonth('created_at', $month)->whereYear('created_at', $year);
+        } else { // yearly
+            $queryTrash->whereYear('created_at', $year);
+            $queryTransaction->whereYear('created_at', $year);
+            $queryTopSelling->whereYear('created_at', $year);
+            $querySalesChart->whereYear('created_at', $year);
+        }
+
+        // Fetch data
+        $trashes = $queryTrash->get();
+        $transactions = $queryTransaction->get();
+        $totalLoss = $trashes->sum('total_loss');
+        $revenue = $transactions->sum('total_price');
+
+        // Top selling products
+        $topSellingProducts = $queryTopSelling
+            ->select('product_id', \DB::raw('SUM(quantity) as total_quantity'))
             ->groupBy('product_id')
             ->orderByDesc('total_quantity')
             ->take(5)
-            ->with('product') // Eager-load the Product relationship
-            ->get();    
+            ->with('product')
+            ->get();
 
-        // For low on stock widget
+        // Low stock products
         $lowStockProducts = Product::where('quantity', '<', 5)
             ->orderBy('quantity', 'asc')
             ->get();
 
-        // Fetch sales data for the chart (sales volume over time)
-        $startDate = Carbon::now()->startOfMonth(); // Start of current month
-        $endDate = Carbon::now()->endOfMonth(); // End of current month
-
-        // Define weeks (assuming 4 weeks in a month for simplicity)
-        $weeks = [];
-        $weekStart = $startDate->copy();
-        for ($i = 1; $i <= 4; $i++) {
-            $weekEnd = $weekStart->copy()->addDays(6); // Each week is 7 days
-            if ($weekEnd->gt($endDate)) {
-                $weekEnd = $endDate->copy();
+        // Chart data
+        try {
+            if ($period === 'yearly') {
+                $startDate = Carbon::create($year, 1, 1)->startOfDay();
+                $endDate = Carbon::create($year, 12, 31)->endOfDay();
+                $labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                $intervals = [
+                    ['start' => $startDate->copy(), 'end' => $startDate->copy()->endOfQuarter(), 'label' => 'Q1'],
+                    ['start' => $startDate->copy()->addMonths(3), 'end' => $startDate->copy()->addMonths(5)->endOfMonth(), 'label' => 'Q2'],
+                    ['start' => $startDate->copy()->addMonths(6), 'end' => $startDate->copy()->addMonths(8)->endOfMonth(), 'label' => 'Q3'],
+                    ['start' => $startDate->copy()->addMonths(9), 'end' => $endDate->copy(), 'label' => 'Q4'],
+                ];
+            } else { // monthly
+                $startDate = Carbon::create($year, $month, 1)->startOfMonth();
+                $endDate = $startDate->copy()->endOfMonth();
+                $labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                $weeks = [];
+                $weekStart = $startDate->copy();
+                for ($i = 1; $i <= 4; $i++) {
+                    $weekEnd = $weekStart->copy()->addDays(6);
+                    if ($weekEnd->gt($endDate)) {
+                        $weekEnd = $endDate->copy();
+                    }
+                    $weeks[] = [
+                        'start' => $weekStart->copy(),
+                        'end' => $weekEnd->copy(),
+                        'label' => "Week $i"
+                    ];
+                    $weekStart = $weekEnd->copy()->addDay();
+                }
+                $intervals = $weeks;
             }
-            $weeks[] = [
-                'start' => $weekStart->copy(),
-                'end' => $weekEnd->copy(),
-                'label' => "Week $i"
-            ];
-            $weekStart = $weekEnd->copy()->addDay();
+        } catch (\Exception $e) {
+            // Fallback to current month/year if Carbon fails
+            \Log::error('Carbon error', ['month' => $month, 'year' => $year, 'error' => $e->getMessage()]);
+            $month = now()->month;
+            $year = now()->year;
+            $startDate = Carbon::create($year, $month, 1)->startOfMonth();
+            $endDate = $startDate->copy()->endOfMonth();
+            $labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+            $weeks = [];
+            $weekStart = $startDate->copy();
+            for ($i = 1; $i <= 4; $i++) {
+                $weekEnd = $weekStart->copy()->addDays(6);
+                if ($weekEnd->gt($endDate)) {
+                    $weekEnd = $endDate->copy();
+                }
+                $weeks[] = [
+                    'start' => $weekStart->copy(),
+                    'end' => $weekEnd->copy(),
+                    'label' => "Week $i"
+                ];
+                $weekStart = $weekEnd->copy()->addDay();
+            }
+            $intervals = $weeks;
         }
 
-        // Fetch top 3 products by total sales to display in the chart
-        $topProducts = Transaction::select('product_id')
-            ->selectRaw('SUM(quantity) as total_quantity')
+        // Top 3 products for chart
+        $topProducts = $querySalesChart
+            ->select('product_id', \DB::raw('SUM(quantity) as total_quantity'))
             ->groupBy('product_id')
             ->orderByDesc('total_quantity')
-            ->take(3) // Limit to top 3 products for the chart
+            ->take(3)
             ->with('product')
             ->get();
 
         // Prepare chart data
-        $salesData = [
-            'labels' => array_column($weeks, 'label'), // ['Week 1', 'Week 2', 'Week 3', 'Week 4']
-            'datasets' => []
-        ];
-
-        // Colors for each product (consistent with your current chart)
+        $salesData = ['labels' => $labels, 'datasets' => []];
         $colors = [
             ['border' => '#10394f', 'background' => 'rgba(16, 57, 79, 0.2)'],
-            ['border' => '#0d2c3a', 'background' => 'rgba(13, 44, 58, 0.2)'],
-            ['border' => '#007bff', 'background' => 'rgba(0, 123, 255, 0.2)']
+            ['border' => 'blue', 'background' => 'rgba(0, 174, 255, 0.2)'],
+            ['border' => 'green', 'background' => 'rgba(65, 196, 21, 0.2)']
         ];
-
-        // Fetch sales data for each product per week
         $maxY = 0;
+
         foreach ($topProducts as $index => $product) {
             $productSales = [];
-            foreach ($weeks as $week) {
+            foreach ($intervals as $interval) {
                 $quantity = Transaction::where('product_id', $product->product_id)
-                    ->whereBetween('created_at', [$week['start'], $week['end']])
+                    ->whereBetween('created_at', [$interval['start'], $interval['end']])
                     ->sum('quantity');
-                $productSales[] = $quantity ?: 0; // Default to 0 if no sales
+                $productSales[] = $quantity ?: 0;
             }
-
-            // Update maxY for dynamic Y-axis scaling
-            $maxInDataset = max($productSales);
-            $maxY = max($maxY, $maxInDataset);
-
+            $maxY = max($maxY, max($productSales));
             $salesData['datasets'][] = [
                 'label' => $product->product->product_name ?? 'Unknown Product',
                 'data' => $productSales,
@@ -95,13 +172,9 @@ class DashboardController extends Controller
             ];
         }
 
-        // Round up maxY to the nearest 100 for better scaling
-        $maxY = $maxY > 0 ? ceil($maxY / 100) * 100 : 100; // Default to 100 if no sales
+        $maxY = $maxY > 0 ? ceil($maxY / 100) * 100 : 100;
 
-        return view('manager.dashboard', compact('trashes', 'topSellingProducts', 'totalLoss', 'lowStockProducts', 'salesData', 'maxY'));
-    }
-
-    public function dashboard() {
-        // Empty for now, or you can redirect to index if not needed
+        return view('manager.dashboard', compact( 'trashes', 'revenue', 'topSellingProducts', 'totalLoss', 'lowStockProducts', 'salesData', 'maxY', 'period', 'month', 'year'
+        ));
     }
 }

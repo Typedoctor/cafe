@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use Maatwebsite\Excel\Facades\Excel;
+//use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransactionsExport;
 
 class CashierTransactionController extends Controller
 {
-    public function index(Request $request)
+    public function index_cashier(Request $request)
     {
         // Get filter values
         $month = $request->input('month', 'all');
@@ -41,12 +41,10 @@ class CashierTransactionController extends Controller
             $query->whereYear('created_at', $year);
         }
 
-        // Apply search filter
         if (!empty($search)) {
             $query->where('customer_name', 'like', '%' . $search . '%');
         }
 
-        // Group and paginate
         $summarizedTransactions = $query->groupBy(
             'user_id',
             'customer_name',
@@ -55,13 +53,20 @@ class CashierTransactionController extends Controller
             'special_instructions',
             'created_at',
             'updated_at'
-        )->paginate(10);
+        )->get();
 
-        return view('cashier.cashier_transactions', compact('summarizedTransactions'));
+        return view('cashier.transactions', compact('summarizedTransactions'));
     }
 
-    public function export(Request $request)
+ /*   public function export_cashier(Request $request)
     {
-        return Excel::download(new TransactionsExport($request->all()), 'transactions_' . Carbon::now()->format('Ymd_His') . '.xlsx');
-    }
+        try {
+            return Excel::download(
+                new TransactionsExport($request->all()),
+                'transactions_' . Carbon::now()->format('Ymd_His') . '.xlsx'
+            );
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to export transactions: ' . $e->getMessage());
+        }
+    }*/
 }

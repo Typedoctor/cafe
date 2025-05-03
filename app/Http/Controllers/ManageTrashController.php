@@ -3,46 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trash;
-use App\Models\Product;
+use App\Models\ShelfItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ManageTrashController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $query = Trash::latest();
+        $trashes = Trash::latest()->get();
+        $shelfItems = ShelfItem::with('product')
+            ->whereHas('product')
+            ->where('quantity_added', '>', 0)
+            ->orderBy('product_id')
+            ->get();
 
-        // Search by product name
-        if ($request->has('search')) {
-            $query->where('product_name', 'like', '%' . $request->search . '%');
-        }
-
-        // Filter by category
-        if ($request->has('category') && $request->category !== 'all') {
-            $query->where('category', $request->category);
-        }
-
-        // Filter by month
-        if ($request->has('month') && $request->month !== 'all') {
-            $query->whereMonth('created_at', $request->month);
-        }
-
-        // Filter by year
-        if ($request->has('year') && $request->year !== 'all') {
-            $query->whereYear('created_at', $request->year);
-        }
-
-        $trashes = $query->get();
-        $products = Product::orderBy('product_name')->get();
-        
-        return view('cashier.manage_trash', compact('trashes', 'products'));
+        return view('cashier.manage_trash', compact('trashes', 'shelfItems'));
     }
 
     public function create()
     {
-        $products = Product::orderBy('product_name')->get();
-        return view('cashier.manage_trash', compact('products'));
+        $shelfItems = ShelfItem::with('product')
+            ->whereHas('product')
+            ->where('quantity_added', '>', 0)
+            ->orderBy('product_id')
+            ->get();
+        return view('cashier.manage_trash', compact('shelfItems'));
     }
 
     public function store(Request $request)
@@ -57,29 +43,38 @@ class ManageTrashController extends Controller
 
         try {
             DB::transaction(function () use ($validated) {
-                $product = Product::where('product_name', $validated['product_name'])->firstOrFail();
-                if ($product->quantity < $validated['quantity']) {
+                $shelfItem = ShelfItem::with('product')
+                    ->whereHas('product', function ($query) use ($validated) {
+                        $query->where('product_name', $validated['product_name']);
+                    })
+                    ->firstOrFail();
+
+                if ($shelfItem->quantity_added < $validated['quantity']) {
                     throw new \Exception('Not enough product quantity available.');
                 }
 
                 // Calculate total_loss
-                $validated['total_loss'] = $product->price * $validated['quantity'];
+                $validated['total_loss'] = $shelfItem->price * $validated['quantity'];
 
                 Trash::create($validated);
-                $product->decrement('quantity', $validated['quantity']);
+                $shelfItem->decrement('quantity_added', $validated['quantity']);
             });
         } catch (\Exception $e) {
             return back()->withErrors(['quantity' => $e->getMessage()])->withInput();
         }
-        
+
         return redirect()->route('trash.index')
             ->with('success', 'Trash entry added successfully!');
     }
 
     public function edit(Trash $trash)
     {
-        $products = Product::orderBy('product_name')->get();
-        return view('cashier.manage_trash', compact('trash', 'products'));
+        $shelfItems = ShelfItem::with('product')
+            ->whereHas('product')
+            ->where('quantity_added', '>', 0)
+            ->orderBy('product_id')
+            ->get();
+        return view('cashier.manage_trash', compact('trash', 'shelfItems'));
     }
 
     public function update(Request $request, Trash $trash)
@@ -94,27 +89,36 @@ class ManageTrashController extends Controller
 
         try {
             DB::transaction(function () use ($validated, $trash) {
-                $product = Product::where('product_name', $validated['product_name'])->firstOrFail();
+                $shelfItem = ShelfItem::with('product')
+                    ->whereHas('product', function ($query) use ($validated) {
+                        $query->where('product_name', $validated['product_name']);
+                    })
+                    ->firstOrFail();
+
                 $quantityDifference = $validated['quantity'] - $trash->quantity;
 
-                if ($quantityDifference > 0 && $product->quantity < $quantityDifference) {
+                if ($quantityDifference > 0 && $shelfItem->quantity_added < $quantityDifference) {
                     throw new \Exception('Not enough product quantity available.');
                 }
 
                 // Calculate total_loss
-                $validated['total_loss'] = $product->price * $validated['quantity'];
+                $validated['total_loss'] = $shelfItem->price * $validated['quantity'];
 
-                // If product_name changed, restore quantity to the old product
+                // If product_name changed, restore quantity to the old product's shelf item
                 if ($trash->product_name !== $validated['product_name']) {
-                    $oldProduct = Product::where('product_name', $trash->product_name)->first();
-                    if ($oldProduct) {
-                        $oldProduct->increment('quantity', $trash->quantity);
+                    $oldShelfItem = ShelfItem::with('product')
+                        ->whereHas('product', function ($query) use ($trash) {
+                            $query->where('product_name', $trash->product_name);
+                        })
+                        ->first();
+                    if ($oldShelfItem) {
+                        $oldShelfItem->increment('quantity_added', $trash->quantity);
                     }
                 }
 
                 $trash->update($validated);
                 if ($quantityDifference != 0) {
-                    $product->decrement('quantity', $quantityDifference);
+                    $shelfItem->decrement('quantity_added', $quantityDifference);
                 }
             });
         } catch (\Exception $e) {
@@ -129,9 +133,13 @@ class ManageTrashController extends Controller
     {
         try {
             DB::transaction(function () use ($trash) {
-                $product = Product::where('product_name', $trash->product_name)->first();
-                if ($product) {
-                    $product->increment('quantity', $trash->quantity);
+                $shelfItem = ShelfItem::with('product')
+                    ->whereHas('product', function ($query) use ($trash) {
+                        $query->where('product_name', $trash->product_name);
+                    })
+                    ->first();
+                if ($shelfItem) {
+                    $shelfItem->increment('quantity_added', $trash->quantity);
                 }
                 $trash->delete();
             });

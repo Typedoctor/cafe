@@ -26,8 +26,13 @@ class AuthController extends Controller {
             return back()->withErrors(['error' => 'Username does not exist']);
         }
 
-        // Attempt login only if the user exists
-        if (!Auth::attempt(['name' => $request->name, 'password' => $request->password])) {
+        // Check if the user is active
+        if (!$user->is_active) {
+            return back()->withErrors(['error' => 'This account has been deactivated. Please contact an administrator.']);
+        }
+
+        // Attempt login only if the user exists and is active
+        if (!Auth::attempt(['name' => $request->name, 'password' => $request->password, 'is_active' => 1])) {
             return back()->withErrors(['error' => 'Incorrect password']);
         }
 

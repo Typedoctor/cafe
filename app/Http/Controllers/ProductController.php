@@ -2,65 +2,98 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
-class ProductController extends Controller {
-    public function index(Request $request) {
-        $query = Product::query();
-
-        // Search by product name
-        if ($request->has('search')) {
-            $query->where('product_name', 'like', '%' . $request->search . '%');
-        }
-
-        // Filter by category
-        if ($request->has('category') && $request->category !== 'all') {
-            $query->where('category', $request->category);
-        }
-
-        $products = $query->get();
-        
-        return view('manager.product', compact('products'));
+class ProductController extends Controller
+{
+    public function index(Request $request)
+    {
+        $products = Product::all();
+        return view('manager.inventory', compact('products'));
     }
 
-    public function create() {
-        return view('products.create');
-    }
-
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $validated = $request->validate([
-            'product_name' => 'required|string|max:255',
+            'product_name' => 'required|string|max:255|unique:products,product_name|regex:/^[a-zA-Z\s]+$/', 
             'category' => 'required|string|in:snack,drink,meal,dessert',
-            'price' => 'required|numeric',
-            'quantity' => 'required|integer'
+            'quantity' => 'required|integer|min:1', 
+            'supplier' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
         ]);
 
-        Product::create($validated);
+        try {
+            DB::beginTransaction();
 
-        return redirect()->route('products.index')->with('success', 'Product added successfully!');
+            $product = Product::create([
+                'product_name' => $validated['product_name'],
+                'category' => $validated['category'],
+                'quantity' => $validated['quantity'],
+                'supplier' => $validated['supplier'],
+            ]);
+
+            DB::commit();
+
+            if ($request->ajax()) {
+                return response()->json(['product' => $product], 201);
+            }
+
+            return redirect()->route('products.index')->with('success', 'Product added successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Store Product Error: ' . $e->getMessage());
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Failed to add product: ' . $e->getMessage()], 500);
+            }
+            return back()->withErrors(['error' => 'Failed to add product: ' . $e->getMessage()])->withInput();
+        }
     }
 
-    public function edit(Product $product) {
-        return view('products.edit', compact('product'));
-    }
-
-    public function destroy(Product $product) {
-        $product->delete();
-        return redirect()->route('products.index')->with('success', 'Product deleted!');
-    }
-
-    /*pag update han existing product*/ 
-    public function update(Request $request, Product $product) {
-        $request->validate([
-            'product_name' => 'required|string|unique:products,product_name,' . $product->id,
+    public function update(Request $request, Product $product)
+    {
+        $validated = $request->validate([
+            'product_name' => 'required|string|max:255|unique:products,product_name,' . $product->id . '|regex:/^[a-zA-Z\s]+$/', // Letters and spaces only
             'category' => 'required|string|in:snack,drink,meal,dessert',
-            'quantity' => 'numeric|min:0',
-            'price' => 'numeric|min:0',
+            'quantity' => 'required|integer|min:1', // Positive integers only
+            'supplier' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/', // Letters and spaces only
         ]);
 
-        $product->update($request->all());
+        try {
+            DB::beginTransaction();
 
-        return redirect()->route('products.index')->with('success', 'Product updated successfully!');
-    }    
+            $product->update([
+                'product_name' => $validated['product_name'],
+                'category' => $validated['category'],
+                'quantity' => $validated['quantity'],
+                'supplier' => $validated['supplier'],
+            ]);
+
+            DB::commit();
+
+            if ($request->ajax()) {
+                return response()->json(['product' => $product], 200);
+            }
+
+            return redirect()->route('products.index')->with('success', 'Product updated successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Update Product Error: ' . $e->getMessage());
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Failed to update product: ' . $e->getMessage()], 500);
+            }
+            return back()->withErrors(['error' => 'Failed to update product: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    public function destroy(Product $product)
+    {
+        try {
+            $product->delete();
+            return redirect()->route('products.index')->with('success', 'Product deleted successfully!');
+        } catch (\Exception $e) {
+            \Log::error('Delete Product Error: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Failed to delete product: ' . $e->getMessage()]);
+        }
+    }
 }

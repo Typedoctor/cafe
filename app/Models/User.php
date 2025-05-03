@@ -8,13 +8,18 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable {
     use HasFactory;
 
-    protected $fillable = ['name', 'password', 'privilege'];
+    protected $fillable = ['name', 'password', 'privilege', 'is_active'];
     protected $hidden = ['password'];
 
     public function isManager() {
         return $this->privilege === 'manager';
     }
+    
     public function isCashier() {
         return $this->privilege === 'cashier';
+    }
+    
+    public function isActive() {
+        return $this->is_active === 1;
     }
 }

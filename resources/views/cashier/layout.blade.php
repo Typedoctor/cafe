@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ asset('css/cashier-trash.css') }}">
     <link rel="stylesheet" href="{{ asset('css/cashier-order.css') }}">
     <link rel="stylesheet" href="{{ asset('css/transaction.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/manager-reports.css') }}">
     <script src="https://kit.fontawesome.com/2952e58222.js" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -15,11 +16,11 @@
         <div class="sidebar">
             <ul>   
                 <li><a href="{{ route('order.index') }}" ><i class="fa-solid fa-mug-hot"></i>Manage orders</a></li>
-                <li><a href="{{ route('transaction.index') }}" ><i class="fa-solid fa-receipt"></i><span>Transactions</a></li>
+                <li><a href="{{ route('cashier.cashier_transactions') }}" ><i class="fa-solid fa-receipt"></i><span>Transactions</a></li>
                 <li><a href="{{ route('trash.index') }}"><i class="fa-solid fa-trash"></i>Record Thrown Items</a></li>
                 <li><a href="{{ route('logout') }}"><i class="fa-solid fa-sign-out-alt"></i>Logout</a></li>
             </ul>
-        </div>
+        </div>c
         <div class="content">
             @yield('content')
         </div>

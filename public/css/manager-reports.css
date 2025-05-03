@@ -1,5 +1,5 @@
 /* General reset for consistency */
-.all-tabs {
+.rep-all-tabs {
     display: flex;
     justify-content: center;
     gap: 20px;
@@ -8,273 +8,310 @@
     user-select: none;
 }
 
-.all-tabs::-webkit-scrollbar {
+.rep-all-tabs::-webkit-scrollbar {
     display: none;
 }
 
-.all-tabs {
+.rep-all-tabs {
     scrollbar-width: none;
 }
 
-.reports-container {
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 20px;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-}
-
-.header {
+.rep-header {
     font-size: 20px;
-    font-weight: 700;
-    margin: 15px 0 20px;
-    color: #2d3748;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
     text-align: center;
-    letter-spacing: -0.5px;
-    margin-bottom: 50px;
+    font-family: 'Poppins', sans-serif;
 }
 
-.gap {
+.rep-gap {
     user-select: none;
 }
 
-.tab {
+.rep-tab {
     padding: 10px 20px;
     cursor: pointer;
-    background-color: #ffffff;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    user-select: none;
-    border: none;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    transition: background-color 0.3s;
     font-size: 16px;
     font-weight: 500;
-    color: #4a5568;
-    flex-shrink: 0;
+    color: #333;
 }
 
-.tab:hover {
-    background-color: #e2e8f0;
-    transform: translateY(-2px);
+.rep-tab:hover {
+    background-color: #d0d0d0;
 }
 
-.tab.profit.active {
-    background: linear-gradient(135deg, #48bb78, #38a169);
+.rep-tab.rep-profit.active {
+    background-color: #4CAF50;
     color: white;
-    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
 }
 
-.tab.loss.active {
-    background: linear-gradient(135deg, #f56565, #e53e3e);
+.rep-tab.rep-loss.active {
+    background-color: #dc3545;
     color: white;
-    box-shadow: 0 4px 12px rgba(245, 101, 101, 0.3);
 }
 
-.tab:focus {
-    outline: 3px solid #63b3ed;
-    outline-offset: 2px;
-}
-
-.time-tab {
-    padding: 8px 18px;
+.rep-time-tab {
+    padding: 10px 20px;
     cursor: pointer;
-    background-color: #ffffff;
-    border-radius: 6px;
-    user-select: none;
-    font-size: 15px;
-    font-weight: 500;
-    color: #4a5568;
-    transition: all 0.3s ease;
-   
-}
-
-.time-tab:hover {
-    background-color: #e2e8f0;
-    transform: translateY(-2px);
-}
-
-.time-tab.active {
-    background: linear-gradient(135deg, #4299e1, #3182ce);
-    color: white;
-    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
-}
-
-.metrics {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 25px;
-    padding: 0 15px;
-    justify-content: center;
-}
-
-.metric-box {
-    flex: 1;
-    max-width: 280px;
-    padding: 20px;
-    background: linear-gradient(145deg, #ffffff, #f7fafc);
-    border-radius: 8px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-    transition: transform 0.2s ease;
-}
-
-.metric-title {
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    transition: background-color 0.3s;
     font-size: 16px;
-    color: #718096;
-    margin-bottom: 10px;
     font-weight: 500;
-    font-family: 'Inter', sans-serif;
+    color: #333;
 }
 
-.metric-value {
+.rep-time-tab:hover {
+    background-color: #d0d0d0;
+}
+
+.rep-time-tab.active {
+    background-color: #3590C0;
+    color: white;
+}
+
+.rep-metrics {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.rep-metric-box {
+    flex: 1;
+    margin: 0 10px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.rep-metric-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.rep-metric-value {
     font-size: 24px;
-    font-weight: 700;
-    color: #2d3748;
+    font-weight: 600;
 }
 
-.profit {
-    color: #38a169;
+.rep-metric-value.rep-profit {
+    color: #4CAF50;
 }
 
-.loss {
-    color: #e53e3e;
+.rep-metric-value.rep-loss {
+    color: #dc3545;
 }
 
-.table-container {
+/* Table Container */
+.rep-table-container {
+    width: 100%;
+    max-width: 100%; /* Prevent container from stretching */
+    box-sizing: border-box;
+    overflow-x: auto; /* Allow horizontal scrolling if needed */
     background: #ffffff;
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-    margin: 0 15px;
-    display: none;
+    margin: 15px;
 }
 
-.table-container.active {
-    display: block;
-}
-
-table {
+.rep-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
+    border-collapse: collapse;
+    table-layout: fixed; /* Enforce fixed column widths */
 }
 
-th {
-    background: #f7fafc;
-    padding: 12px;
+.rep-table th,
+.rep-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
     text-align: left;
+    overflow-wrap: break-word; /* Wrap long text */
+    max-width: 200px; /* Limit cell width */
+    /* Optional: Truncate text with ellipsis instead of wrapping */
+    /* overflow: hidden; */
+    /* text-overflow: ellipsis; */
+    /* white-space: nowrap; */
+}
+
+.rep-table th {
+    background-color: #10394f;
+    color: white;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+}
+
+.rep-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.rep-table tr:hover {
+    background-color: #f0f0f0;
+}
+
+.rep-section-title {
+    font-size: 20px;
     font-weight: 600;
-    color: #2d3748;
-    font-size: 14px;
-    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 10px;
+    color: #333;
 }
 
-td {
-    padding: 12px;
-    border-bottom: 1px solid #edf2f7;
-    color: #4a5568;
-    font-size: 13px;
-}
-
-tr:last-child td {
-    border-bottom: none;
-}
-
-tr:hover {
-    background-color: #f7fafc;
-}
-
-.section-title {
-    margin-bottom: 15px;
-    font-weight: 600;
-    font-size: 18px;
-    color: #2d3748;
-}
-
-/* NEW: Filter Box and Custom Dropdown Styles */
-.filter-box {
-  
+.rep-filter-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
     justify-content: center;
-    gap: 15px;
-    margin: 15px 0;
-    color: #e2e8f0;
- 
 }
-.month-filter,
-.year-filter {
-    background-color: #ffffff !important; /* Light gray background */
-    color: #000000 !important; /* Red text */
+
+.rep-month-filter,
+.rep-year-filter {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+/* DataTables Styles for Reports Page - Transactions Table */
+#transactionsTable_wrapper .dataTables_filter input {
+    border: 1px solid #ccc;
+    padding: 6px;
+    border-radius: 4px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+#transactionsTable_wrapper .dataTables_paginate .paginate_button {
+    padding: 6px 12px;
+    margin: 0 2px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+#transactionsTable_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+#transactionsTable_wrapper .dataTables_length select {
+    border: 1px solid #e0e0e0;
+    padding: 6px;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+#transactionsTable_wrapper .dataTables_length select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+#transactionsTable_wrapper .dataTables_info {
+    font-size: 16px;
+    color: #555;
     font-family: 'Poppins', sans-serif;
-    user-select: none;
 }
 
-/* Responsive Design */
+/* DataTables Styles for Reports Page - Trash Table */
+#trashTable_wrapper .dataTables_filter input {
+    border: 1px solid #ccc;
+    padding: 6px;
+    border-radius: 4px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+#trashTable_wrapper .dataTables_paginate .paginate_button {
+    padding: 6px 12px;
+    margin: 0 2px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+#trashTable_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+#trashTable_wrapper .dataTables_length select {
+    border: 1px solid #e0e0e0;
+    padding: 6px;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+#trashTable_wrapper 
+.dataTables_length select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+#trashTable_wrapper .dataTables_info {
+    font-size: 16px;
+    color: #555;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Responsive Styles */
 @media (max-width: 768px) {
-    .reports-container {
-        margin: 10px;
-        padding: 15px;
+    .rep-metrics {
+        flex-direction: column;
     }
 
-    .header {
-        font-size: 22px;
-        margin: 10px 0 15px;
+    .rep-metric-box {
+        margin: 10px 0;
     }
 
-    .all-tabs {
-        flex-wrap: nowrap;
-        gap: 8px;
-        margin-bottom: 15px;
-        overflow-x: auto;
+    .rep-filter-box {
+        flex-direction: column;
     }
 
-    .tab, .time-tab {
-        flex: 0 0 auto;
+    .rep-month-filter,
+    .rep-year-filter {
+        width: 100%;
+    }
+
+    .rep-all-tabs {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .rep-tab,
+    .rep-time-tab {
+        width: 100%;
         text-align: center;
-        font-size: 14px;
-        padding: 8px 12px;
     }
 
-    .filter-box {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
+    .rep-table-container {
+        padding: 10px;
     }
 
-    .filter-button {
-        font-size: 14px;
-        padding: 8px 12px;
-        width: 100%;
-        max-width: 200px;
-    }
-
-    .filter-dropdown {
-        width: 100%;
-        max-width: 200px;
-    }
-
-    .metrics {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
-
-    .metric-box {
-        max-width: 100%;
-        width: 100%;
-        padding: 15px;
-    }
-
-    .table-container {
-        margin: 0 10px;
-        padding: 15px;
-    }
-
-    th, td {
-        padding: 8px;
-        font-size: 12px;
-    }
-
-    .section-title {
-        font-size: 16px;
+    .rep-table th,
+    .rep-table td {
+        max-width: 150px; /* Adjust for smaller screens */
     }
 }

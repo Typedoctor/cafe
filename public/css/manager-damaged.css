@@ -1,6 +1,5 @@
-
 /* Main Styles */
-.inv-title {
+.dmg-title {
     font-size: 20px;
     margin-bottom: 30px;
     text-align: center;
@@ -9,7 +8,7 @@
     font-weight: 600;
 }
 
-.inv-section-title {
+.dmg-section-title {
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 10px;
@@ -18,7 +17,7 @@
     font-family: 'Poppins', sans-serif;
 }
 
-.inv-btn {
+.dmg-btn {
     background-color: #177ead;
     color: white;
     padding: 10px 20px;
@@ -34,7 +33,7 @@
 }
 
 /* Button Styles */
-.inv-add-btn {
+.dmg-add-btn {
     background-color: #3980cd;
     color: white;
     padding: 10px 20px;
@@ -47,13 +46,13 @@
     margin-left: 160px;
 }
 
-.inv-add-btn:hover {
+.dmg-add-btn:hover {
     background-color: #0056b3;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-.inv-save-btn {
+.dmg-save-btn {
     background-color: #3590C0;
     color: white;
     padding: 10px 20px;
@@ -68,13 +67,13 @@
     margin-top: 10px;
 }
 
-.inv-save-btn:hover {
+.dmg-save-btn:hover {
     background-color: #0056b3;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-.inv-edit-btn {
+.dmg-edit-btn {
     background-color: #3590C0;
     padding: 5px 10px;
     font-size: 14px;
@@ -85,13 +84,13 @@
     margin: 3px;
 }
 
-.inv-edit-btn:hover {
+.dmg-edit-btn:hover {
     background-color: #0056b3;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-.inv-delete-btn {
+.dmg-delete-btn {
     background-color: #dc3545;
     padding: 5px 10px;
     font-size: 14px;
@@ -102,14 +101,14 @@
     margin: 3px;
 }
 
-.inv-delete-btn:hover {
+.dmg-delete-btn:hover {
     background-color: #c82333;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
 }
 
 /* Table Styles */
-.inv-table-container {
+.dmg-table-container {
     background: #ffffff;
     border-radius: 8px;
     padding: 20px;
@@ -119,14 +118,14 @@
     overflow-x: auto; /* Ensure horizontal scrolling for overflow */
 }
 
-.inv-table {
+.dmg-table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed; /* Prevent columns from resizing based on content */
 }
 
-.inv-table th,
-.inv-table td {
+.dmg-table th,
+.dmg-table td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
@@ -135,7 +134,7 @@
     white-space: nowrap; /* Prevent wrapping by default */
 }
 
-.inv-table th {
+.dmg-table th {
     background-color: #10394f;
     color: white;
     font-weight: bold;
@@ -144,75 +143,80 @@
     z-index: 1;
 }
 
-.inv-table tr:nth-child(even) {
+.dmg-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-.inv-table tr:hover {
+.dmg-table tr:hover {
     background-color: #f0f0f0;
 }
 
 /* DataTables Styles */
-#productsTable {
+#damagedProductsTable {
     width: 100%;
     border-collapse: collapse;
 }
 
-#productsTable th,
-#productsTable td {
+#damagedProductsTable th,
+#damagedProductsTable td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #ddd; /* Fixed 'henshaw' typo */
 }
 
 /* Column Widths for DataTable */
-#productsTable th:nth-child(1), /* ID */
-#productsTable td:nth-child(1) {
+#damagedProductsTable th:nth-child(1), /* ID */
+#damagedProductsTable td:nth-child(1) {
     width: 10px; /* Fixed width for ID */
 }
 
-#productsTable th:nth-child(2), /* Product Name */
-#productsTable td:nth-child(2) {
-    max-width: 150px; /* Limit Product Name width */
+#damagedProductsTable th:nth-child(2), /* Product Name */
+#damagedProductsTable td:nth-child(2) {
+    max-width: 100px; /* Limit Product Name width */
 }
 
-#productsTable th:nth-child(3), /* Category */
-#productsTable td:nth-child(3) {
-    max-width: 50px; /* Limit Category width */
+#damagedProductsTable th:nth-child(3), /* Quantity */
+#damagedProductsTable td:nth-child(3) {
+    width: 50px; /* Fixed width for Quantity */
 }
 
-#productsTable th:nth-child(4), /* In Stock */
-#productsTable td:nth-child(4) {
-    width: 50px; /* Fixed width for In Stock */
+#damagedProductsTable th:nth-child(4), /* Reason */
+#damagedProductsTable td:nth-child(4) {
+    max-width: 200px; /* Limit Reason width to prevent elongation */
+    word-wrap: break-word; /* Allow wrapping for long descriptions */
+    white-space: normal; /* Override nowrap for Reason to wrap text */
 }
 
-#productsTable th:nth-child(5), /* Supplier */
-#productsTable td:nth-child(5) {
+#damagedProductsTable th:nth-child(5), /* Supplier */
+#damagedProductsTable td:nth-child(5) {
     max-width: 150px; /* Limit Supplier width */
-    word-wrap: break-word; /* Allow wrapping for long supplier names */
-    white-space: normal; /* Override nowrap to wrap text */
 }
 
-#productsTable th:nth-child(6), /* Actions */
-#productsTable td:nth-child(6) {
-    width: 50px; /* Fixed width for Actions */
+#damagedProductsTable th:nth-child(6), /* Reported At */
+#damagedProductsTable td:nth-child(6) {
+    width: 120px; /* Fixed width for Reported At */
 }
 
-#productsTable_wrapper .dataTables_filter input {
+#damagedProductsTable th:nth-child(7), /* Actions */
+#damagedProductsTable td:nth-child(7) {
+    width: 100px; /* Fixed width for Actions */
+}
+
+#damagedProductsTable_wrapper .dataTables_filter input {
     border: 1px solid #000000;
     padding: 6px;
     border-radius: 4px;
     margin-left: 10px;
 }
 
-#productsTable_wrapper .dataTables_filter input:focus {
+#damagedProductsTable_wrapper .dataTables_filter input:focus {
     outline: none;
     border-color: #4CAF50;
     background-color: #fff;
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
-#productsTable_wrapper .dataTables_paginate .paginate_button {
+#damagedProductsTable_wrapper .dataTables_paginate .paginate_button {
     padding: 6px 12px;
     margin: 0 2px;
     border-radius: 4px;
@@ -221,7 +225,7 @@
     cursor: pointer;
 }
 
-#productsTable_wrapper .dataTables_paginate .paginate_button.current {
+#damagedProductsTable_wrapper .dataTables_paginate .paginate_button.current {
     background-color: #007bff;
     color: white;
     border-color: #007bff;
@@ -229,12 +233,12 @@
 }
 
 /* Modal Styles */
-.inv-modal {
+.dmg-modal {
     display: none;
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%); /* Fixed transform for centering */
     width: 400px;
     background: white;
     padding: 30px;
@@ -243,7 +247,7 @@
     z-index: 1000;
 }
 
-.inv-modal h2 {
+.dmg-modal h2 {
     font-size: 24px;
     margin-bottom: 25px;
     color: #333;
@@ -252,7 +256,7 @@
     font-family: 'Poppins', sans-serif;
 }
 
-.inv-modal-content {
+.dmg-modal-content {
     font-size: 16px;
     font-weight: 500;
     color: #000000;
@@ -260,8 +264,8 @@
     font-family: 'Poppins', sans-serif;
 }
 
-.inv-close-btn {
-    margin-left: 350px;
+.dmg-close-btn {
+    margin-left: 350px; /* Adjusted for modal width */
     cursor: pointer;
     color: rgb(162, 5, 5);
     font-size: 18px;
@@ -269,7 +273,7 @@
 }
 
 /* Form Styles */
-.inv-form-group {
+.dmg-form-group {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -277,7 +281,7 @@
     width: 100%;
 }
 
-.inv-form-group label {
+.dmg-form-group label {
     font-size: 16px;
     font-weight: 500;
     color: #555;
@@ -285,8 +289,8 @@
     font-family: 'Poppins', sans-serif;
 }
 
-.inv-form-group input,
-.inv-form-group select {
+.dmg-form-group input,
+.dmg-form-group textarea {
     width: 100%;
     padding: 12px 15px;
     height: 48px;
@@ -299,8 +303,14 @@
     transition: all 0.3s ease;
 }
 
-.inv-form-group input:focus,
-.inv-form-group select:focus {
+.dmg-form-group textarea {
+    height: auto;
+    min-height: 100px;
+    resize: vertical;
+}
+
+.dmg-form-group input:focus,
+.dmg-form-group textarea:focus {
     outline: none;
     border-color: #4CAF50;
     background-color: #fff;
@@ -308,7 +318,7 @@
 }
 
 /* Error and Success Messages */
-.inv-error-messages {
+.dmg-error-messages {
     background-color: #f8d7da;
     color: #721c24;
     padding: 10px;
@@ -316,7 +326,7 @@
     margin-bottom: 10px;
 }
 
-.inv-success-message {
+.dmg-success-message {
     background-color: #ffffff;
     color: #1aa528;
     padding: 10px;
@@ -329,109 +339,37 @@
 }
 
 /* Top Bar */
-.inv-top-bar {
+.dmg-top-bar {
     display: flex;
     justify-content: flex-end;
 }
 
-/* Success Modal */
-.inv-modal-success {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 200px;
-    max-height: 80vh;
-    background: rgb(4, 186, 150);
-    padding: 30px;
-    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
-    border-radius: 12px;
-    z-index: 1000;
-    overflow-y: auto;
-}
-
-/* Success Modal Content */
-.inv-modal-content {
-    align-items: center;
-    font-size: 16px;
-    font-weight: 500;
-    color: #ffffff;
-    margin-bottom: 8px;
-    font-family: 'Poppins', sans-serif;
-    position: relative;
-    padding-top: 30px;
-    max-width: 100%;
-    overflow-x: hidden;
-    text-align: center;
-}
-
-/* Close Button */
-.inv-close-success-btn {
-    background-color: #ebf0f4;
-    color: rgb(47, 40, 40);
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: 500;
-    font-family: 'Poppins', sans-serif;
-    cursor: pointer;
-    border-radius: 10px;
-    border: none;
-    justify-content: center;
-    width: 100px;
-    text-align: center;
-    margin: 20px auto;
-    display: block;
-}
-
-.inv-close-success-btn:hover {
-    background-color: #5a6268;
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.5);
-}
-
-#productNameCount {
-    font-size: 12px;
-    color: gray;
-    float: right;
-}
-
 /* Responsive Styles */
 @media (max-width: 768px) {
-    .inv-modal {
+    .dmg-modal {
         width: 90%;
         max-width: 400px;
         padding: 20px;
     }
 
-    .inv-close-btn {
+    .dmg-close-btn {
         margin-left: auto;
         display: block;
     }
 
-    .inv-add-btn {
+    .dmg-add-btn {
         margin-left: auto;
         margin-right: auto;
         display: block;
     }
 
-    .inv-table-container {
+    .dmg-table-container {
         overflow-x: auto;
     }
 
     /* Adjust column widths for smaller screens */
-    #productsTable th:nth-child(2), /* Product Name */
-    #productsTable td:nth-child(2) {
-        max-width: 100px; 
-    }
-
-    #productsTable th:nth-child(3), /* Category */
-    #productsTable td:nth-child(3) {
-        max-width: 100px;
-    }
-
-    #productsTable th:nth-child(5), /* Supplier */
-    #productsTable td:nth-child(5) {
-        max-width: 120px;
+    #damagedProductsTable th:nth-child(4),
+    #damagedProductsTable td:nth-child(4) {
+        max-width: 150px; /* Smaller width for Reason on mobile */
     }
 }

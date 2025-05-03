@@ -32,10 +32,20 @@ body {
     font-size: 18px;
     font-weight: 500;
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: row; /* Maintain horizontal layout */
+    align-items: center; /* Vertically center icon and text */
+    gap: 10px; /* Consistent spacing between icon and text */
     padding: 10px;
     border-radius: 5px;
+    margin-left:1px;
+}
+
+.sidebar ul li a img, .sidebar ul li a i {
+    width: 20px; /* Standardize icon size */
+    height: 20px;
+    font-size: 20px; /* For FontAwesome icons */
+    line-height: 20px; /* Ensure FontAwesome icons align vertically */
+    margin: 0; /* Remove any default margins */
 }
 
 .sidebar ul li a.active {
@@ -50,13 +60,64 @@ body {
 
 /* Main Content */
 .content {
+    flex: 1;
+    padding: 30px;
     margin-left: 290px;
-    padding: 20px;
-    min-height: calc(100vh - 40px);
-    overflow: auto;
+    max-width: calc(100% - 250px);
 }
 
-/* Headings */
+/* Filter Styles */
+.dash-filter-content {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.dash-period-filter,
+.dash-month-filter,
+.dash-year-filter,
+.dash-reset-filter {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background-color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-family: 'Poppins', sans-serif;
+}
+
+.dash-period-filter,
+.dash-month-filter,
+.dash-year-filter {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1em;
+    padding-right: 2rem;
+}
+
+.dash-reset-filter {
+    background-color: grey;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+}
+
+.dash-period-filter:hover,
+.dash-month-filter:hover,
+.dash-year-filter:hover {
+    border-color: #177ead;
+    background-color: #f0f9ff;
+}
+
+.dash-reset-filter:hover {
+    background-color: #d32f2f;
+}
+
 h1 {
     font-size: 32px;
     font-weight: bold;
@@ -66,7 +127,7 @@ h1 {
 }
 
 /* Dashboard Boxes */
-.dashboard-container {
+.dash-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -75,7 +136,7 @@ h1 {
     margin: 0 auto;
 }
 
-.dashboard-box {
+.dash-box {
     width: 230px;
     height: 70px;
     padding: 15px;
@@ -87,7 +148,7 @@ h1 {
     transition: 0.3s ease-in-out;
 }
 
-.dashboard-salesbox {
+.dash-salesbox {
     margin-top: 7px;
     width: 100%;
     max-width: 870px;
@@ -101,13 +162,31 @@ h1 {
     align-items: center;
 }
 
+.dash-content-box-revenue {
+    color: green;
+    margin-top: 5px;
+    font-size: 25;
+}
+
+.dash-content-box-loss {
+    color: red;
+    margin-top: 5px;
+    font-size: 25;
+}
+
+.dash-content-box-profit {
+    color: green;
+    margin-top: 5px;
+    font-size: 25;
+}
+
 #salesChart {
     width: 100% !important;
     height: 100% !important;
     max-height: 260px;
 }
 
-.dashboard-box-product {
+.dash-box-product {
     margin-top: 20px;
     width: 550px;
     min-height: 220px;
@@ -120,7 +199,7 @@ h1 {
     transition: 0.3s ease-in-out;
 }
 
-.dashboard-box-lowstock {
+.dash-box-lowstock {
     margin-top: 20px;
     width: 270px;
     min-height: 220px;
@@ -133,75 +212,75 @@ h1 {
     transition: 0.3s ease-in-out;
 }
 
-.top-selling-scroll-container {
+.dash-top-selling-scroll-container {
     max-height: 150px;
     overflow-y: auto;
     width: 100%;
 }
 
-.top-selling-table {
+.dash-top-selling-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.top-selling-table th,
-.top-selling-table td {
+.dash-top-selling-table th,
+.dash-top-selling-table td {
     padding: 8px;
     text-align: left;
     font-size: 14px;
 }
 
-.top-selling-table th {
+.dash-top-selling-table th {
     background-color: #f0f0f0;
     position: sticky;
     top: 0;
     z-index: 1;
 }
 
-.top-selling-table tbody tr:nth-child(odd) {
+.dash-top-selling-table tbody tr:nth-child(odd) {
     background-color: #f9f9f9;
 }
 
-.low-stock-scroll-container {
+.dash-low-stock-scroll-container {
     max-height: 150px;
     overflow-y: auto;
     width: 100%;
 }
 
-.low-stock-table {
+.dash-low-stock-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.low-stock-table th,
-.low-stock-table td {
+.dash-low-stock-table th,
+.dash-low-stock-table td {
     padding: 8px;
     text-align: left;
     font-size: 14px;
     border: 1px solid #ddd;
 }
 
-.low-stock-table th {
+.dash-low-stock-table th {
     background-color: #f0f0f0;
     position: sticky;
     top: 0;
     z-index: 1;
 }
 
-.low-stock-table tbody tr:nth-child(odd) {
+.dash-low-stock-table tbody tr:nth-child(odd) {
     background-color: #f9f9f9;
 }
 
 /* Hover effects for widgets */
-.dashboard-box:hover,
-.dashboard-box-product:hover,
-.dashboard-salesbox:hover {
+.dash-box:hover,
+.dash-box-product:hover,
+.dash-salesbox:hover {
     background-color: #f0f0f0;
     cursor: pointer;
 }
 
 /* For linking the widgets in dashboard */
-.box-link {
+.dash-box-link {
     text-decoration: none !important;
     display: block;
     color: inherit;
@@ -220,6 +299,8 @@ h1 {
     padding: 15px;
 }
 
+/*/ icons style */
+
 /* Responsive Design */
 @media screen and (max-width: 768px) {
     .sidebar {
@@ -230,19 +311,24 @@ h1 {
         margin-left: 240px;
     }
 
-    .dashboard-container {
+    .dash-container {
         flex-direction: column;
         align-items: center;
     }
 
-    .dashboard-box,
-    .dashboard-box-lowstock,
-    .dashboard-box-product {
+    .dash-box,
+    .dash-box-lowstock,
+    .dash-box-product {
         width: 90%;
     }
 
-    .dashboard-salesbox {
+    .dash-salesbox {
         height: 250px;
+    }
+
+    .dash-filter-content {
+        flex-direction: column;
+        align-items: center;
     }
 }
 

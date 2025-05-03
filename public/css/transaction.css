@@ -4,25 +4,23 @@
     padding: 15px;
     background: #fff;
     border-radius: 8px;
-    width: 100%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Single Row for Filters */
-.filter-row {
+.trn-filter-row {
     display: flex;
-    
     gap: 15px;
     align-items: center;
 }
 
 /* Search Box */
-.search-box {
+.trn-search-box {
     flex: 1;
     min-width: 200px;
 }
 
-.search-box input {
+.trn-search-box input {
     width: 100%;
     padding: 12px 15px;
     height: 48px;
@@ -34,16 +32,24 @@
     box-sizing: border-box;
 }
 
+.trn-section-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+    text-align: center;
+}
+
 /* Filter Box */
-.filter-box {
+.trn-filter-box {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     align-items: center;
 }
 
-.month-filter,
-.year-filter {
+.trn-month-filter,
+.trn-year-filter {
     padding: 12px 15px;
     height: 48px;
     font-size: 16px;
@@ -55,7 +61,7 @@
 }
 
 /* Buttons */
-.filter-btn {
+.trn-filter-btn {
     background-color: #4CAF50;
     color: white;
     padding: 12px 20px;
@@ -65,46 +71,46 @@
     min-width: 100px;
 }
 
-.filter-btn:hover {
+.trn-filter-btn:hover {
     background-color: #0f601d;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5);
 }
 
-.reset-btn {
+.trn-reset-btn {
     background-color: #666;
     color: white;
-    padding: 12px 20px; /* Matches other elements */
-    height: 44px; /* Consistent with other inputs */
+    padding: 12px 20px;
+    height: 44px;
     font-size: 16px;
     border-radius: 8px;
-    border: 1px solid transparent; /* Ensure no border affects size */
-    line-height: 1.5; /* Normalize line height */
-    display: inline-flex; /* Better alignment for buttons */
+    border: 1px solid transparent;
+    line-height: 1.5;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 100px;
-    box-sizing: border-box; /* Explicitly set */
-    text-decoration: none; /* For <a> tag */
+    box-sizing: border-box;
+    text-decoration: none;
     cursor: pointer;
     transition: all 0.3s ease;
     margin-left: 5px;
 }
 
-.reset-btn:hover {
+.trn-reset-btn:hover {
     background-color: #555;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(102, 102, 102, 0.5);
 }
 
 /* Top Bar */
-.top-bar {
+.trn-top-bar {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 15px;
 }
 
-.export-btn {
+.trn-export-btn {
     background-color: #4CAF50;
     color: white;
     padding: 10px 20px;
@@ -112,67 +118,80 @@
     border-radius: 10px;
 }
 
-.export-btn:hover {
+.trn-export-btn:hover {
     background-color: #07600a;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
+div.dataTables_wrapper div.dataTables_filter {
+    text-align: right !important;
+    margin-bottom: 20px;
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
-    .filter-row {
+    .trn-filter-row {
         flex-direction: column;
     }
 
-    .search-box,
-    .filter-box {
+    .trn-search-box,
+    .trn-filter-box {
         width: 100%;
     }
 
-    .month-filter,
-    .year-filter {
+    .trn-month-filter,
+    .trn-year-filter {
         width: 100%;
     }
 
-    .btn {
+    .trn-btn {
         width: 100%;
         margin-top: 5px;
     }
 }
 
 /* Table and Pagination Styles */
-.table-container {
+.trn-table-container {
     background: #ffffff;
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
     margin: 15px;
-    overflow: visible;
+    width: 100%;
+    max-width: 100%; /* Prevent container from stretching */
+    box-sizing: border-box;
 }
 
-.table-container.active {
+.trn-table-container.active {
     display: block;
 }
 
-.table-scroll-container {
+.trn-table-scroll-container {
     width: 100%;
-    overflow: visible;
+    max-width: 100%; /* Ensure container doesn't exceed parent width */
+    box-sizing: border-box;
 }
 
-.inventory-table {
+.trn-inventory-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
+    table-layout: fixed; /* Enforce fixed column widths */
 }
 
-.inventory-table th,
-.inventory-table td {
+.trn-inventory-table th,
+.trn-inventory-table td {
     border: 1px solid #ddd;
     padding: 12px;
-    text-align: left;
+    text-align: left; /* Align text to the left */
+    vertical-align: top; /* Align text to the top */
+    overflow-wrap: break-word; /* Wrap long text */
+    max-width: 200px; /* Limit cell width */
+    white-space: normal; /* Allow text to wrap */
 }
 
-.inventory-table th {
+.trn-inventory-table th {
     background-color: #10394f;
     color: white;
     font-weight: bold;
@@ -181,23 +200,73 @@
     z-index: 1;
 }
 
-.inventory-table tr:nth-child(even) {
+/* Column Widths for trn-inventory-table */
+.trn-inventory-table th:nth-child(1),
+.trn-inventory-table td:nth-child(1) {
+    width: 20%; /* Products Ordered */
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.trn-inventory-table th:nth-child(2),
+.trn-inventory-table td:nth-child(2) {
+    width: 20%; /* Customer Name - Second widest */
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.trn-inventory-table th:nth-child(3),
+.trn-inventory-table td:nth-child(3) {
+    width: 30%; /* Special Instruction - Widest */
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.trn-inventory-table th:nth-child(4),
+.trn-inventory-table td:nth-child(4) {
+    width: 10%; /* Order Type */
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.trn-inventory-table th:nth-child(5),
+.trn-inventory-table td:nth-child(5) {
+    width: 10%; /* Status */
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.trn-inventory-table th:nth-child(6),
+.trn-inventory-table td:nth-child(6) {
+    width: 10%; /* Total Quantity */
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.trn-inventory-table th:nth-child(7),
+.trn-inventory-table td:nth-child(7) {
+    width: 10%; /* Total Price */
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.trn-inventory-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-.inventory-table tr:hover {
+.trn-inventory-table tr:hover {
     background-color: #f0f0f0;
 }
 
 /* Pagination */
-.pagination {
+.trn-pagination {
     display: flex;
     justify-content: center;
     margin-top: 20px;
     font-family: 'Poppins', sans-serif;
 }
 
-.pagination .page-link {
+.trn-pagination .trn-page-link {
     padding: 8px 12px;
     font-size: 14px;
     color: #333;
@@ -207,31 +276,76 @@
     transition: all 0.3s ease;
 }
 
-.pagination .page-link:hover {
+.trn-pagination .trn-page-link:hover {
     background-color: #4CAF50;
     color: white;
     border-color: #4CAF50;
     transform: translateY(-2px);
 }
 
-.pagination .active .page-link {
+.trn-pagination .active .trn-page-link {
     background-color: #3590C0;
     color: white;
     border-color: #3590C0;
 }
 
-.pagination .disabled .page-link {
+.trn-pagination .disabled .trn-page-link {
     color: #aaa;
     background-color: #f5f5f5;
     cursor: not-allowed;
 }
 
 /* Header */
-.header {
+.trn-header {
     font-size: 24px;
     font-weight: 600;
     color: #333;
     text-align: center;
     margin-bottom: 20px;
     font-family: 'Poppins', sans-serif;
+}
+
+/* Responsive Styles for Table */
+@media (max-width: 768px) {
+    .trn-inventory-table {
+        display: block;
+        overflow-x: auto; /* Enable horizontal scrolling */
+        white-space: nowrap; /* Prevent text wrapping in small screens */
+    }
+
+    /* Adjust column widths for smaller screens */
+    .trn-inventory-table th:nth-child(1),
+    .trn-inventory-table td:nth-child(1) {
+        width: 20%; /* Products Ordered */
+    }
+
+    .trn-inventory-table th:nth-child(2),
+    .trn-inventory-table td:nth-child(2) {
+        width: 20%; /* Customer Name - Increased for visibility */
+    }
+
+    .trn-inventory-table th:nth-child(3),
+    .trn-inventory-table td:nth-child(3) {
+        width: 30%; /* Special Instruction - Widest */
+    }
+
+    .trn-inventory-table th:nth-child(4),
+    .trn-inventory-table td:nth-child(4) {
+        width: 10%; /* Order Type */
+    }
+
+    .trn-inventory-table th:nth-child(5),
+    .trn-inventory-table td:nth-child(5) {
+        width: 10%; /* Status */
+    }
+
+    .trn-inventory-table th:nth-child(6),
+    .trn-inventory-table td:nth-child(6) {
+        width: 10%; /* Total Quantity */
+    }
+
+    .trn-inventory-table th:nth-child(7),
+    .trn-inventory-table td:nth-child(7) {
+        width: 10%; /* Total Price */
+    }
 }

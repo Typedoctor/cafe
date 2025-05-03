@@ -12,12 +12,12 @@ class ManagerTransactionController extends Controller
 {
     public function index(Request $request)
     {
-        // Get filter values
+       
         $month = $request->input('month', 'all');
         $year = $request->input('year', 'all');
         $search = $request->input('search');
 
-        // Start building the query
+       
         $query = Transaction::select(
             'user_id',
             'customer_name',
@@ -36,17 +36,15 @@ class ManagerTransactionController extends Controller
             $query->whereMonth('created_at', $month);
         }
 
-        // Apply year filter
+       
         if ($year !== 'all') {
             $query->whereYear('created_at', $year);
         }
 
-        // Apply search filter
         if (!empty($search)) {
             $query->where('customer_name', 'like', '%' . $search . '%');
         }
 
-        // Group and paginate
         $summarizedTransactions = $query->groupBy(
             'user_id',
             'customer_name',
@@ -55,7 +53,7 @@ class ManagerTransactionController extends Controller
             'special_instructions',
             'created_at',
             'updated_at'
-        )->paginate(10);
+        )->get();
 
         return view('manager.transactions', compact('summarizedTransactions'));
     }

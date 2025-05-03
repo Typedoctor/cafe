@@ -10,6 +10,7 @@ return new class extends Migration {
             $table->string('name');
             $table->string('password');
             $table->enum('privilege', ['manager', 'cashier'])->default('cashier'); // Determines dashboard access
+            $table->boolean('is_active')->default(true); // Determines if the user is active or not
             $table->timestamps();
         });
     }
