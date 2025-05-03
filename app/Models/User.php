@@ -4,9 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Traits\Auditable;
 
 class User extends Authenticatable {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $fillable = ['name', 'password', 'privilege', 'is_active'];
     protected $hidden = ['password'];
