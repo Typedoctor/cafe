@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Auditable;
 
 class Transaction extends Model
 {
+    use Auditable;
+
     protected $fillable = ['customer_name','user_id', 'product_id','product_name', 'quantity', 'total_price', 'special_instructions', 'order_type', 'status'];
 
     public function user()
