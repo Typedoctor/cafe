@@ -5,8 +5,6 @@
 @push('styles')
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ asset('css/inventory.css') }}">
     <style>
         .quantity-note {
             font-size: 0.8em;
@@ -122,217 +120,219 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
-    $(document).ready(function () {
-        let table = $('#productsTable').DataTable({
-            pageLength: 10,
-            responsive: true,
-            order: [[0, 'asc']],
-            columnDefs: [
-                { orderable: false, targets: 5 }
-            ]
-        });
+// Define functions in global scope to fix scope issues
+function closeModal() {
+    const tableSuccessModal = document.getElementById("tableSuccessModal");
+    tableSuccessModal.style.display = 'none';
+}
 
-        $('#productsTable').on('click', '.inv-edit-btn', function() {
-            const modalTitle = document.getElementById("modalTitle");
-            const methodField = document.getElementById("methodField");
-            const productForm = document.getElementById("productForm");
-            const productModal = document.getElementById("productModal");
-            const SaveBtn = document.getElementById("SaveBtn");
+function updateCharacterCount(inputId, countId) {
+    const input = document.getElementById(inputId);
+    const count = document.getElementById(countId);
+    if (input && count) {
+        const currentCount = input.value.length;
+        count.textContent = `${currentCount} / 50`;
+    } else {
+        console.error(`Element not found: inputId=${inputId}, countId=${countId}`);
+    }
+}
 
-            modalTitle.innerText = "Edit Product";
-            methodField.value = "PUT";
-            productForm.action = `/products/${this.dataset.id}`;
-            document.getElementById("productId").value = this.dataset.id;
-            document.getElementById("productName").value = this.dataset.name;
-            document.getElementById("category").value = this.dataset.category;
-            document.getElementById("quantity").value = Math.max(1, parseInt(this.dataset.quantity));
-            document.getElementById("supplier").value = this.dataset.supplier;
-            SaveBtn.innerText = "UPDATE";
-            productModal.style.display = "block";
-            document.getElementById("errorMessages").style.display = "none";
-
-            // Update character counters
-            updateCharacterCount('productName', 'productNameCount');
-            updateCharacterCount('supplier', 'supplierCount');
-        });
+$(document).ready(function () {
+    let table = $('#productsTable').DataTable({
+        pageLength: 10,
+        responsive: true,
+        order: [[0, 'asc']],
+        columnDefs: [
+            { orderable: false, targets: 5 }
+        ]
     });
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const productModal = document.getElementById("productModal");
-        const productForm = document.getElementById("productForm");
+    $('#productsTable').on('click', '.inv-edit-btn', function() {
         const modalTitle = document.getElementById("modalTitle");
         const methodField = document.getElementById("methodField");
+        const productForm = document.getElementById("productForm");
+        const productModal = document.getElementById("productModal");
         const SaveBtn = document.getElementById("SaveBtn");
-        const closeBtn = document.querySelector(".inv-close-btn");
-        const productNameInput = document.getElementById("productName");
-        const productNameCount = document.getElementById("productNameCount");
-        const quantityInput = document.getElementById("quantity");
-        const supplierInput = document.getElementById("supplier");
-        const supplierCount = document.getElementById("supplierCount");
-        const errorMessages = document.getElementById("errorMessages");
-        const tableSuccessModal = document.getElementById("tableSuccessModal");
 
-        function showTableSuccessModal() {
-            tableSuccessModal.style.display = 'block';
-            setTimeout(() => {
-                tableSuccessModal.style.display = 'none';
-            }, 2000);
-        }
+        modalTitle.innerText = "Edit Product";
+        methodField.value = "PUT";
+        productForm.action = `/products/${this.dataset.id}`;
+        document.getElementById("productId").value = this.dataset.id;
+        document.getElementById("productName").value = this.dataset.name;
+        document.getElementById("category").value = this.dataset.category;
+        document.getElementById("quantity").value = Math.max(1, parseInt(this.dataset.quantity));
+        document.getElementById("supplier").value = this.dataset.supplier;
+        SaveBtn.innerText = "UPDATE";
+        productModal.style.display = "block";
+        document.getElementById("errorMessages").style.display = "none";
 
-        function closeModal() {
+        // Update character counters
+        updateCharacterCount('productName', 'productNameCount');
+        updateCharacterCount('supplier', 'supplierCount');
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const productModal = document.getElementById("productModal");
+    const productForm = document.getElementById("productForm");
+    const modalTitle = document.getElementById("modalTitle");
+    const methodField = document.getElementById("methodField");
+    const SaveBtn = document.getElementById("SaveBtn");
+    const closeBtn = document.querySelector(".inv-close-btn");
+    const productNameInput = document.getElementById("productName");
+    const productNameCount = document.getElementById("productNameCount");
+    const quantityInput = document.getElementById("quantity");
+    const supplierInput = document.getElementById("supplier");
+    const supplierCount = document.getElementById("supplierCount");
+    const errorMessages = document.getElementById("errorMessages");
+    const tableSuccessModal = document.getElementById("tableSuccessModal");
+
+    function showTableSuccessModal() {
+        tableSuccessModal.style.display = 'block';
+        setTimeout(() => {
             tableSuccessModal.style.display = 'none';
+        }, 2000);
+    }
+
+    function showError(message) {
+        errorMessages.style.display = 'block';
+        errorMessages.innerHTML = message;
+    }
+
+    function clearErrors() {
+        errorMessages.style.display = 'none';
+        errorMessages.innerHTML = '';
+    }
+
+    function enforceValidProductName(input) {
+        input.addEventListener("input", function () {
+            this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+        });
+    }
+
+    function enforceValidQuantity(input) {
+        input.addEventListener("input", function () {
+            let val = parseInt(this.value) || 1;
+            if (val < 1) {
+                this.value = 1;
+            } else if (val > 1200) {
+                this.value = 1200;
+            } else {
+                this.value = val;
+            }
+        });
+    }
+
+    function enforceValidSupplier(input) {
+        input.addEventListener("input", function () {
+            // Allow letters, numbers, spaces, and common punctuation
+            this.value = this.value.replace(/[^a-zA-Z0-9\s.,-]/g, '');
+        });
+    }
+
+    if (productNameInput) {
+        enforceValidProductName(productNameInput);
+        productNameInput.addEventListener("input", () => updateCharacterCount('productName', 'productNameCount'));
+        updateCharacterCount('productName', 'productNameCount'); // Initial value
+    }
+
+    if (quantityInput) enforceValidQuantity(quantityInput);
+    if (supplierInput) {
+        enforceValidSupplier(supplierInput);
+        supplierInput.addEventListener("input", () => updateCharacterCount('supplier', 'supplierCount'));
+        updateCharacterCount('supplier', 'supplierCount'); // Initial value
+    }
+
+    document.getElementById("addStockBtn").addEventListener("click", function () {
+        modalTitle.innerText = "Add New Product";
+        methodField.value = "POST";
+        productForm.action = "{{ route('products.store') }}";
+        productModal.style.display = "block";
+        SaveBtn.innerText = "ADD";
+        productForm.reset();
+        quantityInput.value = 1;
+        clearErrors();
+        updateCharacterCount('productName', 'productNameCount'); // Reset counter to 0
+        updateCharacterCount('supplier', 'supplierCount'); // Reset counter to 0
+    });
+
+    productForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        clearErrors();
+
+        const quantity = parseInt(quantityInput.value);
+        if (quantity > 1200) {
+            showError("Quantity cannot exceed 1200.");
+            quantityInput.classList.add('quantity-error');
+            return;
+        } else if (quantity < 1) {
+            showError("Quantity must be at least 1.");
+            quantityInput.classList.add('quantity-error');
+            return;
+        } else {
+            quantityInput.classList.remove('quantity-error');
         }
 
-        function showError(message) {
-            errorMessages.style.display = 'block';
-            errorMessages.innerHTML = message;
-        }
+        $.ajax({
+            url: productForm.action,
+            type: methodField.value === "POST" ? "POST" : "PUT",
+            data: $(productForm).serialize(),
+            success: function(response) {
+                showTableSuccessModal();
+                let table = $('#productsTable').DataTable();
+                const newRow = [
+                    response.product.id,
+                    response.product.product_name,
+                    response.product.category,
+                    response.product.quantity,
+                    response.product.supplier,
+                    `<button class="inv-btn inv-edit-btn" data-id="${response.product.id}" data-name="${response.product.product_name}" data-category="${response.product.category}" data-supplier="${response.product.supplier}" data-quantity="${response.product.quantity}">
+                        <i class="fa-solid fa-pencil"></i>
+                    </button>
+                    <form action="/products/${response.product.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                        <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="inv-btn inv-delete-btn"><i class="fa-solid fa-trash"></i></button>
+                    </form>`
+                ];
 
-        function clearErrors() {
-            errorMessages.style.display = 'none';
-            errorMessages.innerHTML = '';
-        }
-
-        function enforceValidProductName(input) {
-            input.addEventListener("input", function () {
-                this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
-            });
-        }
-
-        function enforceValidQuantity(input) {
-            input.addEventListener("input", function () {
-                let val = parseInt(this.value) || 1;
-                if (val < 1) {
-                    this.value = 1;
-                } else if (val > 1200) {
-                    this.value = 1200;
+                if (methodField.value === "POST") {
+                    table.row.add(newRow).draw();
                 } else {
-                    this.value = val;
+                    let row = table.row($(`button[data-id="${response.product.id}"]`).closest('tr'));
+                    row.data(newRow).draw();
                 }
-            });
-        }
 
-        function enforceValidSupplier(input) {
-            input.addEventListener("input", function () {
-                // Allow letters, numbers, spaces, and common punctuation
-                this.value = this.value.replace(/[^a-zA-Z0-9\s.,-]/g, '');
-            });
-        }
-
-        function updateCharacterCount(inputId, countId) {
-            const input = document.getElementById(inputId);
-            const count = document.getElementById(countId);
-            if (input && count) {
-                const currentCount = input.value.length;
-                count.textContent = `${currentCount} / 50`;
-            } else {
-                console.error(`Element not found: inputId=${inputId}, countId=${countId}`);
-            }
-        }
-
-        if (productNameInput) {
-            enforceValidProductName(productNameInput);
-            productNameInput.addEventListener("input", () => updateCharacterCount('productName', 'productNameCount'));
-            updateCharacterCount('productName', 'productNameCount'); // Initial value
-        }
-
-        if (quantityInput) enforceValidQuantity(quantityInput);
-        if (supplierInput) {
-            enforceValidSupplier(supplierInput);
-            supplierInput.addEventListener("input", () => updateCharacterCount('supplier', 'supplierCount'));
-            updateCharacterCount('supplier', 'supplierCount'); // Initial value
-        }
-
-        document.getElementById("addStockBtn").addEventListener("click", function () {
-            modalTitle.innerText = "Add New Product";
-            methodField.value = "POST";
-            productForm.action = "{{ route('products.store') }}";
-            productModal.style.display = "block";
-            SaveBtn.innerText = "ADD";
-            productForm.reset();
-            quantityInput.value = 1;
-            clearErrors();
-            updateCharacterCount('productName', 'productNameCount'); // Reset counter to 0
-            updateCharacterCount('supplier', 'supplierCount'); // Reset counter to 0
-        });
-
-        productForm.addEventListener("submit", function (event) {
-            event.preventDefault();
-            clearErrors();
-
-            const quantity = parseInt(quantityInput.value);
-            if (quantity > 1200) {
-                showError("Quantity cannot exceed 1200.");
-                quantityInput.classList.add('quantity-error');
-                return;
-            } else if (quantity < 1) {
-                showError("Quantity must be at least 1.");
-                quantityInput.classList.add('quantity-error');
-                return;
-            } else {
-                quantityInput.classList.remove('quantity-error');
-            }
-
-            $.ajax({
-                url: productForm.action,
-                type: methodField.value === "POST" ? "POST" : "PUT",
-                data: $(productForm).serialize(),
-                success: function(response) {
-                    showTableSuccessModal();
-                    let table = $('#productsTable').DataTable();
-                    const newRow = [
-                        response.product.id,
-                        response.product.product_name,
-                        response.product.category,
-                        response.product.quantity,
-                        response.product.supplier,
-                        `<button class="inv-btn inv-edit-btn" data-id="${response.product.id}" data-name="${response.product.product_name}" data-category="${response.product.category}" data-supplier="${response.product.supplier}" data-quantity="${response.product.quantity}">
-                            <i class="fa-solid fa-pencil"></i>
-                        </button>
-                        <form action="/products/${response.product.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
-                            <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
-                            <input type="hidden" name="_method" value="DELETE">
-                            <button type="submit" class="inv-btn inv-delete-btn"><i class="fa-solid fa-trash"></i></button>
-                        </form>`
-                    ];
-
-                    if (methodField.value === "POST") {
-                        table.row.add(newRow).draw();
-                    } else {
-                        let row = table.row($(`button[data-id="${response.product.id}"]`).closest('tr'));
-                        row.data(newRow).draw();
-                    }
-
-                    productModal.style.display = "none";
-                    productForm.reset();
-                    quantityInput.value = 1;
-                    updateCharacterCount('productName', 'productNameCount');
-                    updateCharacterCount('supplier', 'supplierCount');
-                },
-                error: function(xhr) {
-                    let errorMsg = xhr.responseJSON?.message || 'An error occurred while saving the product.';
-                    if (xhr.status === 422) {
-                        errorMsg = Object.values(xhr.responseJSON.errors || {}).flat().join('<br>');
-                    }
-                    showError(errorMsg);
-                }
-            });
-        });
-
-        closeBtn.addEventListener("click", () => {
-            productModal.style.display = "none";
-            clearErrors();
-        });
-
-        window.addEventListener("click", event => {
-            if (event.target === productModal) {
                 productModal.style.display = "none";
-                clearErrors();
-            }
-            if (event.target === tableSuccessModal) {
-                tableSuccessModal.style.display = "none";
+                productForm.reset();
+                quantityInput.value = 1;
+                updateCharacterCount('productName', 'productNameCount');
+                updateCharacterCount('supplier', 'supplierCount');
+            },
+            error: function(xhr) {
+                let errorMsg = xhr.responseJSON?.message || 'An error occurred while saving the product.';
+                if (xhr.status === 422) {
+                    errorMsg = Object.values(xhr.responseJSON.errors || {}).flat().join('<br>');
+                }
+                showError(errorMsg);
             }
         });
     });
+
+    closeBtn.addEventListener("click", () => {
+        productModal.style.display = "none";
+        clearErrors();
+    });
+
+    window.addEventListener("click", event => {
+        if (event.target === productModal) {
+            productModal.style.display = "none";
+            clearErrors();
+        }
+        if (event.target === tableSuccessModal) {
+            tableSuccessModal.style.display = "none";
+        }
+    });
+});
 </script>
 @endpush

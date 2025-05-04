@@ -360,14 +360,14 @@
 
         const addProduct = (id, name, stock) => {
             const tbody = document.getElementById('selected-products-body');
-            // Use DataTables API to check for existing product
+           
             let row = null;
             selectedProductsTable.rows().every(function() {
                 const rowNode = this.node();
                 const productIdInput = rowNode.querySelector('input[name$="[product_id]"]');
                 if (productIdInput && productIdInput.value === id) {
                     row = rowNode;
-                    return false; // Break the loop
+                    return false; 
                 }
                 return true;
             });
@@ -389,7 +389,7 @@
                     <tr data-product-stock="${stock}">
                         <td style="text-align: center;">${name}</td>
                         <td style="text-align: center;">
-                            <input type="number" name="items[${idx}][price]" step="0.01" min="0" max="1200" class="shelf-form-input" placeholder="0.00">
+                            <input type="number" name="items[${idx}][price]" step="0.01" min="0" max="1200" class="shelf-form-input" placeholder="0.00" required>
                         </td>
                         <td style="text-align: center;">
                             <input type="number" name="items[${idx}][quantity_added]" min="1" max="${stock}" value="1" required class="shelf-form-input">
