@@ -1,4 +1,27 @@
-/* Main Styles */
+.quantity-note {
+    font-size: 0.8em;
+    color: red;
+    font-style: italic;
+}
+
+.quantity-error, .product-name-error {
+    border: 2px solid red;
+}
+
+.dmg-form-group small {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.8em;
+    color: #666;
+}
+
+.invalid-indicator {
+    color: red;
+    font-size: 0.8em;
+    display: none;
+    margin-top: 5px;
+}
+
 .dmg-title {
     font-size: 20px;
     margin-bottom: 30px;
@@ -32,7 +55,6 @@
     transition: all 0.3s ease;
 }
 
-/* Button Styles */
 .dmg-add-btn {
     background-color: #3980cd;
     color: white;
@@ -107,7 +129,6 @@
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
 }
 
-/* Table Styles */
 .dmg-table-container {
     background: #ffffff;
     border-radius: 8px;
@@ -115,13 +136,13 @@
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
     margin: 20px 0px;
     max-width: 100%;
-    overflow-x: auto; /* Ensure horizontal scrolling for overflow */
+    overflow-x: auto;
 }
 
 .dmg-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* Prevent columns from resizing based on content */
+    table-layout: fixed;
 }
 
 .dmg-table th,
@@ -129,9 +150,9 @@
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
-    overflow: hidden; /* Prevent content from spilling out */
-    text-overflow: ellipsis; /* Add ellipsis for overflow */
-    white-space: nowrap; /* Prevent wrapping by default */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .dmg-table th {
@@ -151,7 +172,6 @@
     background-color: #f0f0f0;
 }
 
-/* DataTables Styles */
 #damagedProductsTable {
     width: 100%;
     border-collapse: collapse;
@@ -161,45 +181,44 @@
 #damagedProductsTable td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #ddd; /* Fixed 'henshaw' typo */
+    border-bottom: 1px solid #ddd;
 }
 
-/* Column Widths for DataTable */
-#damagedProductsTable th:nth-child(1), /* ID */
+#damagedProductsTable th:nth-child(1),
 #damagedProductsTable td:nth-child(1) {
-    width: 10px; /* Fixed width for ID */
+    width: 10px;
 }
 
-#damagedProductsTable th:nth-child(2), /* Product Name */
+#damagedProductsTable th:nth-child(2),
 #damagedProductsTable td:nth-child(2) {
-    max-width: 100px; /* Limit Product Name width */
+    max-width: 100px;
 }
 
-#damagedProductsTable th:nth-child(3), /* Quantity */
+#damagedProductsTable th:nth-child(3),
 #damagedProductsTable td:nth-child(3) {
-    width: 50px; /* Fixed width for Quantity */
+    width: 50px;
 }
 
-#damagedProductsTable th:nth-child(4), /* Reason */
+#damagedProductsTable th:nth-child(4),
 #damagedProductsTable td:nth-child(4) {
-    max-width: 200px; /* Limit Reason width to prevent elongation */
-    word-wrap: break-word; /* Allow wrapping for long descriptions */
-    white-space: normal; /* Override nowrap for Reason to wrap text */
+    max-width: 200px;
+    word-wrap: break-word;
+    white-space: normal;
 }
 
-#damagedProductsTable th:nth-child(5), /* Supplier */
+#damagedProductsTable th:nth-child(5),
 #damagedProductsTable td:nth-child(5) {
-    max-width: 150px; /* Limit Supplier width */
+    max-width: 150px;
 }
 
-#damagedProductsTable th:nth-child(6), /* Reported At */
+#damagedProductsTable th:nth-child(6),
 #damagedProductsTable td:nth-child(6) {
-    width: 120px; /* Fixed width for Reported At */
+    width: 120px;
 }
 
-#damagedProductsTable th:nth-child(7), /* Actions */
+#damagedProductsTable th:nth-child(7),
 #damagedProductsTable td:nth-child(7) {
-    width: 100px; /* Fixed width for Actions */
+    width: 100px;
 }
 
 #damagedProductsTable_wrapper .dataTables_filter input {
@@ -232,19 +251,37 @@
     transform: translateY(-3px);
 }
 
-/* Modal Styles */
 .dmg-modal {
     display: none;
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Fixed transform for centering */
+    transform: translate(-50%, -50%);
     width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
     background: white;
     padding: 30px;
     box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
     border-radius: 12px;
     z-index: 1000;
+}
+
+.dmg-modal-content {
+    font-size: 16px;
+    font-weight: 500;
+    color: #000000;
+    margin-bottom: 8px;
+    font-family: 'Poppins', sans-serif;
+    overflow-y: auto;
+}
+
+.dmg-close-btn {
+    margin-left: 350px;
+    cursor: pointer;
+    color: rgb(162, 5, 5);
+    font-size: 18px;
+    font-weight: bold;
 }
 
 .dmg-modal h2 {
@@ -256,23 +293,6 @@
     font-family: 'Poppins', sans-serif;
 }
 
-.dmg-modal-content {
-    font-size: 16px;
-    font-weight: 500;
-    color: #000000;
-    margin-bottom: 8px;
-    font-family: 'Poppins', sans-serif;
-}
-
-.dmg-close-btn {
-    margin-left: 350px; /* Adjusted for modal width */
-    cursor: pointer;
-    color: rgb(162, 5, 5);
-    font-size: 18px;
-    font-weight: bold;
-}
-
-/* Form Styles */
 .dmg-form-group {
     display: flex;
     flex-direction: column;
@@ -317,7 +337,6 @@
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
-/* Error and Success Messages */
 .dmg-error-messages {
     background-color: #f8d7da;
     color: #721c24;
@@ -338,13 +357,11 @@
     margin-right: auto;
 }
 
-/* Top Bar */
 .dmg-top-bar {
     display: flex;
     justify-content: flex-end;
 }
 
-/* Responsive Styles */
 @media (max-width: 768px) {
     .dmg-modal {
         width: 90%;
@@ -367,9 +384,8 @@
         overflow-x: auto;
     }
 
-    /* Adjust column widths for smaller screens */
     #damagedProductsTable th:nth-child(4),
     #damagedProductsTable td:nth-child(4) {
-        max-width: 150px; /* Smaller width for Reason on mobile */
+        max-width: 150px;
     }
 }

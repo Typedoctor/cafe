@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -10,16 +11,18 @@ class AuditLogController extends Controller
 {
     public function index(Request $request)
     {
+
+        
         $request->validate([
             'model_type' => 'nullable|string',
             'event' => 'nullable|in:created,updated,deleted',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
-
+       
         $query = AuditLog::with('user')
             ->orderBy('created_at', 'desc');
-
+        
         if ($request->filled('model_type')) {
             $query->where('auditable_type', $request->model_type);
         }
@@ -39,12 +42,9 @@ class AuditLogController extends Controller
         }
 
         $auditLogs = $query->paginate(20);
-        
-        return view('manager.audit_logs', compact('auditLogs'));
+        $users = User::all('name');
+        return view('manager.audit_logs', compact('auditLogs', 'users'));
     }
 
-    public function getFormattedCreatedAtAttribute()
-    {
-        return $this->created_at->format('Y F j g:i A');
-    }
+   
 }

@@ -394,7 +394,7 @@
                         <td style="text-align: center;">
                             <input type="number" name="items[${idx}][quantity_added]" min="1" max="${stock}" value="1" required class="shelf-form-input">
                             <input type="hidden" name="items[${idx}][product_id]" value="${id}">
-                            <div class="shelf-quantity-error">Insufficient stock for ${name}. Stock available (${stock})</div>
+                            <div class="shelf-quantity-error">Cannot add more items for ${name}. Stock available (${stock})</div>
                         </td>
                         <td style="text-align: center;">
                             <button type="button" class="shelf-btn shelf-product-remove-btn">Remove</button>
