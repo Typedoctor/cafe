@@ -4,34 +4,47 @@ namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class AuditLogController extends Controller
 {
     public function index(Request $request)
     {
+        $request->validate([
+            'model_type' => 'nullable|string',
+            'event' => 'nullable|in:created,updated,deleted',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+        ]);
+
         $query = AuditLog::with('user')
             ->orderBy('created_at', 'desc');
 
-        // Filter by model type
-        if ($request->has('model_type')) {
+        if ($request->filled('model_type')) {
             $query->where('auditable_type', $request->model_type);
         }
 
-        // Filter by event type
-        if ($request->has('event')) {
+        if ($request->filled('event')) {
             $query->where('event', $request->event);
         }
 
-        // Filter by date range
-        if ($request->has('start_date')) {
-            $query->whereDate('created_at', '>=', $request->start_date);
+        if ($request->filled('start_date')) {
+            $startDate = Carbon::parse($request->start_date)->startOfDay();
+            $query->whereDate('created_at', '>=', $startDate);
         }
-        if ($request->has('end_date')) {
-            $query->whereDate('created_at', '<=', $request->end_date);
+
+        if ($request->filled('end_date')) {
+            $endDate = Carbon::parse($request->end_date)->endOfDay();
+            $query->whereDate('created_at', '<=', $endDate);
         }
 
         $auditLogs = $query->paginate(20);
         
         return view('manager.audit_logs', compact('auditLogs'));
+    }
+
+    public function getFormattedCreatedAtAttribute()
+    {
+        return $this->created_at->format('Y F j g:i A');
     }
 }

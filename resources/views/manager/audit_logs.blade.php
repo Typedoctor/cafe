@@ -9,6 +9,24 @@
 @section('content')
     <div class="audit-header">Audit Logs</div>
 
+    <!-- Display validation errors -->
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <!-- Display flash messages -->
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <!-- Filters -->
     <div class="audit-filters">
         <form action="{{ route('audit.index') }}" method="GET" class="audit-filter-form">
@@ -65,7 +83,7 @@
             <tbody>
                 @foreach($auditLogs as $log)
                     <tr>
-                        <td>{{ $log->created_at->format('Y-m-d H:i:s') }}</td>
+                        <td>{{ $log->created_at->format('Y F j g:i A') }}</td>
                         <td>{{ $log->user ? $log->user->name : 'System' }}</td>
                         <td>{{ ucfirst($log->event) }}</td>
                         <td>{{ class_basename($log->auditable_type) }} #{{ $log->auditable_id }}</td>
@@ -96,7 +114,7 @@
     <!-- Changes Modal -->
     <div id="changesModal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <span class="close">×</span>
             <h2>Changes</h2>
             <div id="changesContent"></div>
         </div>
