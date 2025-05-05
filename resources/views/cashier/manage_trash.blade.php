@@ -3,15 +3,20 @@
 @section('title', 'Manage Trash')
 
 @push('styles')
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+   
+    
 @endpush
 
 @section('content')
+
+
+<head>
+    <link rel="stylesheet" href="{{ asset('css/cashier-trash.css') }}">
+</head>
 <h1 class="inventory-title">Manage Trash</h1>
 
 <div class="trsh-top-bar">
-    <button id="addTrashBtn" class="btn add-trash">+ Add Trash Entry</button>
+    <button id="addTrashBtn" class="btn add-trash">+ Add Spoilage Entry</button>
     <button id="exportExcel" class="btn export-btn">Export to Excel</button>
 </div>
 
@@ -291,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        modalTitle.innerText = 'Add New Trash Entry';
+        modalTitle.innerText = 'Add New Spoilage Entry';
         methodField.value = 'POST';
         trashForm.action = '{{ route('trash.store') }}';
         trashModal.style.display = 'block';

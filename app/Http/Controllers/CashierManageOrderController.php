@@ -19,7 +19,7 @@ class CashierManageOrderController extends Controller
             ->whereHas('product') // Ensure product exists
             ->where('quantity_added', '>', 0) // Only items with stock
             ->get();
-        return view('cashier.dashboard', compact('shelfItems', 'orders'));
+        return view('cashier.manage_order', compact('shelfItems', 'orders'));
     }
 
     public function create()
@@ -28,7 +28,7 @@ class CashierManageOrderController extends Controller
             ->whereHas('product') // Ensure product exists
             ->where('quantity_added', '>', 0) // Only items with stock
             ->get();
-        return view('cashier.dashboard', compact('shelfItems'));
+        return view('cashier.manage_order', compact('shelfItems'));
     }
 
     public function store(Request $request)
@@ -119,7 +119,7 @@ class CashierManageOrderController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('cashier.dashboard')->with('success', 'Order created successfully.');
+            return redirect()->route('cashier.manage_order')->with('success', 'Order created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Store Order Error: ' . $e->getMessage());
@@ -144,7 +144,7 @@ class CashierManageOrderController extends Controller
                     ->whereHas('product')
                     ->where('quantity_added', '>', 0)
                     ->get();
-                return view('cashier.dashboard', compact('shelfItems', 'orders'))
+                return view('cashier.manage_order', compact('shelfItems', 'orders'))
                     ->withErrors(['error' => 'Cannot cancel a completed order.']);
             }
 
@@ -166,7 +166,7 @@ class CashierManageOrderController extends Controller
                 ->whereHas('product')
                 ->where('quantity_added', '>', 0)
                 ->get();
-            return view('cashier.dashboard', compact('shelfItems', 'orders'))
+            return view('cashier.manage_order', compact('shelfItems', 'orders'))
                 ->with('success', 'Order canceled successfully and stock restored.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -176,7 +176,7 @@ class CashierManageOrderController extends Controller
                 ->whereHas('product')
                 ->where('quantity_added', '>', 0)
                 ->get();
-            return view('cashier.dashboard', compact('shelfItems', 'orders'))
+            return view('cashier.dashboarmanage_orderd', compact('shelfItems', 'orders'))
                 ->withErrors(['error' => 'Failed to cancel order: ' . $e->getMessage()]);
         }
     }
@@ -198,7 +198,7 @@ class CashierManageOrderController extends Controller
                     ->whereHas('product')
                     ->where('quantity_added', '>', 0)
                     ->get();
-                return view('cashier.dashboard', compact('shelfItems', 'orders'))
+                return view('cashier.manage_order', compact('shelfItems', 'orders'))
                     ->withErrors(['error' => 'Order is already completed.']);
             }
     
@@ -237,7 +237,7 @@ class CashierManageOrderController extends Controller
                 ->whereHas('product')
                 ->where('quantity_added', '>', 0)
                 ->get();
-            return view('cashier.dashboard', compact('shelfItems', 'orders'))
+            return view('cashier.manage_order', compact('shelfItems', 'orders'))
                 ->with('success', 'Order marked as completed and transaction recorded.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -247,7 +247,7 @@ class CashierManageOrderController extends Controller
                 ->whereHas('product')
                 ->where('quantity_added', '>', 0)
                 ->get();
-            return view('cashier.dashboard', compact('shelfItems', 'orders'))
+            return view('cashier.manage_order', compact('shelfItems', 'orders'))
                 ->withErrors(['error' => 'Failed to mark order as completed: ' . $e->getMessage()]);
         }
     }

@@ -129,25 +129,14 @@ class ManageTrashController extends Controller
             ->with('success', 'Trash entry updated successfully!');
     }
 
-    public function destroy(Trash $trash)
+    public function destroy($id)
     {
-        try {
-            DB::transaction(function () use ($trash) {
-                $shelfItem = ShelfItem::with('product')
-                    ->whereHas('product', function ($query) use ($trash) {
-                        $query->where('product_name', $trash->product_name);
-                    })
-                    ->first();
-                if ($shelfItem) {
-                    $shelfItem->increment('quantity_added', $trash->quantity);
-                }
-                $trash->delete();
-            });
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to delete trash entry.']);
+        \Log::info('Destroy method called', ['id' => $id]);
+        $trash = Trash::find($id);
+        if (!$trash) {
+            return redirect()->route('trash.index')->with('error', 'trash not found');
         }
-
-        return redirect()->route('trash.index')
-            ->with('success', 'Trash entry deleted successfully!');
+        $trash->delete();
+        return redirect()->route('trash.index')->with('success', 'trash deleted successfully');
     }
 }

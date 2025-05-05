@@ -3,40 +3,14 @@
 @section('title', 'Damaged Products')
 
 @push('styles')
-    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <style>
-        .quantity-note {
-            font-size: 0.8em;
-            color: red;
-            font-style: italic;
-        }
-
-        .quantity-error, .product-name-error {
-            border: 2px solid red;
-        }
-
-        .dmg-form-group small {
-            display: block;
-            margin-top: 5px;
-            font-size: 0.8em;
-            color: #666;
-        }
-
-        .invalid-indicator {
-            color: red;
-            font-size: 0.8em;
-            display: none;
-            margin-top: 5px;
-        }
-    </style>
 @endpush
 
 @section('content')
 <h1 class="dmg-title">Damaged Products</h1>
 
 <div class="dmg-top-bar">
-    <button id="addDamagedProductBtn" class="dmg-btn dmg-add-stock">+ Report Damaged Product</button>
+    <button id="addDamagedProductBtn" class="dmg-btn dmg-add-btn">+ Report Damaged Product</button>
 </div>
 
 <div id="damagedProductModal" class="dmg-modal">
@@ -44,7 +18,7 @@
         <span class="dmg-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
         <h2 id="modalTitle">Report Damaged Product</h2>
         <div id="errorMessages" class="dmg-error-messages" style="display: none;"></div>
-        <form id="damagedProductForm" method="POST" action="{{ route('damaged-products.store') }}">
+        <form id="damagedProductForm" method="POST">
             @csrf
             <input type="hidden" name="_method" id="methodField" value="POST">
             <input type="hidden" name="id" id="damagedProductId">
@@ -74,10 +48,36 @@
             </div>
             <button type="submit" class="dmg-btn dmg-save-btn" id="SaveBtn">ADD</button>
         </form>
+        <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 10px;">
+            <i class="fa-solid fa-spinner fa-spin"></i> Saving...
+        </div>
     </div>
 </div>
 
-<div id="tableSuccessMessage" class="dmg-success-message" style="display: none;">Damaged product reported successfully!</div>
+@if (session('success'))
+    <div class="dmg-success-message">{{ session('success') }}</div>
+@endif
+@if (session('error'))
+    <div class="dmg-error-messages">{{ session('error') }}</div>
+@endif
+@if ($errors->any())
+    <div class="dmg-error-messages">
+        @foreach ($errors->all() as $error)
+            {{ $error }}<br>
+        @endforeach
+    </div>
+@endif
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const successMessage = document.querySelector(".dmg-success-message");
+        if (successMessage) {
+            setTimeout(() => {
+                successMessage.style.display = "none";
+            }, 3000);
+        }
+    });
+</script>
 
 <div class="dmg-table-container">
     <div class="dmg-section-title">Damaged Products List</div>
@@ -90,7 +90,7 @@
                 <th>Reason</th>
                 <th>Supplier</th>
                 <th>Reported At</th>
-                <th style="width: 100px;">Actions</th>
+                <th style="width: 50px;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -101,7 +101,7 @@
                 <td>{{ $damagedProduct->quantity }}</td>
                 <td>{{ $damagedProduct->reason }}</td>
                 <td>{{ $damagedProduct->supplier }}</td>
-                <td>{{ $damagedProduct->reported_at->setTimezone('Asia/Manila')->format('Y-m-d H:i') }}</td>
+                <td>{{ $damagedProduct->reported_at->format('F j Y/ g:i A') }}</td>
                 <td>
                     <button class="dmg-btn dmg-edit-btn" 
                         data-id="{{ $damagedProduct->id }}"
@@ -109,11 +109,12 @@
                         data-quantity="{{ $damagedProduct->quantity }}"
                         data-reason="{{ $damagedProduct->reason }}"
                         data-supplier="{{ $damagedProduct->supplier }}"
-                        data-reported_at="{{ $damagedProduct->reported_at->setTimezone('Asia/Manila')->format('Y-m-d\TH:i') }}">
+                        data-reported_at="{{ $damagedProduct->reported_at->format('Y-m-d\TH:i') }}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
                     <form action="{{ route('damaged-products.destroy', $damagedProduct) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this damaged product report?');">
-                        @csrf @method('DELETE')
+                        @csrf
+                        @method('DELETE')
                         <button type="submit" class="dmg-btn dmg-delete-btn"><i class="fa-solid fa-trash"></i></button>
                     </form>
                 </td>
@@ -124,14 +125,13 @@
 </div>
 
 @push('scripts')
-    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
     <script>
-        $(document).ready(function () {
-            let table = $('#damagedProductsTable').DataTable({
+        document.addEventListener("DOMContentLoaded", function () {
+            // Initialize DataTable
+            $('#damagedProductsTable').DataTable({
                 pageLength: 10,
                 responsive: true,
                 order: [[0, 'asc']],
@@ -147,37 +147,6 @@
                 }
             });
 
-            console.log('Total rows in table:', table.rows().count());
-            console.log('Number of pages:', table.page.info().pages);
-
-            $('#damagedProductsTable').on('click', '.dmg-edit-btn', function() {
-                const modalTitle = document.getElementById("modalTitle");
-                const methodField = document.getElementById("methodField");
-                const damagedProductForm = document.getElementById("damagedProductForm");
-                const damagedProductModal = document.getElementById("damagedProductModal");
-                const SaveBtn = document.getElementById("SaveBtn");
-
-                modalTitle.innerText = "Edit Damaged Product";
-                methodField.value = "PUT";
-                damagedProductForm.action = `/damaged-products/${this.dataset.id}`;
-                document.getElementById("damagedProductId").value = this.dataset.id;
-                document.getElementById("productName").value = this.dataset.product_name;
-                document.getElementById("quantity").value = Math.max(1, this.dataset.quantity);
-                document.getElementById("reason").value = this.dataset.reason;
-                document.getElementById("supplier").value = this.dataset.supplier;
-                document.getElementById("reportedAt").value = this.dataset.reported_at;
-                SaveBtn.innerText = "UPDATE";
-                damagedProductModal.style.display = "block";
-                document.getElementById("errorMessages").style.display = "none";
-                document.getElementById("productNameInvalid").style.display = "none";
-
-                updateCharacterCount('productName', 'productNameCount', 24);
-                updateCharacterCount('reason', 'reasonCount', 100);
-                updateCharacterCount('supplier', 'supplierCount', 50);
-            });
-        });
-
-        document.addEventListener("DOMContentLoaded", function () {
             const damagedProductModal = document.getElementById("damagedProductModal");
             const damagedProductForm = document.getElementById("damagedProductForm");
             const modalTitle = document.getElementById("modalTitle");
@@ -192,8 +161,8 @@
             const reasonCount = document.getElementById("reasonCount");
             const supplierCount = document.getElementById("supplierCount");
             const errorMessages = document.getElementById("errorMessages");
-            const tableSuccessMessage = document.getElementById("tableSuccessMessage");
             const productNameInvalid = document.getElementById("productNameInvalid");
+            const loadingSpinner = document.getElementById("loadingSpinner");
 
             function showError(message) {
                 errorMessages.style.display = 'block';
@@ -205,13 +174,16 @@
                 errorMessages.innerHTML = '';
                 productNameInvalid.style.display = 'none';
                 productNameInput.classList.remove('product-name-error');
+                quantityInput.classList.remove('quantity-error');
             }
 
-            function showTableSuccessMessage() {
-                tableSuccessMessage.style.display = 'block';
-                setTimeout(() => {
-                    tableSuccessMessage.style.display = 'none';
-                }, 2000);
+            function updateCharacterCount(inputId, countId, maxLength) {
+                const input = document.getElementById(inputId);
+                const count = document.getElementById(countId);
+                if (input && count) {
+                    const currentCount = input.value.length;
+                    count.textContent = `${currentCount} / ${maxLength}`;
+                }
             }
 
             function enforceValidProductName(input) {
@@ -255,15 +227,6 @@
                 });
             }
 
-            function updateCharacterCount(inputId, countId, maxLength) {
-                const input = document.getElementById(inputId);
-                const count = document.getElementById(countId);
-                if (input && count) {
-                    const currentCount = input.value.length;
-                    count.textContent = `${currentCount} / ${maxLength}`;
-                }
-            }
-
             if (productNameInput) {
                 enforceValidProductName(productNameInput);
                 productNameInput.addEventListener("input", () => updateCharacterCount('productName', 'productNameCount', 24));
@@ -297,16 +260,49 @@
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 document.getElementById("reportedAt").value = `${year}-${month}-${day}T${hours}:${minutes}`;
                 clearErrors();
+                loadingSpinner.style.display = 'none';
+                SaveBtn.disabled = false;
                 updateCharacterCount('productName', 'productNameCount', 24);
                 updateCharacterCount('reason', 'reasonCount', 100);
                 updateCharacterCount('supplier', 'supplierCount', 50);
+            });
+
+            document.querySelectorAll('.dmg-edit-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    modalTitle.innerText = "Edit Damaged Product";
+                    methodField.value = "PUT";
+                    damagedProductForm.action = "{{ url('damaged-products') }}/" + this.dataset.id;
+                    document.getElementById("damagedProductId").value = this.dataset.id;
+                    document.getElementById("productName").value = this.dataset.product_name;
+                    document.getElementById("quantity").value = Math.max(1, this.dataset.quantity);
+                    document.getElementById("reason").value = this.dataset.reason;
+                    document.getElementById("supplier").value = this.dataset.supplier;
+                    document.getElementById("reportedAt").value = this.dataset.reported_at;
+                    SaveBtn.innerText = "UPDATE";
+                    damagedProductModal.style.display = "block";
+                    clearErrors();
+                    loadingSpinner.style.display = 'none';
+                    SaveBtn.disabled = false;
+                    updateCharacterCount('productName', 'productNameCount', 24);
+                    updateCharacterCount('reason', 'reasonCount', 100);
+                    updateCharacterCount('supplier', 'supplierCount', 50);
+                });
             });
 
             damagedProductForm.addEventListener("submit", function (event) {
                 event.preventDefault();
                 clearErrors();
 
-                const productName = productNameInput.value;
+                const productName = productNameInput.value.trim();
+                const quantity = parseInt(quantityInput.value);
+                const reason = reasonInput.value.trim();
+                const supplier = supplierInput.value.trim();
+
+                if (!productName || !quantity || !reason || !supplier) {
+                    showError("Please fill in all fields!");
+                    return;
+                }
+
                 if (!/^[a-zA-Z\s]+$/.test(productName)) {
                     showError("Product name must contain only letters and spaces.");
                     productNameInput.classList.add('product-name-error');
@@ -314,7 +310,6 @@
                     return;
                 }
 
-                const quantity = parseInt(quantityInput.value);
                 if (quantity > 1200) {
                     showError("Quantity cannot exceed 1200.");
                     quantityInput.classList.add('quantity-error');
@@ -323,91 +318,26 @@
                     showError("Quantity must be at least 1.");
                     quantityInput.classList.add('quantity-error');
                     return;
-                } else {
-                    quantityInput.classList.remove('quantity-error');
                 }
 
-                $.ajax({
-                    url: damagedProductForm.action,
-                    type: methodField.value === "POST" ? "POST" : "PUT",
-                    data: $(damagedProductForm).serialize(),
-                    success: function(response) {
-                        showTableSuccessMessage();
-                        let table = $('#damagedProductsTable').DataTable();
-                        if (methodField.value === "POST") {
-                            table.row.add([
-                                response.damagedProduct.id,
-                                response.damagedProduct.product_name,
-                                response.damagedProduct.quantity,
-                                response.damagedProduct.reason,
-                                response.damagedProduct.supplier,
-                                new Date(response.damagedProduct.reported_at).toLocaleString('en-PH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }),
-                                `<button class="dmg-btn dmg-edit-btn" 
-                                    data-id="${response.damagedProduct.id}" 
-                                    data-product_name="${response.damagedProduct.product_name}" 
-                                    data-quantity="${response.damagedProduct.quantity}" 
-                                    data-reason="${response.damagedProduct.reason}" 
-                                    data-supplier="${response.damagedProduct.supplier}" 
-                                    data-reported_at="${new Date(response.damagedProduct.reported_at).toLocaleString('en-PH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(/, /, 'T').replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2')}">
-                                    <i class="fa-solid fa-pencil"></i>
-                                </button>
-                                <form action="/damaged-products/${response.damagedProduct.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this damaged product report?');">
-                                    <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="dmg-btn dmg-delete-btn"><i class="fa-solid fa-trash"></i></button>
-                                </form>`
-                            ]).draw();
-                        } else {
-                            let row = table.row($(`button[data-id="${response.damagedProduct.id}"]`).closest('tr'));
-                            row.data([
-                                response.damagedProduct.id,
-                                response.damagedProduct.product_name,
-                                response.damagedProduct.quantity,
-                                response.damagedProduct.reason,
-                                response.damagedProduct.supplier,
-                                new Date(response.damagedProduct.reported_at).toLocaleString('en-PH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }),
-                                `<button class="dmg-btn dmg-edit-btn" 
-                                    data-id="${response.damagedProduct.id}" 
-                                    data-product_name="${response.damagedProduct.product_name}" 
-                                    data-quantity="${response.damagedProduct.quantity}" 
-                                    data-reason="${response.damagedProduct.reason}" 
-                                    data-supplier="${response.damagedProduct.supplier}" 
-                                    data-reported_at="${new Date(response.damagedProduct.reported_at).toLocaleString('en-PH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(/, /, 'T').replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2')}">
-                                    <i class="fa-solid fa-pencil"></i>
-                                </button>
-                                <form action="/damaged-products/${response.damagedProduct.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this damaged product report?');">
-                                    <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="dmg-btn dmg-delete-btn"><i class="fa-solid fa-trash"></i></button>
-                                </form>`
-                            ]).draw();
-                        }
-                        damagedProductModal.style.display = "none";
-                        damagedProductForm.reset();
-                        quantityInput.value = 1;
-                        updateCharacterCount('productName', 'productNameCount', 24);
-                        updateCharacterCount('reason', 'reasonCount', 100);
-                        updateCharacterCount('supplier', 'supplierCount', 50);
-                    },
-                    error: function(xhr) {
-                        let errorMsg = xhr.responseJSON?.message || 'An error occurred while saving the damaged product.';
-                        if (xhr.status === 422) {
-                            errorMsg = Object.values(xhr.responseJSON.errors || {}).flat().join('<br>');
-                        }
-                        showError(errorMsg);
-                    }
-                });
+                loadingSpinner.style.display = 'block';
+                SaveBtn.disabled = true;
+                damagedProductForm.submit();
             });
 
             closeBtn.addEventListener("click", () => {
                 damagedProductModal.style.display = "none";
                 clearErrors();
+                loadingSpinner.style.display = 'none';
+                SaveBtn.disabled = false;
             });
 
             window.addEventListener("click", event => {
                 if (event.target === damagedProductModal) {
                     damagedProductModal.style.display = "none";
                     clearErrors();
+                    loadingSpinner.style.display = 'none';
+                    SaveBtn.disabled = false;
                 }
             });
         });

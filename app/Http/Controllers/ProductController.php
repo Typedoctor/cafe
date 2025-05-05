@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -17,10 +18,10 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'product_name' => 'required|string|max:255|unique:products,product_name|regex:/^[a-zA-Z\s]+$/', 
+            'product_name' => 'required|string|max:50|unique:products,product_name',
             'category' => 'required|string|in:snack,drink,meal,dessert',
-            'quantity' => 'required|integer|min:1', 
-            'supplier' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
+            'quantity' => 'required|integer|min:1|max:1200',
+            'supplier' => 'required|string|max:50',
         ]);
 
         try {
@@ -44,7 +45,7 @@ class ProductController extends Controller
             DB::rollBack();
             \Log::error('Store Product Error: ' . $e->getMessage());
             if ($request->ajax()) {
-                return response()->json(['message' => 'Failed to add product: ' . $e->getMessage()], 500);
+                return response()->json(['message' => 'Failed to add product', 'errors' => ['general' => $e->getMessage()]], 500);
             }
             return back()->withErrors(['error' => 'Failed to add product: ' . $e->getMessage()])->withInput();
         }
@@ -53,10 +54,15 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
-            'product_name' => 'required|string|max:255|unique:products,product_name,' . $product->id . '|regex:/^[a-zA-Z\s]+$/', // Letters and spaces only
+            'product_name' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('products', 'product_name')->ignore($product->id),
+            ],
             'category' => 'required|string|in:snack,drink,meal,dessert',
-            'quantity' => 'required|integer|min:1', // Positive integers only
-            'supplier' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/', // Letters and spaces only
+            'quantity' => 'required|integer|min:1|max:1200',
+            'supplier' => 'required|string|max:50',
         ]);
 
         try {
@@ -80,7 +86,7 @@ class ProductController extends Controller
             DB::rollBack();
             \Log::error('Update Product Error: ' . $e->getMessage());
             if ($request->ajax()) {
-                return response()->json(['message' => 'Failed to update product: ' . $e->getMessage()], 500);
+                return response()->json(['message' => 'Failed to update product', 'errors' => ['general' => $e->getMessage()]], 500);
             }
             return back()->withErrors(['error' => 'Failed to update product: ' . $e->getMessage()])->withInput();
         }

@@ -2,16 +2,13 @@
 
 @section('title', 'Transaction_cashier')
 
-@push('styles')
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    
-@endpush
+
 @section('content')
+<head>
+    <link rel="stylesheet" href="{{ asset('css/transaction.css') }}">
+</head>
     <div class="trn-header">Transactions</div>
 
-    <!-- Search and Filter Form -->
-   
 
     <!-- Transaction Table -->
     <div class="trn-table-container active" id="transaction-table">

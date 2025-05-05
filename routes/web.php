@@ -34,7 +34,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Cashier routes
 //Route::middleware(['auth', 'can:cashier'])->group(function () {
-    Route::get('/cashier/dashboard', [CashierManageOrderController::class, 'index'])->name('cashier.dashboard');
+    Route::get('/cashier/dashboard', [CashierManageOrderController::class, 'index'])->name('cashier.manage_order');
     Route::post('/orders/cancel', [CashierManageOrderController::class, 'cancel'])->name('order.cancel');
     Route::post('/orders/complete', [CashierManageOrderController::class, 'complete'])->name('order.complete');
     Route::get('cashier/transactions', [CashierTransactionController::class, 'index_cashier'])->name('cashier.cashier_transactions');

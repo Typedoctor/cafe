@@ -10,16 +10,18 @@ class AuditLogController extends Controller
 {
     public function index(Request $request)
     {
+
+        
         $request->validate([
             'model_type' => 'nullable|string',
             'event' => 'nullable|in:created,updated,deleted',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
-
+       
         $query = AuditLog::with('user')
             ->orderBy('created_at', 'desc');
-
+        
         if ($request->filled('model_type')) {
             $query->where('auditable_type', $request->model_type);
         }
@@ -43,8 +45,5 @@ class AuditLogController extends Controller
         return view('manager.audit_logs', compact('auditLogs'));
     }
 
-    public function getFormattedCreatedAtAttribute()
-    {
-        return $this->created_at->format('Y F j g:i A');
-    }
+   
 }
