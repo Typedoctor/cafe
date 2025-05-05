@@ -25,7 +25,9 @@ class ManagerDamagedProductController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return redirect()->route('damaged-products.index')
+                             ->withErrors($validator)
+                             ->withInput();
         }
 
         $data = $request->all();
@@ -33,9 +35,9 @@ class ManagerDamagedProductController extends Controller
             $data['reported_at'] = now();
         }
 
-        $damagedProduct = DamagedProduct::create($data);
+        DamagedProduct::create($data);
 
-        return response()->json(['damagedProduct' => $damagedProduct], 201);
+        return redirect()->route('damaged-products.index') ->with('success', 'Damaged product reported successfully');
     }
 
     public function update(Request $request, DamagedProduct $damagedProduct)
@@ -49,7 +51,9 @@ class ManagerDamagedProductController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return redirect()->route('damaged-products.index')
+                             ->withErrors($validator)
+                             ->withInput();
         }
 
         $data = $request->all();
@@ -59,7 +63,7 @@ class ManagerDamagedProductController extends Controller
 
         $damagedProduct->update($data);
 
-        return response()->json(['damagedProduct' => $damagedProduct], 200);
+        return redirect()->route('damaged-products.index') ->with('success', 'Damaged product updated successfully');
     }
 
     public function destroy($id)
@@ -67,9 +71,9 @@ class ManagerDamagedProductController extends Controller
         \Log::info('Destroy method called', ['id' => $id]);
         $product = DamagedProduct::find($id);
         if (!$product) {
-            return redirect()->route('damaged-products.index')->with('error', 'product not found');
+            return redirect()->route('damaged-products.index') ->with('error', 'Damaged product not found');
         }
         $product->delete();
-        return redirect()->route('damaged-products.index')->with('success', 'product deleted successfully');
+        return redirect()->route('damaged-products.index')->with('success', 'Damaged product deleted successfully');
     }
 }

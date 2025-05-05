@@ -4,7 +4,6 @@
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-
 @endpush
 
 @section('content')
@@ -39,7 +38,7 @@
                 <div id="product-table-container">
                     @foreach (['meal', 'drink', 'dessert', 'snack'] as $category)
                         <div id="{{ $category }}-tab" class="shelf-tab-content" style="display: {{ $category == 'meal' ? 'block' : 'none' }};">
-                            <table class="shelf-product-table">
+                            <table class="shelf-product-table" id="{{ $category }}-product-table">
                                 <thead>
                                     <tr>
                                         <th>Product Name</th>
@@ -64,7 +63,9 @@
                                     @endforeach
                                     @if ($products->where('category', $category)->isEmpty())
                                         <tr>
-                                            <td colspan="3">No {{ $category }} products available.</td>
+                                            <td>No {{ $category }} products available.</td>
+                                            <td></td>
+                                            <td></td>
                                         </tr>
                                     @endif
                                 </tbody>
@@ -75,7 +76,7 @@
 
                 <div id="selected-products">
                     <h3>Selected Items</h3>
-                    <table class="shelf-selected-products-table">
+                    <table class="shelf-selected-products-table" id="selected-products-table">
                         <thead>
                             <tr>
                                 <th>Product</th>
@@ -195,22 +196,66 @@
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  
     <script>
         const SUCCESS_MODAL_DURATION = 2000;
         let idx = 0;
+        let selectedProductsTable = null;
+        let productTables = {};
 
         $(document).ready(() => {
+            // Initialize DataTable for shelfItemsTable
             $('#shelfItemsTable').DataTable({
                 pageLength: 10,
                 responsive: true,
                 order: [[0, 'asc']],
-                columnDefs: [{ orderable: false, targets: 5 }]
+                searching: true,
+                columnDefs: [{ orderable: false, targets: 5 }],
+                language: {
+                    search: "Search shelved items:"
+                }
             });
+
+            // Initialize DataTables for product tables
+            const categories = ['meal', 'drink', 'dessert', 'snack'];
+            categories.forEach(category => {
+                productTables[category] = $(`#${category}-product-table`).DataTable({
+                    pageLength: 5,
+                    responsive: true,
+                    searching: true,
+                    ordering: true,
+                    columnDefs: [{ orderable: false, targets: 2 }],
+                    language: {
+                        search: "Search products:",
+                        emptyTable: "No products available"
+                    }
+                });
+            });
+
+            // Initialize DataTable for selected products (empty initially)
+            initializeSelectedProductsTable();
 
             document.querySelector('.close-warning')?.addEventListener('click', () => {
                 document.getElementById('shelf-warning-message').style.display = 'none';
             });
         });
+
+        const initializeSelectedProductsTable = () => {
+            if (selectedProductsTable) {
+                selectedProductsTable.destroy();
+            }
+            selectedProductsTable = $('#selected-products-table').DataTable({
+                pageLength: 5,
+                responsive: true,
+                searching: true,
+                ordering: true,
+                columnDefs: [{ orderable: false, targets: 3 }],
+                language: {
+                    search: "Search selected products:",
+                    emptyTable: "No products selected"
+                }
+            });
+        };
 
         const openModal = (modalId, clearErrors = false) => {
             document.getElementById(modalId).style.display = 'flex';
@@ -219,11 +264,20 @@
                 errDiv.style.display = 'none';
                 errDiv.querySelector('ul').innerHTML = '';
             }
+            if (modalId === 'shelfModal') {
+                // Redraw product table for the active tab
+                const activeTab = document.querySelector('.shelf-tab-link-categ.active').dataset.tab;
+                productTables[activeTab]?.draw();
+            }
         };
 
         const closeModal = (modalId) => {
             document.getElementById(modalId).style.display = 'none';
-            if (modalId === 'shelfModal') idx = 0; // Reset idx when closing main modal
+            if (modalId === 'shelfModal') {
+                idx = 0; // Reset idx when closing main modal
+                $('#selected-products-body').empty();
+                initializeSelectedProductsTable();
+            }
         };
 
         const handleModalClose = (target) => {
@@ -280,6 +334,8 @@
                 document.querySelectorAll('.shelf-tab-content').forEach(c => {
                     c.style.display = c.id === `${btn.dataset.tab}-tab` ? 'block' : 'none';
                 });
+                // Redraw the DataTable for the active tab
+                productTables[btn.dataset.tab]?.draw();
             });
         });
 
@@ -304,7 +360,18 @@
 
         const addProduct = (id, name, stock) => {
             const tbody = document.getElementById('selected-products-body');
-            const row = Array.from(tbody.rows).find(r => r.querySelector(`input[name$="[product_id]"]`).value === id);
+           
+            let row = null;
+            selectedProductsTable.rows().every(function() {
+                const rowNode = this.node();
+                const productIdInput = rowNode.querySelector('input[name$="[product_id]"]');
+                if (productIdInput && productIdInput.value === id) {
+                    row = rowNode;
+                    return false; 
+                }
+                return true;
+            });
+
             if (row) {
                 const qtyInput = row.querySelector('input[name$="[quantity_added]"]');
                 const currentQty = parseInt(qtyInput.value);
@@ -318,22 +385,23 @@
                     showWarning(`Cannot add more of "${name}". Stock limit: ${stock}.`);
                 }
             } else if (stock > 0) {
-                tbody.insertAdjacentHTML('beforeend', `
+                const newRow = `
                     <tr data-product-stock="${stock}">
                         <td style="text-align: center;">${name}</td>
                         <td style="text-align: center;">
-                            <input type="number" name="items[${idx}][price]" step="0.01" min="0" max="1200" class="shelf-form-input" placeholder="0.00">
+                            <input type="number" name="items[${idx}][price]" step="0.01" min="0" max="1200" class="shelf-form-input" placeholder="0.00" required>
                         </td>
                         <td style="text-align: center;">
                             <input type="number" name="items[${idx}][quantity_added]" min="1" max="${stock}" value="1" required class="shelf-form-input">
                             <input type="hidden" name="items[${idx}][product_id]" value="${id}">
-                            <div class="shelf-quantity-error">Insufficient stock for ${name}. Stock availlable (${stock}) </div>
+                            <div class="shelf-quantity-error">Cannot add more items for ${name}. Stock available (${stock})</div>
                         </td>
                         <td style="text-align: center;">
                             <button type="button" class="shelf-btn shelf-product-remove-btn">Remove</button>
                         </td>
                     </tr>
-                `);
+                `;
+                selectedProductsTable.row.add($(newRow)[0]).draw();
                 idx++;
             } else {
                 showWarning(`Cannot add "${name}". Out of stock.`);
@@ -345,7 +413,8 @@
             const tgt = e.target;
 
             if (tgt.classList.contains('shelf-product-remove-btn')) {
-                tgt.closest('tr').remove();
+                const row = tgt.closest('tr');
+                selectedProductsTable.row(row).remove().draw();
                 hideErrorMessage();
                 updateSubmitButton();
             } else if (tgt.closest('.shelf-delete-btn')) {

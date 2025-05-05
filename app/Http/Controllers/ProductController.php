@@ -17,10 +17,10 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'product_name' => 'required|string|max:255|unique:products,product_name|regex:/^[a-zA-Z\s]+$/', 
+            'product_name' => 'required|string|max:255|unique:products,product_name|', 
             'category' => 'required|string|in:snack,drink,meal,dessert',
             'quantity' => 'required|integer|min:1', 
-            'supplier' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
+            'supplier' => 'required|string|max:255|',
         ]);
 
         try {
@@ -53,10 +53,10 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
-            'product_name' => 'required|string|max:255|unique:products,product_name,' . $product->id . '|regex:/^[a-zA-Z\s]+$/', // Letters and spaces only
+            'product_name' => 'required|string|max:255|unique:products,product_name,' ,
             'category' => 'required|string|in:snack,drink,meal,dessert',
-            'quantity' => 'required|integer|min:1', // Positive integers only
-            'supplier' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/', // Letters and spaces only
+            'quantity' => 'required|integer|min:1', 
+            'supplier' => 'required|string|max:255|',
         ]);
 
         try {

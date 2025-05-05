@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
         charCounter.textContent = `${remaining} characters remaining`;
     });
 
-    // Existing code for modals, form handling, etc.
+    // Modal and form handling
     const trashModal = document.getElementById('trashModal');
     const duplicateModal = document.getElementById('duplicateModal');
     const trashForm = document.getElementById('trashForm');
@@ -194,6 +194,21 @@ document.addEventListener('DOMContentLoaded', function () {
     reasonInput.addEventListener('input', function () {
         this.value = this.value.replace(/[^A-Za-z\s]/g, '');
     });
+    document.addEventListener('DOMContentLoaded', function () {
+    // Existing code...
+
+    // Character counter for reason textarea
+    const reasonInput = document.getElementById('reason');
+    const charCounter = document.getElementById('charCounter');
+    const maxLength = 255;
+
+    reasonInput.addEventListener('input', () => {
+        const remaining = maxLength - reasonInput.value.length;
+        charCounter.textContent = `${remaining} characters remaining`;
+    });
+
+    // Rest of your existing code...
+});
 
     // Store all product options
     const allProductOptions = Array.from(productSelect.options).slice(1);
@@ -302,9 +317,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const productCategory = this.dataset.category || 'snack';
             const stock = this.dataset.stock || 0;
 
-            console.log('Editing product name:', productName);
-            console.log('Available options:', Array.from(productSelect.options).map(opt => opt.value));
-
             const optionExists = Array.from(productSelect.options).some(option => option.value === productName);
 
             if (!optionExists && productName) {
@@ -321,7 +333,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (!productSelect.value && productName) {
-                console.warn(`Product "${productName}" not found in select options.`);
                 alert(`The product "${productName}" is not available in the current inventory. Please select another product or contact support.`);
             }
 
@@ -377,19 +388,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Duplicate check only for POST (adding new entry)
         if (methodField.value === 'POST') {
-            const rows = document.querySelectorAll('#trashTable tbody tr');
-            let existingProducts = [];
-
-            // Iterate through rows and safely extract product names
-            rows.forEach(row => {
-                const productCell = row.querySelector('td:nth-child(2)');
-                // Only include rows with a valid product cell
-                if (productCell) {
-                    existingProducts.push(productCell.innerText.trim().toLowerCase());
-                }
-            });
-
-            // Check for duplicates
+            const existingProducts = Array.from(document.querySelectorAll('tbody tr')).map(row =>
+                row.querySelector('td:nth-child(2)').innerText.trim().toLowerCase()
+            );
             if (existingProducts.includes(productName.toLowerCase())) {
                 duplicateModal.style.display = 'block';
                 return;

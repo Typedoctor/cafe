@@ -18,13 +18,13 @@ class ReportController extends Controller
         $queryTrash = Trash::query();
         $queryTransaction = Transaction::query();
 
-        // Apply period-based filtering
+       
         if ($period === 'daily') {
-            // For daily, always filter by today's date
+          
             $today = Carbon::today();
-            // Only include data if the selected month/year matches today
+          
             if (($month !== 'all' && $month != $today->month) || ($year !== 'all' && $year != $today->year)) {
-                $trashes = collect([]); // Return empty collection if month/year doesn't match today
+                $trashes = collect([]); 
                 $transactions = collect([]); 
             } else {
                 $queryTrash->whereDate('created_at', $today);
@@ -33,7 +33,7 @@ class ReportController extends Controller
                 $transactions = $queryTransaction->get();
             }
         } elseif ($period === 'monthly') {
-            // Apply month and year filters, default to current month/year if not specified
+          
             if ($month !== 'all') {
                 $queryTrash->whereMonth('created_at', $month);
                 $queryTransaction->whereMonth('created_at', $month);
@@ -51,7 +51,7 @@ class ReportController extends Controller
             $trashes = $queryTrash->get();
             $transactions = $queryTransaction->get();
         } elseif ($period === 'yearly') {
-            // Apply year filter, default to current year if not specified
+          
             if ($year !== 'all') {
                 $queryTrash->whereYear('created_at', $year);
                 $queryTransaction->whereYear('created_at', $year);
