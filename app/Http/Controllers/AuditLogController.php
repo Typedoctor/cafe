@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -42,8 +41,8 @@ class AuditLogController extends Controller
         }
 
         $auditLogs = $query->paginate(20);
-        $users = User::all('name');
-        return view('manager.audit_logs', compact('auditLogs', 'users'));
+        
+        return view('manager.audit_logs', compact('auditLogs'));
     }
 
    
