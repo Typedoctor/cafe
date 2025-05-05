@@ -1,16 +1,16 @@
 @extends('manager.layout')
 
-@section('title', 'Add to Shelve')
+@section('title', 'Add to Shelf')
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 @endpush
 
 @section('content')
-    <h1 class="shelf-title">Add to Shelve</h1>
+    <h1 class="shelf-title">Add to Shelf</h1>
 
     <div class="shelf-top-bar">
-        <button id="openModalBtn" class="shelf-btn shelf-add-btn">+ Add to Shelve</button>
+        <button id="openModalBtn" class="shelf-btn shelf-add-btn">+ Add to Shelf</button>
     </div>
 
     <div id="shelfModal" class="shelf-modal">
@@ -41,7 +41,7 @@
                             <table class="shelf-product-table" id="{{ $category }}-product-table">
                                 <thead>
                                     <tr>
-                                        <th>Product Name</th>
+                                        <th>Product Name</th>   
                                         <th>Stock</th>
                                         <th>Action</th>
                                     </tr>
@@ -91,7 +91,7 @@
                 </div>
 
                 <div class="shelf-form-actions">
-                    <button type="submit" class="shelf-btn shelf-save-btn">Add to Shelve</button>
+                    <button type="submit" class="shelf-btn shelf-save-btn">Add to Shelf</button>
                 </div>
             </form>
         </div>
@@ -152,7 +152,7 @@
     </div>
 
     <div class="shelf-table-container">
-        <div class="shelf-section-title">Shelved Items</div>
+        <div class="shelf-section-title">Shelfed Items</div>
         <table class="shelf-items-table" id="shelfItemsTable">
             <thead>
                 <tr>
@@ -206,13 +206,14 @@
         $(document).ready(() => {
             // Initialize DataTable for shelfItemsTable
             $('#shelfItemsTable').DataTable({
-                pageLength: 10,
+                pageLength: 5,
+                lengthMenu: [5, 10, 25, 50, 100],
                 responsive: true,
                 order: [[0, 'asc']],
                 searching: true,
                 columnDefs: [{ orderable: false, targets: 5 }],
                 language: {
-                    search: "Search shelved items:"
+                    search: "Search shelfed items:"
                 }
             });
 
@@ -221,6 +222,7 @@
             categories.forEach(category => {
                 productTables[category] = $(`#${category}-product-table`).DataTable({
                     pageLength: 5,
+                    lengthMenu: [5, 10, 25, 50, 100],
                     responsive: true,
                     searching: true,
                     ordering: true,

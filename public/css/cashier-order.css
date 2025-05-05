@@ -222,7 +222,7 @@
 }
 
 .csh-tab-link-categ.active {
-    background-color: #00256e;
+    background-color: #2f67d8;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
     transition: 0.5s ease;
@@ -733,4 +733,126 @@
     .csh-selected-products-table td:nth-child(5) {
         width: 15%; /* Equalize other columns */
     }
+}
+
+/* DataTables Layout Adjustments */
+.dataTables_wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.dataTables_length,
+.dataTables_info {
+    flex: 0 0 auto;
+    margin: 10px 0;
+    text-align: left;
+}
+
+.dataTables_filter {
+    flex: 0 0 auto;
+    margin: 10px 0;
+    text-align: right;
+}
+
+.dataTables_length label,
+.dataTables_filter label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+
+}
+
+.dataTables_length select,
+.dataTables_filter input {
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+.dataTables_paginate {
+    display: inline-block;
+    margin: 10px 0;
+    text-align: right; /* Move pagination buttons to the right */
+}
+
+.dataTables_paginate .paginate_button {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-left: 5px;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white !important;
+    text-decoration: none;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.dataTables_paginate .paginate_button:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.dataTables_paginate .paginate_button.current {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    font-weight: bold;
+}
+
+.dataTables_paginate .paginate_button.previous,
+.dataTables_paginate .paginate_button.next {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.dataTables_paginate .paginate_button.previous:hover,
+.dataTables_paginate .paginate_button.next:hover {
+    background-color: #3184dc;
+    border-color: #4185ce;
+}
+
+.dataTables_paginate .paginate_button.disabled {
+    background-color: #e9ecef;
+    color: #6c757d !important;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+}
+
+/* Ensure top and bottom layouts are consistent */
+.dataTables_wrapper 
+.dataTables_wrapper  .dataTables_paginate {
+    margin-top: 0;
+    font-size: 15px;
+}
+.dataTables_info{
+    font-size: 12px;
+    margin-top: 1;
+    margin-bottom: 10px;
+    color: #000000;
+}
+.dataTables_filter{
+    font-size: 10px;
+    margin-top: 1;
+    margin-bottom: 10px;
+    color: #000000;
+}
+
+.dataTables_wrapper .dataTables_paginate + .dataTables_filter {
+    margin-top: 10px;
+}
+
+/* Adjust bottom layout to ensure info and pagination are on opposite sides */
+
+
+.dataTables_wrapper .dataTables_info {
+    flex: 1;
+    text-align: left;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    flex: 0 0 auto;
+    text-align: right;
 }

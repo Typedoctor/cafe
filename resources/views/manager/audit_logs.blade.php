@@ -2,9 +2,6 @@
 
 @section('title', 'Audit Logs')
 
-@push('styles')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-@endpush
 
 @section('content')
     <div class="audit-header">Audit Logs</div>
@@ -89,15 +86,15 @@
                         <td>{{ class_basename($log->auditable_type) }} #{{ $log->auditable_id }}</td>
                         <td>
                             @if($log->event === 'updated')
-                                <button class="btn-view-changes" onclick="showChanges({{ json_encode($log->old_values) }}, {{ json_encode($log->new_values) }})">
+                                <button class="btn-view-changes" onclick="showChanges({{ json_encode($log->old_values) }}, {{ json_encode($log->new_values) }}, '{{ $log->user ? addslashes($log->user->name) : 'System' }}')">
                                     View Changes
                                 </button>
                             @elseif($log->event === 'created')
-                                <button class="btn-view-changes" onclick="showNewRecord({{ json_encode($log->new_values) }})">
+                                <button class="btn-view-changes" onclick="showNewRecord({{ json_encode($log->new_values) }}, '{{ $log->user ? addslashes($log->user->name) : 'System' }}')">
                                     View Details
                                 </button>
                             @elseif($log->event === 'deleted')
-                                <button class="btn-view-changes" onclick="showDeletedRecord({{ json_encode($log->old_values) }})">
+                                <button class="btn-view-changes" onclick="showDeletedRecord({{ json_encode($log->old_values) }}, '{{ $log->user ? addslashes($log->user->name) : 'System' }}')">
                                     View Details
                                 </button>
                             @endif
@@ -107,19 +104,14 @@
                 @endforeach
             </tbody>
         </table>
-        
-        
     </div>
 
     <!-- Changes Modal -->
     <div id="changesModal" class="modal">
         <div class="modal-content">
             <span class="close">×</span>
-          
-            <h2 style = "text-align:center;">Changes {{ $log->user->name }}</h2>
-           
+            <h2 id="modalTitle" style="text-align:center;">Changes</h2>
             <div id="changesContent"></div>
-         
         </div>
     </div>
 @endsection
@@ -127,10 +119,12 @@
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#auditLogsTable').DataTable({
-                pageLength: 20,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
                 order: [[0, 'desc']],
                 searching: true
             });
@@ -140,6 +134,7 @@
         const modal = document.getElementById('changesModal');
         const closeBtn = document.getElementsByClassName('close')[0];
         const changesContent = document.getElementById('changesContent');
+        const modalTitle = document.getElementById('modalTitle');
 
         closeBtn.onclick = function() {
             modal.style.display = "none";
@@ -151,14 +146,27 @@
             }
         }
 
-        function showChanges(oldValues, newValues) {
+        function formatDate(value) {
+            if (!value) return value ?? 'N/A';
+          
+            const date = moment(value, moment.ISO_8601, true);
+            if (date.isValid()) {
+                return date.format('MMMM D YYYY / h:mm A');
+            }
+            return value;
+        }
+
+        function showChanges(oldValues, newValues, userName) {
+            modalTitle.innerText = `Changes by ${userName}`;
             let content = '<table class="changes-table"><tr><th>Field</th><th>Old Value</th><th>New Value</th></tr>';
             for (const field in newValues) {
                 if (JSON.stringify(oldValues[field]) !== JSON.stringify(newValues[field])) {
+                    const oldValue = field === 'created_at' || field === 'updated_at' ? formatDate(oldValues[field]) : oldValues[field] ?? 'N/A';
+                    const newValue = field === 'created_at' || field === 'updated_at' ? formatDate(newValues[field]) : newValues[field];
                     content += `<tr>
                         <td>${field}</td>
-                        <td>${oldValues[field] ?? 'N/A'}</td>
-                        <td>${newValues[field]}</td>
+                        <td>${oldValue}</td>
+                        <td>${newValue}</td>
                     </tr>`;
                 }
             }
@@ -167,20 +175,24 @@
             modal.style.display = "block";
         }
 
-        function showNewRecord(values) {
+        function showNewRecord(values, userName) {
+            modalTitle.innerText = `New Record by ${userName}`;
             let content = '<table class="changes-table"><tr><th>Field</th><th>Value</th></tr>';
             for (const field in values) {
-                content += `<tr><td>${field}</td><td>${values[field]}</td></tr>`;
+                const value = field === 'created_at' || field === 'updated_at' ? formatDate(values[field]) : values[field];
+                content += `<tr><td>${field}</td><td>${value}</td></tr>`;
             }
             content += '</table>';
             changesContent.innerHTML = content;
             modal.style.display = "block";
         }
 
-        function showDeletedRecord(values) {
+        function showDeletedRecord(values, userName) {
+            modalTitle.innerText = `Deleted Record by ${userName}`;
             let content = '<table class="changes-table"><tr><th>Field</th><th>Value</th></tr>';
             for (const field in values) {
-                content += `<tr><td>${field}</td><td>${values[field]}</td></tr>`;
+                const value = field === 'created_at' || field === 'updated_at' ? formatDate(values[field]) : values[field];
+                content += `<tr><td>${field}</td><td>${value}</td></tr>`;
             }
             content += '</table>';
             changesContent.innerHTML = content;

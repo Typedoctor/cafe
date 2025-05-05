@@ -40,7 +40,7 @@ class AuthController extends Controller {
         if ($user->isManager()) {
             return redirect()->route('manager.dashboard');
         } elseif ($user->isCashier()) {
-            return redirect()->route('cashier.dashboard');
+            return redirect()->route('cashier.manage_order');
         }
 
         return back()->withErrors(['error' => 'Invalid credentials']);

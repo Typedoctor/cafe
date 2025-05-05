@@ -90,7 +90,7 @@
                 <th>Reason</th>
                 <th>Supplier</th>
                 <th>Reported At</th>
-                <th style="width: 100px;">Actions</th>
+                <th style="width: 50px;">Actions</th>
             </tr>
         </thead>
         <tbody>

@@ -2,7 +2,11 @@
 
 @section('title', 'Cashier Dashboard')
 
+
 @section('content')
+<head>
+    <link rel="stylesheet" href="{{ asset('css/cashier-order.css') }}">
+</head>
     <h1 class="csh-dashboard-title">Cashier Dashboard</h1>
     <div class="csh-main-container">
         <!-- Add Order Button -->
@@ -48,7 +52,7 @@
                     <div id="product-table-container">
                         @foreach (['meal', 'drink', 'dessert', 'snack'] as $category)
                             <div id="{{ $category }}-tab" class="csh-tab-content" style="display: {{ $category == 'meal' ? 'block' : 'none' }};">
-                                <table class="csh-product-table">
+                                <table class="csh-product-table" id="{{ $category }}-product-table">
                                     <thead>
                                         <tr>
                                             <th>Product Name</th>
@@ -77,7 +81,10 @@
                                         @endforeach
                                         @if ($shelfItems->where('product.category', $category)->isEmpty())
                                             <tr>
-                                                <td colspan="4">No {{ $category }} products available.</td>
+                                                <td>No {{ $category }} products available.</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
                                             </tr>
                                         @endif
                                     </tbody>
@@ -89,7 +96,7 @@
                     <!-- Selected Products -->
                     <div id="selected-products">
                         <h3>Selected Products</h3>
-                        <table class="csh-selected-products-table">
+                        <table class="csh-selected-products-table" id="selected-products-table">
                             <thead>
                                 <tr>
                                     <th>Product</th>
@@ -286,8 +293,46 @@
             }
         </style>
 
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+       
         <script>
             let productIndex = {{ old('products') ? count(old('products')) : 0 }};
+            let selectedProductsTable = null;
+            let productTables = {};
+
+            // Modal Handling
+            const openModalBtn = document.getElementById('openModalBtn');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const orderModal = document.getElementById('orderModal');
+
+            openModalBtn.addEventListener('click', () => {
+                console.log('Open modal button clicked');
+                orderModal.style.display = 'flex';
+              
+                const activeTab = document.querySelector('.csh-tab-link-categ.active')?.dataset.tab;
+                if (activeTab && productTables[activeTab]) {
+                    productTables[activeTab].draw();
+                }
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                orderModal.style.display = 'none';
+            
+                document.getElementById('selected-products-body').innerHTML = '';
+                productIndex = 0;
+                initializeSelectedProductsTable();
+            });
+
+            orderModal.addEventListener('click', (e) => {
+                if (e.target === orderModal) {
+                    orderModal.style.display = 'none';
+                
+                    document.getElementById('selected-products-body').innerHTML = '';
+                    productIndex = 0;
+                    initializeSelectedProductsTable();
+                }
+            });
 
             // Validate customer name input
             const customerNameInput = document.getElementById('customer_name');
@@ -322,7 +367,9 @@
                 let hasInsufficientStock = false;
 
                 Array.from(selectedProductsBody.rows).forEach(row => {
-                    const productId = row.querySelector(`input[name$="[product_id]"]`).value;
+                    const productIdInput = row.querySelector(`input[name$="[product_id]"]`);
+                    if (!productIdInput) return; 
+                    const productId = productIdInput.value;
                     const quantityInput = row.querySelector('input[type="number"]');
                     const quantity = parseInt(quantityInput.value);
                     const stockCell = document.querySelector(`.csh-stock[data-product-id="${productId}"]`);
@@ -354,8 +401,41 @@
                     document.querySelectorAll('.csh-tab-content').forEach(content => {
                         content.style.display = content.id === `${button.dataset.tab}-tab` ? 'block' : 'none';
                     });
+
+                  
+                    if (productTables[button.dataset.tab]) {
+                        productTables[button.dataset.tab].draw();
+                    }
                 });
             });
+
+          
+            function initializeSelectedProductsTable() {
+                try {
+                    if (typeof jQuery === 'undefined') {
+                        console.error('jQuery is not loaded');
+                        return;
+                    }
+                    if (selectedProductsTable) {
+                        selectedProductsTable.destroy();
+                    }
+                    selectedProductsTable = jQuery('#selected-products-table').DataTable({
+                        pageLength: 5,
+                        lengthMenu: [5, 10, 25, 50],
+                        responsive: true,
+                        searching: true,
+                        ordering: true,
+                        columnDefs: [{ orderable: false, targets: 4 }],
+                        language: {
+                            search: "Search selected products:",
+                            emptyTable: "No products selected"
+                        }
+                    });
+                    console.log('Selected products table initialized');
+                } catch (e) {
+                    console.error('Error initializing selected-products-table:', e);
+                }
+            }
 
             // Add Product to Selected Products Table
             document.querySelectorAll('.csh-add-product-btn').forEach(button => {
@@ -366,36 +446,49 @@
                     const productStock = parseInt(button.dataset.productStock);
 
                     const selectedProductsBody = document.getElementById('selected-products-body');
-                    const existingRow = Array.from(selectedProductsBody.rows).find(row =>
-                        row.querySelector(`input[name$="[product_id]"]`).value === productId
-                    );
+                    const existingRow = Array.from(selectedProductsBody.rows).find(row => {
+                        const productIdInput = row.querySelector(`input[name$="[product_id]"]`);
+                        if (!productIdInput) {
+                            console.warn('Row missing product_id input:', row.innerHTML);
+                            return false;
+                        }
+                        return productIdInput.value === productId;
+                    });
 
                     if (existingRow) {
                         const quantityInput = existingRow.querySelector('input[type="number"]');
                         const newQuantity = parseInt(quantityInput.value) + 1;
                         if (newQuantity <= productStock) {
                             quantityInput.value = newQuantity;
+                            existingRow.querySelector('.quantity-error').style.display = 'none';
                         } else {
-                            const quantityError = existingRow.querySelector('.quantity-error');
-                            quantityError.style.display = 'block';
+                            existingRow.querySelector('.quantity-error').style.display = 'block';
+                        }
+                        if (selectedProductsTable) {
+                            selectedProductsTable.draw();
                         }
                     } else {
                         if (productStock > 0) {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td>${productName}</td>
-                                <td>${parseFloat(productPrice).toFixed(2)}</td>
-                                <td class="quantity-container">
-                                    <input type="number" name="products[${productIndex}][quantity]" min="1" max="${productStock}" value="1" required class="csh-form-input">
-                                    <input type="hidden" name="products[${productIndex}][product_id]" value="${productId}">
-                                    <div class="quantity-error">Insufficient stock!</div>
-                                </td>
-                                <td>In Stock</td>
-                                <td>
-                                    <button type="button" class="csh-remove-product-btn">Remove</button>
-                                </td>
+                            const rowHtml = `
+                                <tr>
+                                    <td>${productName}</td>
+                                    <td>${parseFloat(productPrice).toFixed(2)}</td>
+                                    <td class="quantity-container">
+                                        <input type="number" name="products[${productIndex}][quantity]" min="1" max="${productStock}" value="1" required class="csh-form-input">
+                                        <input type="hidden" name="products[${productIndex}][product_id]" value="${productId}">
+                                        <div class="quantity-error">Insufficient stock!</div>
+                                    </td>
+                                    <td>In Stock</td>
+                                    <td>
+                                        <button type="button" class="csh-remove-product-btn">Remove</button>
+                                    </td>
+                                </tr>
                             `;
-                            selectedProductsBody.appendChild(row);
+                            if (selectedProductsTable) {
+                                selectedProductsTable.row.add(jQuery(rowHtml)[0]).draw();
+                            } else {
+                                selectedProductsBody.innerHTML += rowHtml;
+                            }
                             productIndex++;
                         } else {
                             alert(`Cannot add ${productName}. Out of stock.`);
@@ -409,37 +502,26 @@
             document.getElementById('selected-products-body').addEventListener('change', (e) => {
                 if (e.target.type === 'number') {
                     updateSubmitButtonState();
+                    if (selectedProductsTable) {
+                        selectedProductsTable.draw();
+                    }
                 }
             });
 
             // Remove Product from Selected Products
             document.addEventListener('click', (e) => {
                 if (e.target.classList.contains('csh-remove-product-btn')) {
-                    e.target.closest('tr').remove();
+                    const row = e.target.closest('tr');
+                    if (selectedProductsTable) {
+                        selectedProductsTable.row(row).remove().draw();
+                    } else {
+                        row.remove();
+                    }
                     updateSubmitButtonState();
                 }
             });
 
-            // Modal Handling
-            const openModalBtn = document.getElementById('openModalBtn');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const orderModal = document.getElementById('orderModal');
-
-            openModalBtn.addEventListener('click', () => {
-                orderModal.style.display = 'flex';
-            });
-
-            closeModalBtn.addEventListener('click', () => {
-                orderModal.style.display = 'none';
-            });
-
-            orderModal.addEventListener('click', (e) => {
-                if (e.target === orderModal) {
-                    orderModal.style.display = 'none';
-                }
-            });
-
-            // Ensure at least one product is selected before submission
+          
             document.getElementById('orderForm').addEventListener('submit', (e) => {
                 const selectedProducts = document.querySelectorAll('#selected-products-body tr');
                 if (selectedProducts.length === 0) {
@@ -450,7 +532,9 @@
 
                 let hasInsufficientStock = false;
                 Array.from(selectedProducts).forEach(row => {
-                    const productId = row.querySelector(`input[name$="[product_id]"]`).value;
+                    const productIdInput = row.querySelector(`input[name$="[product_id]"]`);
+                    if (!productIdInput) return; 
+                    const productId = productIdInput.value;
                     const quantity = parseInt(row.querySelector('input[type="number"]').value);
                     const stock = parseInt(document.querySelector(`.csh-stock[data-product-id="${productId}"]`).textContent);
                     if (quantity > stock) {
@@ -460,9 +544,10 @@
 
                 if (hasInsufficientStock) {
                     e.preventDefault();
+                    alert('Please fix insufficient stock issues before submitting.');
                 }
 
-                // Validate customer name before submission
+             
                 if (!nameRegex.test(customerNameInput.value)) {
                     e.preventDefault();
                     customerNameError.style.display = 'block';
@@ -470,16 +555,16 @@
                 }
             });
 
-            // Reopen modal if errors exist
+         
             @if ($errors->any())
                 document.getElementById('orderModal').style.display = 'flex';
-                // Trigger initial validation for customer name
+                
                 customerNameInput.dispatchEvent(new Event('input'));
-                // Trigger initial character count update
+              
                 specialInstructions.dispatchEvent(new Event('input'));
             @endif
 
-            // Add click and keyboard interaction to show order details
+         
             const orderDetailsForm = document.getElementById('orderDetailsForm');
             const orderDetailsId = document.getElementById('orderDetailsId');
             const orderDetailsIdDisplay = document.getElementById('orderDetailsIdDisplay');
@@ -516,7 +601,39 @@
                 });
             });
 
+         
             document.addEventListener('DOMContentLoaded', () => {
+                if (typeof jQuery === 'undefined') {
+                    console.error('jQuery is not loaded for DataTables initialization');
+                    return;
+                }
+
+                try {
+                
+                    const categories = ['meal', 'drink', 'dessert', 'snack'];
+                    categories.forEach(category => {
+                        productTables[category] = jQuery(`#${category}-product-table`).DataTable({
+                            pageLength: 5,
+                            lengthMenu: [5, 10, 25, 50],
+                            responsive: true,
+                            searching: true,
+                            ordering: true,
+                            columnDefs: [{ orderable: false, targets: 3 }],
+                            language: {
+                                search: "Search products:",
+                                emptyTable: "No products available"
+                            }
+                        });
+                        console.log(`Product table for ${category} initialized`);
+                    });
+
+                   
+                    initializeSelectedProductsTable();
+                } catch (e) {
+                    console.error('Error during DataTables initialization:', e);
+                }
+
+              
                 const orderCards = document.querySelectorAll('.csh-order-card');
                 if (orderCards.length > 0) {
                     let latestCard = null;

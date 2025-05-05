@@ -23,7 +23,7 @@
 }
 
 .dmg-title {
-    font-size: 20px;
+    font-size: 32px;
     margin-bottom: 30px;
     text-align: center;
     color: #333;
@@ -137,6 +137,7 @@
     margin: 20px 0px;
     max-width: 100%;
     overflow-x: auto;
+    
 }
 
 .dmg-table {
@@ -147,12 +148,14 @@
 
 .dmg-table th,
 .dmg-table td {
+   
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    
 }
 
 .dmg-table th {
