@@ -60,11 +60,11 @@
                 <span id="quantityError" style="color: red; display: none;">Insufficient stock!</span>
             </div>
 
-         <div class="form-group">
-            <label>Why are you discarding it?</label>
-            <textarea type="text" name="reason" id="reason" placeholder="e.g., Expired, Damaged" pattern="[A-Za-z\s]+" maxlength="255"></textarea>
-            <div class="trsh-char-counter" id="charCounter">255 characters remaining</div>
-        </div>
+            <div class="form-group">
+                <label>Why are you discarding it?</label>
+                <textarea type="text" name="reason" id="reason" placeholder="e.g., Expired, Damaged" pattern="[A-Za-z\s]+" maxlength="255"></textarea>
+                <div class="trsh-char-counter" id="charCounter">255 characters remaining</div>
+            </div>
             <div class="total-loss-display">
                 <label>Total Loss (₱)</label>
                 <div id="totalLossDisplay">Enter product and quantity to see total loss.</div>
@@ -194,21 +194,6 @@ document.addEventListener('DOMContentLoaded', function () {
     reasonInput.addEventListener('input', function () {
         this.value = this.value.replace(/[^A-Za-z\s]/g, '');
     });
-    document.addEventListener('DOMContentLoaded', function () {
-    // Existing code...
-
-    // Character counter for reason textarea
-    const reasonInput = document.getElementById('reason');
-    const charCounter = document.getElementById('charCounter');
-    const maxLength = 255;
-
-    reasonInput.addEventListener('input', () => {
-        const remaining = maxLength - reasonInput.value.length;
-        charCounter.textContent = `${remaining} characters remaining`;
-    });
-
-    // Rest of your existing code...
-});
 
     // Store all product options
     const allProductOptions = Array.from(productSelect.options).slice(1);
@@ -373,6 +358,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const selectedOption = productSelect.options[productSelect.selectedIndex];
         const stock = selectedOption && selectedOption.getAttribute('data-stock') ? parseInt(selectedOption.getAttribute('data-stock')) : 0;
 
+        // Basic form validation
         if (!productName || !category || !quantity || !reason) {
             alert('Please fill in all fields!');
             return;
@@ -389,16 +375,28 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        // Duplicate check only for POST (adding new entry)
         if (methodField.value === 'POST') {
-            const existingProducts = Array.from(document.querySelectorAll('tbody tr')).map(row =>
-                row.querySelector('td:nth-child(2)').innerText.trim().toLowerCase()
-            );
+            const rows = document.querySelectorAll('#trashTable tbody tr');
+            let existingProducts = [];
+
+            // Iterate through rows and safely extract product names
+            rows.forEach(row => {
+                const productCell = row.querySelector('td:nth-child(2)');
+                // Only include rows with a valid product cell
+                if (productCell) {
+                    existingProducts.push(productCell.innerText.trim().toLowerCase());
+                }
+            });
+
+            // Check for duplicates
             if (existingProducts.includes(productName.toLowerCase())) {
                 duplicateModal.style.display = 'block';
                 return;
             }
         }
 
+        // Proceed with form submission
         loadingSpinner.style.display = 'block';
         saveBtn.disabled = true;
         trashForm.submit();
