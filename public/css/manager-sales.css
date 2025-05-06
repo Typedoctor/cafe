@@ -1,0 +1,53 @@
+.sl-header {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.sl-section {
+    margin-bottom: 30px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.sl-section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 15px;
+}
+
+.sl-table-scroll-container {
+    overflow-x: auto;
+}
+
+.sl-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.sl-table th, .sl-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.sl-table th {
+    background-color: #f4f4f4;
+    font-weight: 600;
+    color: #333;
+}
+
+.sl-table-striped tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.sl-table tbody tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Trash;
-use App\Models\Transaction;
+use App\Models\Sale;
 use Carbon\Carbon;
 
 class DashboardController extends Controller 
@@ -41,9 +41,9 @@ class DashboardController extends Controller
 
         // Initialize queries
         $queryTrash = Trash::query();
-        $queryTransaction = Transaction::query();
-        $queryTopSelling = Transaction::query();
-        $querySalesChart = Transaction::query();
+        $queryTransaction = Sale::query();
+        $queryTopSelling = Sale::query();
+        $querySalesChart = Sale::query();
 
         // Apply filters
         if ($period === 'monthly') {
@@ -66,8 +66,8 @@ class DashboardController extends Controller
 
         // Top selling products
         $topSellingProducts = $queryTopSelling
-            ->select('product_id', \DB::raw('SUM(quantity) as total_quantity'))
-            ->groupBy('product_id')
+            ->select('product_name', \DB::raw('SUM(quantity) as total_quantity'))
+            ->groupBy('product_name')
             ->orderByDesc('total_quantity')
             ->take(5)
             ->with('product')
@@ -137,8 +137,8 @@ class DashboardController extends Controller
 
         // Top 3 products for chart
         $topProducts = $querySalesChart
-            ->select('product_id', \DB::raw('SUM(quantity) as total_quantity'))
-            ->groupBy('product_id')
+            ->select('product_name', \DB::raw('SUM(quantity) as total_quantity'))
+            ->groupBy('product_name')
             ->orderByDesc('total_quantity')
             ->take(3)
             ->with('product')
@@ -156,7 +156,7 @@ class DashboardController extends Controller
         foreach ($topProducts as $index => $product) {
             $productSales = [];
             foreach ($intervals as $interval) {
-                $quantity = Transaction::where('product_id', $product->product_id)
+                $quantity = Sale::where('product_name', $product->product_name)
                     ->whereBetween('created_at', [$interval['start'], $interval['end']])
                     ->sum('quantity');
                 $productSales[] = $quantity ?: 0;

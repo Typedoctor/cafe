@@ -338,6 +338,217 @@ div.dataTables_wrapper div.dataTables_filter {
     margin-bottom: 50px;
     font-family: 'Poppins', sans-serif;
 }
+        /* Modal Overlay */
+        .trn-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .trn-modal-overlay.active {
+            opacity: 1;
+        }
+
+        /* Receipt Modal */
+        .trn-receipt-modal {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 550px;
+            padding: 25px;
+            box-sizing: border-box;
+            position: relative;
+            font-family: 'Poppins', sans-serif;
+            transform: scale(0.8);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .trn-modal-overlay.active .trn-receipt-modal {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* Receipt Header */
+        .trn-receipt-header {
+            background-color: #10394f;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px 8px 0 0;
+            margin: -25px -25px 20px -25px;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Receipt Details */
+        .trn-receipt-details {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+        }
+
+        .trn-receipt-details p {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .trn-receipt-details strong {
+            color: #10394f;
+            font-weight: 600;
+        }
+
+        .trn-receipt-details .trn-product-list {
+            margin: 0;
+            padding-left: 20px;
+            list-style-type: disc;
+            color: #333;
+        }
+
+        .trn-receipt-details .trn-product-list li {
+            margin: 5px 0;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+
+        .trn-receipt-details .trn-total {
+            border-top: 1px dashed #e0e0e0;
+            padding-top: 10px;
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* Modal Buttons Container */
+        .trn-modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        /* Modal Buttons */
+        .trn-modal-print {
+            background-color: #3590C0;
+            color: white;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+        .trn-modal-close {
+            background-color:rgb(217, 9, 9);
+            color: white;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .trn-modal-print:hover{
+            background-color:rgb(7, 81, 121);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5);
+        }
+         .trn-modal-close:hover {
+            background-color:rgb(178, 11, 11);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5);
+        }
+
+        /* Print Media Query */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .trn-receipt-modal, .trn-receipt-modal * {
+                visibility: visible;
+            }
+            .trn-receipt-modal {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                max-width: 100%;
+                padding: 20px;
+                margin: 0;
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+                transform: none;
+                max-height: none;
+                overflow-y: visible;
+                height: auto;
+            }
+            .trn-modal-print, .trn-modal-close {
+                display: none;
+            }
+            .trn-receipt-header {
+                margin: 0 0 20px 0;
+                border-radius: 0;
+            }
+            body {
+                background: #fff;
+                margin: 0;
+            }
+        }
+
+        /* Responsive Modal */
+        @media (max-width: 768px) {
+            .trn-receipt-modal {
+                max-width: 90%;
+                padding: 20px;
+            }
+
+            .trn-receipt-header {
+                margin: -20px -20px 15px -20px;
+                font-size: 16px;
+            }
+
+            .trn-receipt-details p {
+                font-size: 14px;
+            }
+
+            .trn-receipt-details .trn-product-list {
+                padding-left: 15px;
+            }
+
+            .trn-receipt-details .trn-product-list li {
+                font-size: 14px;
+            }
+
+            .trn-receipt-details .trn-total {
+                font-size: 16px;
+            }
+
+            .trn-modal-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
 
 /* Responsive Styles for Table */
 @media (max-width: 768px) {

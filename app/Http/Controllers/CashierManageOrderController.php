@@ -7,6 +7,7 @@ use App\Models\ShelfItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Transaction;
+use App\Models\Sale; // Correct model name
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -16,8 +17,8 @@ class CashierManageOrderController extends Controller
     {
         $orders = Order::with('orderItems.product')->get();
         $shelfItems = ShelfItem::with('product')
-            ->whereHas('product') // Ensure product exists
-            ->where('quantity_added', '>', 0) // Only items with stock
+            ->whereHas('product')
+            ->where('quantity_added', '>', 0)
             ->get();
         return view('cashier.manage_order', compact('shelfItems', 'orders'));
     }
@@ -25,8 +26,8 @@ class CashierManageOrderController extends Controller
     public function create()
     {
         $shelfItems = ShelfItem::with('product')
-            ->whereHas('product') // Ensure product exists
-            ->where('quantity_added', '>', 0) // Only items with stock
+            ->whereHas('product')
+            ->where('quantity_added', '>', 0)
             ->get();
         return view('cashier.manage_order', compact('shelfItems'));
     }
@@ -72,7 +73,8 @@ class CashierManageOrderController extends Controller
                     ])->withInput();
                 }
 
-                $item_price = ($shelfItem->price ?? 0) * $quantity;
+                $unit_price = $shelfItem->price ?? 0;
+                $item_price = $unit_price * $quantity;
                 $total_price += $item_price;
 
                 $orderItems[] = [
@@ -91,7 +93,7 @@ class CashierManageOrderController extends Controller
                 }
             }
 
-            // Create order
+            // Create order first
             $order = Order::create([
                 'customer_name' => $validated['customer_name'],
                 'user_id' => Auth::id() ?? throw new \Exception('No authenticated user found'),
@@ -101,7 +103,7 @@ class CashierManageOrderController extends Controller
                 'status' => 'pending',
             ]);
 
-            // Create order items and update stock
+            // Create sale logs with the order ID
             foreach ($orderItems as $item) {
                 $shelfItem = ShelfItem::where('product_id', $item['product_id'])->firstOrFail();
                 OrderItem::create([
@@ -116,6 +118,21 @@ class CashierManageOrderController extends Controller
                     throw new \Exception("Stock for {$shelfItem->product->product_name} cannot go below zero.");
                 }
                 $shelfItem->save();
+
+                // Create sale log with the order ID
+                Sale::create([
+                    'order_id' => $order->id,
+                    'product_id' => $shelfItem->product_id,
+                    'product_name' => $shelfItem->product->product_name,
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $shelfItem->price ?? 0,
+                    'total_price' => $item['price'],
+                    'user_id' => Auth::id(),
+                    'customer_name' => $validated['customer_name'],
+                    'order_type' => ucwords(strtolower($validated['order_type'])),
+                    'status' => 'pending',
+                    'special_instructions' => $validated['special_instructions'] ?? '',
+                ]);
             }
 
             DB::commit();
@@ -148,11 +165,17 @@ class CashierManageOrderController extends Controller
                     ->withErrors(['error' => 'Cannot cancel a completed order.']);
             }
 
-            // Restore stock
+            // Restore stock and delete sale logs
             foreach ($order->orderItems as $item) {
                 $shelfItem = ShelfItem::where('product_id', $item->product_id)->firstOrFail();
                 $shelfItem->quantity_added += $item->quantity;
                 $shelfItem->save();
+
+                // Delete the corresponding sale log
+                Sale::where('order_id', $order->id)
+                    ->where('product_id', $item->product_id)
+                    ->where('quantity', $item->quantity)
+                    ->delete();
             }
 
             // Delete the order and its items
@@ -176,7 +199,7 @@ class CashierManageOrderController extends Controller
                 ->whereHas('product')
                 ->where('quantity_added', '>', 0)
                 ->get();
-            return view('cashier.dashboarmanage_orderd', compact('shelfItems', 'orders'))
+            return view('cashier.manage_order', compact('shelfItems', 'orders'))
                 ->withErrors(['error' => 'Failed to cancel order: ' . $e->getMessage()]);
         }
     }
@@ -186,10 +209,10 @@ class CashierManageOrderController extends Controller
         $validated = $request->validate([
             'order_id' => 'required|exists:orders,id',
         ]);
-    
+
         try {
             DB::beginTransaction();
-    
+
             $order = Order::with('orderItems.product')->findOrFail($validated['order_id']);
             
             if ($order->status === 'completed') {
@@ -201,37 +224,50 @@ class CashierManageOrderController extends Controller
                 return view('cashier.manage_order', compact('shelfItems', 'orders'))
                     ->withErrors(['error' => 'Order is already completed.']);
             }
-    
-            // Create transaction records
+
+            // Aggregate transaction data
+            $total_quantity = 0;
+            $total_price = 0;
+            $product_names = [];
+
             foreach ($order->orderItems as $item) {
                 if (!$item->product) {
                     \Log::warning("OrderItem {$item->id} has no associated product. Skipping.");
                     continue;
                 }
-    
-                Transaction::create([
-                    'customer_name' => $order->customer_name,
-                    'user_id' => $order->user_id ?? Auth::id() ?? throw new \Exception('No user ID available'),
-                    'product_id' => $item->product_id,
-                    'product_name' => $item->product->product_name,
-                    'quantity' => $item->quantity,
-                    'total_price' => $item->price,
-                    'special_instructions' => $order->special_instructions ?? '',
-                    'order_type' => $order->order_type,
-                    'status' => 'completed',
-                ]);
+                $total_quantity += $item->quantity;
+                $total_price += $item->price;
+                $product_names[] = $item->product->product_name;
+
+                // Update sale log status to 'completed'
+                Sale::where('order_id', $order->id)
+                    ->where('product_id', $item->product_id)
+                    ->where('quantity', $item->quantity)
+                    ->update(['status' => 'completed']);
             }
-    
+
+            // Create a single summarized transaction
+            Transaction::create([
+                'customer_name' => $order->customer_name,
+                'user_id' => $order->user_id ?? Auth::id() ?? throw new \Exception('No user ID available'),
+                'product_name' => implode(', ', $product_names), // Comma-separated product names
+                'quantity' => $total_quantity,
+                'total_price' => $total_price,
+                'special_instructions' => $order->special_instructions ?? '',
+                'order_type' => $order->order_type,
+                'status' => 'completed',
+            ]);
+
             // Update order status
             $order->status = 'completed';
             $order->save();
-    
+
             // Delete order items and order
             $order->orderItems()->delete();
             $order->delete();
-    
+
             DB::commit();
-    
+
             $orders = Order::with('orderItems.product')->get();
             $shelfItems = ShelfItem::with('product')
                 ->whereHas('product')

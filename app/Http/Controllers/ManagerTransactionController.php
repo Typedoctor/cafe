@@ -12,13 +12,12 @@ class ManagerTransactionController extends Controller
 {
     public function index(Request $request)
     {
-       
         $month = $request->input('month', 'all');
         $year = $request->input('year', 'all');
         $search = $request->input('search');
 
-       
         $query = Transaction::select(
+            'transaction_id', // Select the database-stored transaction_id
             'user_id',
             'customer_name',
             'order_type',
@@ -36,7 +35,7 @@ class ManagerTransactionController extends Controller
             $query->whereMonth('created_at', $month);
         }
 
-       
+        // Apply year filter
         if ($year !== 'all') {
             $query->whereYear('created_at', $year);
         }
@@ -46,6 +45,7 @@ class ManagerTransactionController extends Controller
         }
 
         $summarizedTransactions = $query->groupBy(
+            'transaction_id', // Group by the database-stored transaction_id
             'user_id',
             'customer_name',
             'order_type',

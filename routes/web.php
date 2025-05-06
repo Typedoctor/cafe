@@ -12,6 +12,7 @@ use App\Http\Controllers\CashierTransactionController;
 use App\Http\Controllers\ManagerShelfController;
 use App\Http\Controllers\ManagerDamagedProductController;
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\SalesController;
 
 // Public routes
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -24,6 +25,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/manager/audit-logs', [AuditLogController::class, 'index'])->name('audit.index');
     Route::put('/manage_users/{id}/update_status', [ManageUserController::class, 'updateStatus'])
     ->name('manage_users.update_status');
+    Route::resource('sales',  SalesController::class);
     Route::resource('damaged-products',  ManagerDamagedProductController::class);
     Route::resource('add-to-shelf',  ManagerShelfController::class);
     Route::resource('manage_users', ManageUserController::class);
@@ -37,7 +39,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/cashier/dashboard', [CashierManageOrderController::class, 'index'])->name('cashier.manage_order');
     Route::post('/orders/cancel', [CashierManageOrderController::class, 'cancel'])->name('order.cancel');
     Route::post('/orders/complete', [CashierManageOrderController::class, 'complete'])->name('order.complete');
-    Route::get('cashier/transactions', [CashierTransactionController::class, 'index_cashier'])->name('cashier.cashier_transactions');
+    Route::resource('cashier-transactions', CashierTransactionController::class);
     //Route::get('cashier/transactions/export', [CashierTransactionController::class, 'export_cashier'])->name('cashier.transactions.export');
     Route::post('/add-to-shelf/check', [ManagerShelfController::class, 'check'])->name('add-to-shelf.check');
     Route::resource('order', CashierManageOrderController::class);

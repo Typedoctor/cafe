@@ -10,15 +10,14 @@ use App\Exports\TransactionsExport;
 
 class CashierTransactionController extends Controller
 {
-    public function index_cashier(Request $request)
+    public function index(Request $request)
     {
-        // Get filter values
         $month = $request->input('month', 'all');
         $year = $request->input('year', 'all');
         $search = $request->input('search');
 
-        // Start building the query
         $query = Transaction::select(
+            'transaction_id', // Select the database-stored transaction_id
             'user_id',
             'customer_name',
             'order_type',
@@ -46,6 +45,7 @@ class CashierTransactionController extends Controller
         }
 
         $summarizedTransactions = $query->groupBy(
+            'transaction_id', // Group by the database-stored transaction_id
             'user_id',
             'customer_name',
             'order_type',
@@ -55,18 +55,11 @@ class CashierTransactionController extends Controller
             'updated_at'
         )->get();
 
-        return view('cashier.transactions', compact('summarizedTransactions'));
+        return view('cashier.cashier-transactions', compact('summarizedTransactions'));
     }
 
- /*   public function export_cashier(Request $request)
+    public function export(Request $request)
     {
-        try {
-            return Excel::download(
-                new TransactionsExport($request->all()),
-                'transactions_' . Carbon::now()->format('Ymd_His') . '.xlsx'
-            );
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to export transactions: ' . $e->getMessage());
-        }
-    }*/
+        return Excel::download(new TransactionsExport($request->all()), 'transactions_' . Carbon::now()->format('Ymd_His') . '.xlsx');
+    }
 }
