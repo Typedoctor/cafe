@@ -206,8 +206,8 @@
         $(document).ready(() => {
             // Initialize DataTable for shelfItemsTable
             $('#shelfItemsTable').DataTable({
-                pageLength: 5,
-                lengthMenu: [5, 10, 25, 50, 100],
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
                 responsive: true,
                 order: [[0, 'asc']],
                 searching: true,

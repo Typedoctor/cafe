@@ -5,8 +5,11 @@
 
 @section('content')
     <div class="audit-header">Audit Logs</div>
-
-    <!-- Display validation errors -->
+<head>
+ 
+    <link rel="stylesheet" href="{{ asset('css/manager-audit-logs.css') }}">
+</head>
+        <!-- Display validation errors -->
     @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
