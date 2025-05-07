@@ -360,6 +360,12 @@
     background: #3267d6;
 }
 
+.csh-add-product-btn:disabled {
+    background: #dc3545; /* Red background for out-of-stock */
+    color: white;
+    cursor: not-allowed; /* Emphasize non-clickable state */
+}
+
 .csh-remove-product-btn {
     background: #dc3545;
     color: white;
@@ -589,6 +595,153 @@
     background-color: #3267d6;
 }
 
+/* DataTables Layout Adjustments */
+.dataTables_wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Container for top controls (Show Entries and Search) */
+.dataTables_top_controls {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 10px; /* Space between elements */
+}
+
+.dataTables_length,
+.dataTables_filter {
+    flex: 0 0 auto;
+}
+
+.dataTables_length label,
+.dataTables_filter label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+}
+
+.dataTables_length select,
+.dataTables_filter input {
+    padding: 6px;
+    border: 1px solid #000000;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+.dataTables_info {
+    flex: 0 0 auto;
+    margin: 10px 0;
+    text-align: left;
+    font-size: 12px;
+    color: #000000;
+}
+
+.dataTables_paginate {
+    display: inline-block;
+    margin: 10px 0;
+    text-align: right;
+}
+
+.dataTables_paginate .paginate_button {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-left: 5px;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white !important;
+    text-decoration: none;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.dataTables_paginate .paginate_button:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.dataTables_paginate .paginate_button.current {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    font-weight: bold;
+}
+
+.dataTables_paginate .paginate_button.previous,
+.dataTables_paginate .paginate_button.next {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.dataTables_paginate .paginate_button.previous:hover,
+.dataTables_paginate .paginate_button.next:hover {
+    background-color: #3184dc;
+    border-color: #4185ce;
+}
+
+.dataTables_paginate .paginate_button.disabled {
+    background-color: #e9ecef;
+    color: #6c757d !important;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+}
+
+/* Ensure bottom layout consistency */
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 0;
+    font-size: 15px;
+}
+
+.dataTables_wrapper .dataTables_info {
+    flex: 1;
+    text-align: left;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    flex: 0 0 auto;
+    text-align: right;
+}
+
+.csh-selected-products-table .quantity-container {
+    position: relative;
+}
+
+.csh-selected-products-table .quantity-container input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #28a745;
+    border-radius: 4px;
+}
+
+.csh-selected-products-table .quantity-error {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+.csh-customer-name-error, .csh-special-instructions-error {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+.csh-submit-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.csh-char-counter {
+    font-size: 12px;
+    color: #555;
+    margin-top: 5px;
+    font-family: 'Poppins', sans-serif;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .csh-main-container {
@@ -733,126 +886,33 @@
     .csh-selected-products-table td:nth-child(5) {
         width: 15%; /* Equalize other columns */
     }
+
+    /* Responsive adjustments for top controls */
+    .dataTables_top_controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dataTables_length,
+    .dataTables_filter {
+        width: 100%;
+        text-align: left;
+    }
+
+    .dataTables_filter {
+        margin-top: 10px;
+    }
 }
 
-/* DataTables Layout Adjustments */
-.dataTables_wrapper {
-    display: flex;
-    flex-direction: column;
-}
-
-.dataTables_length,
-.dataTables_info {
-    flex: 0 0 auto;
-    margin: 10px 0;
-    text-align: left;
-}
-
-.dataTables_filter {
-    flex: 0 0 auto;
-    margin: 10px 0;
-    text-align: right;
-}
-
-.dataTables_length label,
-.dataTables_filter label {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-
-}
-
-.dataTables_length select,
-.dataTables_filter input {
-    padding: 6px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 12px;
-}
-
-.dataTables_paginate {
-    display: inline-block;
-    margin: 10px 0;
-    text-align: right; /* Move pagination buttons to the right */
-}
-
-.dataTables_paginate .paginate_button {
-    display: inline-block;
-    padding: 6px 12px;
-    margin-left: 5px;
-    border: 1px solid #007bff;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white !important;
-    text-decoration: none;
-    font-size: 12px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.dataTables_paginate .paginate_button:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
-}
-
-.dataTables_paginate .paginate_button.current {
-    background-color: #0056b3;
-    border-color: #0056b3;
-    font-weight: bold;
-}
-
-.dataTables_paginate .paginate_button.previous,
-.dataTables_paginate .paginate_button.next {
-    background-color: #007bff;
-    border-color: #007bff;
-}
-
-.dataTables_paginate .paginate_button.previous:hover,
-.dataTables_paginate .paginate_button.next:hover {
-    background-color: #3184dc;
-    border-color: #4185ce;
-}
-
-.dataTables_paginate .paginate_button.disabled {
-    background-color: #e9ecef;
-    color: #6c757d !important;
-    border-color: #dee2e6;
-    cursor: not-allowed;
-}
-
-/* Ensure top and bottom layouts are consistent */
-.dataTables_wrapper 
-.dataTables_wrapper  .dataTables_paginate {
-    margin-top: 0;
-    font-size: 15px;
-}
-.dataTables_info{
-    font-size: 12px;
-    margin-top: 1;
-    margin-bottom: 10px;
-    color: #000000;
-}
-.dataTables_filter{
-    font-size: 10px;
-    margin-top: 1;
-    margin-bottom: 10px;
-    color: #000000;
-}
-
-.dataTables_wrapper .dataTables_paginate + .dataTables_filter {
-    margin-top: 10px;
-}
-
-/* Adjust bottom layout to ensure info and pagination are on opposite sides */
-
-
-.dataTables_wrapper .dataTables_info {
-    flex: 1;
-    text-align: left;
-}
-
-.dataTables_wrapper .dataTables_paginate {
-    flex: 0 0 auto;
-    text-align: right;
+@media print {
+    .csh-order-details-form {
+        box-shadow: none;
+        width: 100%;
+    }
+    .csh-order-details-actions {
+        display: none;
+    }
+    .csh-main-container, .csh-button-container, .csh-orders-list {
+        display: none;
+    }
 }

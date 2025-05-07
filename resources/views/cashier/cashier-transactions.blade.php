@@ -1,3 +1,4 @@
+
 @extends('cashier.layout')
 
 @section('title', 'Transaction_cashier')
@@ -91,9 +92,10 @@
             const detailsHtml = `
                 <p><strong>Transaction ID:</strong> <span>${transaction.transaction_id}</span></p>
                 <p><strong>Customer Name:</strong> <span>${transaction.customer_name || 'N/A'}</span></p>
-                <p><strong>Created at:</strong> <span>${transaction.created_at || 'N/A'}</span></p>
+                <p><strong>Completed Order at:</strong> <span>${transaction.created_at || 'N/A'}</span></p>
                 <p><strong>Products Ordered:</strong> ${productsHtml}</p>
-                <p><strong>Special Instructions:</strong> <span>${transaction.special_instructions || 'N/A'}</span></p>
+                <p><strong>Special Instructions:</strong></p>
+                <div class="trn-special-instructions">${transaction.special_instructions || 'N/A'}</div>
                 <p><strong>Order Type:</strong> <span>${transaction.order_type || 'N/A'}</span></p>
                 <p><strong>Status:</strong> <span>${transaction.status || 'N/A'}</span></p>
                 <p><strong>Total Quantity:</strong> <span>${transaction.total_quantity || 0}</span></p>

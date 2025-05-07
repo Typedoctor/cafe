@@ -478,6 +478,11 @@ div.dataTables_wrapper div.dataTables_filter {
             transform: translateY(-3px);
             box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5);
         }
+        .trn-special-instructions {
+            margin-top: 5px;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
 
         /* Print Media Query */
         @media print {

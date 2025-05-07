@@ -24,7 +24,7 @@
         <li><a href="{{ route('reports.index') }}"><i class="fa-solid fa-chart-line" ></i>Reports</a></li>
         <li><a href="{{ route('manage_users.index') }}"><i class="fa-solid fa-users"></i>Manage Users</a></li>
         <li><a href="{{ route('transactions.index') }}"><i class="fa-solid fa-receipt" ></i><span>Transactions</span></a></li>
-        <li><a href="{{ route('sales.index') }}"><i class="fa-solid fa-receipt" ></i><span>sales</span></a></li>
+        <li><a href="{{ route('sales.index') }}"><i class="fa-solid fa-chart-simple"></i><span>Sales</span></a></li>
         <li><a href="{{ route('audit.index') }}"><i class="fa-solid fa-history"></i><span>Audit Logs</span></a></li>
         <li><a href="{{ route('logout') }}"><i class="fa-solid fa-sign-out-alt"></i><span>Logout</span></a></li>
     </ul>
