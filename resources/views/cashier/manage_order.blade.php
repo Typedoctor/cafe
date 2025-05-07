@@ -146,7 +146,7 @@
                     <div class="csh-money-received-container">
                         <input type="number" name="money_received" id="moneyReceived" min="0" step="0.01"
                                maxlength="6" value="{{ old('money_received') }}" class="csh-form-input"
-                               placeholder="0.00" required>
+                               placeholder="Enter amount here.." required>
                         <div class="csh-money-received-error" style="display: none;">Enter an appropriate amount received.</div>
                         <span class="csh-total-display" id="orderTotal">Total: ₱ 0.00</span>
                         <span class="csh-change-display" id="orderChange">Change: ₱ 0.00</span>

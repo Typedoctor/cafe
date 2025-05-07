@@ -9,6 +9,53 @@
 
 <div class="trn-header">Transactions</div>
 
+<!-- Search and Filter Container -->
+<div class="trn-search-filter-container">
+    <form id="transactionFilterForm" method="GET" action="{{ route('cashier-transactions.index') }}">
+        <div class="trn-filter-row">
+           
+            <!-- Filter Box -->
+            <div class="trn-filter-box">
+                <!-- Month Dropdown -->
+                <select name="month" class="trn-month-filter">
+                    <option value="all" {{ request()->input('month', 'all') == 'all' ? 'selected' : '' }}>All Months</option>
+                    @php
+                        $currentMonth = \Carbon\Carbon::now()->month;
+                        $months = [
+                            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+                            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+                            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+                        ];
+                    @endphp
+                    @foreach ($months as $num => $name)
+                        <option value="{{ $num }}" {{ request()->input('month', $currentMonth) == $num ? 'selected' : '' }}>
+                            {{ $name }}
+                        </option>
+                    @endforeach
+                </select>
+                <!-- Year Dropdown -->
+                <select name="year" class="trn-year-filter">
+                    <option value="all" {{ request()->input('year', 'all') == 'all' ? 'selected' : '' }}>All Years</option>
+                    @php
+                        $currentYear = \Carbon\Carbon::now()->year;
+                        $startYear = 2020;
+                        $years = range($currentYear, $startYear);
+                    @endphp
+                    @foreach ($years as $year)
+                        <option value="{{ $year }}" {{ request()->input('year', $currentYear) == $year ? 'selected' : '' }}>
+                            {{ $year }}
+                        </option>
+                    @endforeach
+                </select>
+                <!-- Filter Button -->
+                <button type="submit" class="trn-filter-btn">Filter</button>
+                <!-- Reset Button -->
+                <a href="{{ route('cashier-transactions.index') }}" class="trn-reset-btn">Reset</a>
+            </div>
+        </div>
+    </form>
+</div>
+
 <!-- Transaction Table -->
 <div class="trn-table-container active" id="transaction-table">
     <div class="trn-section-title">Transaction List</div>
@@ -31,7 +78,7 @@
                         "status" => $transaction->status ?? null,
                         "total_quantity" => $transaction->total_quantity ?? 0,
                         "money_received" => $transaction->money_received ?? 0,
-                        "change" => $transaction->change ?? 0, // Add change to the data
+                        "change" => $transaction->change ?? 0,
                         "total_price" => $transaction->total_price ?? 0,
                         "created_at" => \Carbon\Carbon::parse($transaction->created_at)->format("F j Y / g:i A")
                     ]) }}'>
@@ -68,28 +115,39 @@
 
 <script>
     $(document).ready(function() {
-        // Initialize DataTables
-        $('#transactionsTable').DataTable({
-            searching: true,
-            paging: true,
-            ordering: true,
-            language: {
-                emptyTable: "No transactions found for this period."
-            }
-        });
+        // Check if table has rows before initializing DataTables
+        const table = $('#transactionsTable');
+        const hasRows = table.find('tbody tr').length > 0;
+
+        if (hasRows) {
+            // Initialize DataTables only if there are rows
+            table.DataTable({
+                searching: true,
+                paging: true,
+                ordering: true,
+                language: {
+                    emptyTable: "No transactions found for this period."
+                },
+                columns: [
+                    { data: "transaction_id" }, // Match the number of th elements
+                    { data: "customer_name" }
+                ]
+            });
+        } else {
+            // If no rows, disable DataTables or handle manually
+            table.addClass('no-datatables'); // Optional: Add a class for custom styling
+        }
 
         // Handle row click to show modal
         $(document).on('click', '.trn-transaction-row', function() {
             const transaction = $(this).data('transaction');
-            console.log("Transaction data:", transaction); // Debug to check data
+            console.log("Transaction data:", transaction);
 
-            // Split product names into an array and create a list, handling null/empty cases
             const products = transaction.product_names ? transaction.product_names.split(',').map(product => product.trim()) : [];
             let productsHtml = '<ul class="trn-product-list">';
             productsHtml += products.length > 0 ? products.map(product => `<li>${product}</li>`).join('') : '<li>No products listed</li>';
             productsHtml += '</ul>';
 
-            // Populate receipt details
             const detailsHtml = `
                 <p><strong>Transaction ID:</strong> <span>${transaction.transaction_id}</span></p>
                 <p><strong>Customer Name:</strong> <span>${transaction.customer_name || 'N/A'}</span></p>
@@ -106,7 +164,6 @@
             `;
             $('#receiptDetails').html(detailsHtml);
 
-            // Show modal with animation
             $('#receiptModal').css('display', 'flex').addClass('active');
         });
 
@@ -135,6 +192,12 @@
 
         // Handle select changes for month and year filters
         $('.trn-month-filter, .trn-year-filter').on('change', function() {
+            $('#transactionFilterForm').submit();
+        });
+
+        // Handle filter button click
+        $('.trn-filter-btn').on('click', function(e) {
+            e.preventDefault();
             $('#transactionFilterForm').submit();
         });
     });

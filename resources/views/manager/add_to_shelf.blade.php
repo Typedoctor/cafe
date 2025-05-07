@@ -50,13 +50,14 @@
                                     @foreach ($products->where('category', $category) as $product)
                                         <tr>
                                             <td>{{ $product->product_name }}</td>
-                                            <td>{{ $product->quantity }}</td>
+                                            <td class="{{ $product->quantity == 0 ? 'shelf-out-of-stock' : '' }}">{{ $product->quantity }}</td>
                                             <td>
                                                 <button type="button" class="shelf-btn shelf-product-add-btn" 
                                                         data-product-id="{{ $product->id }}" 
                                                         data-product-name="{{ $product->product_name }}"
-                                                        data-product-stock="{{ $product->quantity }}">
-                                                    Add to Shelf
+                                                        data-product-stock="{{ $product->quantity }}"
+                                                        @if($product->quantity == 0) disabled @endif>
+                                                    @if($product->quantity == 0) Out of Stock @else Add to Shelf @endif
                                                 </button>
                                             </td>
                                         </tr>
@@ -80,7 +81,7 @@
                         <thead>
                             <tr>
                                 <th>Product</th>
-                                <th>Price (₱)<br><span class="price-note">Must not be zero, max 1200</span></th>
+                                <th>Price (₱)<br><span class="price-note">Required, max 1200</span></th>
                                 <th>Quantity</th>
                                 <th>Action</th>
                             </tr>
@@ -91,7 +92,7 @@
                 </div>
 
                 <div class="shelf-form-actions">
-                    <button type="submit" class="shelf-btn shelf-save-btn">Add to Shelf</button>
+                    <button type="submit" class="shelf-btn shelf-save-btn" disabled>Add to Shelf</button>
                 </div>
             </form>
         </div>
@@ -122,7 +123,7 @@
                 </div>
                 <div class="shelf-form-group">
                     <label for="edit-price">Price (₱)</label>
-                    <input type="number" name="price" id="edit-price" class="shelf-form-input" step="0.01" min="0" max="1200">
+                    <input type="number" name="price" id="edit-price" class="shelf-form-input" step="0.01" min="0" max="1200" required>
                 </div>
                 <div class="shelf-form-actions">
                     <button type="submit" class="shelf-btn shelf-save-btn">Save Changes</button>
@@ -136,7 +137,7 @@
             <h2>Success</h2>
             <p id="successModalMessage"></p>
             <div class="shelf-form-actions">
-                <button type="button" class="shelf-btn shelf-close-success-btn">Close</button>
+                <button type="button" class="shelf-close-success-btn">Close</button>
             </div>
         </div>
     </div>
@@ -146,7 +147,7 @@
             <h2>Deleted</h2>
             <p id="deleteSuccessModalMessage"></p>
             <div class="shelf-form-actions">
-                <button type="button" class="shelf-btn shelf-close-delete-success-btn">Close</button>
+                <button type="button" class="shelf-close-delete-success-btn">Close</button>
             </div>
         </div>
     </div>
@@ -213,7 +214,8 @@
                 searching: true,
                 columnDefs: [{ orderable: false, targets: 5 }],
                 language: {
-                    search: "Search shelfed items:"
+                    search: "Search shelfed items:",
+                    emptyTable: "No shelfed items available."
                 }
             });
 
@@ -229,7 +231,7 @@
                     columnDefs: [{ orderable: false, targets: 2 }],
                     language: {
                         search: "Search products:",
-                        emptyTable: "No products available"
+                        emptyTable: "No products available."
                     }
                 });
             });
@@ -240,6 +242,9 @@
             document.querySelector('.close-warning')?.addEventListener('click', () => {
                 document.getElementById('shelf-warning-message').style.display = 'none';
             });
+
+            // Ensure the "Add to Shelf" button is initially disabled
+            updateSubmitButton();
         });
 
         const initializeSelectedProductsTable = () => {
@@ -254,7 +259,7 @@
                 columnDefs: [{ orderable: false, targets: 3 }],
                 language: {
                     search: "Search selected products:",
-                    emptyTable: "No products selected"
+                    emptyTable: "No products selected."
                 }
             });
         };
@@ -270,6 +275,7 @@
                 // Redraw product table for the active tab
                 const activeTab = document.querySelector('.shelf-tab-link-categ.active').dataset.tab;
                 productTables[activeTab]?.draw();
+                updateSubmitButton(); // Ensure button state is updated when modal opens
             }
         };
 
@@ -279,6 +285,7 @@
                 idx = 0; // Reset idx when closing main modal
                 $('#selected-products-body').empty();
                 initializeSelectedProductsTable();
+                updateSubmitButton(); // Reset button state when modal closes
             }
         };
 
@@ -317,12 +324,38 @@
             const items = document.querySelectorAll('#selected-products-body tr');
             let hasError = false;
 
+            // If no items are selected, disable the button
+            if (!items.length) {
+                submitBtn.disabled = true;
+                return;
+            }
+
             items.forEach(row => {
-                const price = parseFloat(row.querySelector('input[name$="[price]"]').value);
-                const qty = parseInt(row.querySelector('input[name$="[quantity_added]"]').value);
+                const priceInput = row.querySelector('input[name$="[price]"]');
+                const qtyInput = row.querySelector('input[name$="[quantity_added]"]');
+                const price = parseFloat(priceInput.value);
+                const qty = parseInt(qtyInput.value);
                 const maxStock = parseInt(row.dataset.productStock);
-                if (isNaN(price) || price <= 0 || price > 1200 || qty > maxStock) {
+                const priceError = row.querySelector('.shelf-price-error');
+
+                // Validate price
+                if (!price || isNaN(price) || price <= 0 || price > 1200) {
+                    priceInput.classList.add('price-error');
+                    priceError.style.display = 'block';
                     hasError = true;
+                } else {
+                    priceInput.classList.remove('price-error');
+                    priceError.style.display = 'none';
+                }
+
+                // Validate quantity
+                if (qty > maxStock) {
+                    qtyInput.classList.add('quantity-error');
+                    row.querySelector('.shelf-quantity-error').style.display = 'block';
+                    hasError = true;
+                } else {
+                    qtyInput.classList.remove('quantity-error');
+                    row.querySelector('.shelf-quantity-error').style.display = 'none';
                 }
             });
 
@@ -344,25 +377,19 @@
         document.querySelectorAll('.shelf-product-add-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const { productId, productName, productStock } = btn.dataset;
-                $.ajax({
-                    url: '{{ route("add-to-shelf.check") }}',
-                    method: 'POST',
-                    data: { product_id: productId, _token: '{{ csrf_token() }}' },
-                    success: (res) => {
-                        if (res.exists) {
-                            showWarning(`"${productName}" is already on the shelf.`);
-                        } else {
-                            addProduct(productId, productName, productStock);
-                        }
-                    },
-                    error: (xhr) => showWarning(xhr.responseJSON?.message || 'Failed to check product status.')
-                });
+                addProduct(productId, productName, productStock);
             });
         });
 
         const addProduct = (id, name, stock) => {
             const tbody = document.getElementById('selected-products-body');
            
+            // Prevent adding if stock is 0
+            if (parseInt(stock) === 0) {
+                showWarning(`Cannot add "${name}". Out of stock.`);
+                return;
+            }
+
             let row = null;
             selectedProductsTable.rows().every(function() {
                 const rowNode = this.node();
@@ -386,29 +413,40 @@
                     row.querySelector('.shelf-quantity-error').style.display = 'block';
                     showWarning(`Cannot add more of "${name}". Stock limit: ${stock}.`);
                 }
-            } else if (stock > 0) {
-                const newRow = `
-                    <tr data-product-stock="${stock}">
-                        <td style="text-align: center;">${name}</td>
-                        <td style="text-align: center;">
-                            <input type="number" name="items[${idx}][price]" step="0.01" min="0" max="1200" class="shelf-form-input" placeholder="0.00" required>
-                        </td>
-                        <td style="text-align: center;">
-                            <input type="number" name="items[${idx}][quantity_added]" min="1" max="${stock}" value="1" required class="shelf-form-input">
-                            <input type="hidden" name="items[${idx}][product_id]" value="${id}">
-                            <div class="shelf-quantity-error">Cannot add more items for ${name}. Stock available (${stock})</div>
-                        </td>
-                        <td style="text-align: center;">
-                            <button type="button" class="shelf-btn shelf-product-remove-btn">Remove</button>
-                        </td>
-                    </tr>
-                `;
-                selectedProductsTable.row.add($(newRow)[0]).draw();
-                idx++;
             } else {
-                showWarning(`Cannot add "${name}". Out of stock.`);
+                // Check if product is already on shelf to pre-fill price
+                $.ajax({
+                    url: '{{ route("add-to-shelf.check") }}',
+                    method: 'POST',
+                    data: { product_id: id, _token: '{{ csrf_token() }}' },
+                    success: (res) => {
+                        const existingPrice = res.exists ? (res.price || '') : '';
+                        const newRow = `
+                            <tr data-product-stock="${stock}">
+                                <td style="text-align: center;">${name}</td>
+                                <td style="text-align: center;">
+                                    <input type="number" name="items[${idx}][price]" step="0.01" min="0" max="1200" class="shelf-form-input" value="${existingPrice}" required>
+                                    <span class="shelf-price-error" style="display: none;">Price is required, 0-1200</span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <input type="number" name="items[${idx}][quantity_added]" min="1" max="${stock}" value="1" required class="shelf-form-input">
+                                    <input type="hidden" name="items[${idx}][product_id]" value="${id}">
+                                    <div class="shelf-quantity-error">Cannot add more items for ${name}. Stock available (${stock})</div>
+                                </td>
+                                <td style="text-align: center;">
+                                    <button type="button" class="shelf-btn shelf-product-remove-btn">Remove</button>
+                                </td>
+                            </tr>
+                        `;
+                        selectedProductsTable.row.add($(newRow)[0]).draw();
+                        idx++;
+                        updateSubmitButton();
+                    },
+                    error: (xhr) => {
+                        showWarning(xhr.responseJSON?.message || 'Failed to check product status.');
+                    }
+                });
             }
-            updateSubmitButton();
         };
 
         document.addEventListener('click', (e) => {
@@ -420,7 +458,7 @@
                 hideErrorMessage();
                 updateSubmitButton();
             } else if (tgt.closest('.shelf-delete-btn')) {
-                const id = tgt.closest('.shelf-delete-btn').dataset.shelfItemId;
+                const id = tgt.closest('.shelf-delete-btn').data('shelfItemId');
                 if (confirm('Are you sure you want to remove this item from the shelf?')) {
                     $.ajax({
                         url: '{{ route("add-to-shelf.destroy", ":id") }}'.replace(':id', id),
@@ -490,12 +528,15 @@
                 const qty = parseInt(qtyInput.value) || 0;
                 const maxStock = parseInt(row.dataset.productStock);
                 const qtyError = row.querySelector('.shelf-quantity-error');
+                const priceError = row.querySelector('.shelf-price-error');
 
-                if (isNaN(price) || price <= 0 || price > 1200) {
+                if (!price || isNaN(price) || price <= 0 || price > 1200) {
                     priceInput.classList.add('price-error');
+                    priceError.style.display = 'block';
                     hasError = true;
                 } else {
                     priceInput.classList.remove('price-error');
+                    priceError.style.display = 'none';
                 }
 
                 if (qty > maxStock) {
@@ -509,7 +550,7 @@
             });
 
             if (hasError) {
-                document.getElementById('price-error-message').textContent = 'Fix price (0-1200) or quantity (within stock) errors.';
+                document.getElementById('price-error-message').textContent = 'Fix price (required, 0-1200) or quantity (within stock) errors.';
                 document.getElementById('price-error-message').style.display = 'block';
                 return;
             }
@@ -556,12 +597,14 @@
                 }
             } else if (input.name.includes('price')) {
                 const val = parseFloat(input.value) || 0;
+                const priceError = row.querySelector('.shelf-price-error');
                 if (val < 0) {
                     input.value = '';
                 } else if (val > 1200) {
                     input.value = 1200;
                 }
-                input.classList.toggle('price-error', isNaN(val) || val <= 0 || val > 1200);
+                input.classList.toggle('price-error', !val || isNaN(val) || val <= 0 || val > 1200);
+                priceError.style.display = (!val || isNaN(val) || val <= 0 || val > 1200) ? 'block' : 'none';
             }
             updateSubmitButton();
         });

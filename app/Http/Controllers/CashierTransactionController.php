@@ -14,7 +14,6 @@ class CashierTransactionController extends Controller
     {
         $month = $request->input('month', 'all');
         $year = $request->input('year', 'all');
-        $search = $request->input('search');
 
         $query = Transaction::select(
             'transaction_id',
@@ -42,9 +41,7 @@ class CashierTransactionController extends Controller
             $query->whereYear('created_at', $year);
         }
 
-        if (!empty($search)) {
-            $query->where('customer_name', 'like', '%' . $search . '%');
-        }
+       
 
         $summarizedTransactions = $query->groupBy(
             'transaction_id',
