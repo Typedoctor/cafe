@@ -20,6 +20,7 @@ class Transaction extends Model
         'order_type',
         'status',
         'transaction_id', 
+        'money_received',
     ];
 
     protected $casts = [

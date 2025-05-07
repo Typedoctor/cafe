@@ -11,12 +11,9 @@
 </head>
 <h1 class="csh-dashboard-title">Cashier Dashboard</h1>
 <div class="csh-main-container">
-    <!-- Add Order Button -->
     <div class="csh-button-container">
         <button id="openModalBtn" class="csh-add-order-btn">New Order</button>
     </div>
-
-    <!-- Modal -->
     <div id="orderModal" class="csh-modal modal-base" role="dialog" aria-labelledby="modalTitle">
         <div class="csh-modal-content">
             <h2 id="modalTitle" class="csh-modal-title">Create New Order</h2>
@@ -31,7 +28,6 @@
                         </ul>
                     </div>
                 @endif
-
                 <div class="csh-form-group">
                     <label for="customer_name" class="csh-form-label">Customer Name:</label>
                     <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}"
@@ -39,8 +35,6 @@
                            pattern="[A-Za-z\s]+" title="Only letters and spaces are allowed" maxlength="50">
                     <div class="csh-customer-name-error" style="display: none;">Only letters and spaces are allowed.</div>
                 </div>
-
-                <!-- Tabs for Categories -->
                 <div class="csh-tabs-categ" role="tablist">
                     @foreach (['meal', 'drink', 'dessert', 'snack'] as $category)
                         <button type="button" class="csh-tab-link-categ {{ $category == 'meal' ? 'active' : '' }}"
@@ -48,8 +42,6 @@
                                 tabindex="{{ $category == 'meal' ? '0' : '-1' }}">{{ ucfirst($category) }}</button>
                     @endforeach
                 </div>
-
-                <!-- Product Table -->
                 <div id="product-table-container">
                     @foreach (['meal', 'drink', 'dessert', 'snack'] as $category)
                         <div id="{{ $category }}-tab" class="csh-tab-content" style="display: {{ $category == 'meal' ? 'block' : 'none' }};">
@@ -93,17 +85,14 @@
                         </div>
                     @endforeach
                 </div>
-
-                <!-- Selected Products -->
                 <div id="selected-products">
                     <h3>Selected Products</h3>
-                    <table class="csh-selected-products-table" id="selected-products-table">
+                    <table class="csh-selected-products-table" id="selected-products subsidized">
                         <thead>
                             <tr>
                                 <th>Product</th>
                                 <th>Price</th>
                                 <th>Quantity</th>
-                                <th>Stock Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -112,7 +101,7 @@
                                 @foreach (old('products') as $index => $product)
                                     @php
                                         $shelfItem = $shelfItems->firstWhere('product_id', $product['product_id']);
-                                        $productName =rosemary($shelfItem ? $shelfItem->product->product_name : 'Unknown');
+                                        $productName = $shelfItem ? $shelfItem->product->product_name : 'Unknown';
                                         $productPrice = $shelfItem ? $shelfItem->price : 0;
                                         $productStock = $shelfItem ? $shelfItem->quantity_added : 0;
                                     @endphp
@@ -125,7 +114,6 @@
                                             <input type="hidden" name="products[{{ $index }}][product_id]" value="{{ $product['product_id'] }}">
                                             <div class="quantity-error">Cannot add more items</div>
                                         </td>
-                                        <td>{{ $product['quantity'] <= $productStock ? 'In Stock' : 'Cannot add more items' }}</td>
                                         <td>
                                             <button type="button" class="csh-remove-product-btn">Remove</button>
                                         </td>
@@ -135,7 +123,6 @@
                         </tbody>
                     </table>
                 </div>
-
                 <div class="csh-form-group">
                     <label class="csh-form-label">Order Type:</label>
                     <div class="csh-radio-group">
@@ -147,7 +134,6 @@
                         <label for="order_type_takeout" class="csh-radio-label">Takeout</label>
                     </div>
                 </div>
-
                 <div class="csh-form-group">
                     <label for="special_instructions" class="csh-form-label">Special Instructions:</label>
                     <textarea placeholder="Any special instructions? Add here" name="special_instructions"
@@ -155,15 +141,24 @@
                     <div class="csh-char-counter" id="charCounter">255 characters remaining</div>
                     <div class="csh-special-instructions-error" style="display: none;">HTML tags are not allowed.</div>
                 </div>
-
+                <div class="csh-form-group">
+                    <label for="money_received" class="csh-form-label">Money Received:</label>
+                    <div class="csh-money-received-container">
+                        <input type="number" name="money_received" id="moneyReceived" min="0" step="0.01"
+                               maxlength="6" value="{{ old('money_received') }}" class="csh-form-input"
+                               placeholder="0.00" required>
+                        <div class="csh-money-received-error" style="display: none;">Enter an appropriate amount received.</div>
+                        <span class="csh-total-display" id="orderTotal">Total: ₱ 0.00</span>
+                        <span class="csh-change-display" id="orderChange">Change: ₱ 0.00</span>
+                    </div>
+                </div>
                 <div class="csh-form-actions">
                     <button type="submit" class="csh-submit-btn" id="submitOrderBtn">Place Order</button>
-                    przeds            <button type="button" id="closeModalBtn" class="csh-close-btn">Close</button>
+                    <button type="button" id="closeModalBtn" class="csh-close-btn">Close</button>
                 </div>
             </form>
         </div>
     </div>
-
     @if (session('success'))
         <div class="csh-success-message" id="successMessage">
             {{ session('success') }}
@@ -189,7 +184,6 @@
             }, 2000);
         </script>
     @endif
-
     <div class="csh-orders-container">
         <div class="csh-orders-list">
             @if ($orders->isEmpty())
@@ -211,7 +205,8 @@
                          data-special-instructions="{{ $order->special_instructions ?? 'None' }}"
                          data-total-price="{{ number_format($order->total_price, 2) }}"
                          data-time="{{ $order->created_at->format('h:i A') }}"
-                         data-products="{{ $productsString }}">
+                         data-products="{{ $productsString }}"
+                         data-money-received="{{ number_format($order->money_received, 2) }}">
                         <div class="csh-order-header">
                             <span class="csh-order-id">{{ $order->id }}</span>
                             <span class="csh-order-products">
@@ -233,8 +228,6 @@
                 </div>
             @endif
         </div>
-
-        <!-- Order Details Form -->
         <div id="orderDetailsForm" class="csh-order-details-form">
             <form id="orderDetailsFormInner" method="POST">
                 @csrf
@@ -252,8 +245,12 @@
                     <span class="csh-order-details-label">Payment mode</span>
                     <span class="csh-order-details-value">Cash</span>
                 </div>
+                <div class="csh-order-details-money-received">
+                    <span class="csh-order-details-label">Money Received</span>
+                    <span class="csh-order-details-recieved" id="orderDetailsMoneyReceived">₱ 0.00</span>
+                </div>
                 <div class="csh-order-details-total">
-                    <U+00A0>                    <span class="csh-order-details-label">TOTAL</span>
+                    <span class="csh-order-details-label">TOTAL</span>
                     <span class="csh-order-details-value" id="orderDetailsTotal">₱ 0.00</span>
                 </div>
                 <div class="csh-order-details-instructions">
@@ -267,48 +264,47 @@
             </form>
         </div>
     </div>
-
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
     <script>
         let productIndex = {{ old('products') ? count(old('products')) : 0 }};
         let productTables = {};
-
-        // Modal Handling
         const openModalBtn = document.getElementById('openModalBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const orderModal = document.getElementById('orderModal');
-
         openModalBtn.addEventListener('click', () => {
             orderModal.style.display = 'flex';
             const activeTab = document.querySelector('.csh-tab-link-categ.active')?.dataset.tab;
             if (activeTab && productTables[activeTab]) {
                 productTables[activeTab].draw();
             }
+            updateOrderTotal();
         });
-
         closeModalBtn.addEventListener('click', () => {
             orderModal.style.display = 'none';
             document.getElementById('selected-products-body').innerHTML = '';
             productIndex = 0;
             updateSubmitButtonState();
+            document.getElementById('moneyReceived').value = '';
+            document.getElementById('orderTotal').textContent = 'Total: ₱ 0.00';
+            document.getElementById('orderChange').textContent = 'Change: ₱ 0.00';
+            document.querySelector('.csh-money-received-error').style.display = 'none';
         });
-
         orderModal.addEventListener('click', (e) => {
             if (e.target === orderModal) {
                 orderModal.style.display = 'none';
                 document.getElementById('selected-products-body').innerHTML = '';
                 productIndex = 0;
                 updateSubmitButtonState();
+                document.getElementById('moneyReceived').value = '';
+                document.getElementById('orderTotal').textContent = 'Total: ₱ 0.00';
+                document.getElementById('orderChange').textContent = 'Change: ₱ 0.00';
+                document.querySelector('.csh-money-received-error').style.display = 'none';
             }
         });
-
-        // Validate customer name input
         const customerNameInput = document.getElementById('customer_name');
         const customerNameError = document.querySelector('.csh-customer-name-error');
         const nameRegex = /^[A-Za-z\s]+$/;
-
         customerNameInput.addEventListener('input', () => {
             const value = customerNameInput.value;
             if (value && !nameRegex.test(value)) {
@@ -319,13 +315,10 @@
                 customerNameInput.setCustomValidity('');
             }
         });
-
-        // Validate special instructions
         const specialInstructions = document.getElementById('special_instructions');
         const specialInstructionsError = document.querySelector('.csh-special-instructions-error');
         const charCounter = document.getElementById('charCounter');
         const maxLength = 255;
-
         specialInstructions.addEventListener('input', () => {
             const value = specialInstructions.value;
             const remaining = maxLength - value.length;
@@ -338,13 +331,56 @@
                 specialInstructions.setCustomValidity('');
             }
         });
-
-        // Function to check stock and update submit button state
+        const moneyReceivedInput = document.getElementById('moneyReceived');
+        moneyReceivedInput.addEventListener('input', () => {
+            let value = moneyReceivedInput.value;
+            // Remove non-numeric characters except decimal point
+            value = value.replace(/[^0-9.]/g, '');
+            // Ensure only one decimal point
+            const parts = value.split('.');
+            if (parts.length > 2) {
+                value = parts[0] + '.' + parts[1];
+            }
+            // Limit to 6 characters (e.g., 999.99)
+            if (value.length > 6) {
+                value = value.substring(0, 6);
+            }
+            // Ensure valid decimal format (max 2 decimal places)
+            if (parts.length === 2) {
+                value = parts[0] + (parts[1] ? '.' + parts[1].substring(0, 2) : '');
+            }
+            moneyReceivedInput.value = value;
+            updateSubmitButtonState();
+        });
+        function updateOrderTotal() {
+            const selectedProductsBody = document.getElementById('selected-products-body');
+            let total = 0;
+            Array.from(selectedProductsBody.rows).forEach(row => {
+                const price = parseFloat(row.cells[1].textContent) || 0;
+                const quantity = parseInt(row.querySelector('input[type="number"]').value) || 0;
+                total += price * quantity;
+            });
+            document.getElementById('orderTotal').textContent = `Total: ₱ ${total.toFixed(2)}`;
+            const moneyReceived = parseFloat(document.getElementById('moneyReceived').value) || 0;
+            const change = moneyReceived - total;
+            const changeDisplay = document.getElementById('orderChange');
+            const submitBtn = document.getElementById('submitOrderBtn');
+            const moneyReceivedError = document.querySelector('.csh-money-received-error');
+            changeDisplay.textContent = `Change: ₱ ${change.toFixed(2)}`;
+            if (change < 0) {
+                changeDisplay.classList.add('csh-change-negative');
+                moneyReceivedError.style.display = 'block';
+                submitBtn.disabled = true;
+            } else {
+                changeDisplay.classList.remove('csh-change-negative');
+                moneyReceivedError.style.display = 'none';
+                submitBtn.disabled = selectedProductsBody.rows.length === 0;
+            }
+        }
         function updateSubmitButtonState() {
             const selectedProductsBody = document.getElementById('selected-products-body');
             const submitBtn = document.getElementById('submitOrderBtn');
             let hasInsufficientStock = false;
-
             Array.from(selectedProductsBody.rows).forEach(row => {
                 const productIdInput = row.querySelector(`input[name$="[product_id]"]`);
                 if (!productIdInput) return;
@@ -353,25 +389,21 @@
                 const quantity = parseInt(quantityInput.value);
                 const stockCell = document.querySelector(`.csh-stock[data-product-id="${productId}"]`);
                 const stock = parseInt(stockCell.textContent);
-                const stockStatusCell = row.cells[3];
                 const quantityError = row.querySelector('.quantity-error');
-
                 if (quantity > stock) {
                     hasInsufficientStock = true;
-                    stockStatusCell.textContent = 'Cannot add more items. Stock available: (' + stock + ')';
-                    stockStatusCell.style.color = 'red';
+                    quantityError.textContent = `Cannot add more items. Stock available: ${stock}`;
                     quantityError.style.display = 'block';
                 } else {
-                    stockStatusCell.textContent = 'In Stock';
-                    stockStatusCell.style.color = 'green';
                     quantityError.style.display = 'none';
                 }
             });
-
-            submitBtn.disabled = hasInsufficientStock || selectedProductsBody.rows.length === 0;
+            const moneyReceived = parseFloat(document.getElementById('moneyReceived').value) || 0;
+            const total = parseFloat(document.getElementById('orderTotal').textContent.replace('Total: ₱ ', '')) || 0;
+            const change = moneyReceived - total;
+            submitBtn.disabled = hasInsufficientStock || selectedProductsBody.rows.length === 0 || change < 0;
+            updateOrderTotal();
         }
-
-        // Tab Switching for Categories
         document.querySelectorAll('.csh-tab-link-categ').forEach(button => {
             button.addEventListener('click', () => {
                 document.querySelectorAll('.csh-tab-link-categ').forEach(btn => {
@@ -382,16 +414,13 @@
                 button.classList.add('active');
                 button.setAttribute('aria-selected', 'true');
                 button.tabIndex = 0;
-
                 document.querySelectorAll('.csh-tab-content').forEach(content => {
                     content.style.display = content.id === `${button.dataset.tab}-tab` ? 'block' : 'none';
                 });
-
                 if (productTables[button.dataset.tab]) {
                     productTables[button.dataset.tab].draw();
                 }
             });
-
             button.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -399,21 +428,17 @@
                 }
             });
         });
-
-        // Add Product to Selected Products Table
         document.querySelectorAll('.csh-add-product-btn').forEach(button => {
             button.addEventListener('click', () => {
                 const productId = button.dataset.productId;
                 const productName = button.dataset.productName;
                 const productPrice = button.dataset.productPrice;
                 const productStock = parseInt(button.dataset.productStock);
-
                 const selectedProductsBody = document.getElementById('selected-products-body');
                 const existingRow = Array.from(selectedProductsBody.rows).find(row => {
                     const productIdInput = row.querySelector(`input[name$="[product_id]"]`);
                     return productIdInput && productIdInput.value === productId;
                 });
-
                 if (existingRow) {
                     const quantityInput = existingRow.querySelector('input[type="number"]');
                     const newQuantity = parseInt(quantityInput.value) + 1;
@@ -421,6 +446,7 @@
                         quantityInput.value = newQuantity;
                         existingRow.querySelector('.quantity-error').style.display = 'none';
                     } else {
+                        existingRow.querySelector('.quantity-error').textContent = `Cannot add more items. Stock available: ${productStock}`;
                         existingRow.querySelector('.quantity-error').style.display = 'block';
                     }
                 } else {
@@ -432,9 +458,8 @@
                                 <td class="quantity-container">
                                     <input type="number" name="products[${productIndex}][quantity]" min="1" max="${productStock}" value="1" required class="csh-form-input">
                                     <input type="hidden" name="products[${productIndex}][product_id]" value="${productId}">
-                                    <div class="quantity-error">Insufficient stock!</div>
+                                    <div class="quantity-error">Cannot add more items</div>
                                 </td>
-                                <td>In Stock</td>
                                 <td>
                                     <button type="button" class="csh-remove-product-btn">Remove</button>
                                 </td>
@@ -449,15 +474,11 @@
                 updateSubmitButtonState();
             });
         });
-
-        // Update stock status when quantity changes
         document.getElementById('selected-products-body').addEventListener('change', (e) => {
             if (e.target.type === 'number') {
                 updateSubmitButtonState();
             }
         });
-
-        // Remove Product from Selected Products
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('csh-remove-product-btn')) {
                 const row = e.target.closest('tr');
@@ -465,8 +486,9 @@
                 updateSubmitButtonState();
             }
         });
-
-        // Form Submission Validation
+        document.getElementById('moneyReceived').addEventListener('input', () => {
+            updateSubmitButtonState();
+        });
         document.getElementById('orderForm').addEventListener('submit', (e) => {
             const selectedProducts = document.querySelectorAll('#selected-products-body tr');
             if (selectedProducts.length === 0) {
@@ -474,7 +496,6 @@
                 alert('Please add at least one product to the order.');
                 return;
             }
-
             let hasInsufficientStock = false;
             Array.from(selectedProducts).forEach(row => {
                 const productIdInput = row.querySelector(`input[name$="[product_id]"]`);
@@ -486,32 +507,33 @@
                     hasInsufficientStock = true;
                 }
             });
-
+            const moneyReceived = parseFloat(document.getElementById('moneyReceived').value) || 0;
+            const total = parseFloat(document.getElementById('orderTotal').textContent.replace('Total: ₱ ', '')) || 0;
+            const change = moneyReceived - total;
             if (hasInsufficientStock) {
                 e.preventDefault();
                 alert('Please fix insufficient stock issues before submitting.');
+            } else if (change < 0) {
+                e.preventDefault();
+                alert('Please enter an appropriate amount received.');
             }
-
             if (!nameRegex.test(customerNameInput.value)) {
                 e.preventDefault();
                 customerNameError.style.display = 'block';
                 customerNameInput.setCustomValidity('Only letters and spaces are allowed.');
             }
-
             if (specialInstructions.value.includes('<') || specialInstructions.value.includes('>')) {
                 e.preventDefault();
                 specialInstructionsError.style.display = 'block';
                 specialInstructions.setCustomValidity('HTML tags are not allowed.');
             }
         });
-
         @if ($errors->any())
             document.getElementById('orderModal').style.display = 'flex';
             customerNameInput.dispatchEvent(new Event('input'));
             specialInstructions.dispatchEvent(new Event('input'));
+            updateOrderTotal();
         @endif
-
-        // Order Details Form Handling
         const orderDetailsForm = document.getElementById('orderDetailsForm');
         const orderDetailsId = document.getElementById('orderDetailsId');
         const orderDetailsIdDisplay = document.getElementById('orderDetailsIdDisplay');
@@ -520,12 +542,11 @@
         const orderDetailsType = document.getElementById('orderDetailsType');
         const orderDetailsProducts = document.getElementById('orderDetailsProducts');
         const orderDetailsTotal = document.getElementById('orderDetailsTotal');
+        const orderDetailsMoneyReceived = document.getElementById('orderDetailsMoneyReceived');
         const orderDetailsInstructions = document.getElementById('orderDetailsInstructions');
-
         function updateOrderDetails(card) {
             document.querySelectorAll('.csh-order-card').forEach(c => c.classList.remove('csh-order-card-selected'));
             card.classList.add('csh-order-card-selected');
-
             orderDetailsId.value = card.dataset.orderId;
             orderDetailsIdDisplay.textContent = `Order ${card.dataset.orderId}`;
             orderDetailsCustomer.textContent = card.dataset.customerName;
@@ -533,11 +554,10 @@
             orderDetailsType.textContent = card.dataset.orderType;
             orderDetailsProducts.textContent = card.dataset.products;
             orderDetailsTotal.textContent = `₱ ${card.dataset.totalPrice}`;
+            orderDetailsMoneyReceived.textContent = `₱ ${card.dataset.moneyReceived}`;
             orderDetailsInstructions.textContent = card.dataset.specialInstructions;
-
             orderDetailsForm.style.display = 'block';
         }
-
         document.querySelectorAll('.csh-order-card').forEach(card => {
             card.addEventListener('click', () => updateOrderDetails(card));
             card.addEventListener('keypress', (e) => {
@@ -546,14 +566,11 @@
                 }
             });
         });
-
-        // Initialize Product Tables and Order Selection
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof jQuery === 'undefined') {
                 console.error('jQuery is not loaded for DataTables initialization');
                 return;
             }
-
             try {
                 const categories = ['meal', 'drink', 'dessert', 'snack'];
                 categories.forEach(category => {
@@ -569,7 +586,6 @@
                             emptyTable: "No products available"
                         },
                         initComplete: function () {
-                            // Wrap .dataTables_length and .dataTables_filter in a div.dataTables_top_controls
                             const wrapper = this.api().table().container();
                             const length = wrapper.querySelector('.dataTables_length');
                             const filter = wrapper.querySelector('.dataTables_filter');
@@ -587,12 +603,10 @@
             } catch (e) {
                 console.error('Error during DataTables initialization:', e);
             }
-
             const orderCards = document.querySelectorAll('.csh-order-card');
             if (orderCards.length > 0) {
                 let latestCard = null;
                 let highestId = -1;
-
                 orderCards.forEach(card => {
                     const orderId = parseInt(card.dataset.orderId, 10);
                     if (orderId > highestId) {
@@ -600,7 +614,6 @@
                         latestCard = card;
                     }
                 });
-
                 if (latestCard) {
                     updateOrderDetails(latestCard);
                 }

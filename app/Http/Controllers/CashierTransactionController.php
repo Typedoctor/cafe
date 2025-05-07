@@ -25,6 +25,7 @@ class CashierTransactionController extends Controller
             \DB::raw('GROUP_CONCAT(product_name) as product_names'),
             \DB::raw('SUM(quantity) as total_quantity'),
             \DB::raw('SUM(total_price) as total_price'),
+            'money_received',
             'special_instructions',
             'created_at',
             'updated_at'
@@ -51,6 +52,7 @@ class CashierTransactionController extends Controller
             'order_type',
             'status',
             'special_instructions',
+            'money_received',
             'created_at',
             'updated_at'
         )->get();

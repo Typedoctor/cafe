@@ -14,7 +14,6 @@ use Illuminate\Support\Str;
 
 class CashierManageOrderController extends Controller
 {
-   
     public function index()
     {
         $orders = Order::with('orderItems.product')->paginate(10);
@@ -39,6 +38,7 @@ class CashierManageOrderController extends Controller
             'products.*.quantity' => 'required|integer|min:1',
             'order_type' => ['required', 'string', 'regex:/^(Dine-in|Takeout)$/i'],
             'special_instructions' => 'nullable|string|max:255',
+            'money_received' => 'required|numeric|min:0',
         ]);
 
         try {
@@ -48,7 +48,6 @@ class CashierManageOrderController extends Controller
             $orderItems = [];
             $productQuantities = [];
 
-            // Aggregate quantities by product
             foreach ($validated['products'] as $index => $productData) {
                 $shelfItem = ShelfItem::with('product')->where('product_id', $productData['product_id'])->firstOrFail();
                 $quantity = $productData['quantity'];
@@ -64,7 +63,6 @@ class CashierManageOrderController extends Controller
                 $productQuantities[$shelfItem->product_id]['requested'] += $quantity;
             }
 
-            // Check cumulative stock
             foreach ($productQuantities as $productId => $data) {
                 if ($data['requested'] > $data['available']) {
                     return back()->withErrors([
@@ -73,7 +71,6 @@ class CashierManageOrderController extends Controller
                 }
             }
 
-            // Calculate total price and prepare order items
             foreach ($validated['products'] as $productData) {
                 $shelfItem = $productQuantities[$productData['product_id']]['shelfItem'];
                 $quantity = $productData['quantity'];
@@ -88,17 +85,16 @@ class CashierManageOrderController extends Controller
                 ];
             }
 
-            // Create order
             $order = Order::create([
                 'customer_name' => $validated['customer_name'],
                 'user_id' => Auth::id(),
                 'total_price' => $total_price,
                 'order_type' => ucwords(strtolower($validated['order_type'])),
                 'special_instructions' => $validated['special_instructions'] ? Str::of($validated['special_instructions'])->stripTags() : '',
+                'money_received' => $validated['money_received'],
                 'status' => 'pending',
             ]);
 
-            // Create order items and update stock
             foreach ($orderItems as $item) {
                 $shelfItem = ShelfItem::where('product_id', $item['product_id'])->firstOrFail();
                 OrderItem::create([
@@ -206,7 +202,7 @@ class CashierManageOrderController extends Controller
                 }
                 $total_quantity += $item->quantity;
                 $total_price += $item->price;
-                $product_name[] = $item->product->product_name;
+                $product_names[] = $item->product->product_name;
 
                 Sale::where('order_id', $order->id)
                     ->where('product_id', $item->product_id)
@@ -214,19 +210,20 @@ class CashierManageOrderController extends Controller
                     ->update(['status' => 'completed']);
             }
 
-            if (empty($product_name)) {
+            if (empty($product_names)) {
                 throw new \Exception('No valid products found in the order.');
             }
 
             Transaction::create([
                 'customer_name' => $order->customer_name,
                 'user_id' => $order->user_id ?? Auth::id(),
-                'product_name' => implode(', ', $product_name),
+                'product_name' => implode(', ', $product_names),
                 'quantity' => $total_quantity,
                 'total_price' => $total_price,
                 'special_instructions' => $order->special_instructions ?? '',
                 'order_type' => $order->order_type,
                 'status' => 'completed',
+                'money_received' => $order->money_received,
             ]);
 
             $order->status = 'completed';

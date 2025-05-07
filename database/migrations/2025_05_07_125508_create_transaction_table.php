@@ -6,12 +6,15 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up()
     {
         // Drop the existing transactions table
         Schema::dropIfExists('transactions');
 
-        // Create the new transactions table with transaction_id
+        // Create the new transactions table with transaction_id and money_received
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->string('transaction_id')->unique(); // Unique transaction ID column
@@ -23,6 +26,7 @@ return new class extends Migration
             $table->string('status')->default('completed');
             $table->integer('quantity');
             $table->decimal('total_price', 10, 2);
+            $table->decimal('money_received', 10, 2)->nullable(); // Money received, nullable for flexibility
             $table->timestamps();
         });
     }
