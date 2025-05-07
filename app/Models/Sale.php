@@ -18,6 +18,8 @@ class Sale extends Model
         'order_type',
         'status',
         'special_instructions',
+        'money_received',
+        'change',
     ];
 
     protected $casts = [

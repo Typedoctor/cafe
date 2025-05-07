@@ -372,7 +372,7 @@ div.dataTables_wrapper div.dataTables_filter {
             transform: scale(0.8);
             opacity: 0;
             transition: transform 0.3s ease, opacity 0.3s ease;
-            max-height: 90vh;
+            max-height: 95vh;
             overflow-y: auto;
         }
 

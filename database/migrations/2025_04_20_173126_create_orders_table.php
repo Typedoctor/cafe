@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('order_type', 255);
             $table->decimal('total_price', 10, 2);
             $table->decimal('money_received', 10, 2)->default(0.00);
+            $table->decimal('change', 10, 2)->default(0.00);
             $table->timestamps();
         });
     }

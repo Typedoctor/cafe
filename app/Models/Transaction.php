@@ -19,7 +19,8 @@ class Transaction extends Model
         'special_instructions',
         'order_type',
         'status',
-        'transaction_id', 
+        'transaction_id',
+        'change', 
         'money_received',
     ];
 

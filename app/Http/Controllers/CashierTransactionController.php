@@ -17,7 +17,7 @@ class CashierTransactionController extends Controller
         $search = $request->input('search');
 
         $query = Transaction::select(
-            'transaction_id', // Select the database-stored transaction_id
+            'transaction_id',
             'user_id',
             'customer_name',
             'order_type',
@@ -26,6 +26,7 @@ class CashierTransactionController extends Controller
             \DB::raw('SUM(quantity) as total_quantity'),
             \DB::raw('SUM(total_price) as total_price'),
             'money_received',
+            'change', // Add change to the select statement
             'special_instructions',
             'created_at',
             'updated_at'
@@ -46,13 +47,14 @@ class CashierTransactionController extends Controller
         }
 
         $summarizedTransactions = $query->groupBy(
-            'transaction_id', // Group by the database-stored transaction_id
+            'transaction_id',
             'user_id',
             'customer_name',
             'order_type',
             'status',
             'special_instructions',
             'money_received',
+            'change', // This can stay, but it's not strictly necessary
             'created_at',
             'updated_at'
         )->get();

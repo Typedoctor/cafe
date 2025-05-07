@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('customer_name', 255);
             $table->string('order_type', 255);
             $table->string('status')->default('completed');
+            $table->decimal('change', 10, 2)->nullable();
+            $table->decimal('money_received', 10, 2)->nullable();
             $table->text('special_instructions')->nullable();
             $table->timestamps();
         

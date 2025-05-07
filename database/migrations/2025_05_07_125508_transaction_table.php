@@ -26,7 +26,8 @@ return new class extends Migration
             $table->string('status')->default('completed');
             $table->integer('quantity');
             $table->decimal('total_price', 10, 2);
-            $table->decimal('money_received', 10, 2)->nullable(); // Money received, nullable for flexibility
+            $table->decimal('money_received', 10, 2)->nullable(); 
+            $table->decimal('change', 10, 2)->nullable();
             $table->timestamps();
         });
     }

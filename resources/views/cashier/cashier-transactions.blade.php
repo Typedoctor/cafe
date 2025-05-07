@@ -1,4 +1,3 @@
-
 @extends('cashier.layout')
 
 @section('title', 'Transaction_cashier')
@@ -31,6 +30,8 @@
                         "order_type" => $transaction->order_type ?? null,
                         "status" => $transaction->status ?? null,
                         "total_quantity" => $transaction->total_quantity ?? 0,
+                        "money_received" => $transaction->money_received ?? 0,
+                        "change" => $transaction->change ?? 0, // Add change to the data
                         "total_price" => $transaction->total_price ?? 0,
                         "created_at" => \Carbon\Carbon::parse($transaction->created_at)->format("F j Y / g:i A")
                     ]) }}'>
@@ -98,7 +99,9 @@
                 <div class="trn-special-instructions">${transaction.special_instructions || 'N/A'}</div>
                 <p><strong>Order Type:</strong> <span>${transaction.order_type || 'N/A'}</span></p>
                 <p><strong>Status:</strong> <span>${transaction.status || 'N/A'}</span></p>
-                <p><strong>Total Quantity:</strong> <span>${transaction.total_quantity || 0}</span></p>
+                <p><strong>Money Received:</strong> <span>₱${parseFloat(transaction.money_received || 0).toFixed(2)}</span></p>
+                <p><strong>Change:</strong> <span>₱${parseFloat(transaction.change || 0).toFixed(2)}</span></p>
+                <p><strong>Total Quantity of Orders:</strong> <span>${transaction.total_quantity || 0}</span></p>
                 <p class="trn-total"><strong>Total Price:</strong> <span>₱${parseFloat(transaction.total_price || 0).toFixed(2)}</span></p>
             `;
             $('#receiptDetails').html(detailsHtml);
