@@ -25,12 +25,9 @@ class ManagerShelfController extends Controller
         if ($shelfItem) {
             return response()->json([
                 'exists' => true,
-                'items' => [[
-                    'id' => $shelfItem->id,
-                    'product_name' => $shelfItem->product->product_name,
-                    'quantity_added' => $shelfItem->quantity_added,
-                    'price' => $shelfItem->price,
-                ]]
+                'quantity_added' => $shelfItem->quantity_added,
+                'price' => $shelfItem->price ?? null,
+                'product_name' => $shelfItem->product->product_name,
             ]);
         }
 
@@ -43,65 +40,60 @@ class ManagerShelfController extends Controller
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity_added' => 'required|integer|min:1',
-            'items.*.price' => 'nullable|numeric|min:0',
+            'items.*.price' => 'required|numeric|min:0|max:1200',
         ]);
 
         try {
             DB::beginTransaction();
 
             $itemQuantities = [];
-            $existingItems = [];
 
+            // Validate stock availability
             foreach ($validated['items'] as $index => $itemData) {
                 $product = Product::findOrFail($itemData['product_id']);
                 $existingItem = ShelfItem::where('product_id', $itemData['product_id'])->first();
-
-                if ($existingItem) {
-                    $existingItems[] = [
-                        'product_name' => $product->product_name,
-                        'quantity_added' => $existingItem->quantity_added,
-                        'price' => $existingItem->price,
-                    ];
-                }
 
                 if (!isset($itemQuantities[$product->id])) {
                     $itemQuantities[$product->id] = [
                         'name' => $product->product_name,
                         'available' => $product->quantity,
                         'requested' => 0,
+                        'existing_quantity' => $existingItem ? $existingItem->quantity_added : 0,
                     ];
                 }
                 $itemQuantities[$product->id]['requested'] += $itemData['quantity_added'];
 
-                if ($product->quantity < $itemData['quantity_added']) {
-                    return back()->withErrors([
-                        'items.' . $index . '.quantity_added' => "Insufficient stock for {$product->product_name}. Available: {$product->quantity}",
-                    ])->withInput();
+                // Check if the total requested quantity (including existing) exceeds available stock
+                $totalRequested = $itemQuantities[$product->id]['requested'] + $itemQuantities[$product->id]['existing_quantity'];
+                if ($totalRequested > $product->quantity) {
+                    return response()->json([
+                        'errors' => [
+                            'items.' . $index . '.quantity_added' => "Insufficient stock for {$product->product_name}. Available: {$product->quantity}, Total requested: {$totalRequested}",
+                        ]
+                    ], 422);
                 }
             }
 
-            if (!empty($existingItems)) {
-                return back()->withErrors([
-                    'items' => 'Some products are already on the shelf: ' . implode(', ', array_column($existingItems, 'product_name')) . '. Remove them first.'
-                ])->withInput();
-            }
-
-            foreach ($itemQuantities as $productId => $data) {
-                if ($data['requested'] > $data['available']) {
-                    return back()->withErrors([
-                        'items' => "Insufficient stock for {$data['name']}. Total requested: {$data['requested']}, Available: {$data['available']}",
-                    ])->withInput();
-                }
-            }
-
+            // Process each item
             foreach ($validated['items'] as $itemData) {
                 $product = Product::findOrFail($itemData['product_id']);
-                ShelfItem::create([
-                    'product_id' => $itemData['product_id'],
-                    'quantity_added' => $itemData['quantity_added'],
-                    'price' => $itemData['price'] ?? null,
-                ]);
+                $existingItem = ShelfItem::where('product_id', $itemData['product_id'])->first();
 
+                if ($existingItem) {
+                    // Update existing shelf item by adding to the quantity and keeping the price if provided
+                    $existingItem->quantity_added += $itemData['quantity_added'];
+                    $existingItem->price = $itemData['price'] ?? $existingItem->price; // Use new price if provided, otherwise keep existing
+                    $existingItem->save();
+                } else {
+                    // Create new shelf item
+                    ShelfItem::create([
+                        'product_id' => $itemData['product_id'],
+                        'quantity_added' => $itemData['quantity_added'],
+                        'price' => $itemData['price'],
+                    ]);
+                }
+
+                // Deduct from product stock
                 $product->quantity -= $itemData['quantity_added'];
                 $product->save();
             }
@@ -111,7 +103,7 @@ class ManagerShelfController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Add to Shelf Error: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'Failed to add items to shelf: ' . $e->getMessage()])->withInput();
+            return response()->json(['message' => 'Failed to add items to shelf: ' . $e->getMessage()], 500);
         }
     }
 
@@ -134,7 +126,7 @@ class ManagerShelfController extends Controller
 
         $validated = $request->validate([
             'quantity_added' => 'required|integer|min:1',
-            'price' => 'nullable|numeric|min:0',
+            'price' => 'required|numeric|min:0|max:1200',
         ]);
 
         try {
@@ -153,7 +145,7 @@ class ManagerShelfController extends Controller
             }
 
             $shelfItem->quantity_added = $newQuantity;
-            $shelfItem->price = $validated['price'] ?? null;
+            $shelfItem->price = $validated['price'];
             $shelfItem->save();
 
             if ($quantityDifference > 0) {

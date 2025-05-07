@@ -3,24 +3,23 @@
 @section('title', 'Manage Trash')
 
 @push('styles')
-   
-    
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 @endpush
 
 @section('content')
-
-
 <head>
     <link rel="stylesheet" href="{{ asset('css/cashier-trash.css') }}">
 </head>
+
 <h1 class="inventory-title">Manage Trash</h1>
 
 <div class="trsh-top-bar">
-    <button id="addTrashBtn" class="btn add-trash">+ Add Spoilage Entry</button>
+    <button id="addTrashBtn" class="btn add-trash">+ Add Trash Entry</button>
     <button id="exportExcel" class="btn export-btn">Export to Excel</button>
 </div>
 
-<!-- Add & Edit Trash Modal -->
+<!-- Add Trash Modal -->
 <div id="trashModal" class="modal">
     <div class="modal-content">
         <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -34,10 +33,8 @@
             <button class="tab-btn" data-category="dessert">Dessert</button>
         </div>
 
-        <form id="trashForm" method="POST">
+        <form id="trashForm" method="POST" action="{{ route('trash.store') }}">
             @csrf
-            <input type="hidden" name="_method" id="methodField" value="POST">
-            <input type="hidden" name="trash_id" id="trashId">
             <input type="hidden" name="category" id="category" value="snack">
 
             <div class="form-group">
@@ -65,11 +62,11 @@
                 <span id="quantityError" style="color: red; display: none;">Insufficient stock!</span>
             </div>
 
-         <div class="form-group">
-            <label>Why are you discarding it?</label>
-            <textarea type="text" name="reason" id="reason" placeholder="e.g., Expired, Damaged" pattern="[A-Za-z\s]+" maxlength="255"></textarea>
-            <div class="trsh-char-counter" id="charCounter">255 characters remaining</div>
-        </div>
+            <div class="form-group">
+                <label>Why are you discarding it?</label>
+                <textarea type="text" name="reason" id="reason" placeholder="e.g., Expired, Damaged" pattern="[A-Za-z\s]+" maxlength="255"></textarea>
+                <div class="trsh-char-counter" id="charCounter">255 characters remaining</div>
+            </div>
             <div class="total-loss-display">
                 <label>Total Loss (₱)</label>
                 <div id="totalLossDisplay">Enter product and quantity to see total loss.</div>
@@ -87,7 +84,7 @@
     <div class="warning-modal-content">
         <span class="close-warning" name="close-button"><i class="fa-solid fa-circle-xmark"></i></span>
         <h2 style="text-align: center;">Already Added!</h2>
-        <p style="text-align: center;" id="duplicateMessage">This product is already in the list. Please edit the existing entry instead.</p>
+        <p style="text-align: center;" id="duplicateMessage">This product is already in the list. Please delete and add a new entry if needed.</p>
         <button class="warning-close-duplicate">OK</button>
     </div>
 </div>
@@ -116,15 +113,6 @@
                 <td>{{ $trash->reason }}</td>
                 <td>₱{{ number_format($trash->total_loss, 2) }}</td>
                 <td>
-                    <button class="btn edit-btn" data-id="{{ $trash->id }}" 
-                            data-name="{{ e(trim($trash->product_name)) }}" 
-                            data-category="{{ $trash->category }}" 
-                            data-quantity="{{ $trash->quantity }}" 
-                            data-reason="{{ $trash->reason }}"
-                            data-total-loss="{{ $trash->total_loss }}"
-                            data-stock="{{ $trash->quantity_added ?? 0 }}">
-                        <i class="fa-solid fa-pencil"></i>
-                    </button>
                     <form action="{{ route('trash.destroy', $trash) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this trash entry?');">
                         @csrf @method('DELETE')
                         <button type="submit" class="btn delete-btn"><i class="fa-solid fa-trash"></i></button>
@@ -170,13 +158,10 @@ document.addEventListener('DOMContentLoaded', function () {
         charCounter.textContent = `${remaining} characters remaining`;
     });
 
-    // Existing code for modals, form handling, etc.
+    // Modal and form handling
     const trashModal = document.getElementById('trashModal');
     const duplicateModal = document.getElementById('duplicateModal');
     const trashForm = document.getElementById('trashForm');
-    const modalTitle = document.getElementById('modalTitle');
-    const methodField = document.getElementById('methodField');
-    const saveBtn = document.getElementById('saveBtn');
     const closeBtns = document.querySelectorAll('.close-btn');
     const closeWarn = document.querySelector('.close-warning');
     const closeDuplicateBtn = document.querySelector('.warning-close-duplicate');
@@ -187,6 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const totalLossDisplay = document.getElementById('totalLossDisplay');
     const categoryInput = document.getElementById('category');
     const tabButtons = document.querySelectorAll('.tab-btn');
+    const saveBtn = document.getElementById('saveBtn');
 
     // Prevent 'e' in quantity input
     quantityInput.addEventListener('keydown', function (e) {
@@ -199,21 +185,6 @@ document.addEventListener('DOMContentLoaded', function () {
     reasonInput.addEventListener('input', function () {
         this.value = this.value.replace(/[^A-Za-z\s]/g, '');
     });
-    document.addEventListener('DOMContentLoaded', function () {
-    // Existing code...
-
-    // Character counter for reason textarea
-    const reasonInput = document.getElementById('reason');
-    const charCounter = document.getElementById('charCounter');
-    const maxLength = 255;
-
-    reasonInput.addEventListener('input', () => {
-        const remaining = maxLength - reasonInput.value.length;
-        charCounter.textContent = `${remaining} characters remaining`;
-    });
-
-    // Rest of your existing code...
-});
 
     // Store all product options
     const allProductOptions = Array.from(productSelect.options).slice(1);
@@ -296,11 +267,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        modalTitle.innerText = 'Add New Spoilage Entry';
-        methodField.value = 'POST';
-        trashForm.action = '{{ route('trash.store') }}';
         trashModal.style.display = 'block';
-        saveBtn.innerText = 'Add';
         trashForm.reset();
         productSelect.value = '';
         categoryInput.value = 'snack';
@@ -315,59 +282,6 @@ document.addEventListener('DOMContentLoaded', function () {
         updateTotalLoss();
     });
 
-    // Show modal for editing trash entry
-    document.querySelectorAll('.edit-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            const productName = this.dataset.name ? this.dataset.name.trim() : '';
-            const productCategory = this.dataset.category || 'snack';
-            const stock = this.dataset.stock || 0;
-
-            console.log('Editing product name:', productName);
-            console.log('Available options:', Array.from(productSelect.options).map(opt => opt.value));
-
-            const optionExists = Array.from(productSelect.options).some(option => option.value === productName);
-
-            if (!optionExists && productName) {
-                const newOption = document.createElement('option');
-                newOption.value = productName;
-                newOption.text = productName + ' (Not in current inventory)';
-                newOption.setAttribute('data-price', '0');
-                newOption.setAttribute('data-category', productCategory);
-                newOption.setAttribute('data-stock', stock);
-                newOption.selected = true;
-                productSelect.appendChild(newOption);
-            } else {
-                productSelect.value = productName || '';
-            }
-
-            if (!productSelect.value && productName) {
-                console.warn(`Product "${productName}" not found in select options.`);
-                alert(`The product "${productName}" is not available in the current inventory. Please select another product or contact support.`);
-            }
-
-            modalTitle.innerText = 'Edit Spoilage Entry';
-            methodField.value = 'PUT';
-            trashForm.action = '{{ url('trash') }}/' + this.dataset.id;
-            document.getElementById('trashId').value = this.dataset.id;
-            categoryInput.value = productCategory;
-            document.getElementById('quantity').value = this.dataset.quantity || '';
-            document.getElementById('reason').value = this.dataset.reason || '';
-            saveBtn.innerText = 'Update';
-            trashModal.style.display = 'block';
-            loadingSpinner.style.display = 'none';
-            saveBtn.disabled = false;
-            quantityError.style.display = 'none';
-
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            const activeTab = Array.from(tabButtons).find(btn => btn.getAttribute('data-category') === productCategory);
-            if (activeTab) activeTab.classList.add('active');
-            filterProductsByCategory(productCategory);
-            productSelect.value = productName || '';
-            updateTotalLoss();
-            validateQuantity();
-        });
-    });
-
     // Check for duplicate product names and validate form
     trashForm.addEventListener('submit', function (event) {
         event.preventDefault();
@@ -378,6 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const selectedOption = productSelect.options[productSelect.selectedIndex];
         const stock = selectedOption && selectedOption.getAttribute('data-stock') ? parseInt(selectedOption.getAttribute('data-stock')) : 0;
 
+        // Basic form validation
         if (!productName || !category || !quantity || !reason) {
             alert('Please fill in all fields!');
             return;
@@ -394,16 +309,26 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        if (methodField.value === 'POST') {
-            const existingProducts = Array.from(document.querySelectorAll('tbody tr')).map(row =>
-                row.querySelector('td:nth-child(2)').innerText.trim().toLowerCase()
-            );
-            if (existingProducts.includes(productName.toLowerCase())) {
-                duplicateModal.style.display = 'block';
-                return;
+        // Duplicate check
+        const rows = document.querySelectorAll('#trashTable tbody tr');
+        let existingProducts = [];
+
+        // Iterate through rows and safely extract product names
+        rows.forEach(row => {
+            const productCell = row.querySelector('td:nth-child(2)');
+            // Only include rows with a valid product cell
+            if (productCell) {
+                existingProducts.push(productCell.innerText.trim().toLowerCase());
             }
+        });
+
+        // Check for duplicates
+        if (existingProducts.includes(productName.toLowerCase())) {
+            duplicateModal.style.display = 'block';
+            return;
         }
 
+        // Proceed with form submission
         loadingSpinner.style.display = 'block';
         saveBtn.disabled = true;
         trashForm.submit();

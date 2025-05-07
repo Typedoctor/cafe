@@ -1,4 +1,4 @@
-@extends('manager.layout')
+@extends('cashier.layout')
 
 @section('title', 'Transaction_cashier')
 
@@ -11,8 +11,9 @@
 
 <!-- Search and Filter Container -->
 <div class="trn-search-filter-container">
-    <form id="transactionFilterForm" method="GET" action="{{ route('transactions.index') }}">
+    <form id="transactionFilterForm" method="GET" action="{{ route('cashier-transactions.index') }}">
         <div class="trn-filter-row">
+           
             <!-- Filter Box -->
             <div class="trn-filter-box">
                 <!-- Month Dropdown -->
@@ -49,7 +50,7 @@
                 <!-- Filter Button -->
                 <button type="submit" class="trn-filter-btn">Filter</button>
                 <!-- Reset Button -->
-                <a href="{{ route('transactions.index') }}" class="trn-reset-btn">Reset</a>
+                <a href="{{ route('cashier-transactions.index') }}" class="trn-reset-btn">Reset</a>
             </div>
         </div>
     </form>
@@ -114,23 +115,27 @@
 
 <script>
     $(document).ready(function() {
-        // Check if table has valid data rows before initializing DataTables
+        // Check if table has rows before initializing DataTables
         const table = $('#transactionsTable');
-        const hasRows = table.find('tbody tr').length > 0 && !table.find('tbody tr td[colspan]').length;
+        const hasRows = table.find('tbody tr').length > 0;
 
         if (hasRows) {
-            // Initialize DataTables only if there are valid data rows
+            // Initialize DataTables only if there are rows
             table.DataTable({
                 searching: true,
                 paging: true,
                 ordering: true,
                 language: {
                     emptyTable: "No transactions found for this period."
-                }
+                },
+                columns: [
+                    { data: "transaction_id" }, // Match the number of th elements
+                    { data: "customer_name" }
+                ]
             });
         } else {
-            // Add class for custom styling if no data
-            table.addClass('no-datatables');
+            // If no rows, disable DataTables or handle manually
+            table.addClass('no-datatables'); // Optional: Add a class for custom styling
         }
 
         // Handle row click to show modal

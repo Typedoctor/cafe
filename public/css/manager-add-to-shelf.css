@@ -97,6 +97,12 @@
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
+.shelf-save-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
 .shelf-delete-btn,
 .shelf-edit-btn {
     background-color: #dc3545;
@@ -139,6 +145,12 @@
     background-color: #0056b3;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
+}
+.shelf-product-add-btn:disabled {
+    background-color: #dc3545;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 .shelf-product-remove-btn {
     background-color: #dc3545;
@@ -215,6 +227,10 @@
 .shelf-product-table tr:hover {
     background-color: #f5f5f5;
 }
+.shelf-out-of-stock {
+    background-color: #f8d7da;
+    color: #721c24;
+}
 .shelf-selected-products-table {
     width: 100%;
     min-width: 700px;
@@ -223,16 +239,16 @@
 .shelf-selected-products-table th,
 .shelf-selected-products-table td {
     border: 1px solid #e0e0e0;
-    padding:  Moderated;
+    padding: 10px;
 }
 .shelf-selected-products-table th:nth-child(1),
 .shelf-selected-products-table td:nth-child(1) {
-    width: 50%;
+    width: 40%;
     word-break: break-word;
 }
 .shelf-selected-products-table th:nth-child(2),
 .shelf-selected-products-table td:nth-child(2) {
-    width: 15%;
+    width: 25%;
 }
 .shelf-selected-products-table th:nth-child(3),
 .shelf-selected-products-table td:nth-child(3) {
@@ -255,7 +271,13 @@
     background-color: #f5f5f5;
 }
 .shelf-form-input[name*="[price]"] {
-    width: 80px;
+    width: 120px;
+}
+.shelf-price-error {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
 }
 #shelfItemsTable {
     width: 100%;

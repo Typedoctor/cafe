@@ -60,7 +60,7 @@
                     <tbody>
                         @forelse ($topSellingProducts as $item)
                             <tr>
-                                <td>{{ $item->product->product_name ?? 'Unknown Product' }}</td>
+                                <td>{{ $item->product_name ?? 'Unknown Product' }}</td>
                                 <td>{{ $item->total_quantity }}</td>
                             </tr>
                         @empty

@@ -1,11 +1,9 @@
-/* Global Font Settings */
 * {
     font-family: 'Poppins', sans-serif;
     font-weight: 400;
     box-sizing: border-box;
 }
 
-/* Main Container */
 .csh-main-container {
     background-color: #2A3E4C;
     border-radius: 10px;
@@ -14,7 +12,6 @@
     margin: 0 auto;
 }
 
-/* General Styles */
 .csh-dashboard-title {
     font-size: 24px;
     color: #333;
@@ -55,7 +52,6 @@
     background-color: #f0f0f0;
 }
 
-/* Modal Styles */
 .csh-modal {
     display: none;
     position: fixed;
@@ -73,28 +69,26 @@
     padding: 16px;
     border-radius: 5px;
     width: 90%;
-    max-width: 600px; /* Increased from 500px to make modal wider */
+    max-width: 600px;
     max-height: 95vh;
     overflow-y: auto;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin: 0 auto; /* Ensure content remains centered */
-    text-align: center; /* Center-align text and inline elements */
+    margin: 0 auto;
+    text-align: center;
 }
 
 .csh-modal-content > * {
     margin-left: auto;
     margin-right: auto;
-    max-width: 100%; /* Prevent content from overflowing */
+    max-width: 100%;
 }
 
-/* Ensure form and table content is centered */
 .csh-modal-content form,
 .csh-modal-content table {
     width: 100%;
     margin: 0 auto;
 }
 
-/* Form Styles */
 .csh-form-group {
     margin-bottom: 12px;
 }
@@ -167,7 +161,6 @@
     background-color: #c82333;
 }
 
-/* Error and Success Messages */
 .csh-error-message, .csh-success-message {
     padding: 8px;
     border-radius: 5px;
@@ -191,7 +184,6 @@
     margin: 0;
 }
 
-/* Addnew order filter style */
 .csh-tabs-categ {
     display: flex;
     gap: 8px;
@@ -278,67 +270,65 @@
     background: #f4f4f4;
 }
 
-/* Product Table Column Widths */
 .csh-product-table th:nth-child(1),
 .csh-product-table td:nth-child(1) {
-    width: 40%; /* Product Name */
-    word-break: break-word; /* Break long words */
-    white-space: normal; /* Allow text to wrap */
+    width: 40%;
+    word-break: break-word;
+    white-space: normal;
 }
 
 .csh-product-table th:nth-child(2),
 .csh-product-table td:nth-child(2) {
-    width: 20%; /* Price */
+    width: 20%;
     word-break: break-word;
     white-space: normal;
 }
 
 .csh-product-table th:nth-child(3),
 .csh-product-table td:nth-child(3) {
-    width: 20%; /* Stock */
+    width: 20%;
     word-break: break-word;
     white-space: normal;
 }
 
 .csh-product-table th:nth-child(4),
 .csh-product-table td:nth-child(4) {
-    width: 20%; /* Action */
+    width: 20%;
     word-break: break-word;
     white-space: normal;
 }
 
-/* Selected Products Table Column Widths */
 .csh-selected-products-table th:nth-child(1),
 .csh-selected-products-table td:nth-child(1) {
-    width: 30%; /* Product */
-    word-break: break-word; /* Break long words */
-    white-space: normal; /* Allow text to wrap */
+    width: 30%;
+    word-break: break-word;
+    white-space: normal;
 }
 
 .csh-selected-products-table th:nth-child(2),
 .csh-selected-products-table td:nth-child(2) {
-    width: 15%; /* Price */
+    width: 15%;
     word-break: break-word;
     white-space: normal;
 }
 
 .csh-selected-products-table th:nth-child(3),
 .csh-selected-products-table td:nth-child(3) {
-    width: 20%; /* Quantity */
+    width: 20%;
     word-break: break-word;
     white-space: normal;
 }
 
 .csh-selected-products-table th:nth-child(4),
 .csh-selected-products-table td:nth-child(4) {
-    width: 20%; /* Stock Status */
+    width: 20%;
     word-break: break-word;
     white-space: normal;
 }
 
 .csh-selected-products-table th:nth-child(5),
 .csh-selected-products-table td:nth-child(5) {
-    width: 15%; /* Action */
+    width: 15%;
     word-break: break-word;
     white-space: normal;
 }
@@ -360,6 +350,12 @@
     background: #3267d6;
 }
 
+.csh-add-product-btn:disabled {
+    background: #dc3545;
+    color: white;
+    cursor: not-allowed;
+}
+
 .csh-remove-product-btn {
     background: #dc3545;
     color: white;
@@ -370,7 +366,25 @@
     background: #c82333;
 }
 
-/* Orders List Styles */
+.csh-order-details-money-received {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    align-items: center;
+}
+
+.csh-order-details-label {
+    font-weight: bold;
+    flex: 0 0 150px; /* Fixed width for labels to align values in a column */
+}
+
+.csh-order-details-value {
+    color: #333;
+    flex: 1;
+    text-align: right;
+    font-size: 12px;
+}
+
 .csh-orders-title {
     font-size: 18px;
     color: #333;
@@ -398,7 +412,7 @@
     gap: 8px;
     max-height: 60vh;
     overflow-y: auto;
-    width: 100%; /* Ensure the list takes full available width */
+    width: 100%;
     box-sizing: border-box;
 }
 
@@ -409,8 +423,8 @@
     padding: 8px;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    max-width: 100%; /* Prevent card from exceeding container width */
-    overflow: hidden; /* Hide any overflow content */
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .csh-order-card:hover {
@@ -437,8 +451,8 @@
 .csh-order-products {
     color: #333;
     font-size: 14px;
-    word-break: break-word; /* Break long words to wrap text */
-    white-space: normal; /* Allow text to wrap to the next line */
+    word-break: break-word;
+    white-space: normal;
 }
 
 .csh-order-details {
@@ -447,32 +461,31 @@
     align-items: center;
     font-size: 12px;
     color: #777;
-    word-break: break-word; /* Break long words to wrap text */
-    white-space: normal; /* Allow text to wrap to the next line */
+    word-break: break-word;
+    white-space: normal;
 }
 
 .csh-order-time {
     flex: 1;
-    word-break: break-word; /* Break long words to wrap text */
-    white-space: normal; /* Allow text to wrap to the next line */
+    word-break: break-word;
+    white-space: normal;
 }
 
 .csh-order-customer {
     flex: 1;
     text-align: center;
     text-transform: uppercase;
-    word-break: break-word; /* Break long words to wrap text */
-    white-space: normal; /* Allow text to wrap to the next line */
+    word-break: break-word;
+    white-space: normal;
 }
 
 .csh-order-type {
     flex: 1;
     text-align: right;
-    word-break: break-word; /* Break long words to wrap text */
-    white-space: normal; /* Allow text to wrap to the next line */
+    word-break: break-word;
+    white-space: normal;
 }
 
-/* Order Details Form Styles */
 .csh-order-details-form {
     flex: 1;
     background-color: white;
@@ -480,8 +493,8 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 16px;
     display: none;
-    max-width: 100%; /* Prevent form from expanding too wide */
-    overflow: hidden; /* Hide overflow content */
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .csh-order-details-header {
@@ -512,14 +525,13 @@
 }
 
 .csh-order-details-products {
-    margin-bottom: 100px;
+    margin-bottom: 20px; /* Reduced from 100px */
     color: #333;
     font-size: 14px;
     line-height: 1.5;
     margin-top: 10px;
 }
 
-/* Order Details Fields */
 .csh-order-details-payment {
     display: flex;
     justify-content: space-between;
@@ -539,29 +551,30 @@
 .csh-order-details-instructions {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 20px; /* Reduced from 100px */
     color: #333;
     font-size: 12px;
-    margin-bottom: 100px;
+}
+
+.csh-order-details-label {
+    color: #555;
+    font-size: 12px;
 }
 
 .csh-order-details-value {
     color: #333;
     font-size: 12px;
-    white-space: pre-wrap; /* Preserve newlines and wrap text */
+    white-space: pre-wrap;
     text-align: right;
-    max-width: 100%; /* Ensure it doesn't exceed parent width */
 }
 
-/* Specifically target special instructions in the order details */
 .csh-order-details-instructions .csh-order-details-value {
     flex: 1;
-    word-break: break-word; /* Break long words */
-    white-space: pre-wrap; /* Preserve newlines and wrap text */
-    max-width: 100%; /* Ensure it doesn't exceed parent width */
+    word-break: break-word;
+    white-space: pre-wrap;
+    margin-bottom: 100px;
 }
 
-/* Order Details Actions */
 .csh-order-details-actions {
     display: flex;
     flex-direction: column;
@@ -589,7 +602,199 @@
     background-color: #3267d6;
 }
 
-/* Responsive Design */
+.csh-money-received-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.csh-money-received-container input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+.csh-total-display, .csh-change-display {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    background-color: #f4f4f4;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    text-align: left;
+    transition: background-color 0.3s ease;
+}
+
+.csh-money-received-error {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+.csh-total-display {
+    color: #1a3c34;
+}
+
+.csh-change-display {
+    color: #28a745;
+}
+
+.csh-change-negative {
+    color: #dc3545;
+}
+
+.csh-total-display:hover, .csh-change-display:hover {
+    background-color: #e8ecef;
+}
+
+.dataTables_wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.dataTables_top_controls {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.dataTables_length,
+.dataTables_filter {
+    flex: 0 0 auto;
+}
+
+.dataTables_length label,
+.dataTables_filter label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+}
+
+.dataTables_length select,
+.dataTables_filter input {
+    padding: 6px;
+    border: 1px solid #000000;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+.dataTables_info {
+    flex: 0 0 auto;
+    margin: 10px 0;
+    text-align: left;
+    font-size: 12px;
+    color: #000000;
+}
+
+.dataTables_paginate {
+    display: inline-block;
+    margin: 10px 0;
+    text-align: right;
+}
+
+.dataTables_paginate .paginate_button {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-left: 5px;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white !important;
+    text-decoration: none;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.dataTables_paginate .paginate_button:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.dataTables_paginate .paginate_button.current {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    font-weight: bold;
+}
+
+.dataTables_paginate .paginate_button.previous,
+.dataTables_paginate .paginate_button.next {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.dataTables_paginate .paginate_button.previous:hover,
+.dataTables_paginate .paginate_button.next:hover {
+    background-color: #3184dc;
+    border-color: #4185ce;
+}
+
+.dataTables_paginate .paginate_button.disabled {
+    background-color: #e9ecef;
+    color: #6c757d !important;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 0;
+    font-size: 15px;
+}
+
+.dataTables_wrapper .dataTables_info {
+    flex: 1;
+    text-align: left;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    flex: 0 0 auto;
+    text-align: right;
+}
+
+.csh-selected-products-table .quantity-container {
+    position: relative;
+}
+
+.csh-selected-products-table .quantity-container input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #28a745;
+    border-radius: 4px;
+}
+
+.csh-selected-products-table .quantity-error {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+.csh-customer-name-error, .csh-special-instructions-error {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+.csh-submit-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.csh-char-counter {
+    font-size: 12px;
+    color: #555;
+    margin-top: 5px;
+    font-family: 'Poppins', sans-serif;
+}
+
 @media (max-width: 768px) {
     .csh-main-container {
         padding: 15px;
@@ -598,7 +803,7 @@
 
     .csh-modal-content {
         width: 95%;
-        max-width: 95%; /* Ensure modal doesn't exceed screen width */
+        max-width: 95%;
         padding: 12px;
         max-height: 70vh;
     }
@@ -674,7 +879,6 @@
         font-size: 11px;
     }
 
-    /* Responsive styles for order details fields */
     .csh-order-details-payment,
     .csh-order-details-total,
     .csh-order-details-instructions {
@@ -696,17 +900,15 @@
         padding: 8px;
     }
 
-    /* Responsive Table Adjustments */
     .csh-product-table, .csh-selected-products-table {
         display: block;
-        overflow-x: auto; /* Enable horizontal scrolling for small screens */
-        white-space: nowrap; /* Prevent text wrapping in small screens */
+        overflow-x: auto;
+        white-space: nowrap;
     }
 
-    /* Adjust column widths for smaller screens */
     .csh-product-table th:nth-child(1),
     .csh-product-table td:nth-child(1) {
-        width: 50%; /* Increase Product Name width */
+        width: 50%;
     }
 
     .csh-product-table th:nth-child(2),
@@ -715,12 +917,12 @@
     .csh-product-table td:nth-child(3),
     .csh-product-table th:nth-child(4),
     .csh-product-table td:nth-child(4) {
-        width: 16.66%; /* Equalize other columns */
+        width: 16.66%;
     }
 
     .csh-selected-products-table th:nth-child(1),
     .csh-selected-products-table td:nth-child(1) {
-        width: 40%; /* Increase Product width */
+        width: 40%;
     }
 
     .csh-selected-products-table th:nth-child(2),
@@ -731,128 +933,43 @@
     .csh-selected-products-table td:nth-child(4),
     .csh-selected-products-table th:nth-child(5),
     .csh-selected-products-table td:nth-child(5) {
-        width: 15%; /* Equalize other columns */
+        width: 15%;
+    }
+
+    .csh-total-display, .csh-change-display {
+        font-size: 13px;
+        padding: 5px 8px;
+    }
+
+    .csh-money-received-container input {
+        width: 80px;
+    }
+
+    .dataTables_top_controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dataTables_length,
+    .dataTables_filter {
+        width: 100%;
+        text-align: left;
+    }
+
+    .dataTables_filter {
+        margin-top: 10px;
     }
 }
 
-/* DataTables Layout Adjustments */
-.dataTables_wrapper {
-    display: flex;
-    flex-direction: column;
-}
-
-.dataTables_length,
-.dataTables_info {
-    flex: 0 0 auto;
-    margin: 10px 0;
-    text-align: left;
-}
-
-.dataTables_filter {
-    flex: 0 0 auto;
-    margin: 10px 0;
-    text-align: right;
-}
-
-.dataTables_length label,
-.dataTables_filter label {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-
-}
-
-.dataTables_length select,
-.dataTables_filter input {
-    padding: 6px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 12px;
-}
-
-.dataTables_paginate {
-    display: inline-block;
-    margin: 10px 0;
-    text-align: right; /* Move pagination buttons to the right */
-}
-
-.dataTables_paginate .paginate_button {
-    display: inline-block;
-    padding: 6px 12px;
-    margin-left: 5px;
-    border: 1px solid #007bff;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white !important;
-    text-decoration: none;
-    font-size: 12px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.dataTables_paginate .paginate_button:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
-}
-
-.dataTables_paginate .paginate_button.current {
-    background-color: #0056b3;
-    border-color: #0056b3;
-    font-weight: bold;
-}
-
-.dataTables_paginate .paginate_button.previous,
-.dataTables_paginate .paginate_button.next {
-    background-color: #007bff;
-    border-color: #007bff;
-}
-
-.dataTables_paginate .paginate_button.previous:hover,
-.dataTables_paginate .paginate_button.next:hover {
-    background-color: #3184dc;
-    border-color: #4185ce;
-}
-
-.dataTables_paginate .paginate_button.disabled {
-    background-color: #e9ecef;
-    color: #6c757d !important;
-    border-color: #dee2e6;
-    cursor: not-allowed;
-}
-
-/* Ensure top and bottom layouts are consistent */
-.dataTables_wrapper 
-.dataTables_wrapper  .dataTables_paginate {
-    margin-top: 0;
-    font-size: 15px;
-}
-.dataTables_info{
-    font-size: 12px;
-    margin-top: 1;
-    margin-bottom: 10px;
-    color: #000000;
-}
-.dataTables_filter{
-    font-size: 10px;
-    margin-top: 1;
-    margin-bottom: 10px;
-    color: #000000;
-}
-
-.dataTables_wrapper .dataTables_paginate + .dataTables_filter {
-    margin-top: 10px;
-}
-
-/* Adjust bottom layout to ensure info and pagination are on opposite sides */
-
-
-.dataTables_wrapper .dataTables_info {
-    flex: 1;
-    text-align: left;
-}
-
-.dataTables_wrapper .dataTables_paginate {
-    flex: 0 0 auto;
-    text-align: right;
+@media (print) {
+    .csh-order-details-form {
+        box-shadow: none;
+        width: 100%;
+    }
+    .csh-order-details-actions {
+        display: none;
+    }
+    .csh-main-container, .csh-button-container, .csh-orders-list {
+        display: none;
+    }
 }
