@@ -1,15 +1,18 @@
+
 @extends('manager.layout')
 
 @section('title', 'Sales Log')
 
+@section('head')
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+@endsection
+
 @section('content')
-<head>
-    <link rel="stylesheet" href="{{ asset('css/manager-sales.css') }}">
-</head>
-
 <div class="sl-header">Sales Log</div>
-
-
+    <head>
+        <link rel="stylesheet" href="{{ asset('css/manager-sales.css') }}">
+    </head>
 <!-- All Sales Logs -->
 <div class="sl-section">
     <div class="sl-section-title">All Sales Transactions</div>
@@ -45,13 +48,23 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="10">No sales logs found.</td>
+                        <td>No sales logs found.</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 </div>
+
 <!-- Sales Summary -->
 <div class="sl-section">
     <div class="sl-section-title">Sales Summary by Product</div>
@@ -73,17 +86,19 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="3">No sales recorded yet.</td>
+                        <td>No sales recorded yet.</td>
+                        <td></td>
+                        <td></td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 </div>
+@endsection
 
-<!-- Include DataTables CSS and JS -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+@section('scripts')
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <script>
     $(document).ready(function() {
