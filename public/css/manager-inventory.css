@@ -1,4 +1,3 @@
-
 /* Main Styles */
 .inv-title {
     font-size: 32px;
@@ -76,13 +75,13 @@
 
 .inv-edit-btn {
     background-color: #3590C0;
-    padding: 5px 10px;
+    padding: 5px 8px; /* Reduced padding */
     font-size: 14px;
     border-radius: 5px;
     color: white;
     border: none;
     cursor: pointer;
-    margin: 3px;
+    margin: 2px; /* Reduced margin */
 }
 
 .inv-edit-btn:hover {
@@ -93,13 +92,13 @@
 
 .inv-delete-btn {
     background-color: #dc3545;
-    padding: 5px 10px;
+    padding: 5px 8px; /* Reduced padding */
     font-size: 14px;
     border-radius: 5px;
     color: white;
     border: none;
     cursor: pointer;
-    margin: 3px;
+    margin: 2px; /* Reduced margin */
 }
 
 .inv-delete-btn:hover {
@@ -168,34 +167,39 @@
 /* Column Widths for DataTable */
 #productsTable th:nth-child(1), /* ID */
 #productsTable td:nth-child(1) {
-    width: 10px; /* Fixed width for ID */
+    width: 50px;
 }
 
 #productsTable th:nth-child(2), /* Product Name */
 #productsTable td:nth-child(2) {
-    max-width: 150px; /* Limit Product Name width */
+    max-width: 180px; /* Increased for better readability */
 }
 
 #productsTable th:nth-child(3), /* Category */
 #productsTable td:nth-child(3) {
-    max-width: 50px; /* Limit Category width */
+    max-width: 60px; /* Slightly increased */
 }
 
 #productsTable th:nth-child(4), /* In Stock */
 #productsTable td:nth-child(4) {
-    width: 50px; /* Fixed width for In Stock */
+    width: 50px;
 }
 
-#productsTable th:nth-child(5), /* Supplier */
+#productsTable th:nth-child(5), /* Unit of Measurement */
 #productsTable td:nth-child(5) {
-    max-width: 150px; /* Limit Supplier width */
-    word-wrap: break-word; /* Allow wrapping for long supplier names */
-    white-space: normal; /* Override nowrap to wrap text */
+    max-width: 80px;
 }
 
-#productsTable th:nth-child(6), /* Actions */
+#productsTable th:nth-child(6), /* Supplier */
 #productsTable td:nth-child(6) {
-    width: 50px; /* Fixed width for Actions */
+    max-width: 180px; /* Increased for better readability */
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+#productsTable th:nth-child(7), /* Actions */
+#productsTable td:nth-child(7) {
+    width: 80px; /* Reduced to fit buttons snugly */
 }
 
 #productsTable_wrapper .dataTables_filter input {
@@ -261,7 +265,9 @@
 }
 
 .inv-close-btn {
-    margin-left: 350px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
     cursor: pointer;
     color: rgb(162, 5, 5);
     font-size: 18px;
@@ -366,6 +372,10 @@
     text-align: center;
 }
 
+.inv-modal-content p {
+    color: #000; /* Better contrast for success message */
+}
+
 /* Close Button */
 .inv-close-success-btn {
     background-color: #ebf0f4;
@@ -422,16 +432,26 @@
     /* Adjust column widths for smaller screens */
     #productsTable th:nth-child(2), /* Product Name */
     #productsTable td:nth-child(2) {
-        max-width: 100px; 
+        max-width: 120px; /* Adjusted for smaller screens */
     }
 
     #productsTable th:nth-child(3), /* Category */
     #productsTable td:nth-child(3) {
-        max-width: 100px;
+        max-width: 80px; /* Adjusted */
     }
 
-    #productsTable th:nth-child(5), /* Supplier */
+    #productsTable th:nth-child(5), /* Unit of Measurement */
     #productsTable td:nth-child(5) {
-        max-width: 120px;
+        max-width: 60px; /* Adjusted */
+    }
+
+    #productsTable th:nth-child(6), /* Supplier */
+    #productsTable td:nth-child(6) {
+        max-width: 140px; /* Adjusted */
+    }
+
+    #productsTable th:nth-child(7), /* Actions */
+    #productsTable td:nth-child(7) {
+        width: 70px !important; /* Adjusted for smaller screens */
     }
 }

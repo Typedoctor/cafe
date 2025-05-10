@@ -1,3 +1,4 @@
+
 @extends('manager.layout')
 
 @section('title', 'Manager Reports')
@@ -5,6 +6,14 @@
 @push('styles')
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <style>
+        .dmg-tabs { display: flex; margin-bottom: 20px; }
+        .dmg-tab { padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; }
+        .dmg-tab.active { border-bottom: 2px solid #007bff; font-weight: bold; }
+        .loss-sub-tabs { display: flex; margin-bottom: 20px; }
+        .loss-sub-tab { padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; }
+        .loss-sub-tab.active { border-bottom: 2px solid #007bff; font-weight: bold; }
+    </style>
 @endpush
 
 @section('content')
@@ -35,6 +44,7 @@
     </div>
     <input type="hidden" name="period" id="periodInput" value="{{ $period }}">
     <input type="hidden" name="tab" id="tabInput" value="{{ $tab }}">
+    <input type="hidden" name="subtab" id="subtabInput" value="{{ $subtab }}">
 </form>
 
 <div id="profit-content" style="display: {{ $tab === 'profit' ? 'block' : 'none' }};">
@@ -44,12 +54,12 @@
             <div class="rep-metric-value rep-profit">₱{{ number_format($revenue, 2) }}</div>
         </div>
         <div class="rep-metric-box">
-            <div class="rep-metric-title">Loss from thrown items</div>
+            <div class="rep-metric-title">Loss from thrown and damaged items</div>
             <div class="rep-metric-value rep-loss">₱{{ number_format($totalLoss, 2) }}</div>
         </div>
         <div class="rep-metric-box">
             <div class="rep-metric-title">Profit</div>
-            <div class="rep-metric-value rep-profit">₱{{ number_format($revenue-$totalLoss, 2) }}</div>
+            <div class="rep-metric-value rep-profit">₱{{ number_format($revenue - $totalLoss, 2) }}</div>
         </div>
     </div>
     <div class="inv-table-container" id="transaction-table">
@@ -100,45 +110,113 @@
             <div class="rep-metric-value rep-loss">₱{{ number_format($totalLoss, 2) }}</div>
         </div>
         <div class="rep-metric-box">
-            <div class="rep-metric-title">Items Thrown</div>
+            <div class="rep-metric-title">Thrown Items</div>
             <div class="rep-metric-value">{{ $trashCount }}</div>
         </div>
+        <div class="rep-metric-box">
+            <div class="rep-metric-title">Damaged Items</div>
+            <div class="rep-metric-value">{{ $damagedCount }}</div>
+        </div>
     </div>
-    <div class="inv-table-container" id="loss-table">
-        <div class="rep-section-title">List of thrown away items</div>
-        <table class="rep-table" id="trashTable">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Product Name</th>
-                    <th>Category</th>
-                    <th>Quantity</th>
-                    <th>Reason</th>
-                    <th>Total Loss</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($trashes as $trash)
-                <tr>
-                    <td>{{ $trash->id }}</td>
-                    <td>{{ $trash->product_name }}</td>
-                    <td>{{ $trash->category }}</td>
-                    <td>{{ $trash->quantity }}</td>
-                    <td>{{ $trash->reason }}</td>
-                    <td>₱{{ number_format($trash->total_loss, 2) }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td>No items found for this period.</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <div class="loss-sub-tabs">
+        <div class="loss-sub-tab {{ $subtab === 'thrown' ? 'active' : '' }}" data-subtab="thrown" onclick="showLossSubTab('thrown')">Thrown Items</div>
+        <div class="loss-sub-tab {{ $subtab === 'damaged' ? 'active' : '' }}" data-subtab="damaged" onclick="showLossSubTab('damaged')">Damaged Items</div>
+    </div>
+    <div id="thrown-content" style="display: {{ $subtab === 'thrown' ? 'block' : 'none' }};">
+        <div class="inv-table-container" id="trash-table">
+            <div class="rep-section-title">List of Thrown Away Items</div>
+            <table class="rep-table" id="trashTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Reason</th>
+                        <th>Total Loss</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($trashes as $trash)
+                    <tr>
+                        <td>{{ $trash->id }}</td>
+                        <td>{{ $trash->product_name }}</td>
+                        <td>{{ $trash->category }}</td>
+                        <td>{{ $trash->quantity }}</td>
+                        <td>{{ $trash->reason }}</td>
+                        <td>₱{{ number_format($trash->total_loss, 2) }}</td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td>No thrown items found for this period.</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="damaged-content" style="display: {{ $subtab === 'damaged' ? 'block' : 'none' }};">
+        <div class="inv-table-container" id="damaged-table">
+            <div class="rep-section-title">List of Damaged Items</div>
+            <div class="dmg-tabs">
+                <div class="dmg-tab active" data-status="all">All</div>
+                <div class="dmg-tab" data-status="Successfully Returned">Successfully Returned</div>
+                <div class="dmg-tab" data-status="Marked as Loss">Marked as Loss</div>
+            </div>
+            <table class="rep-table" id="damagedProductsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Price per Item</th>
+                        <th>Total Cost</th>
+                        <th>Reason</th>
+                        <th>Supplier</th>
+                        <th>Status</th>
+                        <th>Reported At</th>
+                        <th>Return Date</th>
+                        <th>Return Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($damagedProducts as $damagedProduct)
+                    <tr>
+                        <td>{{ $damagedProduct->id }}</td>
+                        <td>{{ $damagedProduct->product_name }}</td>
+                        <td>{{ $damagedProduct->quantity }}</td>
+                        <td>₱{{ number_format($damagedProduct->price_per_item, 2) }}</td>
+                        <td>₱{{ number_format($damagedProduct->total_cost, 2) }}</td>
+                        <td>{{ $damagedProduct->reason }}</td>
+                        <td>{{ $damagedProduct->supplier }}</td>
+                        <td>{{ $damagedProduct->status }}</td>
+                        <td>{{ $damagedProduct->reported_at->format('F j Y/ g:i A') }}</td>
+                        <td>{{ $damagedProduct->return_date ? $damagedProduct->return_date->format('F j Y/ g:i A') : '-' }}</td>
+                        <td>{{ $damagedProduct->return_notes ?? '-' }}</td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td>No damaged items found for this period.</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 @endsection
@@ -155,7 +233,7 @@ $(document).ready(function () {
         responsive: true,
         order: [[0, 'asc']],
         columnDefs: [
-            { orderable: true, targets: '_all' } // Allow sorting on all columns
+            { orderable: true, targets: '_all' }
         ]
     });
 
@@ -165,8 +243,28 @@ $(document).ready(function () {
         responsive: true,
         order: [[0, 'asc']],
         columnDefs: [
-            { orderable: true, targets: '_all' } // Allow sorting on all columns
+            { orderable: true, targets: '_all' }
         ]
+    });
+
+    // Initialize DataTables for Damaged Products Table
+    const damagedTable = $('#damagedProductsTable').DataTable({
+        pageLength: 10,
+        responsive: true,
+        order: [[0, 'asc']],
+        columnDefs: [
+            { orderable: true, targets: '_all' }
+        ]
+    });
+
+    // Tab functionality for damaged products
+    document.querySelectorAll('#damaged-table .dmg-tab').forEach(tab => {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('#damaged-table .dmg-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const status = this.dataset.status;
+            damagedTable.column(7).search(status === 'all' ? '' : status).draw();
+        });
     });
 });
 
@@ -183,6 +281,16 @@ function showTab(tabName) {
         document.getElementById('profit-content').style.display = 'none';
         document.getElementById('loss-content').style.display = 'block';
     }
+}
+
+function showLossSubTab(subTabName) {
+    document.querySelectorAll('.loss-sub-tabs .loss-sub-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    document.getElementById('subtabInput').value = subTabName;
+    document.getElementById('thrown-content').style.display = subTabName === 'thrown' ? 'block' : 'none';
+    document.getElementById('damaged-content').style.display = subTabName === 'damaged' ? 'block' : 'none';
 }
 
 function changeTimePeriod(period) {

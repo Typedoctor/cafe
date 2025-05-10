@@ -26,10 +26,14 @@
 @endpush
 
 @section('content')
+    <head>
+        <link rel="stylesheet" href="{{ asset('css/manager-inventory.css') }}">
+        
+    </head>    
     <h1 class="inv-title">Product Inventory</h1>
 
     <div class="inv-top-bar">
-        <button id="addStockBtn" class="inv-btn inv-add-stock">+ Add Product</button>
+        <button id="addStockBtn" class="inv-btn inv-add-btn">+ Add Product</button>
     </div>
 
     <div id="productModal" class="inv-modal">
@@ -61,6 +65,16 @@
                     <input type="number" name="quantity" id="quantity" min="1" max="1200" required>
                 </div>
                 <div class="inv-form-group">
+                    <label>Unit of Measurement:</label>
+                    <select name="unit_of_measurement" id="unitOfMeasurement" required>
+                        <option value="">Select Unit</option>
+                        <option value="pieces">Pieces</option>
+                        <option value="liters">Liters</option>
+                        <option value="kilograms">Kilograms</option>
+                        <option value="grams">Grams</option>
+                    </select>
+                </div>
+                <div class="inv-form-group">
                     <label>Supplier:</label>
                     <input type="text" name="supplier" id="supplier" required maxlength="50" value="{{ old('supplier', $product->supplier ?? '') }}">
                     <small id="supplierCount">0 / 50</small>
@@ -87,6 +101,7 @@
                     <th>Product Name</th>
                     <th>Category</th>
                     <th>In stock</th>
+                    <th>Unit</th>
                     <th>Supplier</th>
                     <th>Actions</th>
                 </tr>
@@ -98,9 +113,16 @@
                     <td title="{{ $product->product_name }}">{{ $product->product_name }}</td>
                     <td title="{{ $product->category }}">{{ $product->category }}</td>
                     <td>{{ $product->quantity }}</td>
+                    <td>{{ $product->unit_of_measurement }}</td>
                     <td title="{{ $product->supplier }}">{{ $product->supplier }}</td>
                     <td>
-                        <button class="inv-btn inv-edit-btn" data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-category="{{ $product->category }}" data-supplier="{{ $product->supplier }}" data-quantity="{{ $product->quantity }}">
+                        <button class="inv-btn inv-edit-btn" 
+                                data-id="{{ $product->id }}" 
+                                data-name="{{ $product->product_name }}" 
+                                data-category="{{ $product->category }}" 
+                                data-supplier="{{ $product->supplier }}" 
+                                data-quantity="{{ $product->quantity }}"
+                                data-unit-of-measurement="{{ $product->unit_of_measurement }}">
                             <i class="fa-solid fa-pencil"></i>
                         </button>
                         <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
@@ -142,8 +164,16 @@ $(document).ready(function () {
         pageLength: 10,
         responsive: true,
         order: [[0, 'asc']],
+        autoWidth: false, // Disable auto-width calculation
         columnDefs: [
-            { orderable: false, targets: 5 }
+            { orderable: false, targets: 6 }, // Actions column (7th column)
+            { width: '50px', targets: 0 },  // ID
+            { width: '180px', targets: 1 }, // Product Name
+            { width: '60px', targets: 2 },  // Category
+            { width: '50px', targets: 3 },  // In stock
+            { width: '80px', targets: 4 },  // Unit
+            { width: '180px', targets: 5 }, // Supplier
+            { width: '80px', targets: 6 }   // Actions
         ]
     });
 
@@ -161,6 +191,7 @@ $(document).ready(function () {
         document.getElementById("productName").value = this.dataset.name;
         document.getElementById("category").value = this.dataset.category;
         document.getElementById("quantity").value = Math.max(1, parseInt(this.dataset.quantity));
+        document.getElementById("unitOfMeasurement").value = this.dataset.unitOfMeasurement;
         document.getElementById("supplier").value = this.dataset.supplier;
         SaveBtn.innerText = "UPDATE";
         productModal.style.display = "block";
@@ -251,6 +282,7 @@ document.addEventListener("DOMContentLoaded", function () {
         SaveBtn.innerText = "ADD";
         productForm.reset();
         quantityInput.value = 1;
+        document.getElementById("unitOfMeasurement").value = "pieces"; // Default UoM
         clearErrors();
         updateCharacterCount('productName', 'productNameCount'); // Reset counter to 0
         updateCharacterCount('supplier', 'supplierCount'); // Reset counter to 0
@@ -285,8 +317,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     response.product.product_name,
                     response.product.category,
                     response.product.quantity,
+                    response.product.unit_of_measurement,
                     response.product.supplier,
-                    `<button class="inv-btn inv-edit-btn" data-id="${response.product.id}" data-name="${response.product.product_name}" data-category="${response.product.category}" data-supplier="${response.product.supplier}" data-quantity="${response.product.quantity}">
+                    `<button class="inv-btn inv-edit-btn" 
+                             data-id="${response.product.id}" 
+                             data-name="${response.product.product_name}" 
+                             data-category="${response.product.category}" 
+                             data-supplier="${response.product.supplier}" 
+                             data-quantity="${response.product.quantity}"
+                             data-unit-of-measurement="${response.product.unit_of_measurement}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
                     <form action="/products/${response.product.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
@@ -306,6 +345,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 productModal.style.display = "none";
                 productForm.reset();
                 quantityInput.value = 1;
+                document.getElementById("unitOfMeasurement").value = "pieces"; // Reset UoM
                 updateCharacterCount('productName', 'productNameCount');
                 updateCharacterCount('supplier', 'supplierCount');
             },
@@ -322,12 +362,22 @@ document.addEventListener("DOMContentLoaded", function () {
     closeBtn.addEventListener("click", () => {
         productModal.style.display = "none";
         clearErrors();
+        productForm.reset();
+        quantityInput.value = 1;
+        document.getElementById("unitOfMeasurement").value = "pieces"; // Reset UoM
+        updateCharacterCount('productName', 'productNameCount');
+        updateCharacterCount('supplier', 'supplierCount');
     });
 
     window.addEventListener("click", event => {
         if (event.target === productModal) {
             productModal.style.display = "none";
             clearErrors();
+            productForm.reset();
+            quantityInput.value = 1;
+            document.getElementById("unitOfMeasurement").value = "pieces"; // Reset UoM
+            updateCharacterCount('productName', 'productNameCount');
+            updateCharacterCount('supplier', 'supplierCount');
         }
         if (event.target === tableSuccessModal) {
             tableSuccessModal.style.display = "none";

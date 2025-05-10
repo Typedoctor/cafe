@@ -11,17 +11,26 @@ class ManagerDamagedProductController extends Controller
     public function index()
     {
         $damagedProducts = DamagedProduct::all();
-        return view('manager.damaged_products', compact('damagedProducts'));
+        // Get total_loss and total_saved from any row (they should be identical)
+        $summary = $damagedProducts->first() ?? (object)['total_loss' => 0.00, 'total_saved' => 0.00];
+        return view('manager.damaged_products', [
+            'damagedProducts' => $damagedProducts,
+            'totalLoss' => $summary->total_loss,
+            'totalSaved' => $summary->total_saved,
+        ]);
     }
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'product_name' => 'required|string|max:255|unique:damaged_products,product_name',
-            'quantity' => 'required|integer|min:1',
-            'reason' => 'required|string',
-            'supplier' => 'required|string|max:255',
+            'product_name' => 'required|string|max:24|regex:/^[a-zA-Z\s]+$/', // Match frontend regex
+            'quantity' => 'required|integer|min:1|max:99999', // 5-digit limit
+            'price_per_item' => 'required|numeric|min:0.01',
+            'reason' => 'required|string|max:100',
+            'supplier' => 'required|string|max:50',
             'reported_at' => 'nullable|date',
+            'status' => 'required|in:Successfully Returned,Marked as Loss',
+            'return_notes' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -31,23 +40,29 @@ class ManagerDamagedProductController extends Controller
         }
 
         $data = $request->all();
-        if (empty($data['reported_at'])) {
-            $data['reported_at'] = now();
-        }
+        // Calculate total_cost
+        $data['total_cost'] = $data['quantity'] * $data['price_per_item'];
+        $data['reported_at'] = $data['reported_at'] ?? now();
+        $data['return_date'] = $data['status'] === 'Successfully Returned' ? now() : null;
 
         DamagedProduct::create($data);
+        DamagedProduct::updateTotals();
 
-        return redirect()->route('damaged-products.index') ->with('success', 'Damaged product reported successfully');
+        return redirect()->route('damaged-products.index')
+                         ->with('success', 'Damaged product reported successfully');
     }
 
     public function update(Request $request, DamagedProduct $damagedProduct)
     {
         $validator = Validator::make($request->all(), [
-            'product_name' => 'required|string|max:255|unique:damaged_products,product_name,' . $damagedProduct->id,
-            'quantity' => 'required|integer|min:1',
-            'reason' => 'required|string',
-            'supplier' => 'required|string|max:255',
+            'product_name' => 'required|string|max:24|regex:/^[a-zA-Z\s]+$/', // Match frontend regex
+            'quantity' => 'required|integer|min:1|max:99999', // 5-digit limit
+            'price_per_item' => 'required|numeric|min:0.01',
+            'reason' => 'required|string|max:100',
+            'supplier' => 'required|string|max:50',
             'reported_at' => 'nullable|date',
+            'status' => 'required|in:Successfully Returned,Marked as Loss',
+            'return_notes' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -57,23 +72,29 @@ class ManagerDamagedProductController extends Controller
         }
 
         $data = $request->all();
-        if (empty($data['reported_at'])) {
-            $data['reported_at'] = $damagedProduct->reported_at;
-        }
+        // Calculate total_cost
+        $data['total_cost'] = $data['quantity'] * $data['price_per_item'];
+        $data['reported_at'] = $data['reported_at'] ?? $damagedProduct->reported_at;
+        $data['return_date'] = $data['status'] === 'Successfully Returned' ? now() : null;
 
         $damagedProduct->update($data);
+        DamagedProduct::updateTotals();
 
-        return redirect()->route('damaged-products.index') ->with('success', 'Damaged product updated successfully');
+        return redirect()->route('damaged-products.index')
+                         ->with('success', 'Damaged product updated successfully');
     }
 
     public function destroy($id)
     {
-        \Log::info('Destroy method called', ['id' => $id]);
         $product = DamagedProduct::find($id);
         if (!$product) {
-            return redirect()->route('damaged-products.index') ->with('error', 'Damaged product not found');
+            return redirect()->route('damaged-products.index')
+                             ->with('error', 'Damaged product not found');
         }
         $product->delete();
-        return redirect()->route('damaged-products.index')->with('success', 'Damaged product deleted successfully');
+        DamagedProduct::updateTotals();
+
+        return redirect()->route('damaged-products.index')
+                         ->with('success', 'Damaged product deleted successfully');
     }
 }

@@ -160,7 +160,7 @@ div.dataTables_wrapper div.dataTables_filter {
 
 #transactionsTable_wrapper .dataTables_paginate .paginate_button.current {
     background-color: #007bff;
-    color: white;
+    color: rgb(255, 255, 255) !important;
     border-color: #007bff;
 }
 
