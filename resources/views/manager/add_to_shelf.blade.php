@@ -7,6 +7,10 @@
 @endpush
 
 @section('content')
+<head>
+     <link rel="stylesheet" href="{{ asset('css/manager-add-to-shelf.css') }}">
+</head>    
+
     <h1 class="shelf-title">Add to Shelf</h1>
 
     <div class="shelf-top-bar">

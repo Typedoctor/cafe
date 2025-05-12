@@ -4,21 +4,14 @@
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <style>
-        .dmg-tabs { display: flex; margin-bottom: 20px; }
-        .dmg-tab { padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; }
-        .dmg-tab.active { border-bottom: 2px solid #007bff; font-weight: bold; }
-        .dmg-modal-content { max-width: 600px; }
-        .dmg-form-group select, .dmg-form-group input, .dmg-form-group textarea { width: 100%; padding: 8px; }
-        .dmg-summary { margin-bottom: 20px; font-size: 16px; }
-        .dmg-summary span { font-weight: bold; }
-        .product-name-error, .quantity-error, .price-error { border: 1px solid red; }
-        .invalid-indicator { color: red; display: none; }
-    </style>
+
 @endpush
 
 @section('content')
 <h1 class="dmg-title">Damaged Products</h1>
+<head>
+    <link rel="stylesheet" href="{{ asset('css/manager-damaged.css') }}">
+</head>    
 
 <div class="dmg-top-bar">
     <button id="addDamagedProductBtn" class="dmg-btn dmg-add-btn">+ Report Damaged Product</button>
@@ -121,11 +114,7 @@
     </div>
 @endif
 
-<!-- Summary of Losses and Savings -->
-<div class="dmg-summary">
-    <p>Total Loss (Marked as Loss): <span>₱{{ number_format($totalLoss, 2) }}</span></p>
-    <p>Total Saved (Successfully Returned): <span>₱{{ number_format($totalSaved, 2) }}</span></p>
-</div>
+
 
 <!-- Tabs for Filtering -->
 <div class="dmg-tabs">
@@ -170,15 +159,15 @@
                 <td>{{ $damagedProduct->return_notes ?? '-' }}</td>
                 <td>
                     <button class="dmg-btn dmg-edit-btn" 
-                            data-id="{{ $damagedProduct->id }}"
-                            data-product_name="{{ $damagedProduct->product_name }}"
-                            data-quantity="{{ $damagedProduct->quantity }}"
-                            data-price_per_item="{{ $damagedProduct->price_per_item }}"
-                            data-reason="{{ $damagedProduct->reason }}"
-                            data-supplier="{{ $damagedProduct->supplier }}"
-                            data-status="{{ $damagedProduct->status }}"
-                            data-return_notes="{{ $damagedProduct->return_notes }}"
-                            data-reported_at="{{ $damagedProduct->reported_at->format('Y-m-d\TH:i') }}">
+                        data-id="{{ $damagedProduct->id }}"
+                        data-product_name="{{ $damagedProduct->product_name }}"
+                        data-quantity="{{ $damagedProduct->quantity }}"
+                        data-price_per_item="{{ $damagedProduct->price_per_item }}"
+                        data-reason="{{ $damagedProduct->reason }}"
+                        data-supplier="{{ $damagedProduct->supplier }}"
+                        data-status="{{ $damagedProduct->status }}"
+                        data-return_notes="{{ $damagedProduct->return_notes }}"
+                        data-reported_at="{{ $damagedProduct->reported_at->format('Y-m-d\TH:i') }}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
                     <form action="{{ route('damaged-products.destroy', $damagedProduct) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this damaged product report?');">
@@ -309,7 +298,7 @@
             function enforceValidPrice() {
                 pricePerItemInput.addEventListener("input", function () {
                     let val = parseFloat(this.value) || 1;
-                    this.value = Math.max(val, 1).toFixed(0);
+                    this.value = Math.max(val, 0.01).toFixed(2);
                     updateTotalCost();
                 });
             }

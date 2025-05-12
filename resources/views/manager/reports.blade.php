@@ -1,19 +1,11 @@
-
 @extends('manager.layout')
 
 @section('title', 'Manager Reports')
 
 @push('styles')
-    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <style>
-        .dmg-tabs { display: flex; margin-bottom: 20px; }
-        .dmg-tab { padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; }
-        .dmg-tab.active { border-bottom: 2px solid #007bff; font-weight: bold; }
-        .loss-sub-tabs { display: flex; margin-bottom: 20px; }
-        .loss-sub-tab { padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; }
-        .loss-sub-tab.active { border-bottom: 2px solid #007bff; font-weight: bold; }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/manager-reports.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/transaction.css') }}">
 @endpush
 
 @section('content')
@@ -64,42 +56,49 @@
     </div>
     <div class="inv-table-container" id="transaction-table">
         <div class="rep-section-title">Transaction List</div>
-        <table class="rep-table rep-table-striped" id="transactionsTable">
+        <table class="trn-inventory-table trn-table-striped" id="transactionsTable">
             <thead>
                 <tr>
-                    <th>Products Ordered</th>
+                    <th>Transaction ID</th>
                     <th>Customer Name</th>
-                    <th>Special Instruction</th>
-                    <th>Order Type</th>
-                    <th>Status</th>
-                    <th>Total Quantity</th>
-                    <th>Total Price</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse ($transactions as $transaction)
-                    <tr>
-                        <td>{{ $transaction->product_name }}</td>
-                        <td>{{ $transaction->customer_name }}</td>
-                        <td>{{ $transaction->special_instructions ?: 'N/A' }}</td>
-                        <td>{{ $transaction->order_type }}</td>
-                        <td>{{ $transaction->status }}</td>
-                        <td>{{ $transaction->quantity }}</td>
-                        <td>₱{{ number_format($transaction->total_price, 2) }}</td>
+                @forelse ($summarizedTransactions as $transaction)
+                    <tr class="trn-transaction-row" data-transaction='{{ json_encode([
+                        "transaction_id" => $transaction->transaction_id ?? "N/A",
+                        "customer_name" => $transaction->customer_name ?? "Unknown",
+                        "product_names" => $transaction->product_names ?? "",
+                        "special_instructions" => $transaction->special_instructions ?? null,
+                        "order_type" => $transaction->order_type ?? null,
+                        "status" => $transaction->status ?? null,
+                        "total_quantity" => $transaction->total_quantity ?? 0,
+                        "money_received" => $transaction->money_received ?? 0,
+                        "change" => $transaction->change ?? 0,
+                        "total_price" => $transaction->total_price ?? 0,
+                        "created_at" => \Carbon\Carbon::parse($transaction->created_at)->format("F j Y / g:i A")
+                    ]) }}'>
+                        <td>{{ $transaction->transaction_id ?? "N/A" }}</td>
+                        <td>{{ $transaction->customer_name ?? "Unknown" }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td>No transactions found for this period.</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td colspan="2">No transactions found for this period.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
+    </div>
+</div>
+
+<div class="trn-modal-overlay" id="receiptModal">
+    <div class="trn-receipt-modal">
+        <div class="trn-receipt-header">Transaction Receipt</div>
+        <div class="trn-receipt-details" id="receiptDetails"></div>
+        <div class="trn-modal-buttons">
+            <button class="trn-modal-print" id="printModal">Print</button>
+            <button class="trn-modal-close" id="closeModal">Close</button>
+        </div>
     </div>
 </div>
 
@@ -133,7 +132,7 @@
                         <th>Category</th>
                         <th>Quantity</th>
                         <th>Reason</th>
-                        <th>Total Loss</th>
+                         <th>Total Loss</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -162,12 +161,7 @@
     </div>
     <div id="damaged-content" style="display: {{ $subtab === 'damaged' ? 'block' : 'none' }};">
         <div class="inv-table-container" id="damaged-table">
-            <div class="rep-section-title">List of Damaged Items</div>
-            <div class="dmg-tabs">
-                <div class="dmg-tab active" data-status="all">All</div>
-                <div class="dmg-tab" data-status="Successfully Returned">Successfully Returned</div>
-                <div class="dmg-tab" data-status="Marked as Loss">Marked as Loss</div>
-            </div>
+            <div class="rep-section-title">List of Marked as Loss Items</div>
             <table class="rep-table" id="damagedProductsTable">
                 <thead>
                     <tr>
@@ -213,7 +207,7 @@
                         <td></td>
                         <td></td>
                     </tr>
-                    @endforelse
+                @endforelse
                 </tbody>
             </table>
         </div>
@@ -227,44 +221,98 @@
 
 <script>
 $(document).ready(function () {
-    // Initialize DataTables for Transactions Table
-    $('#transactionsTable').DataTable({
-        pageLength: 10,
-        responsive: true,
-        order: [[0, 'asc']],
-        columnDefs: [
-            { orderable: true, targets: '_all' }
-        ]
-    });
-
-    // Initialize DataTables for Trash Table
-    $('#trashTable').DataTable({
-        pageLength: 10,
-        responsive: true,
-        order: [[0, 'asc']],
-        columnDefs: [
-            { orderable: true, targets: '_all' }
-        ]
-    });
-
-    // Initialize DataTables for Damaged Products Table
-    const damagedTable = $('#damagedProductsTable').DataTable({
-        pageLength: 10,
-        responsive: true,
-        order: [[0, 'asc']],
-        columnDefs: [
-            { orderable: true, targets: '_all' }
-        ]
-    });
-
-    // Tab functionality for damaged products
-    document.querySelectorAll('#damaged-table .dmg-tab').forEach(tab => {
-        tab.addEventListener('click', function () {
-            document.querySelectorAll('#damaged-table .dmg-tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            const status = this.dataset.status;
-            damagedTable.column(7).search(status === 'all' ? '' : status).draw();
+    const transactionsTable = $('#transactionsTable');
+    const hasTransactionRows = transactionsTable.find('tbody tr').length > 0 && !transactionsTable.find('tbody tr td[colspan]').length;
+    
+    if (hasTransactionRows) {
+        transactionsTable.DataTable({
+            pageLength: 10,
+            responsive: true,
+            order: [[0, 'asc']],
+            columnDefs: [
+                { orderable: true, targets: '_all' }
+            ]
         });
+    } else {
+        transactionsTable.addClass('no-datatables');
+    }
+
+    const trashTable = $('#trashTable');
+    const hasTrashRows = trashTable.find('tbody tr').length > 0 && !trashTable.find('tbody tr td[colspan]').length;
+    
+    if (hasTrashRows) {
+        trashTable.DataTable({
+            pageLength: 10,
+            responsive: true,
+            order: [[0, 'asc']],
+            columnDefs: [
+                { orderable: true, targets: '_all' }
+            ]
+        });
+    } else {
+        trashTable.addClass('no-datatables');
+    }
+
+    const damagedTable = $('#damagedProductsTable');
+    const hasDamagedRows = damagedTable.find('tbody tr').length > 0 && !damagedTable.find('tbody tr td[colspan]').length;
+    
+    if (hasDamagedRows) {
+        damagedTable.DataTable({
+            pageLength: 10,
+            responsive: true,
+            order: [[0, 'asc']],
+            columnDefs: [
+                { orderable: true, targets: '_all' }
+            ]
+        });
+    } else {
+        damagedTable.addClass('no-datatables');
+    }
+
+    $(document).on('click', '.trn-transaction-row', function() {
+        const transaction = $(this).data('transaction');
+        const products = transaction.product_names ? transaction.product_names.split(',').map(product => product.trim()) : [];
+        let productsHtml = '<ul class="trn-product-list">';
+        productsHtml += products.length > 0 ? products.map(product => `<li>${product}</li>`).join('') : '<li>No products listed</li>';
+        productsHtml += '</ul>';
+
+        const detailsHtml = `
+            <p><strong>Transaction ID:</strong> <span>${transaction.transaction_id}</span></p>
+            <p><strong>Customer Name:</strong> <span>${transaction.customer_name || 'N/A'}</span></p>
+            <p><strong>Completed Order at:</strong> <span>${transaction.created_at || 'N/A'}</span></p>
+            <p><strong>Products Ordered:</strong> ${productsHtml}</p>
+            <p><strong>Special Instructions:</strong></p>
+            <div class="trn-special-instructions">${transaction.special_instructions || 'N/A'}</div>
+            <p><strong>Order Type:</strong> <span>${transaction.order_type || 'N/A'}</span></p>
+            <p><strong>Status:</strong> <span>${transaction.status || 'N/A'}</span></p>
+            <p><strong>Money Received:</strong> <span>₱${parseFloat(transaction.money_received || 0).toFixed(2)}</span></p>
+            <p><strong>Change:</strong> <span>₱${parseFloat(transaction.change || 0).toFixed(2)}</span></p>
+            <p><strong>Total Quantity of Orders:</strong> <span>${transaction.total_quantity || 0}</span></p>
+            <p class="trn-total"><strong>Total Price:</strong> <span>₱${parseFloat(transaction.total_price || 0).toFixed(2)}</span></p>
+        `;
+        $('#receiptDetails').html(detailsHtml);
+
+        $('#receiptModal').css('display', 'flex').addClass('active');
+    });
+
+    $('#printModal').on('click', function() {
+        window.print();
+    });
+
+    $('#closeModal').on('click', function() {
+        $('#receiptModal').removeClass('active').delay(300).queue(function(next) {
+            $(this).css('display', 'none');
+            next();
+        });
+    });
+
+    $(document).on('click', '.trn-modal-overlay', function(e) {
+        if (e.target === this) {
+            $('#receiptModal').removeClass('active').delay(300).queue(function(next) {
+                $(this).css('display', 'none');
+                next();
+            });
+        }
     });
 });
 

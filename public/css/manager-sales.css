@@ -1,53 +1,230 @@
-.sl-header {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
+.sl-all-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
     margin-bottom: 20px;
+    padding: 10px 15px;
+    user-select: none;
+}
+
+.sl-all-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.sl-all-tabs {
+    scrollbar-width: none;
+}
+
+.sl-header {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+}
+
+.sl-tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #ffffff;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    font-size: 20px;
+    font-weight: 500;
+    color: #333;
+}
+
+.sl-tab:hover {
+    background-color: #d0d0d0;
+}
+
+.sl-tab.active {
+    background-color: #3980cd;
+    color: white;
+}
+
+.sl-filter-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.sl-month-filter,
+.sl-year-filter {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+}
+
+.sl-month-filter:focus,
+.sl-year-filter:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.sl-metrics {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.sl-metric-box {
+    flex: 1;
+    margin: 0 10px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
 
-.sl-section {
-    margin-bottom: 30px;
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.sl-metric-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 10px;
 }
 
-.sl-section-title {
-    font-size: 20px;
+.sl-metric-value {
+    font-size: 24px;
     font-weight: 600;
-    color: #444;
-    margin-bottom: 15px;
 }
 
-.sl-table-scroll-container {
+.sl-revenue {
+    color: #4CAF50;
+}
+
+.sl-table-container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     overflow-x: auto;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    margin: 15px;
 }
 
 .sl-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
 }
 
-.sl-table th, .sl-table td {
-    padding: 12px 15px;
+.sl-table th,
+.sl-table td {
+    padding: 0.75rem;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #dee2e6;
+    border: 1px solid #ddd;
 }
 
 .sl-table th {
-    background-color: #f4f4f4;
-    font-weight: 600;
-    color: #333;
+    background-color: #10394f;
+    color: white;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
 }
 
-.sl-table-striped tbody tr:nth-child(even) {
+.sl-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-.sl-table tbody tr:hover {
-    background-color: #f1f1f1;
+.sl-table tr:hover {
+    background-color: #f0f0f0;
+}
+
+.sl-section-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+    text-align: center;
+}
+
+#salesLogTable_wrapper .dataTables_filter input {
+    border: 1px solid #ccc;
+    padding: 6px;
+    border-radius: 4px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+#salesLogTable_wrapper .dataTables_paginate .paginate_button {
+    padding: 6px 12px;
+    margin: 0 2px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
     cursor: pointer;
+}
+
+#salesLogTable_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+#salesLogTable_wrapper .dataTables_length select {
+    border: 1px solid #e0e0e0;
+    padding: 6px;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+#salesLogTable_wrapper .dataTables_length select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+#salesLogTable_wrapper .dataTables_info {
+    font-size: 16px;
+    color: #555;
+    font-family: 'Poppins', sans-serif;
+}
+
+@media (max-width: 768px) {
+    .sl-metrics {
+        flex-direction: column;
+    }
+
+    .sl-metric-box {
+        margin: 10px 0;
+    }
+
+    .sl-filter-box {
+        flex-direction: column;
+    }
+
+    .sl-month-filter,
+    .sl-year-filter {
+        width: 100%;
+    }
+
+    .sl-all-tabs {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .sl-tab {
+        width: 100%;
+        text-align: center;
+    }
+
+    .sl-table-container {
+        padding: 10px;
+    }
 }

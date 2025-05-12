@@ -4,10 +4,7 @@
     <title>@yield('title')</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/manager-dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/manager-reports.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/manager-damaged.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/manager-user.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/manager-add-to-shelf.css') }}">
+   <link rel="stylesheet" href="{{ asset('css/manager-sales.css') }}">
     <link rel="stylesheet" href="{{ asset('css/transaction.css') }}">
     <script src="https://kit.fontawesome.com/2952e58222.js" crossorigin="anonymous"></script>
     @stack('styles')

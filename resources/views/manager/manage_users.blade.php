@@ -16,6 +16,9 @@
 @endpush
 
 @section('content')
+<head>
+        <link rel="stylesheet" href="{{ asset('css/manager-user.css') }}">
+</head>        
 <h1 class="usr-manage-title">Manage Users</h1>
 
 <div class="usr-top-bar">

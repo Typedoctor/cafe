@@ -14,12 +14,27 @@ class ReportController extends Controller
     {
         $period = $request->input('period', 'daily');
         $tab = $request->input('tab', 'profit');
-        $subtab = $request->input('subtab', 'thrown'); // Default to 'thrown'
+        $subtab = $request->input('subtab', 'thrown');
         $month = $request->input('month', 'all');
         $year = $request->input('year', 'all');
         $queryTrash = Trash::query();
         $queryTransaction = Transaction::query();
-        $queryDamaged = DamagedProduct::query();
+        $queryDamaged = DamagedProduct::query()->where('status', 'Marked as Loss');
+        $Transactquery = Transaction::select(
+            'transaction_id',
+            'user_id',
+            'customer_name',
+            'order_type',
+            'status',
+            \DB::raw('GROUP_CONCAT(product_name) as product_names'),
+            \DB::raw('SUM(quantity) as total_quantity'),
+            \DB::raw('SUM(total_price) as total_price'),
+            'money_received',
+            'change',
+            'special_instructions',
+            'created_at',
+            'updated_at'
+        );
 
         if ($period === 'daily') {
             $today = Carbon::today();
@@ -73,12 +88,25 @@ class ReportController extends Controller
         }
 
         $trashLoss = $trashes->sum('total_loss');
-        $damagedLoss = $damagedProducts->where('status', 'Marked as Loss')->sum('total_cost');
+        $damagedLoss = $damagedProducts->sum('total_cost');
         $totalLoss = $trashLoss + $damagedLoss;
         $trashCount = $trashes->sum('quantity');
         $damagedCount = $damagedProducts->sum('quantity');
         $revenue = $transactions->sum('total_price');
 
-        return view('manager.reports', compact('revenue', 'trashes', 'totalLoss', 'trashCount', 'damagedCount', 'period', 'tab', 'subtab', 'month', 'year', 'transactions', 'damagedProducts'));
+        $summarizedTransactions = $Transactquery->groupBy(
+            'transaction_id',
+            'user_id',
+            'customer_name',
+            'order_type',
+            'status',
+            'special_instructions',
+            'money_received',
+            'change',
+            'created_at',
+            'updated_at'
+        )->get();
+
+        return view('manager.reports', compact('revenue', 'trashes', 'totalLoss', 'trashCount', 'damagedCount', 'period', 'tab', 'subtab', 'month', 'year', 'transactions', 'damagedProducts', 'summarizedTransactions'));
     }
 }
