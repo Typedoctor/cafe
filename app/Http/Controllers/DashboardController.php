@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Models\Trash;
+use App\Models\Spoilage;
 use App\Models\Sale;
 use Carbon\Carbon;
 
@@ -40,7 +40,7 @@ class DashboardController extends Controller
         $request->session()->put('filter_year', $year);
 
         // Initialize queries
-        $queryTrash = Trash::query();
+        $queryTrash = Spoilage::query();
         $queryTransaction = Sale::query();
         $queryTopSelling = Sale::query();
         $querySalesChart = Sale::query();

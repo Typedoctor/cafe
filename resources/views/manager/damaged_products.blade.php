@@ -4,20 +4,12 @@
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-
+    <link rel="stylesheet" href="{{ asset('css/manager-damaged.css') }}">
 @endpush
 
 @section('content')
 <h1 class="dmg-title">Damaged Products</h1>
-<head>
-    <link rel="stylesheet" href="{{ asset('css/manager-damaged.css') }}">
-</head>    
 
-<div class="dmg-top-bar">
-    <button id="addDamagedProductBtn" class="dmg-btn dmg-add-btn">+ Report Damaged Product</button>
-</div>
-
-<!-- Modal for Adding/Editing Damaged Product -->
 <div id="damagedProductModal" class="dmg-modal">
     <div class="dmg-modal-content">
         <span class="dmg-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -76,7 +68,6 @@
     </div>
 </div>
 
-<!-- Modal for Marking as Returned -->
 <div id="returnModal" class="dmg-modal">
     <div class="dmg-modal-content">
         <span class="dmg-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -99,7 +90,6 @@
     </div>
 </div>
 
-<!-- Session Messages -->
 @if (session('success'))
     <div class="dmg-success-message">{{ session('success') }}</div>
 @endif
@@ -114,18 +104,17 @@
     </div>
 @endif
 
-
-
-<!-- Tabs for Filtering -->
-<div class="dmg-tabs">
-    <div class="dmg-tab active" data-status="all">All</div>
-    <div class="dmg-tab" data-status="Successfully Returned">Successfully Returned</div>
-    <div class="dmg-tab" data-status="Marked as Loss">Marked as Loss</div>
+<div class="dmg-header-row">
+    <div class="dmg-tabs">
+        <div class="dmg-tab active" data-status="all">All</div>
+        <div class="dmg-tab" data-status="Successfully Returned">Successfully Returned</div>
+        <div class="dmg-tab" data-status="Marked as Loss">Marked as Loss</div>
+    </div>
+    <button id="addDamagedProductBtn" class="dmg-btn dmg-add-btn">+ Report Damaged Product</button>
 </div>
 
-<!-- Damaged Products Table -->
 <div class="dmg-table-container">
-    <div class="dmg-section-title">Damaged Products List</div>
+    <div class="dmg-section-title" id="sectionTitle">All Damaged Products List</div>
     <table class="dmg-table" id="damagedProductsTable">
         <thead>
             <tr>
@@ -187,7 +176,6 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Initialize DataTable
             const table = $('#damagedProductsTable').DataTable({
                 pageLength: 10,
                 responsive: true,
@@ -202,19 +190,25 @@
                 }
             });
 
-            // Hide success message after 3 seconds
             const successMessage = document.querySelector(".dmg-success-message");
             if (successMessage) {
                 setTimeout(() => successMessage.style.display = "none", 3000);
             }
 
-            // Tab functionality
             document.querySelectorAll('.dmg-tab').forEach(tab => {
                 tab.addEventListener('click', function () {
                     document.querySelectorAll('.dmg-tab').forEach(t => t.classList.remove('active'));
                     this.classList.add('active');
                     const status = this.dataset.status;
                     table.column(7).search(status === 'all' ? '' : status).draw();
+                    const sectionTitle = document.getElementById('sectionTitle');
+                    if (status === 'all') {
+                        sectionTitle.textContent = 'All Damaged Products List';
+                    } else if (status === 'Successfully Returned') {
+                        sectionTitle.textContent = 'Successfully Returned Items List';
+                    } else if (status === 'Marked as Loss') {
+                        sectionTitle.textContent = 'Marked as Loss Items List';
+                    }
                 });
             });
 

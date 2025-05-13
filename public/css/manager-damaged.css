@@ -1,16 +1,13 @@
-/* Quantity Note */
 .quantity-note {
     font-size: 0.8em;
     color: red;
     font-style: italic;
 }
 
-/* Error Borders */
 .quantity-error, .product-name-error {
     border: 2px solid red;
 }
 
-/* Form Group Small Text */
 .dmg-form-group small {
     display: block;
     margin-top: 5px;
@@ -18,7 +15,6 @@
     color: #666;
 }
 
-/* Invalid Indicator */
 .invalid-indicator {
     color: red;
     font-size: 0.8em;
@@ -26,7 +22,6 @@
     margin-top: 5px;
 }
 
-/* Title */
 .dmg-title {
     font-size: 32px;
     margin-bottom: 30px;
@@ -36,7 +31,6 @@
     font-weight: 600;
 }
 
-/* Section Title */
 .dmg-section-title {
     font-size: 20px;
     font-weight: 600;
@@ -46,7 +40,6 @@
     font-family: 'Poppins', sans-serif;
 }
 
-/* Generic Button */
 .dmg-btn {
     background-color: #177ead;
     color: white;
@@ -62,8 +55,10 @@
     transition: all 0.3s ease;
 }
 
-/* Add Button */
-
+.dmg-add-btn {
+    background-color: #3590C0;
+    margin-left: 20px;
+}
 
 .dmg-add-btn:hover {
     background-color: #0056b3;
@@ -71,7 +66,6 @@
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-/* Save Button */
 .dmg-save-btn {
     background-color: #3590C0;
     color: white;
@@ -93,7 +87,6 @@
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-/* Edit Button */
 .dmg-edit-btn {
     background-color: #3590C0;
     padding: 5px 10px;
@@ -111,7 +104,6 @@
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-/* Delete Button */
 .dmg-delete-btn {
     background-color: #dc3545;
     padding: 5px 10px;
@@ -129,7 +121,6 @@
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
 }
 
-/* Table Container */
 .dmg-table-container, .inv-table-container {
     width: 100%;
     max-width: 100%;
@@ -142,15 +133,14 @@
     margin: 20px 0px;
 }
 
-/* Table Styles */
 .dmg-table, .rep-table, #damagedProductsTable {
     width: 100%;
     border-collapse: collapse;
-    table-layout: auto; /* Optional: Adjust column widths based on content */
+    table-layout: auto;
 }
 
 .dmg-table tr, .rep-table tr, #damagedProductsTable tr {
-    height: 48px; /* Fixed row height for uniformity */
+    height: 48px;
 }
 
 .dmg-table th, .dmg-table td,
@@ -160,11 +150,11 @@
     text-align: left;
     border: 1px solid #ddd;
     border-bottom: 1px solid #dee2e6;
-    white-space: normal; /* Allow text to wrap */
-    overflow: visible; /* Ensure text is not clipped */
-    overflow-wrap: break-word; /* Break long words */
-    vertical-align: middle; /* Center content vertically */
-    min-width: 100px; /* Optional: Ensure columns are wide enough */
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: break-word;
+    vertical-align: middle;
+    min-width: 100px;
 }
 
 .dmg-table th, .rep-table th, #damagedProductsTable th {
@@ -174,7 +164,7 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    height: 48px; /* Fixed header row height */
+    height: 48px;
 }
 
 .dmg-table tr:nth-child(even),
@@ -189,81 +179,77 @@
     background-color: #f0f0f0;
 }
 
-/* Column Widths for DataTable */
-#damagedProductsTable th:nth-child(1), /* ID */
+#damagedProductsTable th:nth-child(1),
 #damagedProductsTable td:nth-child(1) {
     min-width: 10px;
 }
 
-#damagedProductsTable th:nth-child(2), /* Product Name */
+#damagedProductsTable th:nth-child(2),
 #damagedProductsTable td:nth-child(2) {
     min-width: 150px;
     max-width: 180px !important;
 }
 
-#damagedProductsTable th:nth-child(3), /* Quantity */
+#damagedProductsTable th:nth-child(3),
 #damagedProductsTable td:nth-child(3) {
     min-width: 50px;
     max-width: 50px !important;
 }
 
-#damagedProductsTable th:nth-child(4), /* Price per Item */
+#damagedProductsTable th:nth-child(4),
 #damagedProductsTable td:nth-child(4) {
     min-width: 80px;
     max-width: 80px !important;
 }
 
-#damagedProductsTable th:nth-child(5), /* Total Cost */
+#damagedProductsTable th:nth-child(5),
 #damagedProductsTable td:nth-child(5) {
     min-width: 80px;
     max-width: 80px !important;
 }
 
-#damagedProductsTable th:nth-child(6), /* Reason */
+#damagedProductsTable th:nth-child(6),
 #damagedProductsTable td:nth-child(6) {
     min-width: 150px;
     max-width: 180px !important;
 }
 
-#damagedProductsTable th:nth-child(7), /* Supplier */
+#damagedProductsTable th:nth-child(7),
 #damagedProductsTable td:nth-child(7) {
     min-width: 150px;
-    max-width: 180px !important
-
-;
+    max-width: 180px !important;
 }
 
-#damagedProductsTable th:nth-child(8), /* Status */
+#damagedProductsTable th:nth-child(8),
 #damagedProductsTable td:nth-child(8) {
     min-width: 60px;
     max-width: 60px !important;
 }
 
-#damagedProductsTable th:nth-child(9), /* Reported At */
+#damagedProductsTable th:nth-child(9),
 #damagedProductsTable td:nth-child(9) {
     min-width: 130px;
     max-width: 150px !important;
 }
 
-#damagedProductsTable th:nth-child(10), /* Return Date */
+#damagedProductsTable th:nth-child(10),
 #damagedProductsTable td:nth-child(10) {
     min-width: 130px;
     max-width: 150px !important;
 }
 
-#damagedProductsTable th:nth-child(11), /* Return Notes */
+#damagedProductsTable th:nth-child(11),
 #damagedProductsTable td:nth-child(11) {
     min-width: 150px;
     max-width: 180px !important;
 }
 
-#damagedProductsTable th:nth-child(12), /* Actions */
+#damagedProductsTable th:nth-child(12),
 #damagedProductsTable td:nth-child(12) {
     min-width: 80px;
     max-width: 80px !important;
 }
 
-/* DataTables Styles */
 #damagedProductsTable_wrapper .dataTables_filter input {
     border: 1px solid #ccc;
     padding: 6px;
@@ -281,7 +267,7 @@
 
 #damagedProductsTable_wrapper .dataTables_paginate {
     display: flex;
-    justify-content: flex-end; /* Align pagination buttons to the right */
+    justify-content: flex-end;
 }
 
 #damagedProductsTable_wrapper .dataTables_paginate .paginate_button {
@@ -322,7 +308,6 @@
     font-family: 'Poppins', sans-serif;
 }
 
-/* Modal */
 .dmg-modal {
     display: none;
     position: fixed;
@@ -365,7 +350,6 @@
     font-family: 'Poppins', sans-serif;
 }
 
-/* Form Group */
 .dmg-form-group {
     display: flex;
     flex-direction: column;
@@ -410,7 +394,6 @@
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
-/* Error and Success Messages */
 .dmg-error-messages {
     background-color: #f8d7da;
     color: #721c24;
@@ -431,71 +414,53 @@
     margin-right: auto;
 }
 
-/* Top Bar */
-.dmg-top-bar {
+.dmg-header-row {
     display: flex;
-    justify-content: flex-end;
-}
-
-/* Tabs */
-.dmg-tabs { 
-    display: flex; 
-    margin-bottom: 20px; 
-    background-color: #10394f;
-    color:white;
-    padding:15px 10px;
-    border-radius: 10px;
-    width: 450px;
-    text-align: center;
-}
-
-.dmg-tab { 
-    padding: 10px 20px; 
-    cursor: pointer; 
-    border-bottom: 2px solid transparent; 
+    justify-content: center;
     align-items: center;
-  
-   
-
+    margin-bottom: 20px;
 }
 
-.dmg-tab.active { 
-    border-bottom: 2px solid #ffffff; 
-    font-weight: bold; 
+.dmg-tabs {
+    display: flex;
+    background-color: #10394f;
+    color: white;
+    padding: 15px 10px;
+    border-radius: 10px;
+    width: fit-content;
+    margin-right: 20px;
 }
 
-.dmg-modal-content { 
-    max-width: 600px; 
+.dmg-tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    align-items: center;
 }
 
-.dmg-form-group select, 
-.dmg-form-group input, 
-.dmg-form-group textarea { 
-    width: 100%; 
-    padding: 8px; 
+.dmg-tab.active {
+    border-bottom: 2px solid #ffffff;
+    font-weight: bold;
 }
 
-.dmg-summary { 
-    margin-bottom: 20px; 
-    font-size: 16px; 
+.dmg-form-group select,
+.dmg-form-group input,
+.dmg-form-group textarea {
+    width: 100%;
+    padding: 8px;
 }
 
-.dmg-summary span { 
-    font-weight: bold; 
+.product-name-error,
+.quantity-error,
+.price-error {
+    border: 1px solid red;
 }
 
-.product-name-error, 
-.quantity-error, 
-.price-error { 
-    border: 1px solid red; 
+.invalid-indicator {
+    color: red;
+    display: none;
 }
 
-.invalid-indicator { 
-    color: red; 
-    display: none; 
-}
-
-/* Responsive Styles */
 @media (max-width: 768px) {
     .dmg-modal {
         width: 90%;
@@ -508,10 +473,20 @@
         display: block;
     }
 
+    .dmg-header-row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .dmg-tabs {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
     .dmg-add-btn {
-        margin-left: auto;
-        margin-right: auto;
-        display: block;
+        margin-left: 0;
+        width: 100%;
+        max-width: 300px;
     }
 
     .dmg-table-container,
@@ -519,44 +494,43 @@
         overflow-x: auto;
     }
 
-    /* Column Widths for Smaller Screens */
-    #damagedProductsTable th:nth-child(2), /* Product Name */
+    #damagedProductsTable th:nth-child(2),
     #damagedProductsTable td:nth-child(2) {
         min-width: 120px;
         max-width: 120px !important;
     }
 
-    #damagedProductsTable th:nth-child(6), /* Reason */
+    #damagedProductsTable th:nth-child(6),
     #damagedProductsTable td:nth-child(6) {
         min-width: 120px;
         max-width: 120px !important;
     }
 
-    #damagedProductsTable th:nth-child(7), /* Supplier */
+    #damagedProductsTable th:nth-child(7),
     #damagedProductsTable td:nth-child(7) {
         min-width: 120px;
         max-width: 120px !important;
     }
 
-    #damagedProductsTable th:nth-child(8), /* Status */
+    #damagedProductsTable th:nth-child(8),
     #damagedProductsTable td:nth-child(8) {
         min-width: 50px;
         max-width: 50px !important;
     }
 
-    #damagedProductsTable th:nth-child(9), /* Reported At */
+    #damagedProductsTable th:nth-child(9),
     #damagedProductsTable td:nth-child(9) {
         min-width: 130px;
         max-width: 130px !important;
     }
 
-    #damagedProductsTable th:nth-child(10), /* Return Date */
+    #damagedProductsTable th:nth-child(10),
     #damagedProductsTable td:nth-child(10) {
         min-width: 130px;
         max-width: 130px !important;
     }
 
-    #damagedProductsTable th:nth-child(11), /* Return Notes */
+    #damagedProductsTable th:nth-child(11),
     #damagedProductsTable td:nth-child(11) {
         min-width: 50px;
         max-width: 50px !important;

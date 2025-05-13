@@ -35,7 +35,7 @@
     <a href="/reports?tab=profit" class="dash-box-link">
         <div class="dash-box">Profit<div class="dash-content-box-profit">₱{{ number_format($revenue - $totalLoss, 2) }}</div></div>
     </a>
-    <a href="/reports" class="dash-box-link">
+    <a href="/sales" class="dash-box-link">
         <div class="container mt-4">
             <div class="row justify-content-center">
                 <div class="col-md-12">
@@ -46,7 +46,7 @@
             </div>
         </div>
     </a>
-    <a href="/transactions" class="dash-box-link">
+    <a href="/sales?tab=summary" class="dash-box-link">
         <div class="dash-box-product">
             <h4>Top Selling Products</h4>
             <div class="dash-top-selling-scroll-container">

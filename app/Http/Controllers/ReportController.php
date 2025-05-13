@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Trash;
+use App\Models\Spoilage;
 use Illuminate\Http\Request;
 use App\Models\DamagedProduct;
 use Carbon\Carbon;
@@ -17,7 +17,7 @@ class ReportController extends Controller
         $subtab = $request->input('subtab', 'thrown');
         $month = $request->input('month', 'all');
         $year = $request->input('year', 'all');
-        $queryTrash = Trash::query();
+        $queryTrash = Spoilage::query();
         $queryTransaction = Transaction::query();
         $queryDamaged = DamagedProduct::query()->where('status', 'Marked as Loss');
         $Transactquery = Transaction::select(
