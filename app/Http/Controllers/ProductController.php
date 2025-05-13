@@ -22,6 +22,7 @@ class ProductController extends Controller
             'category' => 'required|string|in:snack,drink,meal,dessert',
             'quantity' => 'required|integer|min:1|max:1200',
             'supplier' => 'required|string|max:50',
+            'unit_of_measurement' => 'required|in:pieces,liters,kilograms,grams',
         ]);
 
         try {
@@ -32,6 +33,7 @@ class ProductController extends Controller
                 'category' => $validated['category'],
                 'quantity' => $validated['quantity'],
                 'supplier' => $validated['supplier'],
+                'unit_of_measurement' => $validated['unit_of_measurement'],
             ]);
 
             DB::commit();
@@ -63,6 +65,7 @@ class ProductController extends Controller
             'category' => 'required|string|in:snack,drink,meal,dessert',
             'quantity' => 'required|integer|min:1|max:1200',
             'supplier' => 'required|string|max:50',
+            'unit_of_measurement' => 'required|in:pieces,liters,kilograms,grams',
         ]);
 
         try {
@@ -73,6 +76,7 @@ class ProductController extends Controller
                 'category' => $validated['category'],
                 'quantity' => $validated['quantity'],
                 'supplier' => $validated['supplier'],
+                'unit_of_measurement' => $validated['unit_of_measurement'],
             ]);
 
             DB::commit();

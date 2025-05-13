@@ -8,6 +8,11 @@ use Illuminate\Support\Arr;
 
 class ProductSeeder extends Seeder
 {
+    /**
+     * Seed the products table with diverse items and realistic units.
+     *
+     * @return void
+     */
     public function run()
     {
         $suppliers = [
@@ -81,12 +86,38 @@ class ProductSeeder extends Seeder
         ];
 
         foreach ($products as $product) {
+            // Determine unit of measurement based on category and product type
+            $unitOfMeasurement = match ($product['category']) {
+                'drink' => in_array($product['name'], ['Espresso', 'Americano', 'Latte', 'Cappuccino', 'Mocha', 'Flat White', 'Macchiato', 'Hot Chocolate']) ? 'grams' : 'liters',
+                'snack', 'dessert' => 'pieces',
+                'meal' => in_array($product['name'], ['Tomato Soup', 'Chicken Noodle Soup']) ? 'liters' : 'grams',
+                default => 'pieces',
+            };
+
+            // Adjust quantity range based on unit of measurement
+            $minQuantity = match ($unitOfMeasurement) {
+                'liters' => 1,
+                'grams' => 50,
+                'pieces' => 10,
+                default => 10,
+            };
+            $maxQuantity = match ($unitOfMeasurement) {
+                'liters' => 5,
+                'grams' => 200,
+                'pieces' => 100,
+                default => 100,
+            };
+            $quantity = rand($minQuantity, $maxQuantity);
+
             Product::create([
                 'product_name' => $product['name'],
                 'category' => $product['category'],
                 'supplier' => Arr::random($suppliers),
-                'quantity' => rand(10, 100),
+                'quantity' => $quantity,
+                'unit_of_measurement' => $unitOfMeasurement, // Add unit of measurement
             ]);
         }
+
+        echo "Successfully seeded " . count($products) . " products.\n";
     }
 }

@@ -34,7 +34,7 @@
 .dmg-section-title {
     font-size: 20px;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 30px;
     color: #333;
     text-align: center;
     font-family: 'Poppins', sans-serif;
@@ -56,16 +56,8 @@
 }
 
 .dmg-add-btn {
-    background-color: #3980cd;
-    color: white;
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: 500;
-    border-radius: 10px;
-    cursor: pointer;
-    border: none;
-    text-align: center;
-    margin-left: 160px;
+    background-color: #3590C0;
+    margin-left: 20px;
 }
 
 .dmg-add-btn:hover {
@@ -129,106 +121,141 @@
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
 }
 
-.dmg-table-container {
+.dmg-table-container, .inv-table-container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
     background: #ffffff;
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
     margin: 20px 0px;
-    max-width: 100%;
-    overflow-x: auto;
-    
 }
 
-.dmg-table {
+.dmg-table, .rep-table, #damagedProductsTable {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed;
+    table-layout: auto;
 }
 
-.dmg-table th,
-.dmg-table td {
-   
-    border: 1px solid #ddd;
-    padding: 10px;
+.dmg-table tr, .rep-table tr, #damagedProductsTable tr {
+    height: 48px;
+}
+
+.dmg-table th, .dmg-table td,
+.rep-table th, .rep-table td,
+#damagedProductsTable th, #damagedProductsTable td {
+    padding: 0.75rem;
     text-align: left;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    
+    border: 1px solid #ddd;
+    border-bottom: 1px solid #dee2e6;
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: break-word;
+    vertical-align: middle;
+    min-width: 100px;
 }
 
-.dmg-table th {
+.dmg-table th, .rep-table th, #damagedProductsTable th {
     background-color: #10394f;
     color: white;
     font-weight: bold;
     position: sticky;
     top: 0;
     z-index: 1;
+    height: 48px;
 }
 
-.dmg-table tr:nth-child(even) {
+.dmg-table tr:nth-child(even),
+.rep-table tr:nth-child(even),
+#damagedProductsTable tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-.dmg-table tr:hover {
+.dmg-table tr:hover,
+.rep-table tr:hover,
+#damagedProductsTable tr:hover {
     background-color: #f0f0f0;
-}
-
-#damagedProductsTable {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-#damagedProductsTable th,
-#damagedProductsTable td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
 }
 
 #damagedProductsTable th:nth-child(1),
 #damagedProductsTable td:nth-child(1) {
-    width: 10px;
+    min-width: 10px;
 }
 
 #damagedProductsTable th:nth-child(2),
 #damagedProductsTable td:nth-child(2) {
-    max-width: 100px;
+    min-width: 150px;
+    max-width: 180px !important;
 }
 
 #damagedProductsTable th:nth-child(3),
 #damagedProductsTable td:nth-child(3) {
-    width: 50px;
+    min-width: 50px;
+    max-width: 50px !important;
 }
 
 #damagedProductsTable th:nth-child(4),
 #damagedProductsTable td:nth-child(4) {
-    max-width: 200px;
-    word-wrap: break-word;
-    white-space: normal;
+    min-width: 80px;
+    max-width: 80px !important;
 }
 
 #damagedProductsTable th:nth-child(5),
 #damagedProductsTable td:nth-child(5) {
-    max-width: 150px;
+    min-width: 80px;
+    max-width: 80px !important;
 }
 
 #damagedProductsTable th:nth-child(6),
 #damagedProductsTable td:nth-child(6) {
-    width: 120px;
+    min-width: 150px;
+    max-width: 180px !important;
 }
 
 #damagedProductsTable th:nth-child(7),
 #damagedProductsTable td:nth-child(7) {
-    width: 100px;
+    min-width: 150px;
+    max-width: 180px !important;
+}
+
+#damagedProductsTable th:nth-child(8),
+#damagedProductsTable td:nth-child(8) {
+    min-width: 60px;
+    max-width: 60px !important;
+}
+
+#damagedProductsTable th:nth-child(9),
+#damagedProductsTable td:nth-child(9) {
+    min-width: 130px;
+    max-width: 150px !important;
+}
+
+#damagedProductsTable th:nth-child(10),
+#damagedProductsTable td:nth-child(10) {
+    min-width: 130px;
+    max-width: 150px !important;
+}
+
+#damagedProductsTable th:nth-child(11),
+#damagedProductsTable td:nth-child(11) {
+    min-width: 150px;
+    max-width: 180px !important;
+}
+
+#damagedProductsTable th:nth-child(12),
+#damagedProductsTable td:nth-child(12) {
+    min-width: 80px;
+    max-width: 80px !important;
 }
 
 #damagedProductsTable_wrapper .dataTables_filter input {
-    border: 1px solid #000000;
+    border: 1px solid #ccc;
     padding: 6px;
     border-radius: 4px;
     margin-left: 10px;
+    margin-bottom: 10px;
 }
 
 #damagedProductsTable_wrapper .dataTables_filter input:focus {
@@ -237,6 +264,8 @@
     background-color: #fff;
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
+
+
 
 #damagedProductsTable_wrapper .dataTables_paginate .paginate_button {
     padding: 6px 12px;
@@ -251,7 +280,29 @@
     background-color: #007bff;
     color: white;
     border-color: #007bff;
-    transform: translateY(-3px);
+}
+
+#damagedProductsTable_wrapper .dataTables_length select {
+    border: 1px solid #e0e0e0;
+    padding: 6px;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+#damagedProductsTable_wrapper .dataTables_length select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+#damagedProductsTable_wrapper .dataTables_info {
+    font-size: 16px;
+    color: #555;
+    font-family: 'Poppins', sans-serif;
 }
 
 .dmg-modal {
@@ -360,9 +411,51 @@
     margin-right: auto;
 }
 
-.dmg-top-bar {
+.dmg-header-row {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.dmg-tabs {
+    display: flex;
+    background-color: #10394f;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 10px;
+    width: fit-content;
+    margin-right: 20px;
+}
+
+.dmg-tab {
+    padding: 5px 10px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    align-items: center;
+}
+
+.dmg-tab.active {
+    border-bottom: 2px solid #ffffff;
+    font-weight: bold;
+}
+
+.dmg-form-group select,
+.dmg-form-group input,
+.dmg-form-group textarea {
+    width: 100%;
+    padding: 8px;
+}
+
+.product-name-error,
+.quantity-error,
+.price-error {
+    border: 1px solid red;
+}
+
+.invalid-indicator {
+    color: red;
+    display: none;
 }
 
 @media (max-width: 768px) {
@@ -377,18 +470,66 @@
         display: block;
     }
 
-    .dmg-add-btn {
-        margin-left: auto;
-        margin-right: auto;
-        display: block;
+    .dmg-header-row {
+        flex-direction: column;
+        align-items: center;
     }
 
-    .dmg-table-container {
+    .dmg-tabs {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .dmg-add-btn {
+        margin-left: 0;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .dmg-table-container,
+    .inv-table-container {
         overflow-x: auto;
     }
 
-    #damagedProductsTable th:nth-child(4),
-    #damagedProductsTable td:nth-child(4) {
-        max-width: 150px;
+    #damagedProductsTable th:nth-child(2),
+    #damagedProductsTable td:nth-child(2) {
+        min-width: 120px;
+        max-width: 120px !important;
+    }
+
+    #damagedProductsTable th:nth-child(6),
+    #damagedProductsTable td:nth-child(6) {
+        min-width: 120px;
+        max-width: 120px !important;
+    }
+
+    #damagedProductsTable th:nth-child(7),
+    #damagedProductsTable td:nth-child(7) {
+        min-width: 120px;
+        max-width: 120px !important;
+    }
+
+    #damagedProductsTable th:nth-child(8),
+    #damagedProductsTable td:nth-child(8) {
+        min-width: 50px;
+        max-width: 50px !important;
+    }
+
+    #damagedProductsTable th:nth-child(9),
+    #damagedProductsTable td:nth-child(9) {
+        min-width: 130px;
+        max-width: 130px !important;
+    }
+
+    #damagedProductsTable th:nth-child(10),
+    #damagedProductsTable td:nth-child(10) {
+        min-width: 130px;
+        max-width: 130px !important;
+    }
+
+    #damagedProductsTable th:nth-child(11),
+    #damagedProductsTable td:nth-child(11) {
+        min-width: 50px;
+        max-width: 50px !important;
     }
 }

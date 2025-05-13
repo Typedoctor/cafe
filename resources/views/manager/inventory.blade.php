@@ -5,32 +5,13 @@
 @push('styles')
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <style>
-        .quantity-note {
-            font-size: 0.8em;
-            color: red;
-            font-style: italic;
-        }
-
-        .quantity-error {
-            border: 2px solid red;
-        }
-
-        .inv-form-group small {
-            display: block;
-            margin-top: 5px;
-            font-size: 0.8em;
-            color: #666;
-        }
-    </style>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="{{ asset('css/manager-inventory.css') }}">
 @endpush
 
 @section('content')
-    <h1 class="inv-title">Product Inventory</h1>
+    
 
-    <div class="inv-top-bar">
-        <button id="addStockBtn" class="inv-btn inv-add-stock">+ Add Product</button>
-    </div>
 
     <div id="productModal" class="inv-modal">
         <div class="inv-modal-content">
@@ -61,6 +42,16 @@
                     <input type="number" name="quantity" id="quantity" min="1" max="1200" required>
                 </div>
                 <div class="inv-form-group">
+                    <label>Unit of Measurement:</label>
+                    <select name="unit_of_measurement" id="unitOfMeasurement" required>
+                        <option value="">Select Unit</option>
+                        <option value="pieces">Pieces</option>
+                        <option value="liters">Liters</option>
+                        <option value="kilograms">Kilograms</option>
+                        <option value="grams">Grams</option>
+                    </select>
+                </div>
+                <div class="inv-form-group">
                     <label>Supplier:</label>
                     <input type="text" name="supplier" id="supplier" required maxlength="50" value="{{ old('supplier', $product->supplier ?? '') }}">
                     <small id="supplierCount">0 / 50</small>
@@ -79,7 +70,22 @@
     </div>
 
     <div class="inv-table-container" id="transaction-table"> 
-        <div class="inv-section-title">Products List</div>
+        <div class="inv-section-title">Products List </div>
+            <div class="category-filter-wrapper">
+                <div class="category-filter">
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="snack">Snack</option>
+                        <option value="drink">Drink</option>
+                        <option value="meal">Meal</option>
+                        <option value="dessert">Dessert</option>
+                    </select>
+                </div>
+                
+                <div class="inv-top-bar">
+                    <button id="addStockBtn" class="inv-btn inv-add-btn">+ Add Product</button>
+                </div>
+            </div>
         <table class="inv-table" id="productsTable">
             <thead>
                 <tr>
@@ -87,6 +93,7 @@
                     <th>Product Name</th>
                     <th>Category</th>
                     <th>In stock</th>
+                    <th>Unit</th>
                     <th>Supplier</th>
                     <th>Actions</th>
                 </tr>
@@ -97,10 +104,17 @@
                     <td>{{ $product->id }}</td>
                     <td title="{{ $product->product_name }}">{{ $product->product_name }}</td>
                     <td title="{{ $product->category }}">{{ $product->category }}</td>
-                    <td>{{ $product->quantity }}</td>
+                    <td class="{{ $product->quantity <= 2 ? 'product-critical' : ($product->quantity <= 5 ? 'product-low' : '') }}">{{ $product->quantity }}</td>
+                    <td>{{ $product->unit_of_measurement }}</td>
                     <td title="{{ $product->supplier }}">{{ $product->supplier }}</td>
                     <td>
-                        <button class="inv-btn inv-edit-btn" data-id="{{ $product->id }}" data-name="{{ $product->product_name }}" data-category="{{ $product->category }}" data-supplier="{{ $product->supplier }}" data-quantity="{{ $product->quantity }}">
+                        <button class="inv-btn inv-edit-btn" 
+                                data-id="{{ $product->id }}" 
+                                data-name="{{ $product->product_name }}" 
+                                data-category="{{ $product->category }}" 
+                                data-supplier="{{ $product->supplier }}" 
+                                data-quantity="{{ $product->quantity }}"
+                                data-unit-of-measurement="{{ $product->unit_of_measurement }}">
                             <i class="fa-solid fa-pencil"></i>
                         </button>
                         <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
@@ -142,9 +156,23 @@ $(document).ready(function () {
         pageLength: 10,
         responsive: true,
         order: [[0, 'asc']],
+        autoWidth: false,
         columnDefs: [
-            { orderable: false, targets: 5 }
+            { orderable: false, targets: 6 },
+            { width: '50px', targets: 0 },
+            { width: '180px', targets: 1 },
+            { width: '60px', targets: 2 },
+            { width: '50px', targets: 3 },
+            { width: '80px', targets: 4 },
+            { width: '180px', targets: 5 },
+            { width: '80px', targets: 6 }
         ]
+    });
+
+    // Category filter
+    $('#categoryFilter').on('change', function() {
+        let value = this.value;
+        table.column(2).search(value).draw();
     });
 
     $('#productsTable').on('click', '.inv-edit-btn', function() {
@@ -161,12 +189,12 @@ $(document).ready(function () {
         document.getElementById("productName").value = this.dataset.name;
         document.getElementById("category").value = this.dataset.category;
         document.getElementById("quantity").value = Math.max(1, parseInt(this.dataset.quantity));
+        document.getElementById("unitOfMeasurement").value = this.dataset.unitOfMeasurement;
         document.getElementById("supplier").value = this.dataset.supplier;
         SaveBtn.innerText = "UPDATE";
         productModal.style.display = "block";
         document.getElementById("errorMessages").style.display = "none";
 
-        // Update character counters
         updateCharacterCount('productName', 'productNameCount');
         updateCharacterCount('supplier', 'supplierCount');
     });
@@ -225,7 +253,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function enforceValidSupplier(input) {
         input.addEventListener("input", function () {
-            // Allow letters, numbers, spaces, and common punctuation
             this.value = this.value.replace(/[^a-zA-Z0-9\s.,-]/g, '');
         });
     }
@@ -233,14 +260,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (productNameInput) {
         enforceValidProductName(productNameInput);
         productNameInput.addEventListener("input", () => updateCharacterCount('productName', 'productNameCount'));
-        updateCharacterCount('productName', 'productNameCount'); // Initial value
+        updateCharacterCount('productName', 'productNameCount');
     }
 
     if (quantityInput) enforceValidQuantity(quantityInput);
     if (supplierInput) {
         enforceValidSupplier(supplierInput);
         supplierInput.addEventListener("input", () => updateCharacterCount('supplier', 'supplierCount'));
-        updateCharacterCount('supplier', 'supplierCount'); // Initial value
+        updateCharacterCount('supplier', 'supplierCount');
     }
 
     document.getElementById("addStockBtn").addEventListener("click", function () {
@@ -251,9 +278,10 @@ document.addEventListener("DOMContentLoaded", function () {
         SaveBtn.innerText = "ADD";
         productForm.reset();
         quantityInput.value = 1;
+        document.getElementById("unitOfMeasurement").value = "pieces";
         clearErrors();
-        updateCharacterCount('productName', 'productNameCount'); // Reset counter to 0
-        updateCharacterCount('supplier', 'supplierCount'); // Reset counter to 0
+        updateCharacterCount('productName', 'productNameCount');
+        updateCharacterCount('supplier', 'supplierCount');
     });
 
     productForm.addEventListener("submit", function (event) {
@@ -285,8 +313,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     response.product.product_name,
                     response.product.category,
                     response.product.quantity,
+                    response.product.unit_of_measurement,
                     response.product.supplier,
-                    `<button class="inv-btn inv-edit-btn" data-id="${response.product.id}" data-name="${response.product.product_name}" data-category="${response.product.category}" data-supplier="${response.product.supplier}" data-quantity="${response.product.quantity}">
+                    `<button class="inv-btn inv-edit-btn" 
+                             data-id="${response.product.id}" 
+                             data-name="${response.product.product_name}" 
+                             data-category="${response.product.category}" 
+                             data-supplier="${response.product.supplier}" 
+                             data-quantity="${response.product.quantity}"
+                             data-unit-of-measurement="${response.product.unit_of_measurement}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
                     <form action="/products/${response.product.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
@@ -306,6 +341,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 productModal.style.display = "none";
                 productForm.reset();
                 quantityInput.value = 1;
+                document.getElementById("unitOfMeasurement").value = "pieces";
                 updateCharacterCount('productName', 'productNameCount');
                 updateCharacterCount('supplier', 'supplierCount');
             },
@@ -322,12 +358,22 @@ document.addEventListener("DOMContentLoaded", function () {
     closeBtn.addEventListener("click", () => {
         productModal.style.display = "none";
         clearErrors();
+        productForm.reset();
+        quantityInput.value = 1;
+        document.getElementById("unitOfMeasurement").value = "pieces";
+        updateCharacterCount('productName', 'productNameCount');
+        updateCharacterCount('supplier', 'supplierCount');
     });
 
     window.addEventListener("click", event => {
         if (event.target === productModal) {
             productModal.style.display = "none";
             clearErrors();
+            productForm.reset();
+            quantityInput.value = 1;
+            document.getElementById("unitOfMeasurement").value = "pieces";
+            updateCharacterCount('productName', 'productNameCount');
+            updateCharacterCount('supplier', 'supplierCount');
         }
         if (event.target === tableSuccessModal) {
             tableSuccessModal.style.display = "none";

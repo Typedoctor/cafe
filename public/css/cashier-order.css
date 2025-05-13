@@ -13,12 +13,12 @@
 }
 
 .csh-dashboard-title {
-    font-size: 24px;
+    font-size: 32px;
+    font-weight: 600;
     color: #333;
     text-align: center;
-    margin: 10px 0 0 10px;
-    color: rgb(0, 0, 0);
     margin-bottom: 50px;
+    font-family: 'Poppins', sans-serif;
 }
 
 .csh-button-container {

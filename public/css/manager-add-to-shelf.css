@@ -34,14 +34,7 @@
     font-size: 16px;
     line-height: 1;
 }
-.shelf-title {
-    font-size: 32px;
-    margin-bottom: 30px;
-    text-align: center;
-    color: #333;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 600;
-}
+
 .shelf-section-title {
     font-size: 20px;
     font-weight: 600;
@@ -576,7 +569,7 @@ div.dataTables_wrapper div.dataTables_length select {
 }
 .shelf-top-bar {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     margin-bottom: 20px;
 }
 .shelf-quantity-error {

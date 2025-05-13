@@ -16,11 +16,12 @@
 @endpush
 
 @section('content')
-<h1 class="usr-manage-title">Manage Users</h1>
+<head>
+        <link rel="stylesheet" href="{{ asset('css/manager-user.css') }}">
+</head>        
 
-<div class="usr-top-bar">
-    <button id="addUserBtn" class="usr-btn usr-add-btn">+ Add User</button>
-</div>
+
+
 
 <div id="userModal" class="usr-modal">
     <span class="usr-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -67,6 +68,9 @@
 
 <div class="usr-table-container">
     <div class="usr-section-title">Users List</div>
+    <div class="usr-top-bar">
+        <button id="addUserBtn" class="usr-btn usr-add-btn">+ Add User</button>
+    </div>
     <table class="usr-table" id="usersTable">
         <thead>
             <tr>

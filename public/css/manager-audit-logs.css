@@ -1,10 +1,11 @@
 
 .audit-header {
     font-size: 32px;
-    margin: 20px 0;
-    padding: 10px;
+    font-weight: 600;
+    color: #333;
     text-align: center;
-    border-radius: 5px;
+    margin-bottom: 50px;
+    font-family: 'Poppins', sans-serif;
 }
 
 .audit-filters {

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Auditable;
 
-class Trash extends Model
+class Spoilage extends Model
 {
     use Auditable;
 

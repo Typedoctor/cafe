@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 </head>
 
-<div class="trn-header">Transactions</div>
 
 <!-- Search and Filter Container -->
 <div class="trn-search-filter-container">

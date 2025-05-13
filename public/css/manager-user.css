@@ -1,12 +1,5 @@
 /* Main Styles */
-.usr-manage-title {
-    font-size: 32px;
-    margin-bottom: 30px;
-    text-align: center;
-    color: #333;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 600;
-}
+
 .usr-section-title{
     font-size: 20px;
     font-weight: 600;
@@ -17,7 +10,7 @@
 
 .usr-top-bar {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     margin-bottom: 15px;
 }
 

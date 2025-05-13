@@ -9,7 +9,13 @@ class Product extends Model
 {
     use Auditable;
 
-    protected $fillable = ['product_name', 'supplier', 'quantity', 'category'];
+     protected $fillable = [
+        'product_name',
+        'category',
+        'quantity',
+        'supplier',
+        'unit_of_measurement'
+    ];
 
     public function orderItems()
     {

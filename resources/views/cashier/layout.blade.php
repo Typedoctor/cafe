@@ -4,7 +4,6 @@
     <title>@yield('title')</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/cashier-dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/transaction.css') }}">
     <script src="https://kit.fontawesome.com/2952e58222.js" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -14,7 +13,7 @@
             <ul>   
                 <li><a href="{{ route('order.index') }}" ><i class="fa-solid fa-mug-hot"></i>Manage orders</a></li>
                 <li><a href="{{ route('cashier-transactions.index') }}" ><i class="fa-solid fa-receipt"></i><span>Transactions</a></li>
-                <li><a href="{{ route('trash.index') }}"><i class="fa-solid fa-trash"></i>Record Thrown Items</a></li>
+                <li><a href="{{ route('trash.index') }}"><i class="fa-solid fa-trash"></i>Record Spoiled Items</a></li>
                 <li><a href="{{ route('logout') }}"><i class="fa-solid fa-sign-out-alt"></i>Logout</a></li>
             </ul>
         </div>c

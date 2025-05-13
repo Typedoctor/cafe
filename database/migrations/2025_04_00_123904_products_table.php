@@ -12,8 +12,9 @@ return new class extends Migration
             $table->id(); // Unique primary ID
             $table->string('product_name')->unique(); // String, unique, for letters and spaces
             $table->enum('category', ['snack', 'drink', 'meal', 'dessert']);
-            $table->string('supplier'); // String for supplier name (letters and spaces)
+            $table->string('supplier'); // String for supplier name
             $table->integer('quantity'); // Integer for positive quantities
+            $table->enum('unit_of_measurement', ['pieces', 'liters', 'kilograms', 'grams'])->default('pieces'); // Unit of measurement
             $table->timestamps(); // Created_at and updated_at
         });
     }
