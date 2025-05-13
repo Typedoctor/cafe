@@ -4,19 +4,11 @@
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="{{ asset('css/manager-add-to-shelf.css') }}">
 @endpush
 
 @section('content')
-<head>
-     <link rel="stylesheet" href="{{ asset('css/manager-add-to-shelf.css') }}">
-</head>    
-
-    <h1 class="shelf-title">Add to Shelf</h1>
-
-    <div class="shelf-top-bar">
-        <button id="openModalBtn" class="shelf-btn shelf-add-btn">+ Add to Shelf</button>
-    </div>
-
+    <div class="shelf-modal-overlay"></div> <!-- Added overlay for modal background -->
     <div id="shelfModal" class="shelf-modal">
         <div class="shelf-add-modal-content">
             <span class="shelf-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -102,6 +94,7 @@
         </div>
     </div>
 
+    <div class="shelf-modal-overlay"></div> <!-- Added overlay for edit modal -->
     <div id="editShelfItemModal" class="shelf-modal">
         <div class="shelf-edit-modal-content">
             <span class="shelf-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -136,6 +129,7 @@
         </div>
     </div>
 
+    <div class="shelf-modal-overlay"></div> <!-- Added overlay for success modal -->
     <div id="successModal" class="shelf-modal-success">
         <div class="shelf-modal-content">
             <h2>Success</h2>
@@ -146,6 +140,7 @@
         </div>
     </div>
 
+    <div class="shelf-modal-overlay"></div> <!-- Added overlay for delete success modal -->
     <div id="deleteSuccessModal" class="shelf-delete-modal-success">
         <div class="shelf-delete-modal-content">
             <h2>Deleted</h2>
@@ -158,6 +153,9 @@
 
     <div class="shelf-table-container">
         <div class="shelf-section-title">Shelfed Items</div>
+        <div class="shelf-top-bar">
+            <button id="openModalBtn" class="shelf-btn shelf-add-btn">+ Add to Shelf</button>
+        </div>
         <table class="shelf-items-table" id="shelfItemsTable">
             <thead>
                 <tr>
@@ -175,7 +173,7 @@
                         <td>{{ $item->id }}</td>
                         <td>{{ $item->product->product_name }}</td>
                         <td>{{ $item->price ? number_format($item->price, 2) : 'N/A' }}</td>
-                        <td>{{ $item->quantity_added }}</td>
+                        <td class="{{ $item->quantity_added == 0 ? 'shelf-out-of-stock' : '' }}">{{ $item->quantity_added }}</td>
                         <td>{{ $item->product->category }}</td>
                         <td>
                             <button type="button" class="shelf-btn shelf-edit-btn" 
@@ -270,6 +268,10 @@
 
         const openModal = (modalId, clearErrors = false) => {
             document.getElementById(modalId).style.display = 'flex';
+            // Show overlay for specific modals
+            if (['shelfModal', 'editShelfItemModal', 'successModal', 'deleteSuccessModal'].includes(modalId)) {
+                document.querySelector(`.shelf-modal-overlay[data-modal-id="${modalId}"]`).style.display = 'block';
+            }
             if (clearErrors && modalId === 'editShelfItemModal') {
                 const errDiv = document.getElementById('edit-error-message');
                 errDiv.style.display = 'none';
@@ -285,6 +287,10 @@
 
         const closeModal = (modalId) => {
             document.getElementById(modalId).style.display = 'none';
+            // Hide overlay for specific modals
+            if (['shelfModal', 'editShelfItemModal', 'successModal', 'deleteSuccessModal'].includes(modalId)) {
+                document.querySelector(`.shelf-modal-overlay[data-modal-id="${modalId}"]`).style.display = 'none';
+            }
             if (modalId === 'shelfModal') {
                 idx = 0; // Reset idx when closing main modal
                 $('#selected-products-body').empty();
@@ -325,22 +331,25 @@
 
         const updateSubmitButton = () => {
             const submitBtn = document.querySelector('.shelf-save-btn');
-            const items = document.querySelectorAll('#selected-products-body tr');
             let hasError = false;
 
-            // If no items are selected, disable the button
-            if (!items.length) {
-                submitBtn.disabled = true;
-                return;
-            }
-
-            items.forEach(row => {
+            // Use DataTables API to iterate over rows
+            selectedProductsTable.rows().every(function() {
+                const row = this.node();
                 const priceInput = row.querySelector('input[name$="[price]"]');
                 const qtyInput = row.querySelector('input[name$="[quantity_added]"]');
-                const price = parseFloat(priceInput.value);
-                const qty = parseInt(qtyInput.value);
-                const maxStock = parseInt(row.dataset.productStock);
                 const priceError = row.querySelector('.shelf-price-error');
+                const qtyError = row.querySelector('.shelf-quantity-error');
+
+                // Check if inputs exist to avoid null errors
+                if (!priceInput || !qtyInput) {
+                    hasError = true;
+                    return true; // Continue to next row
+                }
+
+                const price = parseFloat(priceInput.value);
+                const qty = parseInt(qtyInput.value) || 0;
+                const maxStock = parseInt(row.dataset.productStock) || 0;
 
                 // Validate price
                 if (!price || isNaN(price) || price <= 0 || price > 1200) {
@@ -355,15 +364,19 @@
                 // Validate quantity
                 if (qty > maxStock) {
                     qtyInput.classList.add('quantity-error');
-                    row.querySelector('.shelf-quantity-error').style.display = 'block';
+                    qtyError.style.display = 'block';
                     hasError = true;
                 } else {
                     qtyInput.classList.remove('quantity-error');
-                    row.querySelector('.shelf-quantity-error').style.display = 'none';
+                    qtyError.style.display = 'none';
                 }
+
+                return true; // Continue to next row
             });
 
-            submitBtn.disabled = hasError || !items.length;
+            // Disable button if there are errors or no rows
+            const rowCount = selectedProductsTable.rows().count();
+            submitBtn.disabled = hasError || rowCount === 0;
         };
 
         document.querySelectorAll('.shelf-tab-link-categ').forEach(btn => {
@@ -394,30 +407,29 @@
                 return;
             }
 
-            let row = null;
+            let rowExists = false;
             selectedProductsTable.rows().every(function() {
                 const rowNode = this.node();
                 const productIdInput = rowNode.querySelector('input[name$="[product_id]"]');
                 if (productIdInput && productIdInput.value === id) {
-                    row = rowNode;
-                    return false; 
+                    rowExists = true;
+                    const qtyInput = rowNode.querySelector('input[name$="[quantity_added]"]');
+                    const currentQty = parseInt(qtyInput.value);
+                    if (currentQty + 1 <= stock) {
+                        qtyInput.value = currentQty + 1;
+                        qtyInput.classList.remove('quantity-error');
+                        rowNode.querySelector('.shelf-quantity-error').style.display = 'none';
+                    } else {
+                        qtyInput.classList.add('quantity-error');
+                        rowNode.querySelector('.shelf-quantity-error').style.display = 'block';
+                        showWarning(`Cannot add more of "${name}". Stock limit: ${stock}.`);
+                    }
+                    return false; // Break loop
                 }
                 return true;
             });
 
-            if (row) {
-                const qtyInput = row.querySelector('input[name$="[quantity_added]"]');
-                const currentQty = parseInt(qtyInput.value);
-                if (currentQty + 1 <= stock) {
-                    qtyInput.value = currentQty + 1;
-                    qtyInput.classList.remove('quantity-error');
-                    row.querySelector('.shelf-quantity-error').style.display = 'none';
-                } else {
-                    qtyInput.classList.add('quantity-error');
-                    row.querySelector('.shelf-quantity-error').style.display = 'block';
-                    showWarning(`Cannot add more of "${name}". Stock limit: ${stock}.`);
-                }
-            } else {
+            if (!rowExists) {
                 // Check if product is already on shelf to pre-fill price
                 $.ajax({
                     url: '{{ route("add-to-shelf.check") }}',
@@ -515,7 +527,7 @@
         document.getElementById('shelfForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const form = e.target;
-            const items = document.querySelectorAll('#selected-products-body tr');
+            const items = selectedProductsTable.rows().nodes();
             const errorDiv = document.getElementById('shelf-error-message');
             hideErrorMessage();
 
@@ -525,9 +537,14 @@
             }
 
             let hasError = false;
-            items.forEach(row => {
+            items.each(function(row) {
                 const priceInput = row.querySelector('input[name$="[price]"]');
                 const qtyInput = row.querySelector('input[name$="[quantity_added]"]');
+                if (!priceInput || !qtyInput) {
+                    hasError = true;
+                    return;
+                }
+
                 const price = parseFloat(priceInput.value);
                 const qty = parseInt(qtyInput.value) || 0;
                 const maxStock = parseInt(row.dataset.productStock);

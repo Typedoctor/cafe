@@ -8,7 +8,7 @@
 @endpush
 
 @section('content')
-<h1 class="dmg-title">Damaged Products</h1>
+
 
 <div id="damagedProductModal" class="dmg-modal">
     <div class="dmg-modal-content">
@@ -104,7 +104,11 @@
     </div>
 @endif
 
-<div class="dmg-header-row">
+
+
+<div class="dmg-table-container">
+    <div class="dmg-section-title" id="sectionTitle">All Damaged Products List</div>
+    <div class="dmg-header-row">
     <div class="dmg-tabs">
         <div class="dmg-tab active" data-status="all">All</div>
         <div class="dmg-tab" data-status="Successfully Returned">Successfully Returned</div>
@@ -112,9 +116,6 @@
     </div>
     <button id="addDamagedProductBtn" class="dmg-btn dmg-add-btn">+ Report Damaged Product</button>
 </div>
-
-<div class="dmg-table-container">
-    <div class="dmg-section-title" id="sectionTitle">All Damaged Products List</div>
     <table class="dmg-table" id="damagedProductsTable">
         <thead>
             <tr>

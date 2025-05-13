@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ asset('css/transaction.css') }}">
 </head>
 
-<div class="trn-header">Transactions</div>
+
 
 <!-- Search and Filter Container -->
 <div class="trn-search-filter-container">

@@ -32,7 +32,7 @@
 <div id="transactions-content" style="display: {{ $tab === 'transactions' ? 'block' : 'none' }};">
     <div class="sl-metrics">
         <div class="sl-metric-box">
-            <div class="sl-metric-title">Total Sales</div>
+            <div class="sl-metric-title">Total </div>
             <div class="sl-metric-value sl-revenue">₱{{ number_format($totalRevenue, 2) }}</div>
         </div>
         <div class="sl-metric-box">

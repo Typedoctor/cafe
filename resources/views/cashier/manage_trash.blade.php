@@ -11,9 +11,6 @@
 <head>
     <link rel="stylesheet" href="{{ asset('css/cashier-trash.css') }}">
 </head>
-
-<h1 class="inventory-title">Manage Trash</h1>
-
 <!-- Display Success/Error Messages -->
 @if (session('success'))
     <div class="alert alert-success" style="margin: 15px; padding: 10px; background-color: #d4edda; color: #155724; border-radius: 5px;">
@@ -35,29 +32,6 @@
     </div>
 @endif
 
-<div class="top-bar-container">
-    <div class="filter-container">
-        <form id="filterForm" method="GET" action="{{ route('trash.index') }}">
-            <div class="rep-filter-box filter-box-wrapper">
-                <select class="rep-month-filter" name="month" onchange="submitForm()">
-                    @for ($m = 1; $m <= 12; $m++)
-                        <option value="{{ $m }}" {{ request('month', now()->month) == $m ? 'selected' : '' }}>
-                            {{ \Carbon\Carbon::create()->month($m)->format('F') }}
-                        </option>
-                    @endfor
-                </select>
-                <select class="rep-year-filter" name="year" onchange="submitForm()">
-                    @for ($y = now()->year; $y >= now()->year - 5; $y--)
-                        <option value="{{ $y }}" {{ request('year', now()->year) == $y ? 'selected' : '' }}>{{ $y }}</option>
-                    @endfor
-                </select>
-            </div>
-        </form>
-    </div>
-    <div class="add-trash-container">
-        <button id="addTrashBtn" class="btn add-trash">+ Add Trash Entry</button>
-    </div>
-</div>
 
 <!-- Add Trash Modal -->
 <div id="trashModal" class="modal">
@@ -121,6 +95,31 @@
 
 <!-- Trash Table -->
 <div class="trsh-table-container" id="transaction-table">
+    
+<h1 class="page-title">Lists of Spoils</h1>
+    <div class="top-bar-container">
+    <div class="filter-container">
+        <form id="filterForm" method="GET" action="{{ route('trash.index') }}">
+            
+                <select class="rep-month-filter" name="month" onchange="submitForm()">
+                    @for ($m = 1; $m <= 12; $m++)
+                        <option value="{{ $m }}" {{ request('month', now()->month) == $m ? 'selected' : '' }}>
+                            {{ \Carbon\Carbon::create()->month($m)->format('F') }}
+                        </option>
+                    @endfor
+                </select>
+                <select class="rep-year-filter" name="year" onchange="submitForm()">
+                    @for ($y = now()->year; $y >= now()->year - 5; $y--)
+                        <option value="{{ $y }}" {{ request('year', now()->year) == $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endfor
+                </select>
+           
+        </form>
+    </div>
+    <div class="add-trash-container">
+        <button id="addTrashBtn" class="btn add-trash">+ Add Trash Entry</button>
+    </div>
+</div>
     <table class="inventory-table" id="trashTable">
         <thead>
             <tr>

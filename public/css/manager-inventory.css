@@ -1,17 +1,8 @@
 /* Main Styles */
-.inv-title {
-    font-size: 32px;
-    margin-bottom: 30px;
-    text-align: center;
-    color: #333;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 600;
-}
-
 .inv-section-title {
     font-size: 20px;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     color: #333;
     text-align: center;
     font-family: 'Poppins', sans-serif;
@@ -75,13 +66,13 @@
 
 .inv-edit-btn {
     background-color: #3590C0;
-    padding: 5px 8px; /* Reduced padding */
+    padding: 5px 8px;
     font-size: 14px;
     border-radius: 5px;
     color: white;
     border: none;
     cursor: pointer;
-    margin: 2px; /* Reduced margin */
+    margin: 2px;
 }
 
 .inv-edit-btn:hover {
@@ -92,13 +83,13 @@
 
 .inv-delete-btn {
     background-color: #dc3545;
-    padding: 5px 8px; /* Reduced padding */
+    padding: 5px 8px;
     font-size: 14px;
     border-radius: 5px;
     color: white;
     border: none;
     cursor: pointer;
-    margin: 2px; /* Reduced margin */
+    margin: 2px;
 }
 
 .inv-delete-btn:hover {
@@ -115,13 +106,13 @@
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
     margin: 20px 0px;
     max-width: 100%;
-    overflow-x: auto; /* Ensure horizontal scrolling for overflow */
+    overflow-x: auto;
 }
 
 .inv-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* Prevent columns from resizing based on content */
+    table-layout: fixed;
 }
 
 .inv-table th,
@@ -129,9 +120,9 @@
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
-    overflow: hidden; /* Prevent content from spilling out */
-    text-overflow: ellipsis; /* Add ellipsis for overflow */
-    white-space: nowrap; /* Prevent wrapping by default */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .inv-table th {
@@ -165,44 +156,45 @@
 }
 
 /* Column Widths for DataTable */
-#productsTable th:nth-child(1), /* ID */
+#productsTable th:nth-child(1),
 #productsTable td:nth-child(1) {
     width: 50px;
 }
 
-#productsTable th:nth-child(2), /* Product Name */
+#productsTable th:nth-child(2),
 #productsTable td:nth-child(2) {
-    max-width: 180px; /* Increased for better readability */
+    max-width: 180px;
 }
 
-#productsTable th:nth-child(3), /* Category */
+#productsTable th:nth-child(3),
 #productsTable td:nth-child(3) {
-    max-width: 60px; /* Slightly increased */
+    max-width: 60px;
 }
 
-#productsTable th:nth-child(4), /* In Stock */
+#productsTable th:nth-child(4),
 #productsTable td:nth-child(4) {
     width: 50px;
 }
 
-#productsTable th:nth-child(5), /* Unit of Measurement */
+#productsTable th:nth-child(5),
 #productsTable td:nth-child(5) {
     max-width: 80px;
 }
 
-#productsTable th:nth-child(6), /* Supplier */
+#productsTable th:nth-child(6),
 #productsTable td:nth-child(6) {
-    max-width: 180px; /* Increased for better readability */
+    max-width: 180px;
     word-wrap: break-word;
     white-space: normal;
 }
 
-#productsTable th:nth-child(7), /* Actions */
+#productsTable th:nth-child(7),
 #productsTable td:nth-child(7) {
-    width: 80px; /* Reduced to fit buttons snugly */
+    width: 80px;
 }
 
 #productsTable_wrapper .dataTables_filter input {
+    float: right !important;
     border: 1px solid #000000;
     padding: 6px;
     border-radius: 4px;
@@ -240,11 +232,13 @@
     left: 50%;
     transform: translate(-50%, -50%);
     width: 400px;
+    max-height: 80vh; /* Limit height to 80% of viewport height */
     background: white;
     padding: 30px;
     box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
     border-radius: 12px;
     z-index: 1000;
+    overflow-y: auto; /* Enable vertical scrolling */
 }
 
 .inv-modal h2 {
@@ -254,6 +248,12 @@
     font-weight: 600;
     text-align: center;
     font-family: 'Poppins', sans-serif;
+    position: sticky;
+    top: 0;
+    background: white; /* Ensure the header doesn't scroll out of view */
+    z-index: 1;
+    padding: 0 0 10px 0;
+    margin: -30px -30px 25px -30px; /* Adjust margins to match padding */
 }
 
 .inv-modal-content {
@@ -262,6 +262,7 @@
     color: #000000;
     margin-bottom: 8px;
     font-family: 'Poppins', sans-serif;
+    overflow-y: auto; /* Ensure content inside can scroll */
 }
 
 .inv-close-btn {
@@ -272,6 +273,7 @@
     color: rgb(162, 5, 5);
     font-size: 18px;
     font-weight: bold;
+    z-index: 2; /* Ensure close button is above sticky header */
 }
 
 /* Form Styles */
@@ -373,7 +375,7 @@
 }
 
 .inv-modal-content p {
-    color: #000; /* Better contrast for success message */
+    color: #000;
 }
 
 /* Close Button */
@@ -406,12 +408,87 @@
     float: right;
 }
 
+.quantity-note {
+    font-size: 0.8em;
+    color: red;
+    font-style: italic;
+}
+
+.quantity-error {
+    border: 2px solid red;
+}
+
+.inv-form-group small {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.8em;
+    color: #666;
+}
+
+.product-low {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.product-critical {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Table Header Controls Styles */
+.table-header-controls {
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 0 20px; /* Match table container padding */
+}
+
+.category-filter-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.category-filter {
+    flex: 0 0 auto;
+    min-width: 150px;
+}
+
+.category-filter select {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.category-filter select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.dataTables_filter {
+    flex: 0 0 auto;
+    min-width: 200px;
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
     .inv-modal {
         width: 90%;
         max-width: 400px;
         padding: 20px;
+        max-height: 80vh; /* Maintain height limit on mobile */
+        overflow-y: auto; /* Maintain scrollability on mobile */
+    }
+
+    .inv-modal h2 {
+        margin: -20px -20px 25px -20px; /* Adjust margins for smaller padding on mobile */
     }
 
     .inv-close-btn {
@@ -430,28 +507,51 @@
     }
 
     /* Adjust column widths for smaller screens */
-    #productsTable th:nth-child(2), /* Product Name */
+    #productsTable th:nth-child(2),
     #productsTable td:nth-child(2) {
-        max-width: 120px; /* Adjusted for smaller screens */
+        max-width: 120px;
     }
 
-    #productsTable th:nth-child(3), /* Category */
+    #productsTable th:nth-child(3),
     #productsTable td:nth-child(3) {
-        max-width: 80px; /* Adjusted */
+        max-width: 80px;
     }
 
-    #productsTable th:nth-child(5), /* Unit of Measurement */
+    #productsTable th:nth-child(5),
     #productsTable td:nth-child(5) {
-        max-width: 60px; /* Adjusted */
+        max-width: 60px;
     }
 
-    #productsTable th:nth-child(6), /* Supplier */
+    #productsTable th:nth-child(6),
     #productsTable td:nth-child(6) {
-        max-width: 140px; /* Adjusted */
+        max-width: 140px;
     }
 
-    #productsTable th:nth-child(7), /* Actions */
+    #productsTable th:nth-child(7),
     #productsTable td:nth-child(7) {
-        width: 70px !important; /* Adjusted for smaller screens */
+        width: 70px !important;
+    }
+
+    /* Table header controls responsive */
+    .table-header-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .category-filter-wrapper,
+    .dataTables_filter {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .category-filter,
+    .dataTables_filter {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .category-filter select,
+    .dataTables_filter input {
+        width: 100%;
     }
 }

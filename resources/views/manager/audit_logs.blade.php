@@ -2,14 +2,15 @@
 
 @section('title', 'Audit Logs')
 
+@push('styles')
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="{{ asset('css/manager-audit-logs.css') }}">
+@endpush
 
 @section('content')
     <div class="audit-header">Audit Logs</div>
-<head>
- 
-    <link rel="stylesheet" href="{{ asset('css/manager-audit-logs.css') }}">
-</head>
-        <!-- Display validation errors -->
+
+    <!-- Display validation errors -->
     @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
@@ -129,7 +130,14 @@
                 pageLength: 10,
                 lengthMenu: [10, 25, 50, 100],
                 order: [[0, 'desc']],
-                searching: true
+                searching: true,
+                dom: '<"audit-custom-filter-bar"lf>t<"audit-table-footer"ip>',
+                language: {
+                    paginate: {
+                        previous: 'Previous',
+                        next: 'Next'
+                    }
+                }
             });
         });
 

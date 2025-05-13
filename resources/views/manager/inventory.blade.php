@@ -5,36 +5,13 @@
 @push('styles')
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <style>
-        .quantity-note {
-            font-size: 0.8em;
-            color: red;
-            font-style: italic;
-        }
-
-        .quantity-error {
-            border: 2px solid red;
-        }
-
-        .inv-form-group small {
-            display: block;
-            margin-top: 5px;
-            font-size: 0.8em;
-            color: #666;
-        }
-    </style>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="{{ asset('css/manager-inventory.css') }}">
 @endpush
 
 @section('content')
-    <head>
-        <link rel="stylesheet" href="{{ asset('css/manager-inventory.css') }}">
-        
-    </head>    
-    <h1 class="inv-title">Product Inventory</h1>
+    
 
-    <div class="inv-top-bar">
-        <button id="addStockBtn" class="inv-btn inv-add-btn">+ Add Product</button>
-    </div>
 
     <div id="productModal" class="inv-modal">
         <div class="inv-modal-content">
@@ -93,7 +70,22 @@
     </div>
 
     <div class="inv-table-container" id="transaction-table"> 
-        <div class="inv-section-title">Products List</div>
+        <div class="inv-section-title">Products List </div>
+            <div class="category-filter-wrapper">
+                <div class="category-filter">
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="snack">Snack</option>
+                        <option value="drink">Drink</option>
+                        <option value="meal">Meal</option>
+                        <option value="dessert">Dessert</option>
+                    </select>
+                </div>
+                
+                <div class="inv-top-bar">
+                    <button id="addStockBtn" class="inv-btn inv-add-btn">+ Add Product</button>
+                </div>
+            </div>
         <table class="inv-table" id="productsTable">
             <thead>
                 <tr>
@@ -112,7 +104,7 @@
                     <td>{{ $product->id }}</td>
                     <td title="{{ $product->product_name }}">{{ $product->product_name }}</td>
                     <td title="{{ $product->category }}">{{ $product->category }}</td>
-                    <td>{{ $product->quantity }}</td>
+                    <td class="{{ $product->quantity <= 2 ? 'product-critical' : ($product->quantity <= 5 ? 'product-low' : '') }}">{{ $product->quantity }}</td>
                     <td>{{ $product->unit_of_measurement }}</td>
                     <td title="{{ $product->supplier }}">{{ $product->supplier }}</td>
                     <td>
@@ -164,17 +156,23 @@ $(document).ready(function () {
         pageLength: 10,
         responsive: true,
         order: [[0, 'asc']],
-        autoWidth: false, // Disable auto-width calculation
+        autoWidth: false,
         columnDefs: [
-            { orderable: false, targets: 6 }, // Actions column (7th column)
-            { width: '50px', targets: 0 },  // ID
-            { width: '180px', targets: 1 }, // Product Name
-            { width: '60px', targets: 2 },  // Category
-            { width: '50px', targets: 3 },  // In stock
-            { width: '80px', targets: 4 },  // Unit
-            { width: '180px', targets: 5 }, // Supplier
-            { width: '80px', targets: 6 }   // Actions
+            { orderable: false, targets: 6 },
+            { width: '50px', targets: 0 },
+            { width: '180px', targets: 1 },
+            { width: '60px', targets: 2 },
+            { width: '50px', targets: 3 },
+            { width: '80px', targets: 4 },
+            { width: '180px', targets: 5 },
+            { width: '80px', targets: 6 }
         ]
+    });
+
+    // Category filter
+    $('#categoryFilter').on('change', function() {
+        let value = this.value;
+        table.column(2).search(value).draw();
     });
 
     $('#productsTable').on('click', '.inv-edit-btn', function() {
@@ -197,7 +195,6 @@ $(document).ready(function () {
         productModal.style.display = "block";
         document.getElementById("errorMessages").style.display = "none";
 
-        // Update character counters
         updateCharacterCount('productName', 'productNameCount');
         updateCharacterCount('supplier', 'supplierCount');
     });
@@ -256,7 +253,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function enforceValidSupplier(input) {
         input.addEventListener("input", function () {
-            // Allow letters, numbers, spaces, and common punctuation
             this.value = this.value.replace(/[^a-zA-Z0-9\s.,-]/g, '');
         });
     }
@@ -264,14 +260,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (productNameInput) {
         enforceValidProductName(productNameInput);
         productNameInput.addEventListener("input", () => updateCharacterCount('productName', 'productNameCount'));
-        updateCharacterCount('productName', 'productNameCount'); // Initial value
+        updateCharacterCount('productName', 'productNameCount');
     }
 
     if (quantityInput) enforceValidQuantity(quantityInput);
     if (supplierInput) {
         enforceValidSupplier(supplierInput);
         supplierInput.addEventListener("input", () => updateCharacterCount('supplier', 'supplierCount'));
-        updateCharacterCount('supplier', 'supplierCount'); // Initial value
+        updateCharacterCount('supplier', 'supplierCount');
     }
 
     document.getElementById("addStockBtn").addEventListener("click", function () {
@@ -282,10 +278,10 @@ document.addEventListener("DOMContentLoaded", function () {
         SaveBtn.innerText = "ADD";
         productForm.reset();
         quantityInput.value = 1;
-        document.getElementById("unitOfMeasurement").value = "pieces"; // Default UoM
+        document.getElementById("unitOfMeasurement").value = "pieces";
         clearErrors();
-        updateCharacterCount('productName', 'productNameCount'); // Reset counter to 0
-        updateCharacterCount('supplier', 'supplierCount'); // Reset counter to 0
+        updateCharacterCount('productName', 'productNameCount');
+        updateCharacterCount('supplier', 'supplierCount');
     });
 
     productForm.addEventListener("submit", function (event) {
@@ -345,7 +341,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 productModal.style.display = "none";
                 productForm.reset();
                 quantityInput.value = 1;
-                document.getElementById("unitOfMeasurement").value = "pieces"; // Reset UoM
+                document.getElementById("unitOfMeasurement").value = "pieces";
                 updateCharacterCount('productName', 'productNameCount');
                 updateCharacterCount('supplier', 'supplierCount');
             },
@@ -364,7 +360,7 @@ document.addEventListener("DOMContentLoaded", function () {
         clearErrors();
         productForm.reset();
         quantityInput.value = 1;
-        document.getElementById("unitOfMeasurement").value = "pieces"; // Reset UoM
+        document.getElementById("unitOfMeasurement").value = "pieces";
         updateCharacterCount('productName', 'productNameCount');
         updateCharacterCount('supplier', 'supplierCount');
     });
@@ -375,7 +371,7 @@ document.addEventListener("DOMContentLoaded", function () {
             clearErrors();
             productForm.reset();
             quantityInput.value = 1;
-            document.getElementById("unitOfMeasurement").value = "pieces"; // Reset UoM
+            document.getElementById("unitOfMeasurement").value = "pieces";
             updateCharacterCount('productName', 'productNameCount');
             updateCharacterCount('supplier', 'supplierCount');
         }
