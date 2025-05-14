@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Spoilage;
 use App\Models\Sale;
+use App\Models\DamagedProduct;
 use Carbon\Carbon;
 
 class DashboardController extends Controller 
@@ -44,6 +45,7 @@ class DashboardController extends Controller
         $queryTransaction = Sale::query();
         $queryTopSelling = Sale::query();
         $querySalesChart = Sale::query();
+        $queryDamaged = DamagedProduct::query();
 
         // Apply filters
         if ($period === 'monthly') {
@@ -51,18 +53,25 @@ class DashboardController extends Controller
             $queryTransaction->whereMonth('created_at', $month)->whereYear('created_at', $year);
             $queryTopSelling->whereMonth('created_at', $month)->whereYear('created_at', $year);
             $querySalesChart->whereMonth('created_at', $month)->whereYear('created_at', $year);
+            $queryDamaged->whereMonth('reported_at', $month)->whereYear('reported_at', $year);
         } else { // yearly
             $queryTrash->whereYear('created_at', $year);
             $queryTransaction->whereYear('created_at', $year);
             $queryTopSelling->whereYear('created_at', $year);
             $querySalesChart->whereYear('created_at', $year);
+            $queryDamaged->whereYear('reported_at', $year);
         }
 
         // Fetch data
         $trashes = $queryTrash->get();
         $transactions = $queryTransaction->get();
-        $totalLoss = $trashes->sum('total_loss');
+        $damagedProducts = $queryDamaged->get();
+        $totalLossFromSpoilage = $trashes->sum('total_loss');
+        $totalLossFromDamaged = $damagedProducts->where('status', DamagedProduct::STATUS_LOSS)->sum('total_cost');
+        $totalLoss = $totalLossFromSpoilage + $totalLossFromDamaged;
+        $totalSaved = $damagedProducts->where('status', DamagedProduct::STATUS_RETURNED)->sum('total_cost');
         $revenue = $transactions->sum('total_price');
+        $damagedCount = $damagedProducts->count();
 
         // Top selling products
         $topSellingProducts = $queryTopSelling
@@ -174,7 +183,22 @@ class DashboardController extends Controller
 
         $maxY = $maxY > 0 ? ceil($maxY / 100) * 100 : 100;
 
-        return view('manager.dashboard', compact( 'trashes', 'revenue', 'topSellingProducts', 'totalLoss', 'lowStockProducts', 'salesData', 'maxY', 'period', 'month', 'year'
+        return view('manager.dashboard', compact(
+            'trashes',
+            'revenue',
+            'topSellingProducts',
+            'totalLoss',
+            'totalLossFromSpoilage',
+            'totalLossFromDamaged',
+            'totalSaved',
+            'lowStockProducts',
+            'salesData',
+            'maxY',
+            'period',
+            'month',
+            'year',
+            'damagedProducts',
+            'damagedCount'
         ));
     }
 }

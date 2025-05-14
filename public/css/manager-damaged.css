@@ -362,7 +362,7 @@
     margin-bottom: 8px;
     font-family: 'Poppins', sans-serif;
 }
-
+.dmg-form-group select,
 .dmg-form-group input,
 .dmg-form-group textarea {
     width: 100%;

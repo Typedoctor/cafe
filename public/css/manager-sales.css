@@ -116,6 +116,7 @@
 .sl-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed; /* Enforce fixed column widths */
 }
 
 .sl-table th,
@@ -124,6 +125,8 @@
     text-align: left;
     border-bottom: 1px solid #dee2e6;
     border: 1px solid #ddd;
+    overflow-wrap: break-word; /* Ensure text wraps */
+    white-space: normal; /* Allow text to wrap */
 }
 
 .sl-table th {
@@ -142,6 +145,16 @@
     background-color: #f0f0f0;
 }
 
+/* Specific styles for Customer Name and Special Instructions columns in salesLogTable */
+#salesLogTable th:nth-child(6), /* Customer Name */
+#salesLogTable td:nth-child(6),
+#salesLogTable th:nth-child(9), /* Special Instructions */
+#salesLogTable td:nth-child(9) {
+    max-width: 150px; /* Limit column width */
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
 .sl-section-title {
     font-size: 20px;
     font-weight: 600;
@@ -149,8 +162,6 @@
     color: #333;
     text-align: center;
 }
-
-
 
 #salesLogTable_wrapper .dataTables_paginate .paginate_button {
     padding: 6px 12px;
@@ -195,6 +206,7 @@
     color: #555 !important;
     font-family: 'Poppins', sans-serif;
 }
+
 #salesSummaryTable_wrapper .dataTables_filter input {
     border: 1px solid #ccc;
     float: right !important;
@@ -249,5 +261,13 @@
 
     .sl-table-container {
         padding: 10px;
+    }
+
+    /* Adjust max-width for smaller screens */
+    #salesLogTable th:nth-child(6), /* Customer Name */
+    #salesLogTable td:nth-child(6),
+    #salesLogTable th:nth-child(9), /* Special Instructions */
+    #salesLogTable td:nth-child(9) {
+        max-width: 100px; /* Smaller width for mobile */
     }
 }
