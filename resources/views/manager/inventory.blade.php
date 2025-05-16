@@ -75,13 +75,29 @@
 <!-- Success Modal -->
 <div id="tableSuccessModal" class="inv-modal-success">
     <div class="inv-modal-content">
-        <p>Product saved successfully!</p>
+        <p id="successMessage">Product saved successfully!</p>
         <button class="inv-close-success-btn" onclick="closeModal()">Close</button>
     </div>
 </div>
-
+    <div class="rep-metric-container">
+        <div class="rep-metric-box">
+            <div class="rep-metric-title">Total Items in stock</div>
+            <div class="rep-metric-value">{{ $products->count() }}</div>
+        </div>
+        <div class="rep-metric-box rep-metric-box--low">
+            <div class="rep-metric-title">Low Stock Items</div>
+            <div class="rep-metric-value">{{ $products->whereBetween('quantity', [3, 5])->count() }}</div>
+        </div>
+        <div class="rep-metric-box rep-metric-box--critical">
+            <div class="rep-metric-title">Critical Stock Items</div>
+            <div class="rep-metric-value">{{ $products->where('quantity', '<=', 2)->count() }}</div>
+        </div>
+    </div>
 <div class="inv-table-container" id="transaction-table"> 
-    <div class="inv-section-title">Products List</div>
+   
+    <!-- Metric Boxes -->
+
+       <div class="inv-section-title">Products List</div>
     <div class="category-filter-wrapper">
         <div class="category-filter">
             <select id="categoryFilter">
@@ -96,6 +112,7 @@
             <button id="addStockBtn" class="inv-btn inv-add-btn">+ Add Product</button>
         </div>
     </div>
+  
     <table class="inv-table" id="productsTable">
         <thead>
             <tr>
@@ -110,11 +127,11 @@
         </thead>
         <tbody>
             @foreach($products as $product)
-            <tr>
+            <tr data-id="{{ $product->id }}">
                 <td>{{ $product->id }}</td>
                 <td title="{{ $product->product_name }}">{{ $product->product_name }}</td>
                 <td title="{{ $product->category }}">{{ $product->category }}</td>
-                <td class="{{ $product->quantity <= 2 ? 'product-critical' : ($product->quantity <= 5 ? 'product-low' : '') }}">{{ $product->quantity }}</td>
+                <td class="{{ $product->quantity <= 2 ? 'product-critical' : ($product->quantity >= 3 && $product->quantity <= 5 ? 'product-low' : '') }}">{{ $product->quantity }}</td>
                 <td>{{ $product->unit_of_measurement }}</td>
                 <td title="{{ $product->supplier }}">{{ $product->supplier }}</td>
                 <td>
@@ -127,10 +144,11 @@
                             data-unit-of-measurement="{{ $product->unit_of_measurement }}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
-                    <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="inv-btn inv-delete-btn"><i class="fa-solid fa-trash"></i></button>
-                    </form>
+                    <button class="inv-btn inv-delete-btn" 
+                            data-id="{{ $product->id }}"
+                            onclick="deleteProduct({{ $product->id }})">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </td>
             </tr>
             @endforeach
@@ -157,6 +175,53 @@ function updateCharacterCount(inputId, countId) {
     } else {
         console.error(`Element not found: inputId=${inputId}, countId=${countId}`);
     }
+}
+
+function updateMetrics() {
+    $.ajax({
+        url: "{{ route('products.metrics') }}",
+        type: "GET",
+        success: function(data) {
+            $('.rep-metric-value').eq(0).text(data.totalItems);
+            $('.rep-metric-value').eq(1).text(data.lowStockItems);
+            $('.rep-metric-value').eq(2).text(data.criticalStockItems);
+        },
+        error: function() {
+            console.error('Failed to update metric boxes');
+        }
+    });
+}
+
+function deleteProduct(productId) {
+    if (!confirm('Are you sure you want to delete this product?')) {
+        return;
+    }
+
+    $.ajax({
+        url: `/products/${productId}`,
+        type: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            $('#tableSuccessModal').find('#successMessage').text('Product deleted successfully!');
+            $('#tableSuccessModal').css('display', 'block');
+            setTimeout(() => {
+                $('#tableSuccessModal').css('display', 'none');
+            }, 2000);
+
+            let table = $('#productsTable').DataTable();
+            table.row($(`tr[data-id="${productId}"]`)).remove().draw();
+            updateMetrics();
+        },
+        error: function(xhr) {
+            let errorMsg = xhr.responseJSON?.message || 'An error occurred while deleting the product.';
+            if (xhr.status === 422) {
+                errorMsg = Object.values(xhr.responseJSON.errors || {}).flat().join('<br>');
+            }
+            $('#errorMessages').css('display', 'block').html(errorMsg);
+        }
+    });
 }
 
 $(document).ready(function () {
@@ -224,7 +289,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const productNameInvalid = document.getElementById("productNameInvalid");
     const supplierInvalid = document.getElementById("supplierInvalid");
 
-    function showTableSuccessModal() {
+    function showTableSuccessModal(message) {
+        $('#successMessage').text(message);
         tableSuccessModal.style.display = 'block';
         setTimeout(() => {
             tableSuccessModal.style.display = 'none';
@@ -341,13 +407,15 @@ document.addEventListener("DOMContentLoaded", function () {
             type: methodField.value === "POST" ? "POST" : "PUT",
             data: $(productForm).serialize(),
             success: function(response) {
-                showTableSuccessModal();
+                showTableSuccessModal(methodField.value === "POST" ? "Product added successfully!" : "Product updated successfully!");
                 let table = $('#productsTable').DataTable();
+                const quantity = parseInt(response.product.quantity);
+                const stockClass = quantity <= 2 ? 'product-critical' : (quantity >= 3 && quantity <= 5 ? 'product-low' : '');
                 const newRow = [
                     response.product.id,
                     response.product.product_name,
                     response.product.category,
-                    response.product.quantity,
+                    `<span class="${stockClass}">${response.product.quantity}</span>`,
                     response.product.unit_of_measurement,
                     response.product.supplier,
                     `<button class="inv-btn inv-edit-btn" 
@@ -359,17 +427,18 @@ document.addEventListener("DOMContentLoaded", function () {
                              data-unit-of-measurement="${response.product.unit_of_measurement}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
-                    <form action="/products/${response.product.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
-                        <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
-                        <input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" class="inv-btn inv-delete-btn"><i class="fa-solid fa-trash"></i></button>
-                    </form>`
+                    <button class="inv-btn inv-delete-btn" 
+                            data-id="${response.product.id}"
+                            onclick="deleteProduct(${response.product.id})">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>`
                 ];
 
                 if (methodField.value === "POST") {
-                    table.row.add(newRow).draw();
+                    table.row.add(newRow).node().setAttribute('data-id', response.product.id);
+                    table.draw();
                 } else {
-                    let row = table.row($(`button[data-id="${response.product.id}"]`).closest('tr'));
+                    let row = table.row($(`tr[data-id="${response.product.id}"]`));
                     row.data(newRow).draw();
                 }
 
@@ -380,6 +449,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 clearErrors();
                 updateCharacterCount('productName', 'productNameCount');
                 updateCharacterCount('supplier', 'supplierCount');
+                updateMetrics();
             },
             error: function(xhr) {
                 let errorMsg = xhr.responseJSON?.message || 'An error occurred while saving the product.';

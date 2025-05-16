@@ -232,7 +232,7 @@
                 <div class="loss-sub-tab {{ $subtab === 'thrown' || ($tab === 'loss' && !$subtab) ? 'active' : '' }}" data-subtab="thrown" onclick="showLossSubTab('thrown')">Spoiled Items</div>
                 <div class="loss-sub-tab {{ $subtab === 'damaged' ? 'active' : '' }}" data-subtab="damaged" onclick="showLossSubTab('damaged')">Damaged Items</div>
             </div>
-            <div class="rep-section-title">List of Thrown Away Items</div>
+            <div class="rep-section-title">List of Spoiled Items</div>
             <table class="rep-table" id="trashTable">
                 <thead>
                     <tr>

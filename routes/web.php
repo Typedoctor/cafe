@@ -25,6 +25,8 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/manager/audit-logs', [AuditLogController::class, 'index'])->name('audit.index');
     Route::put('/manage_users/{id}/update_status', [ManageUserController::class, 'updateStatus'])
     ->name('manage_users.update_status');
+    Route::get('/shelf/metrics', [ManagerShelfController::class, 'metrics'])->name('shelf.metrics');
+    Route::get('/products/metrics', [ProductController::class, 'getMetrics'])->name('products.metrics');
     Route::resource('sales',  SalesController::class);
     Route::resource('damaged-products',  ManagerDamagedProductController::class);
     Route::resource('add-to-shelf',  ManagerShelfController::class);

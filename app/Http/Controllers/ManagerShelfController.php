@@ -17,6 +17,19 @@ class ManagerShelfController extends Controller
         return view('manager.add_to_shelf', compact('products', 'shelfItems'));
     }
 
+    public function metrics()
+    {
+        $totalItems = ShelfItem::count();
+        $lowStockItems = ShelfItem::whereBetween('quantity_added', [3, 5])->count();
+        $criticalStockItems = ShelfItem::where('quantity_added', '<=', 2)->count();
+
+        return response()->json([
+            'totalItems' => $totalItems,
+            'lowStockItems' => $lowStockItems,
+            'criticalStockItems' => $criticalStockItems,
+        ]);
+    }
+
     public function check(Request $request)
     {
         $productId = $request->input('product_id');

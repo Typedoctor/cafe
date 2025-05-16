@@ -60,8 +60,8 @@
             <div class="usr-form-group">
                 <label>Status:</label>
                 <select name="is_active" id="isActive" required>
-                    <option value="1">Active</option>
-                    <option value="0">Inactive</option>
+                    <option value="1">Activate</option>
+                    <option value="0">Disable</option>
                 </select>
             </div>
             <div class="usr-button-group">
@@ -94,8 +94,8 @@
                     <td>{{ $user->privilege }}</td>
                     <td>
                         <select class="status-dropdown" data-user-id="{{ $user->id }}">
-                            <option value="1" {{ $user->is_active ? 'selected' : '' }}>Active</option>
-                            <option value="0" {{ !$user->is_active ? 'selected' : '' }}>Inactive</option>
+                            <option value="1" {{ $user->is_active ? 'selected' : '' }}>Activate</option>
+                            <option value="0" {{ !$user->is_active ? 'selected' : '' }}>Disable</option>
                         </select>
                     </td>
                     <td>
