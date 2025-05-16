@@ -5,6 +5,7 @@
 @push('styles')
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="{{ asset('css/manager-user.css') }}">
     <style>
         .usr-form-group small {
             display: block;
@@ -12,16 +13,19 @@
             font-size: 0.8em;
             color: #666;
         }
+        .invalid-indicator {
+            display: none;
+            color: red;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+        .name-error {
+            border: 1px solid red;
+        }
     </style>
 @endpush
 
 @section('content')
-<head>
-        <link rel="stylesheet" href="{{ asset('css/manager-user.css') }}">
-</head>        
-
-
-
 
 <div id="userModal" class="usr-modal">
     <span class="usr-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -36,6 +40,7 @@
                 <label>User name:</label>
                 <input type="text" name="name" id="name" required maxlength="24">
                 <small id="nameCount">0 / 24</small>
+                <span id="nameInvalid" class="invalid-indicator">User name can only contain letters, spaces, apostrophes, hyphens, and commas</span>
             </div>
             <div class="usr-form-group" name="pass">
                 <label>Password:</label>
@@ -150,7 +155,7 @@ $(document).ready(function () {
         methodField.value = "PUT";
         userForm.action = `/manage_users/${this.dataset.id}`;
         document.getElementById("userId").value = this.dataset.id;
-        document.getElementById("name").value = this.dataset.name;
+        document.getElementById("name").value = this.dataset.name.replace(/\./g, '');
         document.getElementById("privilege").value = this.dataset.privilege;
         document.getElementById("isActive").value = this.dataset.active;
         document.getElementById("password").value = "";
@@ -181,6 +186,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const errorMessages = document.getElementById("errorMessages");
     const statusForm = document.getElementById("status-form");
     const statusValue = document.getElementById("status-value");
+    const nameInvalid = document.getElementById("nameInvalid");
 
     // Function to display error messages
     function showError(message) {
@@ -192,12 +198,25 @@ document.addEventListener("DOMContentLoaded", function () {
     function clearErrors() {
         errorMessages.style.display = 'none';
         errorMessages.innerHTML = '';
+        nameInvalid.style.display = 'none';
+        nameInput.classList.remove('name-error');
     }
 
-    // Function to validate name (letters and spaces only)
+    // Function to validate name
     function validateName(name) {
-        const nameRegex = /^[A-Za-z\s]+$/;
+        const nameRegex = /^[a-zA-Z\s',À-ÿ]+$/;
         return nameRegex.test(name);
+    }
+
+    // Function to enforce valid name input
+    function enforceValidName() {
+        nameInput.addEventListener("input", function () {
+            const value = this.value.replace(/[^a-zA-Z\s'.,À-ÿ]/g, '');
+            this.value = value;
+            nameInvalid.style.display = value === this.value ? 'none' : 'block';
+            nameInput.classList.toggle('name-error', value !== this.value);
+            updateCharacterCount('name', 'nameCount', 24);
+        });
     }
 
     // Function to validate password (minimum 6 characters)
@@ -206,11 +225,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Function to check if user name already exists
-    function isUserNameExists(name) {
+    function isUserNameExists(name, currentUserId = null) {
         let exists = false;
         $('#usersTable tbody tr').each(function() {
             const rowName = $(this).find('td').eq(1).text().trim();
-            if (rowName.toLowerCase() === name.toLowerCase()) {
+            const rowId = $(this).find('td').eq(0).text().trim();
+            if (rowName.toLowerCase() === name.toLowerCase() && (!currentUserId || rowId !== currentUserId)) {
                 exists = true;
                 return false; // Break the loop
             }
@@ -223,15 +243,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const input = document.getElementById(inputId);
         const count = document.getElementById(countId);
         if (input && count) {
-            const currentCount = input.value.length;
-            count.textContent = `${currentCount} / 24 characters`;
+            count.textContent = `${input.value.length} / ${maxLength}`;
         }
     }
 
-    if (nameInput) {
-        nameInput.addEventListener("input", () => updateCharacterCount('name', 'nameCount', 24));
-        updateCharacterCount('name', 'nameCount', 24); // Initial value
-    }
+    enforceValidName();
+    updateCharacterCount('name', 'nameCount', 24); // Initial value
 
     // Handle status dropdown change
     document.querySelectorAll('.status-dropdown').forEach(dropdown => {
@@ -264,27 +281,6 @@ document.addEventListener("DOMContentLoaded", function () {
         updateCharacterCount('name', 'nameCount', 24); // Reset counter
     });
 
-    document.querySelectorAll(".usr-edit-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            modalTitle.innerText = "Edit User";
-            methodField.value = "PUT";
-            userForm.action = `/manage_users/${this.dataset.id}`;
-            document.getElementById("userId").value = this.dataset.id;
-            document.getElementById("name").value = this.dataset.name;
-            document.getElementById("privilege").value = this.dataset.privilege;
-            document.getElementById("isActive").value = this.dataset.active;
-            document.getElementById("password").value = "";
-            document.getElementById("password").placeholder = "Change pass? (If no, leave blank)";
-            confirmPasswordGroup.style.display = "none";
-            passwordInput.required = false;
-            confirmPasswordInput.required = false;
-            saveBtn.innerText = "UPDATE";
-            userModal.style.display = "block";
-            clearErrors();
-            updateCharacterCount('name', 'nameCount', 24); // Update counter
-        });
-    });
-
     closeBtn.addEventListener("click", () => {
         userModal.style.display = "none";
         clearErrors();
@@ -298,16 +294,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     userForm.addEventListener("submit", function (event) {
+        event.preventDefault();
         clearErrors();
+
+        const name = nameInput.value.trim();
         let errors = [];
 
         // Validate name
-        if (!validateName(nameInput.value)) {
-            errors.push("User name must contain letters only.");
+        if (!validateName(name)) {
+            errors.push("User name can only contain letters, spaces, apostrophes, hyphens, and commas.");
+            nameInput.classList.add('name-error');
+            nameInvalid.style.display = 'block';
         }
 
-        // Check for existing user name when adding new user
-        if (methodField.value === "POST" && isUserNameExists(nameInput.value)) {
+        // Check for existing user name
+        const currentUserId = methodField.value === "PUT" ? document.getElementById("userId").value : null;
+        if (isUserNameExists(name, currentUserId)) {
             errors.push("User name already exists. Please select a different username.");
         }
 
@@ -329,8 +331,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (errors.length > 0) {
-            event.preventDefault();
             showError(errors.join("<br>"));
+        } else {
+            userForm.submit();
         }
     });
 });

@@ -32,7 +32,6 @@
     </div>
 @endif
 
-
 <!-- Add Trash Modal -->
 <div id="trashModal" class="modal">
     <div class="modal-content">
@@ -80,6 +79,9 @@
                 <label>Why are you discarding it?</label>
                 <textarea name="reason" id="reason" placeholder="e.g., Expired, Damaged" maxlength="255" required></textarea>
                 <div class="trsh-char-counter" id="charCounter">255 characters remaining</div>
+                <div id="reasonError" style="color: red; display: none;">
+                    Only letters, spaces, apostrophes, commas, ampersands, and hyphens are allowed.
+                </div>
             </div>
             <div class="total-loss-display">
                 <label>Total Loss (₱)</label>
@@ -95,12 +97,10 @@
 
 <!-- Trash Table -->
 <div class="trsh-table-container" id="transaction-table">
-    
-<h1 class="page-title">Lists of Spoils</h1>
+    <h1 class="page-title">Lists of Spoils</h1>
     <div class="top-bar-container">
-    <div class="filter-container">
-        <form id="filterForm" method="GET" action="{{ route('trash.index') }}">
-            
+        <div class="filter-container">
+            <form id="filterForm" method="GET" action="{{ route('trash.index') }}">
                 <select class="rep-month-filter" name="month" onchange="submitForm()">
                     @for ($m = 1; $m <= 12; $m++)
                         <option value="{{ $m }}" {{ request('month', now()->month) == $m ? 'selected' : '' }}>
@@ -113,13 +113,12 @@
                         <option value="{{ $y }}" {{ request('year', now()->year) == $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endfor
                 </select>
-           
-        </form>
+            </form>
+        </div>
+        <div class="add-trash-container">
+            <button id="addTrashBtn" class="btn add-trash">+ Add Spoil Entry</button>
+        </div>
     </div>
-    <div class="add-trash-container">
-        <button id="addTrashBtn" class="btn add-trash">+ Add Spoil Entry</button>
-    </div>
-</div>
     <table class="inventory-table" id="trashTable">
         <thead>
             <tr>
@@ -186,6 +185,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Character counter for reason textarea
     const reasonInput = document.getElementById('reason');
     const charCounter = document.getElementById('charCounter');
+    const reasonError = document.getElementById('reasonError');
     const maxLength = 255;
 
     reasonInput.addEventListener('input', () => {
@@ -213,9 +213,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Restrict reason input to letters and spaces only
+    // Restrict reason input to allowed characters
+    const reasonRegex = /^[a-zA-Z\s',&À-ÿ-]+$/;
     reasonInput.addEventListener('input', function () {
-        this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+        const value = this.value;
+        if (value && !reasonRegex.test(value)) {
+            reasonError.style.display = 'block';
+            reasonInput.setCustomValidity('Only letters, spaces, apostrophes, commas, ampersands, and hyphens are allowed.');
+        } else {
+            reasonError.style.display = 'none';
+            reasonInput.setCustomValidity('');
+        }
     });
 
     // Store all product options
@@ -309,6 +317,8 @@ document.addEventListener('DOMContentLoaded', function () {
         loadingSpinner.style.display = 'none';
         saveBtn.disabled = false;
         quantityError.style.display = 'none';
+        reasonError.style.display = 'none';
+        reasonInput.setCustomValidity('');
 
         tabButtons.forEach(btn => btn.classList.remove('active'));
         tabButtons[0].classList.add('active');
@@ -334,8 +344,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            if (!/^[A-Za-z\s]+$/.test(reason)) {
-                alert('Reason can only contain letters and spaces!');
+            if (!reasonRegex.test(reason)) {
+                reasonError.style.display = 'block';
+                alert('Reason can only contain letters, spaces, apostrophes, commas, ampersands, and hyphens!');
                 return;
             }
 
@@ -362,6 +373,8 @@ document.addEventListener('DOMContentLoaded', function () {
         loadingSpinner.style.display = 'none';
         saveBtn.disabled = false;
         quantityError.style.display = 'none';
+        reasonError.style.display = 'none';
+        reasonInput.setCustomValidity('');
     }));
 });
 </script>

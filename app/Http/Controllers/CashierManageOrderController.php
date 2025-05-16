@@ -32,12 +32,12 @@
       public function store(Request $request)
       {
           $validated = $request->validate([
-              'customer_name' => 'required|string|max:255',
+              'customer_name' => 'required|string|max:24|regex:/^[a-zA-Z\s\',&À-ÿ-]+$/',
               'products' => 'required|array|min:1',
               'products.*.product_id' => 'required|exists:shelf_items,product_id',
               'products.*.quantity' => 'required|integer|min:1',
               'order_type' => ['required', 'string', 'regex:/^(Dine-in|Takeout)$/i'],
-              'special_instructions' => 'nullable|string|max:255',
+              'special_instructions' => 'nullable|string|max:255|regex:/^[a-zA-Z0-9\s\',&À-ÿ%.-]+$/',
               'money_received' => 'required|numeric|min:0',
           ]);
 
