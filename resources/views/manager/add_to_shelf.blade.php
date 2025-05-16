@@ -156,24 +156,25 @@
             </div>
         </div>
     </div>
-
-    <div class="shelf-table-container">
-        <div class="shelf-section-title">Shelfed Items</div>
-        <!-- Metric Boxes -->
-        <div class="rep-metric-container">
+ <div class="rep-metric-container">
             <div class="rep-metric-box">
-                <div class="rep-metric-title">Total Items</div>
+                <div class="rep-metric-title">Total Shelfed Items</div>
                 <div class="rep-metric-value">{{ $shelfItems->count() }}</div>
             </div>
             <div class="rep-metric-box rep-metric-box--low">
-                <div class="rep-metric-title">Low Stock Items</div>
+                <div class="rep-metric-title">Low Shelfed Items</div>
                 <div class="rep-metric-value">{{ $shelfItems->whereBetween('quantity_added', [3, 5])->count() }}</div>
             </div>
             <div class="rep-metric-box rep-metric-box--critical">
-                <div class="rep-metric-title">Critical Stock Items</div>
+                <div class="rep-metric-title">Critical Shelfed Items</div>
                 <div class="rep-metric-value">{{ $shelfItems->where('quantity_added', '<=', 2)->count() }}</div>
             </div>
         </div>
+    <div class="shelf-table-container">
+        
+        <div class="shelf-section-title">Shelfed Items</div>
+        <!-- Metric Boxes -->
+       
         <div class="shelf-top-bar">
             <button id="openModalBtn" class="shelf-btn shelf-add-btn">+ Add to Shelf</button>
         </div>
