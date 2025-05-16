@@ -1,4 +1,3 @@
-
 @extends('manager.layout')
 
 @section('title', 'Damaged Products')
@@ -24,21 +23,22 @@
                 <label>Product Name:</label>
                 <input type="text" name="product_name" id="productName" required maxlength="50">
                 <small id="productNameCount">0 / 50</small>
-                <span id="productNameInvalid" class="invalid-indicator">Only letters and spaces allowed</span>
+                <span id="productNameInvalid" class="invalid-indicator">Product name can only contain letters, spaces, apostrophes, hyphens, commas, and ampersands</span>
             </div>
             <div class="dmg-form-group">
-                <label>Quantity:<br><span class="quantity-note">Must be between 1 and 1200</span></label>
-                <input type="number" name="quantity" id="quantity" min="1" max="1200" required>
+                <label>Quantity:<br><span class="quantity-note">Must be between 1 and 9999</span></label>
+                <input type="number" name="quantity" id="quantity" min="1" max="9999" required>
             </div>
             <div class="dmg-form-group">
-                <label>Price per Item (₱):<br><span class="quantity-note">Enter the cost per unit</span></label>
-                <input type="number" name="price_per_item" id="pricePerItem" step="0.01" min="0.01" required>
+                <label>Price per Item (₱):<br><span class="quantity-note">Enter the cost per unit (1 to 1200)</span></label>
+                <input type="number" name="price_per_item" id="pricePerItem" max="1200" placeholder="Minimum 1" required>
                 <small id="totalCostDisplay">Total Cost: ₱0.00</small>
             </div>
             <div class="dmg-form-group">
                 <label>Supplier:</label>
                 <input type="text" name="supplier" id="supplier" required maxlength="50">
                 <small id="supplierCount">0 / 50</small>
+                <span id="supplierInvalid" class="invalid-indicator">Supplier can only contain letters, spaces, commas, periods, ampersands, apostrophes, and hyphens</span>
             </div>
             <div class="dmg-form-group">
                 <label>Status:</label>
@@ -55,6 +55,7 @@
                 <label>Reason:</label>
                 <textarea name="reason" id="reason" required maxlength="100"></textarea>
                 <small id="reasonCount">0 / 100</small>
+                <span id="reasonInvalid" class="invalid-indicator">Reason can only contain letters, numbers, spaces, commas, periods, parentheses, and hyphens</span>
             </div>
             <button type="submit" class="dmg-btn dmg-save-btn" id="SaveBtn">ADD</button>
         </form>
@@ -224,6 +225,8 @@
             const totalCostDisplay = document.getElementById("totalCostDisplay");
             const errorMessages = document.getElementById("errorMessages");
             const productNameInvalid = document.getElementById("productNameInvalid");
+            const supplierInvalid = document.getElementById("supplierInvalid");
+            const reasonInvalid = document.getElementById("reasonInvalid");
             const loadingSpinner = document.getElementById("loadingSpinner");
 
             function showError(element, message) {
@@ -235,9 +238,13 @@
                 errorMessages.style.display = 'none';
                 errorMessages.innerHTML = '';
                 productNameInvalid.style.display = 'none';
+                supplierInvalid.style.display = 'none';
+                reasonInvalid.style.display = 'none';
                 productNameInput.classList.remove('product-name-error');
                 quantityInput.classList.remove('quantity-error');
                 pricePerItemInput.classList.remove('price-error');
+                supplierInput.classList.remove('supplier-error');
+                reasonInput.classList.remove('reason-error');
             }
 
             function updateCharacterCount(inputId, countId, maxLength) {
@@ -254,9 +261,19 @@
                 totalCostDisplay.textContent = `Total Cost: ₱${(quantity * price).toFixed(2)}`;
             }
 
+            function getInvalidCharacters(input, regex) {
+                const invalidChars = [];
+                for (let char of input) {
+                    if (!regex.test(char)) {
+                        invalidChars.push(char);
+                    }
+                }
+                return [...new Set(invalidChars)]; // Remove duplicates
+            }
+
             function enforceValidProductName() {
                 productNameInput.addEventListener("input", function () {
-                    const value = this.value.replace(/[^a-zA-Z\s]/g, '');
+                    const value = this.value.replace(/[^a-zA-Z\s',&À-ÿ-]/g, '');
                     this.value = value;
                     productNameInvalid.style.display = value === this.value ? 'none' : 'block';
                     productNameInput.classList.toggle('product-name-error', value !== this.value);
@@ -267,7 +284,7 @@
             function enforceValidQuantity() {
                 quantityInput.addEventListener("input", function () {
                     let val = parseInt(this.value) || 1;
-                    this.value = Math.min(Math.max(val, 1), 1200);
+                    this.value = Math.min(Math.max(val, 1), 9999);
                     updateTotalCost();
                 });
             }
@@ -275,21 +292,27 @@
             function enforceValidPrice() {
                 pricePerItemInput.addEventListener("input", function () {
                     let val = parseFloat(this.value) || 1;
-                    this.value = Math.max(val, 0.01).toFixed(2);
+                    this.value = Math.min(Math.max(val, 1), 1200);
                     updateTotalCost();
                 });
             }
 
             function enforceValidReason() {
                 reasonInput.addEventListener("input", function () {
-                    this.value = this.value.replace(/[^a-zA-Z0-9\s.,-]/g, '');
+                    const value = this.value.replace(/[^a-zA-Z0-9\s,.()\-.À-ÿ]/g, '');
+                    this.value = value;
+                    reasonInvalid.style.display = value === this.value ? 'none' : 'block';
+                    reasonInput.classList.toggle('reason-error', value !== this.value);
                     updateCharacterCount('reason', 'reasonCount', 100);
                 });
             }
 
             function enforceValidSupplier() {
                 supplierInput.addEventListener("input", function () {
-                    this.value = this.value.replace(/[^a-zA-Z0-9\s.,-]/g, '');
+                    const value = this.value.replace(/[^a-zA-Z\s,.&'\-.À-ÿ]/g, '');
+                    this.value = value;
+                    supplierInvalid.style.display = value === this.value ? 'none' : 'block';
+                    supplierInput.classList.toggle('supplier-error', value !== this.value);
                     updateCharacterCount('supplier', 'supplierCount', 50);
                 });
             }
@@ -312,7 +335,6 @@
                 SaveBtn.innerText = "ADD";
                 damagedProductForm.reset();
                 quantityInput.value = 1;
-                pricePerItemInput.value = '0.01';
                 statusInput.value = "Marked as Loss";
                 document.getElementById("reportedAt").value = new Date().toISOString().slice(0, 16);
                 clearErrors();
@@ -331,8 +353,8 @@
                     damagedProductForm.action = "{{ url('damaged-products') }}/" + this.dataset.id;
                     document.getElementById("damagedProductId").value = this.dataset.id;
                     productNameInput.value = this.dataset.product_name;
-                    quantityInput.value = Math.max(1, this.dataset.quantity);
-                    pricePerItemInput.value = parseFloat(this.dataset.price_per_item).toFixed(2);
+                    quantityInput.value = Math.min(Math.max(1, parseInt(this.dataset.quantity)), 9999);
+                    pricePerItemInput.value = Math.min(Math.max(parseFloat(this.dataset.price_per_item), 1), 1200);
                     reasonInput.value = this.dataset.reason;
                     supplierInput.value = this.dataset.supplier;
                     statusInput.value = this.dataset.status;
@@ -401,28 +423,51 @@
                 const reason = reasonInput.value.trim();
                 const supplier = supplierInput.value.trim();
                 const status = statusInput.value;
+                const reportedAt = document.getElementById("reportedAt").value;
+                let errors = [];
 
-                if (!productName || !quantity || !price || !reason || !supplier || !status) {
-                    showError(errorMessages, "Please fill in all required fields!");
-                    return;
+                if (!productName || !quantity || !price || !reason || !supplier || !status || !reportedAt) {
+                    errors.push("Please fill in all required fields!");
                 }
 
-                if (!/^[a-zA-Z\s]+$/.test(productName)) {
-                    showError(errorMessages, "Product name must contain only letters and spaces.");
+                const productNameRegex = /^[a-zA-Z\s',&À-ÿ-]+$/;
+                const invalidProductNameChars = getInvalidCharacters(productName, productNameRegex);
+                if (!productNameRegex.test(productName)) {
+                    errors.push(`Product name can only contain letters, spaces, apostrophes, hyphens, commas, and ampersands. Invalid characters detected: '${invalidProductNameChars.join("', '")}'. Allowed: letters (a-z, A-Z), spaces, apostrophes ('), hyphens (-), commas (,), ampersands (&), accented characters (e.g., é, ñ).`);
                     productNameInput.classList.add('product-name-error');
                     productNameInvalid.style.display = 'block';
-                    return;
                 }
 
-                if (quantity > 1200 || quantity < 1) {
-                    showError(errorMessages, `Quantity must be between 1 and 1200.`);
+                const supplierRegex = /^[a-zA-Z\s,.&'\-.À-ÿ]+$/;
+                const invalidSupplierChars = getInvalidCharacters(supplier, supplierRegex);
+                if (!supplierRegex.test(supplier)) {
+                    errors.push(`Supplier can only contain letters, spaces, commas, periods, ampersands, apostrophes, and hyphens. Invalid characters detected: '${invalidSupplierChars.join("', '")}'. Allowed: letters (a-z, A-Z), spaces, commas (,), periods (.), ampersands (&), apostrophes ('), hyphens (-), accented characters (e.g., é, ñ).`);
+                    supplierInput.classList.add('supplier-error');
+                    supplierInvalid.style.display = 'block';
+                }
+
+                const reasonRegex = /^[a-zA-Z0-9\s,.()\-.À-ÿ]+$/;
+                const invalidReasonChars = getInvalidCharacters(reason, reasonRegex);
+                if (!reasonRegex.test(reason)) {
+                    errors.push(`Reason can only contain letters, numbers, spaces, commas, periods, parentheses, and hyphens. Invalid characters detected: '${invalidReasonChars.join("', '")}'. Allowed: letters (a-z, A-Z), numbers (0-9), spaces, commas (,), periods (.), parentheses (()), hyphens (-), accented characters (e.g., é, ñ).`);
+                    reasonInput.classList.add('reason-error');
+                    reasonInvalid.style.display = 'block';
+                }
+
+                if (quantity < 1 || quantity > 9999) {
+                    errors.push("Quantity must be between 1 and 9999.");
                     quantityInput.classList.add('quantity-error');
-                    return;
                 }
 
-                if (price < 0.01) {
-                    showError(errorMessages, "Price per item must be at least ₱0.01.");
+                if (price < 1 || price > 1200) {
+                    errors.push("Price per item must be between ₱1 and ₱1200.");
                     pricePerItemInput.classList.add('price-error');
+                }
+
+                if (errors.length > 0) {
+                    showError(errorMessages, errors.join('<br>'));
+                    loadingSpinner.style.display = 'none';
+                    SaveBtn.disabled = false;
                     return;
                 }
 

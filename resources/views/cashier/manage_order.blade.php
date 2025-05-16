@@ -31,8 +31,10 @@
                     <label for="customer_name" class="csh-form-label">Customer Name:</label>
                     <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}"
                            required class="csh-form-input" placeholder="Enter customer name here"
-                           pattern="[A-Za-z\s]+" title="Only letters and spaces are allowed" maxlength="24">
-                    <div class="csh-customer-name-error" style="display: none;">Only letters and spaces are allowed.</div>
+                           pattern="[a-zA-Z\s',&À-ÿ-]+" title="Only letters, spaces, apostrophes, commas, ampersands, and hyphens are allowed" maxlength="24">
+                    <div class="csh-customer-name-error" style="display: none;">
+                        Only letters, spaces, apostrophes, commas, ampersands, and hyphens are allowed.
+                    </div>
                 </div>
                 <div class="csh-tabs-categ" role="tablist">
                     @foreach (['meal', 'drink', 'dessert', 'snack'] as $category)
@@ -86,7 +88,7 @@
                 </div>
                 <div id="selected-products">
                     <h3>Selected Products</h3>
-                    <table class="csh-selected-products-table" id="selected-products subsidized">
+                    <table class="csh-selected-products-table" id="selected-products-table">
                         <thead>
                             <tr>
                                 <th>Product</th>
@@ -138,7 +140,9 @@
                     <textarea placeholder="Any special instructions? Add here" name="special_instructions"
                               id="special_instructions" class="csh-form-textarea" maxlength="255">{{ old('special_instructions') }}</textarea>
                     <div class="csh-char-counter" id="charCounter">255 characters remaining</div>
-                    <div class="csh-special-instructions-error" style="display: none;">HTML tags are not allowed.</div>
+                    <div class="csh-special-instructions-error" style="display: none;">
+                        Only letters, numbers, spaces, apostrophes, commas, ampersands, hyphens, periods, and percentage symbols are allowed.
+                    </div>
                 </div>
                 <div class="csh-form-group">
                     <label for="money_received" class="csh-form-label">Money Received:</label>
@@ -288,6 +292,10 @@
             document.getElementById('orderTotal').textContent = 'Total: ₱ 0.00';
             document.getElementById('orderChange').textContent = 'Change: ₱ 0.00';
             document.querySelector('.csh-money-received-error').style.display = 'none';
+            document.querySelector('.csh-customer-name-error').style.display = 'none';
+            document.querySelector('.csh-special-instructions-error').style.display = 'none';
+            document.getElementById('customer_name').setCustomValidity('');
+            document.getElementById('special_instructions').setCustomValidity('');
         });
         orderModal.addEventListener('click', (e) => {
             if (e.target === orderModal) {
@@ -299,37 +307,45 @@
                 document.getElementById('orderTotal').textContent = 'Total: ₱ 0.00';
                 document.getElementById('orderChange').textContent = 'Change: ₱ 0.00';
                 document.querySelector('.csh-money-received-error').style.display = 'none';
+                document.querySelector('.csh-customer-name-error').style.display = 'none';
+                document.querySelector('.csh-special-instructions-error').style.display = 'none';
+                document.getElementById('customer_name').setCustomValidity('');
+                document.getElementById('special_instructions').setCustomValidity('');
             }
         });
         const customerNameInput = document.getElementById('customer_name');
         const customerNameError = document.querySelector('.csh-customer-name-error');
-        const nameRegex = /^[A-Za-z\s]+$/;
+        const specialInstructions = document.getElementById('special_instructions');
+        const specialInstructionsError = document.querySelector('.csh-special-instructions-error');
+        const charCounter = document.getElementById('charCounter');
+        const nameRegex = /^[a-zA-Z\s',&À-ÿ-]+$/;
+        const instructionsRegex = /^[a-zA-Z0-9\s',&À-ÿ%.-]+$/;
+        const maxLength = 255;
+
         customerNameInput.addEventListener('input', () => {
             const value = customerNameInput.value;
             if (value && !nameRegex.test(value)) {
                 customerNameError.style.display = 'block';
-                customerNameInput.setCustomValidity('Only letters and spaces are allowed.');
+                customerNameInput.setCustomValidity('Only letters, spaces, apostrophes, commas, ampersands, and hyphens are allowed.');
             } else {
                 customerNameError.style.display = 'none';
                 customerNameInput.setCustomValidity('');
             }
         });
-        const specialInstructions = document.getElementById('special_instructions');
-        const specialInstructionsError = document.querySelector('.csh-special-instructions-error');
-        const charCounter = document.getElementById('charCounter');
-        const maxLength = 255;
+
         specialInstructions.addEventListener('input', () => {
             const value = specialInstructions.value;
             const remaining = maxLength - value.length;
             charCounter.textContent = `${remaining} characters remaining`;
-            if (value.includes('<') || value.includes('>')) {
+            if (value && !instructionsRegex.test(value)) {
                 specialInstructionsError.style.display = 'block';
-                specialInstructions.setCustomValidity('HTML tags are not allowed.');
+                specialInstructions.setCustomValidity('Only letters, numbers, spaces, apostrophes, commas, ampersands, hyphens, periods, and percentage symbols are allowed.');
             } else {
                 specialInstructionsError.style.display = 'none';
                 specialInstructions.setCustomValidity('');
             }
         });
+
         const moneyReceivedInput = document.getElementById('moneyReceived');
         moneyReceivedInput.addEventListener('input', () => {
             let value = moneyReceivedInput.value;
@@ -351,6 +367,7 @@
             moneyReceivedInput.value = value;
             updateSubmitButtonState();
         });
+
         function updateOrderTotal() {
             const selectedProductsBody = document.getElementById('selected-products-body');
             let total = 0;
@@ -376,6 +393,7 @@
                 submitBtn.disabled = selectedProductsBody.rows.length === 0;
             }
         }
+
         function updateSubmitButtonState() {
             const selectedProductsBody = document.getElementById('selected-products-body');
             const submitBtn = document.getElementById('submitOrderBtn');
@@ -403,6 +421,7 @@
             submitBtn.disabled = hasInsufficientStock || selectedProductsBody.rows.length === 0 || change < 0;
             updateOrderTotal();
         }
+
         document.querySelectorAll('.csh-tab-link-categ').forEach(button => {
             button.addEventListener('click', () => {
                 document.querySelectorAll('.csh-tab-link-categ').forEach(btn => {
@@ -427,6 +446,7 @@
                 }
             });
         });
+
         document.querySelectorAll('.csh-add-product-btn').forEach(button => {
             button.addEventListener('click', () => {
                 const productId = button.dataset.productId;
@@ -473,11 +493,13 @@
                 updateSubmitButtonState();
             });
         });
+
         document.getElementById('selected-products-body').addEventListener('change', (e) => {
             if (e.target.type === 'number') {
                 updateSubmitButtonState();
             }
         });
+
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('csh-remove-product-btn')) {
                 const row = e.target.closest('tr');
@@ -485,9 +507,11 @@
                 updateSubmitButtonState();
             }
         });
+
         document.getElementById('moneyReceived').addEventListener('input', () => {
             updateSubmitButtonState();
         });
+
         document.getElementById('orderForm').addEventListener('submit', (e) => {
             const selectedProducts = document.querySelectorAll('#selected-products-body tr');
             if (selectedProducts.length === 0) {
@@ -519,20 +543,23 @@
             if (!nameRegex.test(customerNameInput.value)) {
                 e.preventDefault();
                 customerNameError.style.display = 'block';
-                customerNameInput.setCustomValidity('Only letters and spaces are allowed.');
+                customerNameInput.setCustomValidity('Only letters, spaces, apostrophes, commas, ampersands, and hyphens are allowed.');
             }
-            if (specialInstructions.value.includes('<') || specialInstructions.value.includes('>')) {
+            const specialInstructionsValue = specialInstructions.value.trim();
+            if (specialInstructionsValue && !instructionsRegex.test(specialInstructionsValue)) {
                 e.preventDefault();
                 specialInstructionsError.style.display = 'block';
-                specialInstructions.setCustomValidity('HTML tags are not allowed.');
+                specialInstructions.setCustomValidity('Only letters, numbers, spaces, apostrophes, commas, ampersands, hyphens, periods, and percentage symbols are allowed.');
             }
         });
+
         @if ($errors->any())
             document.getElementById('orderModal').style.display = 'flex';
             customerNameInput.dispatchEvent(new Event('input'));
             specialInstructions.dispatchEvent(new Event('input'));
             updateOrderTotal();
         @endif
+
         const orderDetailsForm = document.getElementById('orderDetailsForm');
         const orderDetailsId = document.getElementById('orderDetailsId');
         const orderDetailsIdDisplay = document.getElementById('orderDetailsIdDisplay');
@@ -543,6 +570,7 @@
         const orderDetailsTotal = document.getElementById('orderDetailsTotal');
         const orderDetailsMoneyReceived = document.getElementById('orderDetailsMoneyReceived');
         const orderDetailsInstructions = document.getElementById('orderDetailsInstructions');
+
         function updateOrderDetails(card) {
             document.querySelectorAll('.csh-order-card').forEach(c => c.classList.remove('csh-order-card-selected'));
             card.classList.add('csh-order-card-selected');
@@ -557,6 +585,7 @@
             orderDetailsInstructions.textContent = card.dataset.specialInstructions;
             orderDetailsForm.style.display = 'block';
         }
+
         document.querySelectorAll('.csh-order-card').forEach(card => {
             card.addEventListener('click', () => updateOrderDetails(card));
             card.addEventListener('keypress', (e) => {
@@ -565,6 +594,7 @@
                 }
             });
         });
+
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof jQuery === 'undefined') {
                 console.error('jQuery is not loaded for DataTables initialization');

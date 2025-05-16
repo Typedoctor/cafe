@@ -135,7 +135,7 @@
 }
 
 .dmg-table, .rep-table, #damagedProductsTable {
-    width: 70%;
+    width: 100%;
     border-collapse: collapse;
     table-layout: auto;
 }

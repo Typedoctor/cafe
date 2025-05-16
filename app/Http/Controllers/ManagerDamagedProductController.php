@@ -23,11 +23,11 @@ class ManagerDamagedProductController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'product_name' => 'required|string|max:24|regex:/^[a-zA-Z\s]+$/', // Match frontend regex
-            'quantity' => 'required|integer|min:1|max:99999', // 5-digit limit
-            'price_per_item' => 'required|numeric|min:0.01',
-            'reason' => 'required|string|max:100',
-            'supplier' => 'required|string|max:50',
+            'product_name' => 'required|string|regex:/^[a-zA-Z\s\',&À-ÿ-]+$/|max:50', // Match frontend regex
+            'quantity' => 'required|integer|min:1|max:9999', // 5-digit limit
+            'price_per_item' => 'required|numeric|min:1',
+            'reason' => 'required|string|regex:/^[a-zA-Z0-9\s,.()\-.À-ÿ]+$/|max:100',
+            'supplier' =>'required|string|regex:/^[a-zA-Z\s,.&\'\-.À-ÿ]+$/|max:50',
             'reported_at' => 'nullable|date',
             'status' => 'required|in:Successfully Returned,Marked as Loss',
             'return_notes' => 'nullable|string|max:255',
@@ -55,11 +55,11 @@ class ManagerDamagedProductController extends Controller
     public function update(Request $request, DamagedProduct $damagedProduct)
     {
         $validator = Validator::make($request->all(), [
-            'product_name' => 'required|string|max:24|regex:/^[a-zA-Z\s]+$/', // Match frontend regex
+            'product_name' => 'required|string|regex:/^[a-zA-Z\s\',&À-ÿ-]+$/|max:50', // Match frontend regex
             'quantity' => 'required|integer|min:1|max:99999', // 5-digit limit
-            'price_per_item' => 'required|numeric|min:0.01',
-            'reason' => 'required|string|max:100',
-            'supplier' => 'required|string|max:50',
+            'price_per_item' => 'required|numeric|min:1',
+            'reason' => 'required|string|regex:/^[a-zA-Z0-9\s,.()\-.À-ÿ]+$/|max:100',
+            'supplier' =>'required|string|regex:/^[a-zA-Z\s,.&\'\-.À-ÿ]+$/|max:50',
             'reported_at' => 'nullable|date',
             'status' => 'required|in:Successfully Returned,Marked as Loss',
             'return_notes' => 'nullable|string|max:255',

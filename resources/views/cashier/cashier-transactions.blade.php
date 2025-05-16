@@ -43,7 +43,7 @@
                         </option>
                     @endforeach
                 </select>
-                <button type="submit" class="trn-filter-btn">Filter</button>
+              
                 <a href="{{ route('cashier-transactions.index') }}" class="trn-reset-btn">Reset</a>
             </div>
         </div>

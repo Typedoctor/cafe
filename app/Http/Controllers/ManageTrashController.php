@@ -35,7 +35,7 @@ class ManageTrashController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'product_name' => 'required|string|max:255|exists:products,product_name',
+            'product_name' => 'required|string|exists:products,product_name',
             'category' => 'required|string|in:snack,drink,meal,dessert',
             'quantity' => 'required|integer|min:1',
             'reason' => 'required|string|max:255',
