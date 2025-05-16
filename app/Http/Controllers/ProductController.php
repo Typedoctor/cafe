@@ -96,14 +96,33 @@ class ProductController extends Controller
         }
     }
 
-    public function destroy(Product $product)
+    public function destroy(Request $request, Product $product)
     {
         try {
             $product->delete();
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Product deleted successfully!'], 200);
+            }
             return redirect()->route('products.index')->with('success', 'Product deleted successfully!');
         } catch (\Exception $e) {
             \Log::error('Delete Product Error: ' . $e->getMessage());
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Failed to delete product', 'errors' => ['general' => $e->getMessage()]], 500);
+            }
             return back()->withErrors(['error' => 'Failed to delete product: ' . $e->getMessage()]);
         }
+    }
+
+    public function getMetrics()
+    {
+        $totalItems = Product::count();
+        $lowStockItems = Product::whereBetween('quantity', [3, 5])->count();
+        $criticalStockItems = Product::where('quantity', '<=', 2)->count();
+
+        return response()->json([
+            'totalItems' => $totalItems,
+            'lowStockItems' => $lowStockItems,
+            'criticalStockItems' => $criticalStockItems,
+        ]);
     }
 }

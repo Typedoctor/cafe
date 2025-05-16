@@ -477,6 +477,63 @@
     min-width: 200px;
 }
 
+/* Metric Box Styles */
+.rep-metric-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.rep-metric-box {
+    flex: 1;
+    margin: 0 10px;
+    padding: 20px;
+    background-color: #efeeee;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    min-width: 150px;
+}
+
+.rep-metric-box--low {
+    background-color: #fff3cd; /* Yellow background for Low Stock Items */
+    color: #856404;
+}
+
+.rep-metric-box--critical {
+    background-color: #f8d7da; /* Red background for Critical Stock Items */
+    color: #721c24;
+}
+
+.rep-metric-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 10px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.rep-metric-box--low .rep-metric-title,
+.rep-metric-box--critical .rep-metric-title {
+    color: #333; /* Keep title color consistent for readability */
+}
+
+.rep-metric-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: #10394f;
+}
+
+.rep-metric-box--low .rep-metric-value {
+    color: #856404; /* Match text color to low stock for consistency */
+}
+
+.rep-metric-box--critical .rep-metric-value {
+    color: #721c24; /* Match text color to critical stock for consistency */
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
     .inv-modal {
@@ -553,5 +610,17 @@
     .category-filter select,
     .dataTables_filter input {
         width: 100%;
+    }
+
+    /* Metric Box Responsive */
+    .rep-metric-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .rep-metric-box {
+        width: 100%;
+        max-width: 300px;
+        margin: 10px 0;
     }
 }

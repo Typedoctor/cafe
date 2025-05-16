@@ -8,7 +8,13 @@
 @endpush
 
 @section('content')
-    <div class="shelf-modal-overlay"></div> <!-- Added overlay for modal background -->
+    <!-- Modal Overlays -->
+    <div class="shelf-modal-overlay" data-modal-id="shelfModal"></div>
+    <div class="shelf-modal-overlay" data-modal-id="editShelfItemModal"></div>
+    <div class="shelf-modal-overlay" data-modal-id="successModal"></div>
+    <div class="shelf-modal-overlay" data-modal-id="deleteSuccessModal"></div>
+
+    <!-- Add to Shelf Modal -->
     <div id="shelfModal" class="shelf-modal">
         <div class="shelf-add-modal-content">
             <span class="shelf-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -46,7 +52,7 @@
                                     @foreach ($products->where('category', $category) as $product)
                                         <tr>
                                             <td>{{ $product->product_name }}</td>
-                                            <td class="{{ $product->quantity == 0 ? 'shelf-out-of-stock' : '' }}">{{ $product->quantity }}</td>
+                                            <td class="{{ $product->quantity == 0 ? 'shelf-out-of-stock' : ($product->quantity <= 2 ? 'product-critical' : ($product->quantity <= 5 ? 'product-low' : '')) }}">{{ $product->quantity }}</td>
                                             <td>
                                                 <button type="button" class="shelf-btn shelf-product-add-btn" 
                                                         data-product-id="{{ $product->id }}" 
@@ -94,7 +100,7 @@
         </div>
     </div>
 
-    <div class="shelf-modal-overlay"></div> <!-- Added overlay for edit modal -->
+    <!-- Edit Shelf Item Modal -->
     <div id="editShelfItemModal" class="shelf-modal">
         <div class="shelf-edit-modal-content">
             <span class="shelf-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -129,7 +135,7 @@
         </div>
     </div>
 
-    <div class="shelf-modal-overlay"></div> <!-- Added overlay for success modal -->
+    <!-- Success Modal -->
     <div id="successModal" class="shelf-modal-success">
         <div class="shelf-modal-content">
             <h2>Success</h2>
@@ -140,7 +146,7 @@
         </div>
     </div>
 
-    <div class="shelf-modal-overlay"></div> <!-- Added overlay for delete success modal -->
+    <!-- Delete Success Modal -->
     <div id="deleteSuccessModal" class="shelf-delete-modal-success">
         <div class="shelf-delete-modal-content">
             <h2>Deleted</h2>
@@ -153,6 +159,21 @@
 
     <div class="shelf-table-container">
         <div class="shelf-section-title">Shelfed Items</div>
+        <!-- Metric Boxes -->
+        <div class="rep-metric-container">
+            <div class="rep-metric-box">
+                <div class="rep-metric-title">Total Items</div>
+                <div class="rep-metric-value">{{ $shelfItems->count() }}</div>
+            </div>
+            <div class="rep-metric-box rep-metric-box--low">
+                <div class="rep-metric-title">Low Stock Items</div>
+                <div class="rep-metric-value">{{ $shelfItems->whereBetween('quantity_added', [3, 5])->count() }}</div>
+            </div>
+            <div class="rep-metric-box rep-metric-box--critical">
+                <div class="rep-metric-title">Critical Stock Items</div>
+                <div class="rep-metric-value">{{ $shelfItems->where('quantity_added', '<=', 2)->count() }}</div>
+            </div>
+        </div>
         <div class="shelf-top-bar">
             <button id="openModalBtn" class="shelf-btn shelf-add-btn">+ Add to Shelf</button>
         </div>
@@ -173,7 +194,7 @@
                         <td>{{ $item->id }}</td>
                         <td>{{ $item->product->product_name }}</td>
                         <td>{{ $item->price ? number_format($item->price, 2) : 'N/A' }}</td>
-                        <td class="{{ $item->quantity_added == 0 ? 'shelf-out-of-stock' : '' }}">{{ $item->quantity_added }}</td>
+                        <td class="{{ $item->quantity_added == 0 ? 'shelf-out-of-stock' : ($item->quantity_added <= 2 ? 'product-critical' : ($item->quantity_added >= 3 && $item->quantity_added <= 5 ? 'product-low' : '')) }}">{{ $item->quantity_added }}</td>
                         <td>{{ $item->product->category }}</td>
                         <td>
                             <button type="button" class="shelf-btn shelf-edit-btn" 
@@ -247,6 +268,9 @@
 
             // Ensure the "Add to Shelf" button is initially disabled
             updateSubmitButton();
+
+            // Update metrics on page load
+            updateMetrics();
         });
 
         const initializeSelectedProductsTable = () => {
@@ -262,6 +286,21 @@
                 language: {
                     search: "Search selected products:",
                     emptyTable: "No products selected."
+                }
+            });
+        };
+
+        const updateMetrics = () => {
+            $.ajax({
+                url: "{{ route('shelf.metrics') }}",
+                type: "GET",
+                success: function(data) {
+                    $('.rep-metric-value').eq(0).text(data.totalItems);
+                    $('.rep-metric-value').eq(1).text(data.lowStockItems);
+                    $('.rep-metric-value').eq(2).text(data.criticalStockItems);
+                },
+                error: function() {
+                    console.error('Failed to update metric boxes');
                 }
             });
         };
@@ -480,7 +519,10 @@
                         url: '{{ route("add-to-shelf.destroy", ":id") }}'.replace(':id', id),
                         method: 'DELETE',
                         data: { _token: '{{ csrf_token() }}' },
-                        success: (res) => showSuccessModal(res.message, 'deleteSuccessModal'),
+                        success: (res) => {
+                            showSuccessModal(res.message, 'deleteSuccessModal');
+                            updateMetrics();
+                        },
                         error: (xhr) => showWarning(xhr.responseJSON?.message || 'Failed to delete item.')
                     });
                 }
@@ -514,6 +556,7 @@
                 success: (res) => {
                     closeModal('editShelfItemModal');
                     showSuccessModal(res.message);
+                    updateMetrics();
                 },
                 error: (xhr) => {
                     const errors = xhr.responseJSON?.errors || { error: [xhr.responseJSON?.message || 'Failed to update item.'] };
@@ -585,6 +628,7 @@
                 success: (res) => {
                     closeModal('shelfModal');
                     showSuccessModal(res.message);
+                    updateMetrics();
                 },
                 error: (xhr) => {
                     const errors = xhr.responseJSON?.errors || { error: [xhr.responseJSON?.message || 'Failed to add items to shelf.'] };
