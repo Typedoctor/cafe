@@ -64,24 +64,10 @@
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     min-width: 150px;
+    cursor: pointer;
 }
 
-/* Buttons */
-.trn-filter-btn {
-    background-color: #4CAF50;
-    color: white;
-    padding: 12px 20px;
-    height: 48px;
-    font-size: 16px;
-    border-radius: 8px;
-    min-width: 100px;
-}
 
-.trn-filter-btn:hover {
-    background-color: #0f601d;
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5);
-}
 
 .trn-reset-btn {
     background-color: #666;
@@ -231,6 +217,7 @@ div.dataTables_wrapper div.dataTables_filter {
     overflow-wrap: break-word; /* Wrap long text */
     max-width: 200px; /* Limit cell width */
     white-space: normal; /* Allow text to wrap */
+    cursor:pointer; /* Change cursor to pointer on hover */
 }
 
 .trn-inventory-table th {

@@ -1,3 +1,9 @@
+
+/* Prevent page scrolling when modal is open */
+body.no-scroll {
+    overflow: hidden;
+}
+
 .sl-all-tabs {
     display: flex;
     justify-content: center;
@@ -116,6 +122,7 @@
 .sl-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .sl-table th,
@@ -124,6 +131,10 @@
     text-align: left;
     border-bottom: 1px solid #dee2e6;
     border: 1px solid #ddd;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
 }
 
 .sl-table th {
@@ -140,6 +151,18 @@
 
 .sl-table tr:hover {
     background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+/* Specific styles for Customer Name and Special Instructions columns in salesLogTable */
+#salesLogTable th:nth-child(6), /* Customer Name */
+#salesLogTable td:nth-child(6),
+#salesLogTable th:nth-child(9), /* Special Instructions */
+#salesLogTable td:nth-child(9) {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .sl-section-title {
@@ -149,8 +172,6 @@
     color: #333;
     text-align: center;
 }
-
-
 
 #salesLogTable_wrapper .dataTables_paginate .paginate_button {
     padding: 6px 12px;
@@ -184,7 +205,7 @@
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
-#salesLogTable_wrapper .dataTables_info {
+#salesLogTable_wrapper .dataTable_info {
     font-size: 16px;
     color: #555;
     font-family: 'Poppins', sans-serif;
@@ -195,6 +216,7 @@
     color: #555 !important;
     font-family: 'Poppins', sans-serif;
 }
+
 #salesSummaryTable_wrapper .dataTables_filter input {
     border: 1px solid #ccc;
     float: right !important;
@@ -217,6 +239,115 @@
     background-color: #007bff;
     color: white;
     border-color: #007bff;
+}
+
+/* Sale Details Modal */
+.sl-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sl-modal-overlay.active {
+    opacity: 1;
+}
+
+.sl-sale-modal {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 550px;
+    padding: 25px;
+    box-sizing: border-box;
+    position: relative;
+    font-family: 'Poppins', sans-serif;
+    transform: scale(0.8);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    max-height: 95vh;
+    overflow-y: auto;
+}
+
+.sl-modal-overlay.active .sl-sale-modal {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.sl-sale-header {
+    background-color: #10394f;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px 8px 0 0;
+    margin: -25px -25px 20px -25px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.sl-sale-details {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background: #f9f9f9;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.sl-sale-details p {
+    margin: 10px 0;
+    font-size: 16px;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+}
+
+.sl-sale-details strong {
+    color: #10394f;
+    font-weight: 600;
+}
+
+.sl-customer-text, .sl-instructions-text {
+    margin-top: 5px;
+    word-break: break-word;
+    max-width: 100%;
+    font-size: 16px;
+    color: #333;
+}
+
+.sl-modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.sl-modal-close {
+    background-color: rgb(217, 9, 9);
+    color: white;
+    padding: 12px 25px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.sl-modal-close:hover {
+    background-color: rgb(178, 11, 11);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(178, 11, 11, 0.5);
 }
 
 @media (max-width: 768px) {
@@ -249,5 +380,39 @@
 
     .sl-table-container {
         padding: 10px;
+    }
+
+    #salesLogTable th:nth-child(6),
+    #salesLogTable td:nth-child(6),
+    #salesLogTable th:nth-child(9),
+    #salesLogTable td:nth-child(9) {
+        max-width: 100px;
+    }
+
+    .sl-sale-modal {
+        max-width: 90%;
+        padding: 20px;
+    }
+
+    .sl-sale-header {
+        margin: -20px -20px 15px -20px;
+        font-size: 16px;
+    }
+
+    .sl-sale-details {
+        max-height: 50vh;
+    }
+
+    .sl-sale-details p {
+        font-size: 14px;
+    }
+
+    .sl-customer-text, .sl-instructions-text {
+        font-size: 14px;
+    }
+
+    .sl-modal-buttons {
+        flex-direction: column;
+        gap: 10px;
     }
 }

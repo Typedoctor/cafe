@@ -29,14 +29,15 @@
 }
 
 .rep-tab {
-    padding: 10px 20px;
+    padding: 12px 24px;
     cursor: pointer;
     background-color: #ffffff;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-    font-size: 25px;
+    border-radius: 6px;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 18px;
     font-weight: 500;
     color: #333;
+    text-align: center;
 }
 
 .rep-tab:hover {
@@ -57,9 +58,9 @@
     padding: 10px 20px;
     cursor: pointer;
     background-color: #ffffff;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-    font-size: 25px;
+    border-radius: 6px;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 16px;
     font-weight: 500;
     color: #333;
 }
@@ -109,16 +110,74 @@
     color: #dc3545;
 }
 
-.rep-table-container {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    overflow-x: auto;
+.inv-table-container {
     background: #ffffff;
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-    margin: 15px;
+    margin: 20px 0px;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.rep-section-title {
+    margin-top: 10px;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+    text-align: center;
+}
+
+.rep-filter-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.rep-month-filter,
+.rep-year-filter {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    width: 200px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.loss-sub-tabs,
+.profit-sub-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    background-color: #10394f;
+    border-radius: 5px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    gap: 20px;
+}
+
+.loss-sub-tab,
+.profit-sub-tab {
+    padding: 5px 10px;
+    cursor: pointer;
+    text-align: center;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.loss-sub-tab.active,
+.profit-sub-tab.active {
+    border-bottom: 2px solid #f1f6fc;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: white;
 }
 
 .rep-table {
@@ -151,32 +210,246 @@
     background-color: #f0f0f0;
 }
 
-.rep-section-title {
-    margin-top: 10px;
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: #333;
-    text-align: center;
+/* Fixed column widths for damagedProductsTable */
+#damagedProductsTable {
+    table-layout: fixed;
+    width: 100%;
 }
 
-.rep-filter-box {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    justify-content: center;
+#damagedProductsTable th,
+#damagedProductsTable td {
+    padding: 8px;
+    font-size: 14px;
+    overflow: hidden;
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 
-.rep-month-filter,
-.rep-year-filter {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #fff;
+#damagedProductsTable th:nth-child(1),
+#damagedProductsTable td:nth-child(1) { /* ID */
+    width: 40px;
 }
 
-#transactionsTable_wrapper .dataTables_filter input {
+#damagedProductsTable th:nth-child(2),
+#damagedProductsTable td:nth-child(2) { /* Product Name */
+    width: 110px;
+}
+
+#damagedProductsTable th:nth-child(3),
+#damagedProductsTable td:nth-child(3) { /* Quantity */
+    width: 50px;
+}
+
+#damagedProductsTable th:nth-child(4),
+#damagedProductsTable td:nth-child(4) { /* Price per Item */
+    width: 60px;
+}
+
+#damagedProductsTable th:nth-child(5),
+#damagedProductsTable td:nth-child(5) { /* Total Cost */
+    width: 60px;
+}
+
+#damagedProductsTable th:nth-child(6),
+#damagedProductsTable td:nth-child(6) { /* Reason */
+    width: 90px;
+}
+
+#damagedProductsTable th:nth-child(7),
+#damagedProductsTable td:nth-child(7) { /* Supplier */
+    width: 90px;
+}
+
+#damagedProductsTable th:nth-child(8),
+#damagedProductsTable td:nth-child(8) { /* Status */
+    width: 70px;
+}
+
+#damagedProductsTable th:nth-child(9),
+#damagedProductsTable td:nth-child(9) { /* Reported At */
+    width: 90px;
+}
+
+#damagedProductsTable th:nth-child(10),
+#damagedProductsTable td:nth-child(10) { /* Return Date */
+    width: 90px;
+}
+
+#damagedProductsTable th:nth-child(11),
+#damagedProductsTable td:nth-child(11) { /* Return Notes */
+    width: 90px;
+}
+
+/* Fixed column widths for trashTable */
+#trashTable {
+    table-layout: fixed;
+    width: 100%;
+}
+
+#trashTable th,
+#trashTable td {
+    padding: 8px;
+    font-size: 14px;
+    overflow: hidden;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+#trashTable th:nth-child(1),
+#trashTable td:nth-child(1) { /* ID */
+    width: 40px;
+}
+
+#trashTable th:nth-child(2),
+#trashTable td:nth-child(2) { /* Product Name */
+    width: 120px;
+}
+
+#trashTable th:nth-child(3),
+#trashTable td:nth-child(3) { /* Category */
+    width: 100px;
+}
+
+#trashTable th:nth-child(4),
+#trashTable td:nth-child(4) { /* Quantity */
+    width: 50px;
+}
+
+#trashTable th:nth-child(5),
+#trashTable td:nth-child(5) { /* Reason */
+    width: 120px;
+}
+
+#trashTable th:nth-child(6),
+#trashTable td:nth-child(6) { /* Total Loss */
+    width: 60px;
+}
+
+/* Fixed column widths for salesLogTable */
+#salesLogTable {
+    table-layout: fixed;
+    width: 100%;
+}
+
+#salesLogTable th,
+#salesLogTable td {
+    padding: 8px;
+    font-size: 14px;
+    overflow: hidden;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+#salesLogTable th:nth-child(1),
+#salesLogTable td:nth-child(1) { /* Order ID */
+    width: 60px;
+}
+
+#salesLogTable th:nth-child(2),
+#salesLogTable td:nth-child(2) { /* Product Name */
+    width: 120px;
+}
+
+#salesLogTable th:nth-child(3),
+#salesLogTable td:nth-child(3) { /* Quantity */
+    width: 50px;
+}
+
+#salesLogTable th:nth-child(4),
+#salesLogTable td:nth-child(4) { /* Unit Price */
+    width: 60px;
+}
+
+#salesLogTable th:nth-child(5),
+#salesLogTable td:nth-child(5) { /* Total Price */
+    width: 60px;
+}
+
+#salesLogTable th:nth-child(6),
+#salesLogTable td:nth-child(6) { /* Customer Name */
+    width: 100px;
+}
+
+#salesLogTable th:nth-child(7),
+#salesLogTable td:nth-child(7) { /* Order Type */
+    width: 60px;
+}
+
+#salesLogTable th:nth-child(8),
+#salesLogTable td:nth-child(8) { /* Status */
+    width: 60px;
+}
+
+#salesLogTable th:nth-child(9),
+#salesLogTable td:nth-child(9) { /* Special Instructions */
+    width: 120px;
+}
+
+#salesLogTable th:nth-child(10),
+#salesLogTable td:nth-child(10) { /* Date */
+    width: 100px;
+}
+
+/* Fixed column widths for salesSummaryTable */
+#salesSummaryTable {
+    table-layout: fixed;
+    width: 100%;
+}
+
+#salesSummaryTable th,
+#salesSummaryTable td {
+    padding: 8px;
+    font-size: 14px;
+    overflow: hidden;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+#salesSummaryTable th:nth-child(1),
+#salesSummaryTable td:nth-child(1) { /* Product Name */
+    width: 200px;
+}
+
+#salesSummaryTable th:nth-child(2),
+#salesSummaryTable td:nth-child(2) { /* Total Quantity Sold */
+    width: 100px;
+}
+
+#salesSummaryTable th:nth-child(3),
+#salesSummaryTable td:nth-child(3) { /* Total Revenue */
+    width: 100px;
+}
+
+/* Fixed column widths for transactionsTable */
+#transactionsTable {
+    table-layout: fixed;
+    width: 100%;
+}
+
+#transactionsTable th,
+#transactionsTable td {
+    padding: 8px;
+    font-size: 14px;
+    overflow: hidden;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+#transactionsTable th:nth-child(1),
+#transactionsTable td:nth-child(1) { /* Transaction ID */
+    width: 100px;
+}
+
+#transactionsTable th:nth-child(2),
+#transactionsTable td:nth-child(2) { /* Customer Name */
+    width: 200px;
+}
+
+#salesLogTable_wrapper .dataTables_filter input,
+#salesSummaryTable_wrapper .dataTables_filter input,
+#transactionsTable_wrapper .dataTables_filter input,
+#trashTable_wrapper .dataTables_filter input,
+#damagedProductsTable_wrapper .dataTables_filter input {
     border: 1px solid #ccc;
     padding: 6px;
     border-radius: 4px;
@@ -184,131 +457,10 @@
     margin-bottom: 10px;
 }
 
-#transactionsTable_wrapper .dataTables_paginate .paginate_button {
-    padding: 6px 12px;
-    margin: 0 2px;
-    border-radius: 4px;
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
-    cursor: pointer;
-}
-
-#transactionsTable_wrapper .dataTables_paginate .paginate_button.current {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-}
-
-#transactionsTable_wrapper .dataTables_length select {
-    border: 1px solid #e0e0e0;
-    padding: 6px;
-    border-radius: 4px;
-    background-color: #f5f5f5;
-    font-size: 16px;
-    color: #333;
-    transition: all 0.3s ease;
-}
-
-#transactionsTable_wrapper .dataTables_length select:focus {
-    outline: none;
-    border-color: #4CAF50;
-    background-color: #fff;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
-}
-
-#transactionsTable_wrapper .dataTables_info {
-    font-size: 16px;
-    color: #555;
-    font-family: 'Poppins', sans-serif;
-}
-
-#trashTable_wrapper .dataTables_filter input {
-    border: 1px solid #ccc;
-    padding: 6px;
-    border-radius: 4px;
-    margin-left: 10px;
-    margin-bottom: 10px;
-}
-
-#trashTable_wrapper .dataTables_paginate .paginate_button {
-    padding: 6px 12px;
-    margin: 0 2px;
-    border-radius: 4px;
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
-    cursor: pointer;
-}
-
-#trashTable_wrapper .dataTables_paginate .paginate_button.current {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-}
-
-#trashTable_wrapper .dataTables_length select {
-    border: 1px solid #e0e0e0;
-    padding: 6px;
-    border-radius: 4px;
-    background-color: #f5f5f5;
-    font-size: 16px;
-    color: #333;
-    transition: all 0.3s ease;
-}
-
-#trashTable_wrapper .dataTables_length select:focus {
-    outline: none;
-    border-color: #4CAF50;
-    background-color: #fff;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
-}
-
-#trashTable_wrapper .dataTables_info {
-    font-size: 16px;
-    color: #555;
-    font-family: 'Poppins', sans-serif;
-}
-
-.inv-table-container {
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-    margin: 20px 0px;
-    max-width: 100%;
-    overflow-x: auto;
-}
-
-.loss-sub-tabs {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-    background-color: #10394f;
-    border-radius: 5px;
-    padding: 10px 20px;
-    width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
-    gap: 10px;
-}
-
-.loss-sub-tab {
-    padding: 10px 20px;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    text-align: center;
-    color: white;
-    font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    border-radius: 5px;
-}
-
-.loss-sub-tab.active {
-    border-bottom: 2px solid #f1f6fc;
-    font-weight: bold;
-    color: white;
-}
-
+#salesLogTable_wrapper .dataTables_paginate .paginate_button,
+#salesSummaryTable_wrapper .dataTables_paginate .paginate_button,
+#transactionsTable_wrapper .dataTables_paginate .paginate_button,
+#trashTable_wrapper .dataTables_paginate .paginate_button,
 #damagedProductsTable_wrapper .dataTables_paginate .paginate_button {
     padding: 6px 12px;
     margin: 0 2px;
@@ -316,6 +468,51 @@
     background-color: #f8f9fa;
     border: 1px solid #ddd;
     cursor: pointer;
+}
+
+#salesLogTable_wrapper .dataTables_paginate .paginate_button.current,
+#salesSummaryTable_wrapper .dataTables_paginate .paginate_button.current,
+#transactionsTable_wrapper .dataTables_paginate .paginate_button.current,
+#trashTable_wrapper .dataTables_paginate .paginate_button.current,
+#damagedProductsTable_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+#salesLogTable_wrapper .dataTables_length select,
+#salesSummaryTable_wrapper .dataTables_length select,
+#transactionsTable_wrapper .dataTables_length select,
+#trashTable_wrapper .dataTables_length select,
+#damagedProductsTable_wrapper .dataTables_length select {
+    border: 1px solid #e0e0e0;
+    padding: 6px;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+#salesLogTable_wrapper .dataTables_length select:focus,
+#salesSummaryTable_wrapper .dataTables_length select:focus,
+#transactionsTable_wrapper .dataTables_length select:focus,
+#trashTable_wrapper .dataTables_length select:focus,
+#damagedProductsTable_wrapper .dataTables_length select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+#salesLogTable_wrapper .dataTables_info,
+#salesSummaryTable_wrapper .dataTables_info,
+#transactionsTable_wrapper .dataTables_info,
+#trashTable_wrapper .dataTables_info,
+#damagedProductsTable_wrapper .dataTables_info {
+    font-size: 16px;
+    color: #555;
+    font-family: 'Poppins', sans-serif;
 }
 
 @media (max-width: 768px) {
@@ -347,12 +544,26 @@
         text-align: center;
     }
 
-    .rep-table-container {
+    .inv-table-container {
         padding: 10px;
     }
 
     .rep-table th,
     .rep-table td {
         max-width: 150px;
+    }
+
+    #damagedProductsTable th,
+    #damagedProductsTable td,
+    #trashTable th,
+    #trashTable td,
+    #salesLogTable th,
+    #salesLogTable td,
+    #salesSummaryTable th,
+    #salesSummaryTable td,
+    #transactionsTable th,
+    #transactionsTable td {
+        font-size: 12px;
+        padding: 6px;
     }
 }

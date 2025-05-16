@@ -9,7 +9,6 @@
 <head>
     <link rel="stylesheet" href="{{ asset('css/cashier-order.css') }}">
 </head>
-<h1 class="csh-dashboard-title">Cashier Dashboard</h1>
 <div class="csh-main-container">
     <div class="csh-button-container">
         <button id="openModalBtn" class="csh-add-order-btn">New Order</button>
@@ -32,7 +31,7 @@
                     <label for="customer_name" class="csh-form-label">Customer Name:</label>
                     <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}"
                            required class="csh-form-input" placeholder="Enter customer name here"
-                           pattern="[A-Za-z\s]+" title="Only letters and spaces are allowed" maxlength="50">
+                           pattern="[A-Za-z\s]+" title="Only letters and spaces are allowed" maxlength="24">
                     <div class="csh-customer-name-error" style="display: none;">Only letters and spaces are allowed.</div>
                 </div>
                 <div class="csh-tabs-categ" role="tablist">
