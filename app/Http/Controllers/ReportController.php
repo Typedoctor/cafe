@@ -18,8 +18,8 @@ class ReportController extends Controller
             'period' => 'nullable|in:daily,monthly,yearly',
             'tab' => 'nullable|in:profit,loss',
             'subtab' => 'nullable|in:all-transactions,sales-log,summary,thrown,damaged',
-            'month' => 'nullable|integer|between:1,12',
-            'year' => 'nullable|integer|min:2000|max:' . now()->year,
+            'month' => 'nullable|in:all,1,2,3,4,5,6,7,8,9,10,11,12',
+            'year' => 'nullable|in:all,' . implode(',', range(2000, now()->year)),
         ]);
 
         $period = $request->input('period', 'daily');
@@ -70,7 +70,7 @@ class ReportController extends Controller
 
         if ($period === 'daily') {
             $today = Carbon::today();
-            if (($month != $today->month) || ($year != $today->year)) {
+            if (($month != $today->month && $month !== 'all') || ($year != $today->year && $year !== 'all')) {
                 $trashes = collect([]);
                 $damagedProducts = collect([]);
                 $summarizedTransactions = collect([]);
@@ -102,16 +102,20 @@ class ReportController extends Controller
                                              ->get();
             }
         } elseif ($period === 'monthly') {
-            $queryTrash->whereMonth('created_at', $month);
-            $queryDamaged->whereMonth('reported_at', $month);
-            $queryTransactions->whereMonth('created_at', $month);
-            $querySales->whereMonth('created_at', $month);
-            $summaryQuery->whereMonth('created_at', $month);
-            $queryTrash->whereYear('created_at', $year);
-            $queryDamaged->whereYear('reported_at', $year);
-            $queryTransactions->whereYear('created_at', $year);
-            $querySales->whereYear('created_at', $year);
-            $summaryQuery->whereYear('created_at', $year);
+            if ($month !== 'all') {
+                $queryTrash->whereMonth('created_at', $month);
+                $queryDamaged->whereMonth('reported_at', $month);
+                $queryTransactions->whereMonth('created_at', $month);
+                $querySales->whereMonth('created_at', $month);
+                $summaryQuery->whereMonth('created_at', $month);
+            }
+            if ($year !== 'all') {
+                $queryTrash->whereYear('created_at', $year);
+                $queryDamaged->whereYear('reported_at', $year);
+                $queryTransactions->whereYear('created_at', $year);
+                $querySales->whereYear('created_at', $year);
+                $summaryQuery->whereYear('created_at', $year);
+            }
             $trashes = $queryTrash->get();
             $damagedProducts = $queryDamaged->get();
             $summarizedTransactions = $queryTransactions->groupBy(
@@ -131,11 +135,13 @@ class ReportController extends Controller
                                          ->orderBy('total_quantity_sold', 'desc')
                                          ->get();
         } elseif ($period === 'yearly') {
-            $queryTrash->whereYear('created_at', $year);
-            $queryDamaged->whereYear('reported_at', $year);
-            $queryTransactions->whereYear('created_at', $year);
-            $querySales->whereYear('created_at', $year);
-            $summaryQuery->whereYear('created_at', $year);
+            if ($year !== 'all') {
+                $queryTrash->whereYear('created_at', $year);
+                $queryDamaged->whereYear('reported_at', $year);
+                $queryTransactions->whereYear('created_at', $year);
+                $querySales->whereYear('created_at', $year);
+                $summaryQuery->whereYear('created_at', $year);
+            }
             $trashes = $queryTrash->get();
             $damagedProducts = $queryDamaged->get();
             $summarizedTransactions = $queryTransactions->groupBy(
@@ -179,7 +185,9 @@ class ReportController extends Controller
             'summarizedTransactions',
             'saleLogs',
             'salesSummary',
-            'damagedProducts'
+            'damagedProducts',
+            'trashLoss',
+            'damagedLoss'
         ));
     }
 }

@@ -29,14 +29,15 @@
 }
 
 .rep-tab {
-    padding: 10px 20px;
+    padding: 12px 24px;
     cursor: pointer;
     background-color: #ffffff;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-    font-size: 25px;
+    border-radius: 6px;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 18px;
     font-weight: 500;
     color: #333;
+    text-align: center;
 }
 
 .rep-tab:hover {
@@ -57,9 +58,9 @@
     padding: 10px 20px;
     cursor: pointer;
     background-color: #ffffff;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-    font-size: 25px;
+    border-radius: 6px;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 16px;
     font-weight: 500;
     color: #333;
 }
@@ -140,8 +141,11 @@
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 6px;
     background-color: #fff;
+    transition: all 0.3s ease;
+    width: 200px;
+    font-family: 'Poppins', sans-serif;
 }
 
 .loss-sub-tabs,
@@ -151,29 +155,27 @@
     margin-bottom: 20px;
     background-color: #10394f;
     border-radius: 5px;
-    padding: 10px 20px;
     width: fit-content;
     margin-left: auto;
     margin-right: auto;
-    gap: 10px;
+    gap: 20px;
 }
 
 .loss-sub-tab,
 .profit-sub-tab {
-    padding: 10px 20px;
+    padding: 5px 10px;
     cursor: pointer;
-    border-bottom: 2px solid transparent;
     text-align: center;
     color: white;
     font-family: 'Poppins', sans-serif;
     font-size: 16px;
     font-weight: 500;
-    border-radius: 5px;
 }
 
 .loss-sub-tab.active,
 .profit-sub-tab.active {
     border-bottom: 2px solid #f1f6fc;
+    margin-bottom: 5px;
     font-weight: bold;
     color: white;
 }

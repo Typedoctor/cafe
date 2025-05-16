@@ -38,7 +38,7 @@
     <div class="modal-content">
         <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
         <h2 id="modalTitle" style="text-align: center;">Add New Spoilage Entry</h2>
-        
+   
         <!-- Category Tabs -->
         <div class="category-tabs">
             <button class="tab-btn active" data-category="snack">Snack</button>
@@ -117,7 +117,7 @@
         </form>
     </div>
     <div class="add-trash-container">
-        <button id="addTrashBtn" class="btn add-trash">+ Add Trash Entry</button>
+        <button id="addTrashBtn" class="btn add-trash">+ Add Spoil Entry</button>
     </div>
 </div>
     <table class="inventory-table" id="trashTable">

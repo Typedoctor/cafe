@@ -1,3 +1,4 @@
+
 @extends('manager.layout')
 
 @section('title', 'Damaged Products')
@@ -9,7 +10,7 @@
 
 @section('content')
 
-
+<!-- Damaged Product Modal -->
 <div id="damagedProductModal" class="dmg-modal">
     <div class="dmg-modal-content">
         <span class="dmg-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -35,11 +36,6 @@
                 <small id="totalCostDisplay">Total Cost: ₱0.00</small>
             </div>
             <div class="dmg-form-group">
-                <label>Reason:</label>
-                <textarea name="reason" id="reason" required maxlength="100"></textarea>
-                <small id="reasonCount">0 / 100</small>
-            </div>
-            <div class="dmg-form-group">
                 <label>Supplier:</label>
                 <input type="text" name="supplier" id="supplier" required maxlength="50">
                 <small id="supplierCount">0 / 50</small>
@@ -52,13 +48,13 @@
                 </select>
             </div>
             <div class="dmg-form-group">
-                <label>Return Notes (Optional):</label>
-                <textarea name="return_notes" id="returnNotes" maxlength="255"></textarea>
-                <small id="returnNotesCount">0 / 255</small>
-            </div>
-            <div class="dmg-form-group">
                 <label>Reported At:</label>
                 <input type="datetime-local" name="reported_at" id="reportedAt">
+            </div>
+            <div class="dmg-form-group">
+                <label>Reason:</label>
+                <textarea name="reason" id="reason" required maxlength="100"></textarea>
+                <small id="reasonCount">0 / 100</small>
             </div>
             <button type="submit" class="dmg-btn dmg-save-btn" id="SaveBtn">ADD</button>
         </form>
@@ -68,24 +64,13 @@
     </div>
 </div>
 
-<div id="returnModal" class="dmg-modal">
-    <div class="dmg-modal-content">
-        <span class="dmg-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
-        <h2>Mark as Returned</h2>
-        <div id="returnErrorMessages" class="dmg-error-messages" style="display: none;"></div>
-        <form id="returnForm" method="POST">
-            @csrf
-            @method('PATCH')
-            <input type="hidden" name="id" id="returnProductId">
-            <div class="dmg-form-group">
-                <label>Return Notes (Optional):</label>
-                <textarea name="return_notes" id="returnNotesField" maxlength="255"></textarea>
-                <small id="returnNotesFieldCount">0 / 255</small>
-            </div>
-            <button type="submit" class="dmg-btn dmg-save-btn" id="returnSaveBtn">Mark as Returned</button>
-        </form>
-        <div id="returnLoadingSpinner" style="display: none; text-align: center; margin-top: 10px;">
-            <i class="fa-solid fa-spinner fa-spin"></i> Saving...
+<!-- Product Details Modal -->
+<div class="dmg-modal-overlay" id="productDetailsModal">
+    <div class="dmg-product-modal">
+        <div class="dmg-product-header">Product Details</div>
+        <div class="dmg-product-details" id="productDetails"></div>
+        <div class="dmg-modal-buttons">
+            <button class="dmg-modal-close" id="closeProductModal">Close</button>
         </div>
     </div>
 </div>
@@ -104,18 +89,16 @@
     </div>
 @endif
 
-
-
 <div class="dmg-table-container">
     <div class="dmg-section-title" id="sectionTitle">All Damaged Products List</div>
     <div class="dmg-header-row">
-    <div class="dmg-tabs">
-        <div class="dmg-tab active" data-status="all">All</div>
-        <div class="dmg-tab" data-status="Successfully Returned">Successfully Returned</div>
-        <div class="dmg-tab" data-status="Marked as Loss">Marked as Loss</div>
+        <div class="dmg-tabs">
+            <div class="dmg-tab active" data-status="all">All</div>
+            <div class="dmg-tab" data-status="Successfully Returned">Successfully Returned</div>
+            <div class="dmg-tab" data-status="Marked as Loss">Marked as Loss</div>
+        </div>
+        <button id="addDamagedProductBtn" class="dmg-btn dmg-add-btn">+ Report Damaged Product</button>
     </div>
-    <button id="addDamagedProductBtn" class="dmg-btn dmg-add-btn">+ Report Damaged Product</button>
-</div>
     <table class="dmg-table" id="damagedProductsTable">
         <thead>
             <tr>
@@ -124,29 +107,38 @@
                 <th>Quantity</th>
                 <th>Price per Item</th>
                 <th>Total Cost</th>
-                <th>Reason</th>
                 <th>Supplier</th>
                 <th>Status</th>
                 <th>Reported At</th>
                 <th>Return Date</th>
-                <th>Return Notes</th>
+                <th>Reason</th>
                 <th style="width: 80px;">Actions</th>
             </tr>
         </thead>
         <tbody>
             @foreach($damagedProducts as $damagedProduct)
-            <tr>
+            <tr class="dmg-product-row" data-product="{{ json_encode([
+                'id' => $damagedProduct->id,
+                'product_name' => $damagedProduct->product_name,
+                'quantity' => $damagedProduct->quantity,
+                'price_per_item' => number_format($damagedProduct->price_per_item, 2),
+                'total_cost' => number_format($damagedProduct->total_cost, 2),
+                'supplier' => $damagedProduct->supplier,
+                'status' => $damagedProduct->status,
+                'reported_at' => $damagedProduct->reported_at->format('F j Y / g:i A'),
+                'return_date' => $damagedProduct->return_date ? $damagedProduct->return_date->format('F j Y / g:i A') : '-',
+                'reason' => $damagedProduct->reason
+            ]) }}">
                 <td>{{ $damagedProduct->id }}</td>
                 <td>{{ $damagedProduct->product_name }}</td>
                 <td>{{ $damagedProduct->quantity }}</td>
                 <td>₱{{ number_format($damagedProduct->price_per_item, 2) }}</td>
                 <td>₱{{ number_format($damagedProduct->total_cost, 2) }}</td>
-                <td>{{ $damagedProduct->reason }}</td>
                 <td>{{ $damagedProduct->supplier }}</td>
                 <td>{{ $damagedProduct->status }}</td>
                 <td>{{ $damagedProduct->reported_at->format('F j Y/ g:i A') }}</td>
                 <td>{{ $damagedProduct->return_date ? $damagedProduct->return_date->format('F j Y/ g:i A') : '-' }}</td>
-                <td>{{ $damagedProduct->return_notes ?? '-' }}</td>
+                <td>{{ $damagedProduct->reason }}</td>
                 <td>
                     <button class="dmg-btn dmg-edit-btn" 
                         data-id="{{ $damagedProduct->id }}"
@@ -156,7 +148,6 @@
                         data-reason="{{ $damagedProduct->reason }}"
                         data-supplier="{{ $damagedProduct->supplier }}"
                         data-status="{{ $damagedProduct->status }}"
-                        data-return_notes="{{ $damagedProduct->return_notes }}"
                         data-reported_at="{{ $damagedProduct->reported_at->format('Y-m-d\TH:i') }}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
@@ -181,7 +172,7 @@
                 pageLength: 10,
                 responsive: true,
                 order: [[0, 'asc']],
-                columnDefs: [{ orderable: false, targets: 11 }],
+                columnDefs: [{ orderable: false, targets: 10 }],
                 pagingType: 'simple_numbers',
                 language: {
                     paginate: {
@@ -201,7 +192,7 @@
                     document.querySelectorAll('.dmg-tab').forEach(t => t.classList.remove('active'));
                     this.classList.add('active');
                     const status = this.dataset.status;
-                    table.column(7).search(status === 'all' ? '' : status).draw();
+                    table.column(6).search(status === 'all' ? '' : status).draw();
                     const sectionTitle = document.getElementById('sectionTitle');
                     if (status === 'all') {
                         sectionTitle.textContent = 'All Damaged Products List';
@@ -215,32 +206,25 @@
 
             const damagedProductModal = document.getElementById("damagedProductModal");
             const damagedProductForm = document.getElementById("damagedProductForm");
-            const returnModal = document.getElementById("returnModal");
-            const returnForm = document.getElementById("returnForm");
+            const productDetailsModal = document.getElementById("productDetailsModal");
             const modalTitle = document.getElementById("modalTitle");
             const methodField = document.getElementById("methodField");
             const SaveBtn = document.getElementById("SaveBtn");
-            const returnSaveBtn = document.getElementById("returnSaveBtn");
             const closeBtn = document.querySelectorAll(".dmg-close-btn");
+            const closeProductModal = document.getElementById("closeProductModal");
             const productNameInput = document.getElementById("productName");
             const quantityInput = document.getElementById("quantity");
             const pricePerItemInput = document.getElementById("pricePerItem");
             const reasonInput = document.getElementById("reason");
             const supplierInput = document.getElementById("supplier");
             const statusInput = document.getElementById("status");
-            const returnNotesInput = document.getElementById("returnNotes");
-            const returnNotesField = document.getElementById("returnNotesField");
             const productNameCount = document.getElementById("productNameCount");
             const reasonCount = document.getElementById("reasonCount");
             const supplierCount = document.getElementById("supplierCount");
-            const returnNotesCount = document.getElementById("returnNotesCount");
-            const returnNotesFieldCount = document.getElementById("returnNotesFieldCount");
             const totalCostDisplay = document.getElementById("totalCostDisplay");
             const errorMessages = document.getElementById("errorMessages");
-            const returnErrorMessages = document.getElementById("returnErrorMessages");
             const productNameInvalid = document.getElementById("productNameInvalid");
             const loadingSpinner = document.getElementById("loadingSpinner");
-            const returnLoadingSpinner = document.getElementById("returnLoadingSpinner");
 
             function showError(element, message) {
                 element.style.display = 'block';
@@ -249,9 +233,7 @@
 
             function clearErrors() {
                 errorMessages.style.display = 'none';
-                returnErrorMessages.style.display = 'none';
                 errorMessages.innerHTML = '';
-                returnErrorMessages.innerHTML = '';
                 productNameInvalid.style.display = 'none';
                 productNameInput.classList.remove('product-name-error');
                 quantityInput.classList.remove('quantity-error');
@@ -312,26 +294,15 @@
                 });
             }
 
-            function enforceValidNotes(input, countId) {
-                input.addEventListener("input", function () {
-                    this.value = this.value.replace(/[^a-zA-Z0-9\s.,-]/g, '');
-                    updateCharacterCount(input.id, countId, 255);
-                });
-            }
-
             enforceValidProductName();
             enforceValidQuantity();
             enforceValidPrice();
             enforceValidReason();
             enforceValidSupplier();
-            enforceValidNotes(returnNotesInput, 'returnNotesCount');
-            enforceValidNotes(returnNotesField, 'returnNotesFieldCount');
 
             updateCharacterCount('productName', 'productNameCount', 50);
             updateCharacterCount('reason', 'reasonCount', 100);
             updateCharacterCount('supplier', 'supplierCount', 50);
-            updateCharacterCount('returnNotes', 'returnNotesCount', 255);
-            updateCharacterCount('returnNotesField', 'returnNotesFieldCount', 255);
 
             document.getElementById("addDamagedProductBtn").addEventListener("click", function () {
                 modalTitle.innerText = "Report Damaged Product";
@@ -350,7 +321,6 @@
                 updateCharacterCount('productName', 'productNameCount', 50);
                 updateCharacterCount('reason', 'reasonCount', 100);
                 updateCharacterCount('supplier', 'supplierCount', 50);
-                updateCharacterCount('returnNotes', 'returnNotesCount', 255);
                 updateTotalCost();
             });
 
@@ -366,7 +336,6 @@
                     reasonInput.value = this.dataset.reason;
                     supplierInput.value = this.dataset.supplier;
                     statusInput.value = this.dataset.status;
-                    returnNotesInput.value = this.dataset.return_notes || '';
                     document.getElementById("reportedAt").value = this.dataset.reported_at;
                     SaveBtn.innerText = "UPDATE";
                     damagedProductModal.style.display = "block";
@@ -376,9 +345,50 @@
                     updateCharacterCount('productName', 'productNameCount', 50);
                     updateCharacterCount('reason', 'reasonCount', 100);
                     updateCharacterCount('supplier', 'supplierCount', 50);
-                    updateCharacterCount('returnNotes', 'returnNotesCount', 255);
                     updateTotalCost();
                 });
+            });
+
+            // Handle row click to show product details modal
+            $(document).on('click', '.dmg-product-row', function(e) {
+                // Prevent modal from opening if clicking on action buttons
+                if ($(e.target).closest('.dmg-edit-btn, .dmg-delete-btn').length) {
+                    return;
+                }
+                const product = $(this).data('product');
+                const detailsHtml = `
+                    <p><strong>ID:</strong> <span>${product.id}</span></p>
+                    <p><strong>Product Name:</strong> <span>${product.product_name}</span></p>
+                    <p><strong>Quantity:</strong> <span>${product.quantity}</span></p>
+                    <p><strong>Price per Item:</strong> <span>₱${product.price_per_item}</span></p>
+                    <p><strong>Total Cost:</strong> <span>₱${product.total_cost}</span></p>
+                    <p><strong>Supplier:</strong> <span class="dmg-supplier-text">${product.supplier}</span></p>
+                    <p><strong>Status:</strong> <span>${product.status}</span></p>
+                    <p><strong>Reported At:</strong> <span>${product.reported_at}</span></p>
+                    <p><strong>Return Date:</strong> <span>${product.return_date}</span></p>
+                    <p><strong>Reason:</strong></p>
+                    <div class="dmg-reason-text">${product.reason}</div>
+                `;
+                $('#productDetails').html(detailsHtml);
+                $('#productDetailsModal').css('display', 'flex').addClass('active');
+            });
+
+            // Close product details modal
+            $('#closeProductModal').on('click', function() {
+                $('#productDetailsModal').removeClass('active').delay(300).queue(function(next) {
+                    $(this).css('display', 'none');
+                    next();
+                });
+            });
+
+            // Close product details modal when clicking outside
+            $(document).on('click', '.dmg-modal-overlay', function(e) {
+                if (e.target === this) {
+                    $('#productDetailsModal').removeClass('active').delay(300).queue(function(next) {
+                        $(this).css('display', 'none');
+                        next();
+                    });
+                }
             });
 
             damagedProductForm.addEventListener("submit", function (event) {
@@ -421,33 +431,19 @@
                 damagedProductForm.submit();
             });
 
-            returnForm.addEventListener("submit", function (event) {
-                event.preventDefault();
-                clearErrors();
-                returnLoadingSpinner.style.display = 'block';
-                returnSaveBtn.disabled = true;
-                returnForm.submit();
-            });
-
             closeBtn.forEach(btn => btn.addEventListener("click", () => {
                 damagedProductModal.style.display = "none";
-                returnModal.style.display = "none";
                 clearErrors();
                 loadingSpinner.style.display = 'none';
-                returnLoadingSpinner.style.display = 'none';
                 SaveBtn.disabled = false;
-                returnSaveBtn.disabled = false;
             }));
 
             window.addEventListener("click", event => {
-                if (event.target === damagedProductModal || event.target === returnModal) {
+                if (event.target === damagedProductModal) {
                     damagedProductModal.style.display = "none";
-                    returnModal.style.display = "none";
                     clearErrors();
                     loadingSpinner.style.display = 'none';
-                    returnLoadingSpinner.style.display = 'none';
                     SaveBtn.disabled = false;
-                    returnSaveBtn.disabled = false;
                 }
             });
         });

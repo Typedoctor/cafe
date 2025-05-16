@@ -47,7 +47,7 @@
                     @endforeach
                 </select>
                 <!-- Filter Button -->
-                <button type="submit" class="trn-filter-btn">Filter</button>
+               
                 <!-- Reset Button -->
                 <a href="{{ route('transactions.index') }}" class="trn-reset-btn">Reset</a>
             </div>

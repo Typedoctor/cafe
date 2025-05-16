@@ -1,3 +1,4 @@
+
 @extends('manager.layout')
 
 @section('title', 'Sales Log')
@@ -8,7 +9,6 @@
 @endpush
 
 @section('content')
-<div class="sl-header">Sales Log</div>
 <form id="filterForm" action="{{ route('sales.index') }}" method="GET">
     <div class="sl-all-tabs">
         <div class="sl-tab sl-transactions {{ $tab === 'transactions' ? 'active' : '' }}" onclick="showTab('transactions')">ALL TRANSACTIONS</div>
@@ -28,6 +28,17 @@
     </div>
     <input type="hidden" name="tab" id="tabInput" value="{{ $tab }}">
 </form>
+
+<!-- Sale Details Modal -->
+<div class="sl-modal-overlay" id="saleDetailsModal">
+    <div class="sl-sale-modal">
+        <div class="sl-sale-header">Sale Details</div>
+        <div class="sl-sale-details" id="saleDetails"></div>
+        <div class="sl-modal-buttons">
+            <button class="sl-modal-close" id="closeSaleModal">Close</button>
+        </div>
+    </div>
+</div>
 
 <div id="transactions-content" style="display: {{ $tab === 'transactions' ? 'block' : 'none' }};">
     <div class="sl-metrics">
@@ -59,7 +70,18 @@
             </thead>
             <tbody>
                 @forelse ($saleLogs as $log)
-                    <tr>
+                    <tr class="sl-sale-row" data-sale="{{ json_encode([
+                        'order_id' => $log->order_id ?? 'N/A',
+                        'product_name' => $log->product_name ?? 'N/A',
+                        'quantity' => $log->quantity ?? 0,
+                        'unit_price' => number_format($log->unit_price ?? 0, 2),
+                        'total_price' => number_format($log->total_price ?? 0, 2),
+                        'customer_name' => $log->customer_name ?? 'Unknown',
+                        'order_type' => $log->order_type ?? 'N/A',
+                        'status' => $log->status ?? 'N/A',
+                        'special_instructions' => $log->special_instructions ?? 'N/A',
+                        'created_at' => $log->created_at ? \Carbon\Carbon::parse($log->created_at)->format('F j Y, g:i A') : 'N/A'
+                    ]) }}">
                         <td>{{ $log->order_id ?? 'N/A' }}</td>
                         <td>{{ $log->product_name ?? 'N/A' }}</td>
                         <td>{{ $log->quantity ?? 0 }}</td>
@@ -118,12 +140,10 @@
         </table>
     </div>
 </div>
-@endsection
 
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
 <script>
 $(document).ready(function () {
     const salesLogTable = $('#salesLogTable');
@@ -143,11 +163,51 @@ $(document).ready(function () {
         salesSummaryTable.DataTable({
             pageLength: 10,
             responsive: true,
-
             order: [[1, 'desc']],
             columnDefs: [{ orderable: true, targets: '_all' }]
         });
     }
+
+    // Handle row click to show sale details modal
+    $(document).on('click', '.sl-sale-row', function(e) {
+        const sale = $(this).data('sale');
+        const detailsHtml = `
+            <p><strong>Order ID:</strong> <span>${sale.order_id}</span></p>
+            <p><strong>Product Name:</strong> <span>${sale.product_name}</span></p>
+            <p><strong>Quantity:</strong> <span>${sale.quantity}</span></p>
+            <p><strong>Unit Price:</strong> <span>₱${sale.unit_price}</span></p>
+            <p><strong>Total Price:</strong> <span>₱${sale.total_price}</span></p>
+            <p><strong>Customer Name:</strong> <span class="sl-customer-text">${sale.customer_name}</span></p>
+            <p><strong>Order Type:</strong> <span>${sale.order_type}</span></p>
+            <p><strong>Status:</strong> <span>${sale.status}</span></p>
+            <p><strong>Special Instructions:</strong></p>
+            <div class="sl-instructions-text">${sale.special_instructions}</div>
+            <p><strong>Date:</strong> <span>${sale.created_at}</span></p>
+        `;
+        $('#saleDetails').html(detailsHtml);
+        $('#saleDetailsModal').css('display', 'flex').addClass('active');
+        $('body').addClass('no-scroll'); // Disable page scrolling
+    });
+
+    // Close sale details modal
+    $('#closeSaleModal').on('click', function() {
+        $('#saleDetailsModal').removeClass('active').delay(300).queue(function(next) {
+            $(this).css('display', 'none');
+            $('body').removeClass('no-scroll'); // Restore page scrolling
+            next();
+        });
+    });
+
+    // Close sale details modal when clicking outside
+    $(document).on('click', '.sl-modal-overlay', function(e) {
+        if (e.target === this) {
+            $('#saleDetailsModal').removeClass('active').delay(300).queue(function(next) {
+                $(this).css('display', 'none');
+                $('body').removeClass('no-scroll'); // Restore page scrolling
+                next();
+            });
+        }
+    });
 });
 
 function showTab(tabName) {
@@ -165,3 +225,4 @@ function submitForm() {
 }
 </script>
 @endpush
+@endsection

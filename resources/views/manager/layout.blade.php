@@ -13,7 +13,7 @@
 <div class="sidebar">
     <ul>
         <li>
-            <img src="{{ asset('icons/logo.ico') }}" alt="Logo" class="nav-logo">
+            <img src="{{ asset('icons/logo.ico') }}" alt="LNU Logo" class="nav-logo">
            
         </li>
         <li><a href="{{ route('manager.dashboard') }}" class="active " ><i class="fa-solid fa-grip"></i>Dashboard</a></li>
@@ -31,6 +31,7 @@
 
 <div class="content">
     @yield('content')
+    <h1>this is the footer</h1>
 </div>
 
 <script>

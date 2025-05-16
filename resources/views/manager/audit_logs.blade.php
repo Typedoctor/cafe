@@ -8,7 +8,7 @@
 @endpush
 
 @section('content')
-    <div class="audit-header">Audit Logs</div>
+
 
     <!-- Display validation errors -->
     @if ($errors->any())

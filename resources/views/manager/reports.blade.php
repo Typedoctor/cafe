@@ -1,4 +1,3 @@
-
 @extends('manager.layout')
 
 @section('title', 'Manager Reports')
@@ -7,20 +6,9 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="{{ asset('css/manager-reports.css') }}">
     <link rel="stylesheet" href="{{ asset('css/transaction.css') }}">
-    <style>
-        /* Apply text-overflow: ellipsis to Customer Name and Special Instructions in salesLogTable */
-        #salesLogTable td:nth-child(6), /* Customer Name */
-        #salesLogTable td:nth-child(9) { /* Special Instructions */
-            max-width: 120px; /* Match the table column width */
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-    </style>
 @endpush
 
 @section('content')
-<div class="rep-header">Reports</div>
 
 <form id="timePeriodForm" action="{{ route('reports.index') }}" method="GET">
     <div class="rep-all-tabs">
@@ -33,6 +21,7 @@
     </div>
     <div class="rep-filter-box">
         <select class="rep-month-filter" name="month" onchange="submitForm()">
+            <option value="all" {{ request('month', now()->month) === 'all' ? 'selected' : '' }}>All Months</option>
             @for ($m = 1; $m <= 12; $m++)
                 <option value="{{ $m }}" {{ request('month', now()->month) == $m ? 'selected' : '' }}>
                     {{ \Carbon\Carbon::create()->month($m)->format('F') }}
@@ -40,6 +29,7 @@
             @endfor
         </select>
         <select class="rep-year-filter" name="year" onchange="submitForm()">
+            <option value="all" {{ request('year', now()->year) === 'all' ? 'selected' : '' }}>All Years</option>
             @for ($y = now()->year; $y >= now()->year - 5; $y--)
                 <option value="{{ $y }}" {{ request('year', now()->year) == $y ? 'selected' : '' }}>{{ $y }}</option>
             @endfor
@@ -69,14 +59,14 @@
             <div class="rep-metric-value rep-profit">₱{{ number_format($totalRevenue - $totalLoss, 2) }}</div>
         </div>
     </div>
-    <div class="profit-sub-tabs">
-        <div class="profit-sub-tab {{ $subtab === 'all-transactions' ? 'active' : '' }}" data-subtab="all-transactions" onclick="showProfitSubTab('all-transactions')">Transactions</div>
-        <div class="profit-sub-tab {{ $subtab === 'sales-log' ? 'active' : '' }}" data-subtab="sales-log" onclick="showProfitSubTab('sales-log')">All Sales Log</div>
-        <div class="profit-sub-tab {{ $subtab === 'summary' ? 'active' : '' }}" data-subtab="summary" onclick="showProfitSubTab('summary')">Sales Summary by Products</div>
-    </div>
     <div id="all-transactions-sub-content" style="display: {{ $subtab === 'all-transactions' ? 'block' : 'none' }};">
         <div class="inv-table-container" id="transaction-table">
-            <div class="rep-section-title">Transactions</div>
+            <div class="profit-sub-tabs">
+                <div class="profit-sub-tab {{ $subtab === 'all-transactions' ? 'active' : '' }}" data-subtab="all-transactions" onclick="showProfitSubTab('all-transactions')">Transactions</div>
+                <div class="profit-sub-tab {{ $subtab === 'sales-log' ? 'active' : '' }}" data-subtab="sales-log" onclick="showProfitSubTab('sales-log')">All Sales Log</div>
+                <div class="profit-sub-tab {{ $subtab === 'summary' ? 'active' : '' }}" data-subtab="summary" onclick="showProfitSubTab('summary')">Sales Summary by Products</div>
+            </div>
+            <div class="rep-section-title">Transaction Details</div>
             <table class="rep-table rep-table-striped" id="transactionsTable">
                 <thead>
                     <tr>
@@ -113,7 +103,12 @@
     </div>
     <div id="sales-log-sub-content" style="display: {{ $subtab === 'sales-log' ? 'block' : 'none' }};">
         <div class="inv-table-container" id="salesLogTableContainer">
-            <div class="rep-section-title">All Sales Log</div>
+            <div class="profit-sub-tabs">
+                <div class="profit-sub-tab {{ $subtab === 'all-transactions' ? 'active' : '' }}" data-subtab="all-transactions" onclick="showProfitSubTab('all-transactions')">Transactions</div>
+                <div class="profit-sub-tab {{ $subtab === 'sales-log' ? 'active' : '' }}" data-subtab="sales-log" onclick="showProfitSubTab('sales-log')">All Sales Log</div>
+                <div class="profit-sub-tab {{ $subtab === 'summary' ? 'active' : '' }}" data-subtab="summary" onclick="showProfitSubTab('summary')">Sales Summary by Products</div>
+            </div>
+            <div class="rep-section-title">Sales Details</div>
             <table class="rep-table rep-table-striped" id="salesLogTable">
                 <thead>
                     <tr>
@@ -165,6 +160,11 @@
     </div>
     <div id="summary-sub-content" style="display: {{ $subtab === 'summary' ? 'block' : 'none' }};">
         <div class="inv-table-container" id="salesSummaryTableContainer">
+            <div class="profit-sub-tabs">
+                <div class="profit-sub-tab {{ $subtab === 'all-transactions' ? 'active' : '' }}" data-subtab="all-transactions" onclick="showProfitSubTab('all-transactions')">Transactions</div>
+                <div class="profit-sub-tab {{ $subtab === 'sales-log' ? 'active' : '' }}" data-subtab="sales-log" onclick="showProfitSubTab('sales-log')">All Sales Log</div>
+                <div class="profit-sub-tab {{ $subtab === 'summary' ? 'active' : '' }}" data-subtab="summary" onclick="showProfitSubTab('summary')">Sales Summary by Products</div>
+            </div>
             <div class="rep-section-title">Sales Summary by Product</div>
             <table class="rep-table rep-table-striped" id="salesSummaryTable">
                 <thead>
@@ -194,7 +194,7 @@
 
 <div class="trn-modal-overlay" id="receiptModal">
     <div class="trn-receipt-modal">
-        <div class="trn-receipt-header">Transaction Receipt</div>
+        <div class="trn-receipt-header" id="receiptModalHeader"></div>
         <div class="trn-receipt-details" id="receiptDetails"></div>
         <div class="trn-modal-buttons">
             <button class="trn-modal-print" id="printModal">Print</button>
@@ -210,20 +210,28 @@
             <div class="rep-metric-value rep-loss">₱{{ number_format($totalLoss, 2) }}</div>
         </div>
         <div class="rep-metric-box">
-            <div class="rep-metric-title">Thrown Items</div>
+            <div class="rep-metric-title">Spoiled Items</div>
             <div class="rep-metric-value">{{ $trashCount }}</div>
         </div>
         <div class="rep-metric-box">
             <div class="rep-metric-title">Damaged Items</div>
             <div class="rep-metric-value">{{ $damagedCount }}</div>
         </div>
-    </div>
-    <div class="loss-sub-tabs">
-        <div class="loss-sub-tab {{ $subtab === 'thrown' || ($tab === 'loss' && !$subtab) ? 'active' : '' }}" data-subtab="thrown" onclick="showLossSubTab('thrown')">Spoiled Items</div>
-        <div class="loss-sub-tab {{ $subtab === 'damaged' ? 'active' : '' }}" data-subtab="damaged" onclick="showLossSubTab('damaged')">Damaged Items</div>
+        <div class="rep-metric-box">
+            <div class="rep-metric-title">Total loss from spoiled items</div>
+            <div class="rep-metric-value rep-loss">₱{{ number_format($trashLoss, 2) }}</div>
+        </div>
+        <div class="rep-metric-box">
+            <div class="rep-metric-title">Total loss from damaged items</div>
+            <div class="rep-metric-value rep-loss">₱{{ number_format($damagedLoss, 2) }}</div>
+        </div>
     </div>
     <div id="thrown-content" style="display: {{ $subtab === 'thrown' || ($tab === 'loss' && !$subtab) ? 'block' : 'none' }};">
         <div class="inv-table-container" id="trash-table">
+            <div class="loss-sub-tabs">
+                <div class="loss-sub-tab {{ $subtab === 'thrown' || ($tab === 'loss' && !$subtab) ? 'active' : '' }}" data-subtab="thrown" onclick="showLossSubTab('thrown')">Spoiled Items</div>
+                <div class="loss-sub-tab {{ $subtab === 'damaged' ? 'active' : '' }}" data-subtab="damaged" onclick="showLossSubTab('damaged')">Damaged Items</div>
+            </div>
             <div class="rep-section-title">List of Thrown Away Items</div>
             <table class="rep-table" id="trashTable">
                 <thead>
@@ -262,6 +270,10 @@
     </div>
     <div id="damaged-content" style="display: {{ $subtab === 'damaged' ? 'block' : 'none' }};">
         <div class="inv-table-container" id="damaged-table">
+            <div class="loss-sub-tabs">
+                <div class="loss-sub-tab {{ $subtab === 'thrown' || ($tab === 'loss' && !$subtab) ? 'active' : '' }}" data-subtab="thrown" onclick="showLossSubTab('thrown')">Spoiled Items</div>
+                <div class="loss-sub-tab {{ $subtab === 'damaged' ? 'active' : '' }}" data-subtab="damaged" onclick="showLossSubTab('damaged')">Damaged Items</div>
+            </div>
             <div class="rep-section-title">List of Marked as Loss Items</div>
             <table class="rep-table" id="damagedProductsTable">
                 <thead>
@@ -401,7 +413,10 @@ $(document).ready(function () {
     $(document).on('click', '.rep-transaction-row', function() {
         const transaction = $(this).data('transaction');
         let detailsHtml;
+        let modalTitle;
+
         if (transaction.transaction_id) { // transactionsTable
+            modalTitle = 'Transaction Receipt';
             const products = transaction.product_names ? transaction.product_names.split(',').map(product => product.trim()) : [];
             let productsHtml = '<ul class="trn-product-list">';
             productsHtml += products.length > 0 ? products.map(product => `<li>${product}</li>`).join('') : '<li>No products listed</li>';
@@ -421,6 +436,7 @@ $(document).ready(function () {
                 <p class="trn-total"><strong>Total Price:</strong> <span>₱${parseFloat(transaction.total_price || 0).toFixed(2)}</span></p>
             `;
         } else { // salesLogTable
+            modalTitle = 'Sales Receipt';
             detailsHtml = `
                 <p><strong>Order ID:</strong> <span>${transaction.order_id}</span></p>
                 <p><strong>Product Name:</strong> <span>${transaction.product_name}</span></p>
@@ -435,6 +451,7 @@ $(document).ready(function () {
                 <p><strong>Date:</strong> <span>${transaction.created_at}</span></p>
             `;
         }
+        $('#receiptModalHeader').text(modalTitle);
         $('#receiptDetails').html(detailsHtml);
         $('#receiptModal').css('display', 'flex').addClass('active');
     });
@@ -466,6 +483,67 @@ $(document).ready(function () {
 function printTable(tableId, tableTitle) {
     const table = document.getElementById(tableId);
     if (!table) return;
+
+    // Collect metrics based on the table being printed
+    let metricsHtml = '';
+    if (['transactionsTable', 'salesLogTable', 'salesSummaryTable'].includes(tableId)) {
+        // Profit tab metrics
+        const revenue = document.querySelector('#profit-content .rep-metric-box:nth-child(1) .rep-metric-value').textContent;
+        const quantitySold = document.querySelector('#profit-content .rep-metric-box:nth-child(2) .rep-metric-value').textContent;
+        const loss = document.querySelector('#profit-content .rep-metric-box:nth-child(3) .rep-metric-value').textContent;
+        const profit = document.querySelector('#profit-content .rep-metric-box:nth-child(4) .rep-metric-value').textContent;
+        metricsHtml = `
+            <div class="rep-metrics">
+                <div class="rep-metric-box">
+                    <div class="rep-metric-title">Revenue</div>
+                    <div class="rep-metric-value rep-profit">${revenue}</div>
+                </div>
+                <div class="rep-metric-box">
+                    <div class="rep-metric-title">Total Quantity Sold</div>
+                    <div class="rep-metric-value">${quantitySold}</div>
+                </div>
+                <div class="rep-metric-box">
+                    <div class="rep-metric-title">Loss from spoiled and damaged items</div>
+                    <div class="rep-metric-value rep-loss">${loss}</div>
+                </div>
+                <div class="rep-metric-box">
+                    <div class="rep-metric-title">Profit</div>
+                    <div class="rep-metric-value rep-profit">${profit}</div>
+                </div>
+            </div>
+        `;
+    } else if (['trashTable', 'damagedProductsTable'].includes(tableId)) {
+        // Loss tab metrics
+        const totalLoss = document.querySelector('#loss-content .rep-metric-box:nth-child(1) .rep-metric-value').textContent;
+        const spoiledItems = document.querySelector('#loss-content .rep-metric-box:nth-child(2) .rep-metric-value').textContent;
+        const damagedItems = document.querySelector('#loss-content .rep-metric-box:nth-child(3) .rep-metric-value').textContent;
+        const spoiledLoss = document.querySelector('#loss-content .rep-metric-box:nth-child(4) .rep-metric-value').textContent;
+        const damagedLoss = document.querySelector('#loss-content .rep-metric-box:nth-child(5) .rep-metric-value').textContent;
+        metricsHtml = `
+            <div class="rep-metrics">
+                <div class="rep-metric-box">
+                    <div class="rep-metric-title">Total Loss</div>
+                    <div class="rep-metric-value rep-loss">${totalLoss}</div>
+                </div>
+                <div class="rep-metric-box">
+                    <div class="rep-metric-title">Spoiled Items</div>
+                    <div class="rep-metric-value">${spoiledItems}</div>
+                </div>
+                <div class="rep-metric-box">
+                    <div class="rep-metric-title">Damaged Items</div>
+                    <div class="rep-metric-value">${damagedItems}</div>
+                </div>
+                <div class="rep-metric-box">
+                    <div class="rep-metric-title">Total loss from spoiled items</div>
+                    <div class="rep-metric-value rep-loss">${spoiledLoss}</div>
+                </div>
+                <div class="rep-metric-box">
+                    <div class="rep-metric-title">Total loss from damaged items</div>
+                    <div class="rep-metric-value rep-loss">${damagedLoss}</div>
+                </div>
+            </div>
+        `;
+    }
 
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
@@ -516,6 +594,39 @@ function printTable(tableId, tableTitle) {
                     font-size: 18px; 
                     margin-bottom: 15px; 
                 }
+                /* Metrics styles */
+                .rep-metrics {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 20px;
+                    width: 100%;
+                    max-width: ${tableId === 'salesLogTable' || tableId === 'damagedProductsTable' ? '960px' : '800px'};
+                }
+                .rep-metric-box {
+                    flex: 1;
+                    margin: 0 10px;
+                    padding: 20px;
+                    background-color: #fff;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    text-align: center;
+                }
+                .rep-metric-title {
+                    font-size: 18px;
+                    font-weight: 500;
+                    color: #555;
+                    margin-bottom: 10px;
+                }
+                .rep-metric-value {
+                    font-size: 24px;
+                    font-weight: 600;
+                }
+                .rep-metric-value.rep-profit {
+                    color: #4CAF50;
+                }
+                .rep-metric-value.rep-loss {
+                    color: #dc3545;
+                }
                 /* Specific styles for ID columns */
                 table th:nth-child(1), table td:nth-child(1) { 
                     word-break: break-all; 
@@ -523,50 +634,50 @@ function printTable(tableId, tableTitle) {
                 }
                 /* Column widths for transactionsTable */
                 ${tableId === 'transactionsTable' ? `
-                    table th:nth-child(1), table td:nth-child(1) { width: 400px; min-width: 100px; } /* Transaction ID */
-                    table th:nth-child(2), table td:nth-child(2) { width: 400px; } /* Customer Name */
+                    table th:nth-child(1), table td:nth-child(1) { width: 100px; } /* Transaction ID */
+                    table th:nth-child(2), table td:nth-child(2) { width: 200px; } /* Customer Name */
                 ` : ''}
                 /* Column widths for salesLogTable */
                 ${tableId === 'salesLogTable' ? `
-                    table th:nth-child(1), table td:nth-child(1) { width: 100px; min-width: 100px; } /* Order ID */
-                    table th:nth-child(2), table td:nth-child(2) { width: 150px; } /* Product Name */
-                    table th:nth-child(3), table td:nth-child(3) { width: 70px; } /* Quantity */
-                    table th:nth-child(4), table td:nth-child(4) { width: 90px; } /* Unit Price */
-                    table th:nth-child(5), table td:nth-child(5) { width: 90px; } /* Total Price */
-                    table th:nth-child(6), table td:nth-child(6) { width: 120px; } /* Customer Name */
-                    table th:nth-child(7), table td:nth-child(7) { width: 80px; } /* Order Type */
-                    table th:nth-child(8), table td:nth-child(8) { width: 80px; } /* Status */
-                    table th:nth-child(9), table td:nth-child(9) { width: 150px; } /* Special Instructions */
-                    table th:nth-child(10), table td:nth-child(10) { width: 120px; } /* Date */
+                    table th:nth-child(1), table td:nth-child(1) { width: 60px; } /* Order ID */
+                    table th:nth-child(2), table td:nth-child(2) { width: 120px; } /* Product Name */
+                    table th:nth-child(3), table td:nth-child(3) { width: 50px; } /* Quantity */
+                    table th:nth-child(4), table td:nth-child(4) { width: 60px; } /* Unit Price */
+                    table th:nth-child(5), table td:nth-child(5) { width: 60px; } /* Total Price */
+                    table th:nth-child(6), table td:nth-child(6) { width: 100px; } /* Customer Name */
+                    table th:nth-child(7), table td:nth-child(7) { width: 60px; } /* Order Type */
+                    table th:nth-child(8), table td:nth-child(8) { width: 60px; } /* Status */
+                    table th:nth-child(9), table td:nth-child(9) { width: 120px; } /* Special Instructions */
+                    table th:nth-child(10), table td:nth-child(10) { width: 100px; } /* Date */
                 ` : ''}
                 /* Column widths for salesSummaryTable */
                 ${tableId === 'salesSummaryTable' ? `
-                    table th:nth-child(1), table td:nth-child(1) { width: 350px; } /* Product Name */
-                    table th:nth-child(2), table td:nth-child(2) { width: 150px; } /* Total Quantity Sold */
-                    table th:nth-child(3), table td:nth-child(3) { width: 150px; } /* Total Revenue */
+                    table th:nth-child(1), table td:nth-child(1) { width: 200px; } /* Product Name */
+                    table th:nth-child(2), table td:nth-child(2) { width: 100px; } /* Total Quantity Sold */
+                    table th:nth-child(3), table td:nth-child(3) { width: 100px; } /* Total Revenue */
                 ` : ''}
                 /* Column widths for trashTable */
                 ${tableId === 'trashTable' ? `
-                    table th:nth-child(1), table td:nth-child(1) { width: 60px; min-width: 60px; } /* ID */
-                    table th:nth-child(2), table td:nth-child(2) { width: 180px; } /* Product Name */
-                    table th:nth-child(3), table td:nth-child(3) { width: 150px; } /* Category */
-                    table th:nth-child(4), table td:nth-child(4) { width: 70px; } /* Quantity */
-                    table th:nth-child(5), table td:nth-child(5) { width: 180px; } /* Reason */
-                    table th:nth-child(6), table td:nth-child(6) { width: 90px; } /* Total Loss */
+                    table th:nth-child(1), table td:nth-child(1) { width: 40px; } /* ID */
+                    table th:nth-child(2), table td:nth-child(2) { width: 120px; } /* Product Name */
+                    table th:nth-child(3), table td:nth-child(3) { width: 100px; } /* Category */
+                    table th:nth-child(4), table td:nth-child(4) { width: 50px; } /* Quantity */
+                    table th:nth-child(5), table td:nth-child(5) { width: 120px; } /* Reason */
+                    table th:nth-child(6), table td:nth-child(6) { width: 60px; } /* Total Loss */
                 ` : ''}
                 /* Column widths for damagedProductsTable */
                 ${tableId === 'damagedProductsTable' ? `
-                    table th:nth-child(1), table td:nth-child(1) { width: 50px; min-width: 50px; } /* ID */
-                    table th:nth-child(2), table td:nth-child(2) { width: 130px; } /* Product Name */
-                    table th:nth-child(3), table td:nth-child(3) { width: 70px; } /* Quantity */
-                    table th:nth-child(4), table td:nth-child(4) { width: 90px; } /* Price per Item */
-                    table th:nth-child(5), table td:nth-child(5) { width: 90px; } /* Total Cost */
-                    table th:nth-child(6), table td:nth-child(6) { width: 100px; } /* Reason */
-                    table th:nth-child(7), table td:nth-child(7) { width: 100px; } /* Supplier */
-                    table th:nth-child(8), table td:nth-child(8) { width: 90px; } /* Status */
-                    table th:nth-child(9), table td:nth-child(9) { width: 100px; } /* Reported At */
-                    table th:nth-child(10), table td:nth-child(10) { width: 100px; } /* Return Date */
-                    table th:nth-child(11), table td:nth-child(11) { width: 140px; min-width: 140px; } /* Return Notes */
+                    table th:nth-child(1), table td:nth-child(1) { width: 40px; } /* ID */
+                    table th:nth-child(2), table td:nth-child(2) { width: 110px; } /* Product Name */
+                    table th:nth-child(3), table td:nth-child(3) { width: 50px; } /* Quantity */
+                    table th:nth-child(4), table td:nth-child(4) { width: 60px; } /* Price per Item */
+                    table th:nth-child(5), table td:nth-child(5) { width: 60px; } /* Total Cost */
+                    table th:nth-child(6), table td:nth-child(6) { width: 90px; } /* Reason */
+                    table th:nth-child(7), table td:nth-child(7) { width: 90px; } /* Supplier */
+                    table th:nth-child(8), table td:nth-child(8) { width: 70px; } /* Status */
+                    table th:nth-child(9), table td:nth-child(9) { width: 90px; } /* Reported At */
+                    table th:nth-child(10), table td:nth-child(10) { width: 90px; } /* Return Date */
+                    table th:nth-child(11), table td:nth-child(11) { width: 90px; } /* Return Notes */
                 ` : ''}
                 @media print {
                     @page { 
@@ -595,11 +706,26 @@ function printTable(tableId, tableTitle) {
                     h2 { 
                         font-size: 16px; 
                     }
+                    .rep-metrics {
+                        page-break-after: avoid;
+                    }
+                    .rep-metric-box {
+                        flex: 1;
+                        margin: 0 5px;
+                        padding: 15px;
+                    }
+                    .rep-metric-title {
+                        font-size: 16px;
+                    }
+                    .rep-metric-value {
+                        font-size: 20px;
+                    }
                 }
             </style>
         </head>
         <body>
             <h2>${tableTitle}</h2>
+            ${metricsHtml}
             <div class="table-container">
                 ${table.outerHTML}
             </div>
@@ -616,8 +742,8 @@ function printTable(tableId, tableTitle) {
 
 function setupPrintButtons() {
     const tables = [
-        { id: 'transactionsTable', title: 'All Transactions', containerId: 'transaction-table' },
-        { id: 'salesLogTable', title: 'Sales Log', containerId: 'salesLogTableContainer' },
+        { id: 'transactionsTable', title: 'Transaction Details', containerId: 'transaction-table' },
+        { id: 'salesLogTable', title: 'Sales Details', containerId: 'salesLogTableContainer' },
         { id: 'salesSummaryTable', title: 'Sales Summary by Product', containerId: 'salesSummaryTableContainer' },
         { id: 'trashTable', title: 'List of Thrown Away Items', containerId: 'trash-table' },
         { id: 'damagedProductsTable', title: 'List of Marked as Loss Items', containerId: 'damaged-table' }
@@ -668,13 +794,17 @@ function showTab(tabName) {
 }
 
 function showProfitSubTab(subTabName) {
+    // Remove active class from all profit sub-tabs
     document.querySelectorAll('.profit-sub-tabs .profit-sub-tab').forEach(tab => {
         tab.classList.remove('active');
     });
-    const activeSubTab = document.querySelector(`.profit-sub-tab[data-subtab="${subTabName}"]`);
-    if (activeSubTab) {
-        activeSubTab.classList.add('active');
-    }
+
+    // Add active class to all instances of the selected sub-tab
+    document.querySelectorAll(`.profit-sub-tab[data-subtab="${subTabName}"]`).forEach(tab => {
+        tab.classList.add('active');
+    });
+
+    // Update hidden input and display content
     document.getElementById('subtabInput').value = subTabName;
     document.getElementById('all-transactions-sub-content').style.display = subTabName === 'all-transactions' ? 'block' : 'none';
     document.getElementById('sales-log-sub-content').style.display = subTabName === 'sales-log' ? 'block' : 'none';
@@ -682,13 +812,17 @@ function showProfitSubTab(subTabName) {
 }
 
 function showLossSubTab(subTabName) {
+    // Remove active class from all loss sub-tabs
     document.querySelectorAll('.loss-sub-tabs .loss-sub-tab').forEach(tab => {
         tab.classList.remove('active');
     });
-    const activeSubTab = document.querySelector(`.loss-sub-tab[data-subtab="${subTabName}"]`);
-    if (activeSubTab) {
-        activeSubTab.classList.add('active');
-    }
+
+    // Add active class to all instances of the selected sub-tab
+    document.querySelectorAll(`.loss-sub-tab[data-subtab="${subTabName}"]`).forEach(tab => {
+        tab.classList.add('active');
+    });
+
+    // Update hidden input and display content
     document.getElementById('subtabInput').value = subTabName;
     document.getElementById('thrown-content').style.display = subTabName === 'thrown' ? 'block' : 'none';
     document.getElementById('damaged-content').style.display = subTabName === 'damaged' ? 'block' : 'none';
