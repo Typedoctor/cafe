@@ -1,4 +1,3 @@
-
 .quantity-note {
     font-size: 0.8em;
     color: red;
@@ -151,11 +150,26 @@
     text-align: left;
     border: 1px solid #ddd;
     border-bottom: 1px solid #dee2e6;
-    white-space: nowrap; /* Prevents text from wrapping */
-    overflow: hidden; /* Hides overflowed content */
-    text-overflow: ellipsis; /* Adds ellipsis for overflowed text */
     vertical-align: middle;
     min-width: 100px;
+}
+
+/* Apply ellipsis to the first 10 columns */
+.dmg-table th:nth-child(-n+10), .dmg-table td:nth-child(-n+10),
+.rep-table th:nth-child(-n+10), .rep-table td:nth-child(-n+10),
+#damagedProductsTable th:nth-child(-n+10), #damagedProductsTable td:nth-child(-n+10) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Ensure the last column wraps and does not have ellipsis */
+.dmg-table th:last-child, .dmg-table td:last-child,
+.rep-table th:last-child, .rep-table td:last-child,
+#damagedProductsTable th:last-child, #damagedProductsTable td:last-child {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
 }
 
 .dmg-table th, .rep-table th, #damagedProductsTable th {
