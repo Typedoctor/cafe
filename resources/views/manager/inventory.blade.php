@@ -271,6 +271,7 @@ function deleteProduct(productId) {
 $(document).ready(function () {
     let table = $('#productsTable').DataTable({
         pageLength: 10,
+        lengthMenu: [10, 25, 50, 100, 250, 500],
         responsive: true,
         order: [[0, 'asc']],
         autoWidth: false,

@@ -1,4 +1,3 @@
-
 @extends('cashier.layout')
 
 @section('title', 'Manage Trash')
@@ -35,13 +34,25 @@
     </div>
 @endif
 
+@php
+    // Get all products for inventory tab
+    $products = \App\Models\Product::all();
+@endphp
 <!-- Add Trash Modal -->
 <div id="trashModal" class="modal">
+     <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
     <div class="modal-content">
-        <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
-        <h2 id="modalTitle" style="text-align: center;">Add New Spoilage Entry</h2>
-   
+       
+        
+           <!-- Sub Tabs -->
+        <div class="sub-tabs" style="display:flex;justify-content:center;gap:10px;margin-bottom:10px;">
+            <button type="button" class="sub-tab-btn active" data-source="inventory">Inventory</button>
+            <button type="button" class="sub-tab-btn" data-source="shelf">Shelfed Items</button>
+            <button type="button" class="sub-tab-btn" data-source="all">All</button>
+        </div>
+        <br>
         <!-- Category Tabs -->
+       
         <div class="category-tabs">
             <button class="tab-btn active" data-category="snack">Snack</button>
             <button class="tab-btn" data-category="drink">Drink</button>
@@ -52,6 +63,7 @@
         <form id="trashForm" method="POST" action="{{ route('trash.store') }}">
             @csrf
             <input type="hidden" name="category" id="category" value="snack">
+            <input type="hidden" name="source" id="source" value="inventory">
 
             <div class="form-group">
                 <label>What products are you discarding?</label>
@@ -65,29 +77,46 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @if(!empty($shelfItems) && $shelfItems->count() > 0)
-                                @foreach($shelfItems as $shelfItem)
-                                    <tr data-product-name="{{ e(trim($shelfItem->product->product_name)) }}"
-                                        data-price="{{ $shelfItem->price }}"
-                                        data-category="{{ $shelfItem->product->category }}"
-                                        data-stock="{{ $shelfItem->quantity_added }}">
-                                        <td>{{ e(trim($shelfItem->product->product_name)) }}</td>
-                                        <td>{{ number_format($shelfItem->price, 2) }}</td>
-                                        <td>{{ $shelfItem->quantity_added }}</td>
-                                        <td>
-                                            <button type="button" class="select-product-btn"
-                                                @if($shelfItem->quantity_added == 0) disabled @endif>
-                                                @if($shelfItem->quantity_added == 0) No Stock @else Select @endif
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @else
-                                <tr>
-                                    <td colspan="4">No products available</td>
+                        <tbody id="productTableBody">
+                            {{-- Inventory products --}}
+                            @foreach($products as $product)
+                                <tr data-source="inventory"
+                                    data-product-name="{{ e(trim($product->product_name)) }}"
+                                    data-price="{{ $product->purchase_cost }}"
+                                    data-category="{{ $product->category }}"
+                                    data-stock="{{ $product->quantity }}">
+                                    <td>{{ e(trim($product->product_name)) }}</td>
+                                    <td>{{ number_format($product->purchase_cost, 2) }}</td>
+                                    <td>{{ $product->quantity }}</td>
+                                    <td>
+                                        <button type="button" class="select-product-btn"
+                                            @if($product->quantity == 0) disabled @endif>
+                                            @if($product->quantity == 0) No Stock @else Select @endif
+                                        </button>
+                                    </td>
                                 </tr>
-                            @endif
+                            @endforeach
+                            {{-- Shelfed items --}}
+                            @foreach($shelfItems as $shelfItem)
+                                @php
+                                    $profit = $shelfItem->price - $shelfItem->product->purchase_cost;
+                                @endphp
+                                <tr data-source="shelf"
+                                    data-product-name="{{ e(trim($shelfItem->product->product_name)) }}"
+                                    data-price="{{ $profit }}"
+                                    data-category="{{ $shelfItem->product->category }}"
+                                    data-stock="{{ $shelfItem->quantity_added }}">
+                                    <td>{{ e(trim($shelfItem->product->product_name)) }}</td>
+                                    <td>{{ number_format($profit, 2) }}</td>
+                                    <td>{{ $shelfItem->quantity_added }}</td>
+                                    <td>
+                                        <button type="button" class="select-product-btn"
+                                            @if($shelfItem->quantity_added == 0) disabled @endif>
+                                            @if($shelfItem->quantity_added == 0) No Stock @else Select @endif
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -296,6 +325,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const totalLossDisplay = document.getElementById('totalLossDisplay');
     const categoryInput = document.getElementById('category');
     const tabButtons = document.querySelectorAll('.tab-btn');
+    const subTabButtons = document.querySelectorAll('.sub-tab-btn');
+    const sourceInput = document.getElementById('source');
     const saveBtn = document.getElementById('saveBtn');
     const selectedProductTable = document.getElementById('selectedProductTable');
     const stockLimitProduct = document.getElementById('stockLimitProduct');
@@ -368,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     updateHiddenInputs();
                     updateTotalLoss();
                     validateQuantities();
-                    filterProductsByCategory(categoryInput.value);
+                    filterProductsByCategory(categoryInput.value, sourceInput.value);
                 });
             });
         } else {
@@ -378,15 +409,22 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Function to filter products by category
-    function filterProductsByCategory(category) {
+    // Function to filter products by category and source
+    function filterProductsByCategory(category, source = sourceInput.value) {
         productTable.column(0).search('');
         productTable.draw();
 
         productTable.rows().every(function () {
             const row = this.node();
             const rowCategory = row.getAttribute('data-category');
-            if (rowCategory === category || !rowCategory) {
+            const rowSource = row.getAttribute('data-source');
+            let show = false;
+            if (source === 'all') {
+                show = (rowCategory === category || !rowCategory);
+            } else {
+                show = (rowCategory === category || !rowCategory) && rowSource === source;
+            }
+            if (show) {
                 $(row).show();
             } else {
                 $(row).hide();
@@ -439,7 +477,7 @@ document.addEventListener('DOMContentLoaded', function () {
         updateHiddenInputs();
         updateTotalLoss();
         validateQuantities();
-        filterProductsByCategory(categoryInput.value);
+        filterProductsByCategory(categoryInput.value, sourceInput.value);
     }
 
     // Function to calculate and update total loss display
@@ -470,7 +508,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const category = this.getAttribute('data-category');
             categoryInput.value = category;
-            filterProductsByCategory(category);
+            filterProductsByCategory(category, sourceInput.value);
+        });
+    });
+
+    // Sub-tab switching logic
+    subTabButtons.forEach(btn => {
+        btn.addEventListener('click', function () {
+            subTabButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const source = this.getAttribute('data-source');
+            sourceInput.value = source;
+            filterProductsByCategory(categoryInput.value, source);
         });
     });
 
@@ -489,7 +538,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         tabButtons.forEach(btn => btn.classList.remove('active'));
         tabButtons[0].classList.add('active');
-        filterProductsByCategory('snack');
+        subTabButtons.forEach(btn => btn.classList.remove('active'));
+        subTabButtons[0].classList.add('active');
+        sourceInput.value = 'inventory';
+        filterProductsByCategory('snack', 'inventory');
         updateSelectedProductTable();
         updateHiddenInputs();
         updateTotalLoss();

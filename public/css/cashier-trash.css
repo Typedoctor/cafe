@@ -165,13 +165,14 @@
 }
 
 .select-product-btn {
-    padding: 6px 12px;
+    padding: 10px 20px;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
+    font-family: 'Poppins', sans-serif;
 }
 
 .select-product-btn:hover:not(:disabled) {
@@ -179,8 +180,9 @@
 }
 
 .select-product-btn:disabled {
-    background-color: #6c757d;
+    background-color: #670808;
     cursor: not-allowed;
+    font-family: 'Poppins', sans-serif;
 }
 
 /* Modal Styles */
@@ -610,6 +612,7 @@
     cursor: pointer;
     border-radius: 5px;
     font-size: 16px;
+    font-family: 'Poppins', sans-serif;
 }
 
 .tab-btn.active {
@@ -652,7 +655,7 @@
 
 /* Selected Product Table Styles */
 .selected-product-table-container {
-    max-height: 150px;
+    max-height: 300px;
     overflow-y: auto;
     width: 100%;
     border: 1px solid #e0e0e0;
@@ -692,6 +695,58 @@
 
 .remove-product-btn:hover {
     background-color: #c82333;
+}
+
+/* Sub-tabs Finesse */
+.sub-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.sub-tab-btn {
+    padding: 8px 20px;
+    border: none;
+    background: #f1f1f1;
+    color: #333;
+    border-radius: 8px 8px 0 0;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    outline: none;
+    margin-bottom: -2px;
+    font-family: 'Poppins', sans-serif;
+    border-bottom: 2px solid transparent;
+}
+
+.sub-tab-btn.active {
+    background: #007bff;
+    color: #fff;
+    border-bottom: 2px solid #007bff;
+    box-shadow: 0 4px 12px rgba(0,123,255,0.12);
+    z-index: 2;
+}
+
+.sub-tab-btn:not(.active):hover {
+    background: #e0e0e0;
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
+}
+
+@media (max-width: 768px) {
+    .sub-tabs {
+        flex-direction: column;
+        gap: 5px;
+        align-items: stretch;
+    }
+    .sub-tab-btn {
+        width: 100%;
+        border-radius: 8px;
+        margin-bottom: 0;
+    }
 }
 
 /* Responsive Styles */

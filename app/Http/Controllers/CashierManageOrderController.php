@@ -29,114 +29,119 @@
           return redirect()->route('cashier.manage_order');
       }
 
-      public function store(Request $request)
-      {
-          $validated = $request->validate([
-              'customer_name' => 'required|string|max:24|regex:/^[a-zA-Z\s\',&À-ÿ-]+$/',
-              'products' => 'required|array|min:1',
-              'products.*.product_id' => 'required|exists:shelf_items,product_id',
-              'products.*.quantity' => 'required|integer|min:1',
-              'order_type' => ['required', 'string', 'regex:/^(Dine-in|Takeout)$/i'],
-              'special_instructions' => 'nullable|string|max:255|regex:/^[a-zA-Z0-9\s\',&À-ÿ%.-]+$/',
-              'money_received' => 'required|numeric|min:0',
-          ]);
+     
+            public function store(Request $request)
+            {
+                $validated = $request->validate([
+                    'customer_name' => 'required|string|max:24|regex:/^[a-zA-Z\s\',&À-ÿ-]+$/',
+                    'products' => 'required|array|min:1',
+                    'products.*.product_id' => 'required|exists:shelf_items,product_id',
+                    'products.*.quantity' => 'required|integer|min:1',
+                    'order_type' => ['required', 'string', 'regex:/^(Dine-in|Takeout)$/i'],
+                    'special_instructions' => 'nullable|string|max:255|regex:/^[a-zA-Z0-9\s\',&À-ÿ%.-]+$/',
+                    'money_received' => 'required|numeric|min:0',
+                ]);
 
-          try {
-              DB::beginTransaction();
+                try {
+                    DB::beginTransaction();
 
-              $total_price = 0;
-              $orderItems = [];
-              $productQuantities = [];
+                    $total_price = 0;
+                    $orderItems = [];
+                    $productQuantities = [];
 
-              foreach ($validated['products'] as $index => $productData) {
-                  $shelfItem = ShelfItem::with('product')->where('product_id', $productData['product_id'])->firstOrFail();
-                  $quantity = $productData['quantity'];
+                    foreach ($validated['products'] as $index => $productData) {
+                        $shelfItem = ShelfItem::with('product')->where('product_id', $productData['product_id'])->firstOrFail();
+                        $quantity = $productData['quantity'];
 
-                  if (!isset($productQuantities[$shelfItem->product_id])) {
-                      $productQuantities[$shelfItem->product_id] = [
-                          'name' => $shelfItem->product->product_name,
-                          'available' => $shelfItem->quantity_added,
-                          'requested' => 0,
-                          'shelfItem' => $shelfItem,
-                      ];
-                  }
-                  $productQuantities[$shelfItem->product_id]['requested'] += $quantity;
-              }
+                        if (!isset($productQuantities[$shelfItem->product_id])) {
+                            $productQuantities[$shelfItem->product_id] = [
+                                'name' => $shelfItem->product->product_name,
+                                'available' => $shelfItem->quantity_added,
+                                'requested' => 0,
+                                'shelfItem' => $shelfItem,
+                            ];
+                        }
+                        $productQuantities[$shelfItem->product_id]['requested'] += $quantity;
+                    }
 
-              foreach ($productQuantities as $productId => $data) {
-                  if ($data['requested'] > $data['available']) {
-                      return back()->withErrors([
-                          'products' => "Insufficient stock for {$data['name']}. Total requested: {$data['requested']}, Available: {$data['available']}"
-                      ])->withInput();
-                  }
-              }
+                    foreach ($productQuantities as $productId => $data) {
+                        if ($data['requested'] > $data['available']) {
+                            return back()->withErrors([
+                                'products' => "Insufficient stock for {$data['name']}. Total requested: {$data['requested']}, Available: {$data['available']}"
+                            ])->withInput();
+                        }
+                    }
 
-              foreach ($validated['products'] as $productData) {
-                  $shelfItem = $productQuantities[$productData['product_id']]['shelfItem'];
-                  $quantity = $productData['quantity'];
-                  $unit_price = $shelfItem->price ?? 0;
-                  $item_price = $unit_price * $quantity;
-                  $total_price += $item_price;
+                    foreach ($validated['products'] as $productData) {
+                        $shelfItem = $productQuantities[$productData['product_id']]['shelfItem'];
+                        $quantity = $productData['quantity'];
+                        // Use profit as price
+                        $unit_profit = ($shelfItem->price ?? 0) - ($shelfItem->product->purchase_cost ?? 0);
+                        $item_price = $unit_profit * $quantity;
+                        $total_price += $item_price;
 
-                  $orderItems[] = [
-                      'product_id' => $shelfItem->product_id,
-                      'quantity' => $quantity,
-                      'price' => $item_price,
-                  ];
-              }
+                        $orderItems[] = [
+                            'product_id' => $shelfItem->product_id,
+                            'quantity' => $quantity,
+                            'price' => $item_price,
+                        ];
+                    }
 
-              $change = max(0, $validated['money_received'] - $total_price);
+                    $change = max(0, $validated['money_received'] - $total_price);
 
-              $order = Order::create([
-                  'customer_name' => $validated['customer_name'],
-                  'user_id' => Auth::id(),
-                  'total_price' => $total_price,
-                  'order_type' => ucwords(strtolower($validated['order_type'])),
-                  'special_instructions' => $validated['special_instructions'] ? Str::of($validated['special_instructions'])->stripTags() : '',
-                  'money_received' => $validated['money_received'],
-                  'status' => 'pending',
-              ]);
+                    $order = Order::create([
+                        'customer_name' => $validated['customer_name'],
+                        'user_id' => Auth::id(),
+                        'total_price' => $total_price,
+                        'order_type' => ucwords(strtolower($validated['order_type'])),
+                        'special_instructions' => $validated['special_instructions'] ? Str::of($validated['special_instructions'])->stripTags() : '',
+                        'money_received' => $validated['money_received'],
+                        'status' => 'pending',
+                    ]);
 
-              foreach ($orderItems as $item) {
-                  $shelfItem = ShelfItem::where('product_id', $item['product_id'])->firstOrFail();
-                  OrderItem::create([
-                      'order_id' => $order->id,
-                      'product_id' => $item['product_id'],
-                      'quantity' => $item['quantity'],
-                      'price' => $item['price'],
-                  ]);
+                    foreach ($orderItems as $item) {
+                        $shelfItem = ShelfItem::where('product_id', $item['product_id'])->firstOrFail();
+                        OrderItem::create([
+                            'order_id' => $order->id,
+                            'product_id' => $item['product_id'],
+                            'quantity' => $item['quantity'],
+                            'price' => $item['price'],
+                        ]);
 
-                  $shelfItem->quantity_added -= $item['quantity'];
-                  if ($shelfItem->quantity_added < 0) {
-                      throw new \Exception("Stock for {$shelfItem->product->product_name} cannot go below zero.");
-                  }
-                  $shelfItem->save();
+                        $shelfItem->quantity_added -= $item['quantity'];
+                        if ($shelfItem->quantity_added < 0) {
+                            throw new \Exception("Stock for {$shelfItem->product->product_name} cannot go below zero.");
+                        }
+                        $shelfItem->save();
 
-                  Sale::create([
-                      'order_id' => $order->id,
-                      'product_id' => $shelfItem->product_id,
-                      'product_name' => $shelfItem->product->product_name,
-                      'quantity' => $item['quantity'],
-                      'unit_price' => $shelfItem->price ?? 0,
-                      'total_price' => $item['price'],
-                      'money_received' => $validated['money_received'], // Add money_received to Sale
-                      'change' => $change,
-                      'user_id' => Auth::id(),
-                      'customer_name' => $validated['customer_name'],
-                      'order_type' => ucwords(strtolower($validated['order_type'])),
-                      'status' => 'pending',
-                      'special_instructions' => $validated['special_instructions'] ? Str::of($validated['special_instructions'])->stripTags() : '',
-                  ]);
-              }
+                        // Use profit as unit_price
+                        $unit_profit = ($shelfItem->price ?? 0) - ($shelfItem->product->purchase_cost ?? 0);
 
-              DB::commit();
-              return redirect()->route('cashier.manage_order')->with('success', 'Order created successfully.');
-          } catch (\Exception $e) {
-              DB::rollBack();
-              \Log::error('Store Order Error: ' . $e->getMessage());
-              return back()->withErrors(['error' => 'Failed to create order: ' . $e->getMessage()])->withInput();
-          }
-      }
+                        Sale::create([
+                            'order_id' => $order->id,
+                            'product_id' => $shelfItem->product_id,
+                            'product_name' => $shelfItem->product->product_name,
+                            'quantity' => $item['quantity'],
+                            'unit_price' => $unit_profit,
+                            'total_price' => $item['price'],
+                            'money_received' => $validated['money_received'],
+                            'change' => $change,
+                            'user_id' => Auth::id(),
+                            'customer_name' => $validated['customer_name'],
+                            'order_type' => ucwords(strtolower($validated['order_type'])),
+                            'status' => 'pending',
+                            'special_instructions' => $validated['special_instructions'] ? Str::of($validated['special_instructions'])->stripTags() : '',
+                        ]);
+                    }
+
+                    DB::commit();
+                    return redirect()->route('cashier.manage_order')->with('success', 'Order created successfully.');
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    \Log::error('Store Order Error: ' . $e->getMessage());
+                    return back()->withErrors(['error' => 'Failed to create order: ' . $e->getMessage()])->withInput();
+                }
+            }
 
       public function cancel(Request $request)
       {

@@ -184,7 +184,7 @@
                         successMessage.classList.add('hidden');
                     }, 500);
                 }
-            }, 2000);
+            }, 3000);
         </script>
     @endif
     <div class="csh-orders-container">
