@@ -1,7 +1,18 @@
+/* General Styles */
 * {
     font-family: 'Poppins', sans-serif;
     font-weight: 400;
     box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.container {
+    display: flex;
 }
 
 .csh-main-container {
@@ -11,8 +22,6 @@
     max-width: 900px;
     margin: 0 auto;
 }
-
-
 
 .csh-button-container {
     margin: 0 10px 10px;
@@ -154,21 +163,38 @@
     background-color: #c82333;
 }
 
-.csh-error-message, .csh-success-message {
+.csh-error-message {
     padding: 8px;
     border-radius: 5px;
     margin: 0 10px 12px;
     text-align: center;
-}
-
-.csh-error-message {
     background-color: #f8d7da;
     color: #721c24;
 }
 
 .csh-success-message {
-    background-color: #d4edda;
-    color: #155724;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgb(111, 226, 142);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 1000;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: #000000;
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+   
+    transition: opacity 0.5s ease;
+}
+
+.csh-success-message.hidden {
+    opacity: 0;
+    display: none;
 }
 
 .csh-error-list {
@@ -518,7 +544,7 @@
 }
 
 .csh-order-details-products {
-    margin-bottom: 20px; /* Reduced from 100px */
+    margin-bottom: 20px;
     color: #333;
     font-size: 14px;
     line-height: 1.5;
@@ -544,7 +570,7 @@
 .csh-order-details-instructions {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px; /* Reduced from 100px */
+    margin-bottom: 20px;
     color: #333;
     font-size: 12px;
 }
@@ -788,6 +814,106 @@
     font-family: 'Poppins', sans-serif;
 }
 
+/* Sidebar Styles */
+.sidebar {
+    width: 270px;
+    background-color: #10394f;
+    min-height: 100vh;
+    padding: 20px 0;
+    color: white;
+    position: fixed;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar ul li {
+    margin-bottom: 15px;
+    padding: 0 20px;
+}
+
+.sidebar ul li a {
+    color: rgb(198, 198, 198);
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.sidebar ul li a:hover {
+    background-color: #0d2c3a;
+    color: white;
+}
+
+.sidebar ul li a.active {
+    background-color: #177ead;
+    color: white;
+    font-weight: 600;
+}
+
+.sidebar-logo {
+    margin-left: 70px;
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+}
+
+/* Main Content Area */
+.content {
+    flex: 1;
+    padding: 30px;
+    margin-left: 250px;
+    max-width: calc(100% - 250px);
+}
+
+/* Footer */
+.footer {
+    background: #002032;
+    padding: 30px 0px;
+    font-family: 'Play', sans-serif;
+    text-align: center;
+}
+
+.footer .row {
+    width: 100%;
+    margin: 1% 0%;
+    padding: 0.6% 0%;
+    color: gray;
+    font-size: 0.8em;
+}
+
+.footer .row a {
+    text-decoration: none;
+    color: gray;
+    transition: 0.5s;
+}
+
+.footer .row a:hover {
+    color: #fff;
+}
+
+.footer .row ul {
+    width: 100%;
+}
+
+.footer .row ul li {
+    display: inline-block;
+    margin: 0px 30px;
+}
+
+.footer .row a i {
+    font-size: 2em;
+    margin: 0% 1%;
+}
+
 @media (max-width: 768px) {
     .csh-main-container {
         padding: 15px;
@@ -801,9 +927,11 @@
         max-height: 70vh;
     }
 
-    .csh-dashboard-title {
-        font-size: 20px;
-        margin-left: 5px;
+    .csh-success-message {
+        width: 90%;
+        max-width: 300px;
+        padding: 15px;
+        font-size: 14px;
     }
 
     .csh-button-container {
@@ -952,6 +1080,32 @@
     .dataTables_filter {
         margin-top: 10px;
     }
+
+    .sidebar {
+        width: 200px;
+    }
+
+    .content {
+        margin-left: 200px;
+        max-width: calc(100% - 200px);
+    }
+}
+
+@media (max-width: 720px) {
+    .footer {
+        text-align: left;
+        padding: 5%;
+    }
+
+    .footer .row ul li {
+        display: block;
+        margin: 10px 0px;
+        text-align: left;
+    }
+
+    .footer .row a i {
+        margin: 0% 3%;
+    }
 }
 
 @media (print) {
@@ -959,9 +1113,11 @@
         box-shadow: none;
         width: 100%;
     }
+
     .csh-order-details-actions {
         display: none;
     }
+
     .csh-main-container, .csh-button-container, .csh-orders-list {
         display: none;
     }

@@ -1,3 +1,4 @@
+
 @extends('manager.layout')
 
 @section('title', 'Add to Shelf')
@@ -480,8 +481,8 @@
                             <tr data-product-stock="${stock}">
                                 <td style="text-align: center;">${name}</td>
                                 <td style="text-align: center;">
-                                    <input type="number" name="items[${idx}][price]" step="0.01" min="0" max="1200" class="shelf-form-input" value="${existingPrice}" required>
-                                    <span class="shelf-price-error" style="display: none;">Price is required, 0-1200</span>
+                                    <input type="number" name="items[${idx}][price]" step="0.01" min="1" max="1200" class="shelf-form-input" value="${existingPrice}" required>
+                                    <span class="shelf-price-error" style="display: none;">Price is required, 1-1200</span>
                                 </td>
                                 <td style="text-align: center;">
                                     <input type="number" name="items[${idx}][quantity_added]" min="1" max="${stock}" value="1" required class="shelf-form-input">
@@ -513,7 +514,7 @@
                 hideErrorMessage();
                 updateSubmitButton();
             } else if (tgt.closest('.shelf-delete-btn')) {
-                const id = tgt.closest('.shelf-delete-btn').data('shelfItemId');
+                const id = $(tgt.closest('.shelf-delete-btn')).data('shelfItemId');
                 if (confirm('Are you sure you want to remove this item from the shelf?')) {
                     $.ajax({
                         url: '{{ route("add-to-shelf.destroy", ":id") }}'.replace(':id', id),
@@ -527,8 +528,8 @@
                     });
                 }
             } else if (tgt.closest('.shelf-edit-btn')) {
-                const btn = tgt.closest('.shelf-edit-btn');
-                const { shelfItemId, productName, quantityAdded, price, productId, availableStock } = btn.dataset;
+                const btn = $(tgt.closest('.shelf-edit-btn'));
+                const { shelfItemId, productName, quantityAdded, price, productId, availableStock } = btn.data();
                 document.getElementById('edit-shelf-item-id').value = shelfItemId;
                 document.getElementById('edit-product-name').value = productName;
                 document.getElementById('edit-available-stock').value = availableStock;

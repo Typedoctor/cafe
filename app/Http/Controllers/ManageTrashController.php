@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 class ManageTrashController extends Controller
 {
-    public function index(Request $request)
+ public function index(Request $request)
     {
         $month = $request->input('month', now()->month);
         $year = $request->input('year', now()->year);
@@ -23,9 +23,9 @@ class ManageTrashController extends Controller
             ->latest()
             ->get();
 
+        // Modified to include zero-stock items
         $shelfItems = ShelfItem::with('product')
             ->whereHas('product')
-            ->where('quantity_added', '>', 0)
             ->orderBy('product_id')
             ->get();
 
@@ -35,39 +35,68 @@ class ManageTrashController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'product_name' => 'required|string|exists:products,product_name',
+            'product_names' => 'required|array|min:1',
+            'product_names.*' => 'required|string|exists:products,product_name',
+            'quantities' => 'required|array|min:1',
+            'quantities.*' => 'required|integer|min:1',
             'category' => 'required|string|in:snack,drink,meal,dessert',
-            'quantity' => 'required|integer|min:1',
             'reason' => 'required|string|max:255',
         ]);
 
         try {
             DB::transaction(function () use ($validated, $request) {
-                $shelfItem = ShelfItem::with('product')
-                    ->whereHas('product', function ($query) use ($validated) {
-                        $query->where('product_name', $validated['product_name']);
-                    })
-                    ->first();
+                $productNames = $validated['product_names'];
+                $quantities = $validated['quantities'];
 
-                if (!$shelfItem) {
-                    throw new \Exception('Product not found in shelf items.');
+                // Ensure arrays have the same length
+                if (count($productNames) !== count($quantities)) {
+                    throw new \Exception('Mismatch between product names and quantities.');
                 }
 
-                if ($shelfItem->quantity_added < $validated['quantity']) {
-                    throw new \Exception('Not enough product quantity available.');
+                $errors = [];
+
+                foreach ($productNames as $index => $productName) {
+                    $quantity = $quantities[$index];
+
+                    $shelfItem = ShelfItem::with('product')
+                        ->whereHas('product', function ($query) use ($productName) {
+                            $query->where('product_name', $productName);
+                        })
+                        ->first();
+
+                    if (!$shelfItem) {
+                        $errors[] = "Product '$productName' not found in shelf items.";
+                        continue;
+                    }
+
+                    if ($shelfItem->quantity_added < $quantity) {
+                        $errors[] = "Not enough quantity available for '$productName'. Available: {$shelfItem->quantity_added}, Requested: $quantity.";
+                        continue;
+                    }
+
+                    // Create spoilage entry
+                    $spoilageData = [
+                        'product_name' => $productName,
+                        'category' => $validated['category'],
+                        'quantity' => $quantity,
+                        'reason' => $validated['reason'],
+                        'total_loss' => $shelfItem->price * $quantity,
+                    ];
+
+                    $trash = Spoilage::create($spoilageData);
+                    \Log::info('New trash entry created', ['trash_id' => $trash->id]);
+
+                    // Update stock
+                    $shelfItem->decrement('quantity_added', $quantity);
                 }
 
-                // Calculate total_loss
-                $validated['total_loss'] = $shelfItem->price * $validated['quantity'];
-
-                $trash = Spoilage::create($validated);
-                \Log::info('New trash entry created', ['trash_id' => $trash->id]);
-
-                $shelfItem->decrement('quantity_added', $validated['quantity']);
+                if (!empty($errors)) {
+                    throw new \Exception(implode(' ', $errors));
+                }
             });
 
             return redirect()->route('trash.index', $request->only(['month', 'year']))
-                ->with('success', 'Trash entry added successfully!');
+                ->with('success', 'Trash entries added successfully!');
         } catch (\Exception $e) {
             \Log::error('Error in store transaction', ['error' => $e->getMessage()]);
             return redirect()->route('trash.index', $request->only(['month', 'year']))
