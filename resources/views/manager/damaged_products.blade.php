@@ -10,71 +10,72 @@
 @section('content')
 
 <!-- Overlays for Modals -->
-<div class="dmg-modal-overlay" data-modal-id="damagedProductModal"></div>
-<div class="dmg-modal-overlay" data-modal-id="productDetailsModal"></div>
-
-<!-- Damaged Product Modal -->
-<div id="damagedProductModal" class="dmg-modal">
-    <div class="dmg-modal-content">
-        <span class="dmg-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
-        <h2 id="modalTitle">Report Damaged Product</h2>
-        <div id="errorMessages" class="dmg-error-messages" style="display: none;"></div>
-        <form id="damagedProductForm" method="POST">
-            @csrf
-            <input type="hidden" name="_method" id="methodField" value="POST">
-            <input type="hidden" name="id" id="damagedProductId">
-            <div class="dmg-form-group">
-                <label>Product Name:</label>
-                <input type="text" name="product_name" id="productName" required maxlength="50">
-                <small id="productNameCount">0 / 50</small>
-                <span id="productNameInvalid" class="invalid-indicator">Product name can only contain letters, spaces, apostrophes, hyphens, commas, and ampersands</span>
+<div class="dmg-modal-overlay" data-modal-id="damagedProductModal">
+    <!-- Damaged Product Modal -->
+    <div id="damagedProductModal" class="dmg-modal">
+        <div class="dmg-modal-content">
+            <span class="dmg-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
+            <h2 id="modalTitle">Report Damaged Product</h2>
+            <div id="errorMessages" class="dmg-error-messages" style="display: none;"></div>
+            <form id="damagedProductForm" method="POST">
+                @csrf
+                <input type="hidden" name="_method" id="methodField" value="POST">
+                <input type="hidden" name="id" id="damagedProductId">
+                <div class="dmg-form-group">
+                    <label>Product Name:</label>
+                    <input type="text" name="product_name" id="productName" required maxlength="50">
+                    <small id="productNameCount">0 / 50</small>
+                    <span id="productNameInvalid" class="invalid-indicator">Product name can only contain letters, spaces, apostrophes, hyphens, commas, and ampersands</span>
+                </div>
+                <div class="dmg-form-group">
+                    <label>Quantity:<br><span class="quantity-note">Must be between 1 and 9999</span></label>
+                    <input type="number" name="quantity" id="quantity" min="1" max="9999" required>
+                </div>
+                <div class="dmg-form-group">
+                    <label>Price per Item (₱):<br><span class="quantity-note">Enter the cost per unit (1 to 1200)</span></label>
+                    <input type="number" name="price_per_item" id="pricePerItem" max="1200"  required>
+                    <small id="totalCostDisplay">Total Cost: ₱0.00</small>
+                </div>
+                <div class="dmg-form-group">
+                    <label>Supplier:</label>
+                    <input type="text" name="supplier" id="supplier" required maxlength="50">
+                    <small id="supplierCount">0 / 50</small>
+                    <span id="supplierInvalid" class="invalid-indicator">Supplier can only contain letters, spaces, commas, periods, ampersands, apostrophes, and hyphens</span>
+                </div>
+                <div class="dmg-form-group">
+                    <label>Status:</label>
+                    <select name="status" id="status" required>
+                        <option value="Successfully Returned">Successfully Returned</option>
+                        <option value="Marked as Loss">Marked as Loss</option>
+                    </select>
+                </div>
+                <div class="dmg-form-group">
+                    <label>Reported At:</label>
+                    <input type="datetime-local" name="reported_at" id="reportedAt">
+                </div>
+                <div class="dmg-form-group">
+                    <label>Reason:</label>
+                    <textarea name="reason" id="reason" required maxlength="100"></textarea>
+                    <small id="reasonCount">0 / 100</small>
+                    <span id="reasonInvalid" class="invalid-indicator">Reason can only contain letters, numbers, spaces, commas, periods, parentheses, and hyphens</span>
+                </div>
+                <button type="submit" class="dmg-btn dmg-save-btn" id="SaveBtn">ADD</button>
+            </form>
+            <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 10px;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Saving...
             </div>
-            <div class="dmg-form-group">
-                <label>Quantity:<br><span class="quantity-note">Must be between 1 and 9999</span></label>
-                <input type="number" name="quantity" id="quantity" min="1" max="9999" required>
-            </div>
-            <div class="dmg-form-group">
-                <label>Price per Item (₱):<br><span class="quantity-note">Enter the cost per unit (1 to 1200)</span></label>
-                <input type="number" name="price_per_item" id="pricePerItem" max="1200" placeholder="Minimum 1" required>
-                <small id="totalCostDisplay">Total Cost: ₱0.00</small>
-            </div>
-            <div class="dmg-form-group">
-                <label>Supplier:</label>
-                <input type="text" name="supplier" id="supplier" required maxlength="50">
-                <small id="supplierCount">0 / 50</small>
-                <span id="supplierInvalid" class="invalid-indicator">Supplier can only contain letters, spaces, commas, periods, ampersands, apostrophes, and hyphens</span>
-            </div>
-            <div class="dmg-form-group">
-                <label>Status:</label>
-                <select name="status" id="status" required>
-                    <option value="Successfully Returned">Successfully Returned</option>
-                    <option value="Marked as Loss">Marked as Loss</option>
-                </select>
-            </div>
-            <div class="dmg-form-group">
-                <label>Reported At:</label>
-                <input type="datetime-local" name="reported_at" id="reportedAt">
-            </div>
-            <div class="dmg-form-group">
-                <label>Reason:</label>
-                <textarea name="reason" id="reason" required maxlength="100"></textarea>
-                <small id="reasonCount">0 / 100</small>
-                <span id="reasonInvalid" class="invalid-indicator">Reason can only contain letters, numbers, spaces, commas, periods, parentheses, and hyphens</span>
-            </div>
-            <button type="submit" class="dmg-btn dmg-save-btn" id="SaveBtn">ADD</button>
-        </form>
-        <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 10px;">
-            <i class="fa-solid fa-spinner fa-spin"></i> Saving...
         </div>
     </div>
 </div>
 
-<!-- Product Details Modal -->
-<div id="productDetailsModal" class="dmg-product-modal">
-    <div class="dmg-product-header">Product Details</div>
-    <div class="dmg-product-details" id="productDetails"></div>
-    <div class="dmg-modal-buttons">
-        <button class="dmg-modal-close" id="closeProductModal">Close</button>
+<div class="dmg-modal-overlay" data-modal-id="productDetailsModal">
+    <!-- Product Details Modal -->
+    <div id="productDetailsModal" class="dmg-product-modal">
+        <div class="dmg-product-header">Product Details</div>
+        <div class="dmg-product-details" id="productDetails"></div>
+        <div class="dmg-modal-buttons">
+            <button class="dmg-modal-close" id="closeProductModal">Close</button>
+        </div>
     </div>
 </div>
 
@@ -324,7 +325,7 @@
 
             function enforceValidPrice() {
                 pricePerItemInput.addEventListener("input", function () {
-                    let val = parseFloat(this.value) || 1;
+                    let val = parseFloat(this.value) ;
                     this.value = Math.min(Math.max(val, 1), 1200);
                     updateTotalCost();
                 });
