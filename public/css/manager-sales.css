@@ -1,4 +1,3 @@
-
 /* Prevent page scrolling when modal is open */
 body.no-scroll {
     overflow: hidden;
@@ -348,6 +347,22 @@ body.no-scroll {
     background-color: rgb(178, 11, 11);
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(178, 11, 11, 0.5);
+}
+
+.sl-reset-btn {
+    padding: 10px 18px;
+    font-size: 16px;
+    border: 1px solid #3f4245;
+    border-radius: 5px;
+    background-color: grey;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-left: 8px;
+}
+
+.sl-reset-btn:hover {
+    background-color: #245a8d;
 }
 
 @media (max-width: 768px) {

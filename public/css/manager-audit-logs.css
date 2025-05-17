@@ -1,4 +1,3 @@
-
 .audit-header {
     font-size: 32px;
     font-weight: 600;
@@ -99,21 +98,31 @@
 .modal {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 700px;
+    z-index: 1000;
 }
 
 .modal-content {
     position: relative;
     background: #fff;
-    margin: 5% auto;
     padding: 20px;
-    width: 80%;
-    max-width: 700px;
     border-radius: 5px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
+    max-height: 80vh; /* Limit modal height */
+    overflow-y: auto; /* Enable vertical scrolling */
+}
+
+.modal-content h2 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
 }
 
 .close {
@@ -138,6 +147,32 @@
     text-align: left;
     word-wrap: break-word;
     max-width: 100px;
+}
+
+/* Modal Overlay */
+.audit-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.audit-modal-overlay.active {
+    opacity: 1;
+}
+
+/* Prevent Scrolling When Modal is Active */
+body.modal-open {
+    overflow: hidden;
+    height: 100%;
 }
 
 #auditLogsTable_wrapper .dataTables_paginate .paginate_button {

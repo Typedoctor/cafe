@@ -3,18 +3,21 @@
 @section('title', 'Manage Trash')
 
 @push('styles')
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    
 @endpush
 
 @section('content')
 <head>
-    <link rel="stylesheet" href="{{ asset('css/cashier-trash.css') }}">
+   <link rel="stylesheet" href="{{ asset('css/cashier-trash.css') }}">
+  
 </head>
 <!-- Display Success/Error Messages -->
 @if (session('success'))
-    <div class="alert alert-success" style="margin: 15px; padding: 10px; background-color: #d4edda; color: #155724; border-radius: 5px;">
-        {{ session('success') }}
+    <div class="modal-overlay" data-modal-id="successModal"></div>
+    <div id="successModal" class="success-modal">
+        <div class="success-modal-content">
+            <p>{{ session('success') }}</p>
+        </div>
     </div>
 @endif
 @if (session('error'))
@@ -32,12 +35,23 @@
     </div>
 @endif
 
+@php
+    // Get all products for inventory tab
+    $products = \App\Models\Product::all();
+@endphp
+
 <!-- Add Trash Modal -->
+<div class="modal-overlay" data-modal-id="trashModal"></div>
 <div id="trashModal" class="modal">
+    <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
     <div class="modal-content">
-        <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
-        <h2 id="modalTitle" style="text-align: center;">Add New Spoilage Entry</h2>
-   
+        <!-- Sub Tabs -->
+        <div class="sub-tabs" style="display:flex;justify-content:center;gap:10px;margin-bottom:10px;">
+            <button type="button" class="sub-tab-btn active" data-source="inventory">Inventory</button>
+            <button type="button" class="sub-tab-btn" data-source="shelf">Shelfed Items</button>
+            <button type="button" class="sub-tab-btn" data-source="all">All</button>
+        </div>
+        <br>
         <!-- Category Tabs -->
         <div class="category-tabs">
             <button class="tab-btn active" data-category="snack">Snack</button>
@@ -49,34 +63,96 @@
         <form id="trashForm" method="POST" action="{{ route('trash.store') }}">
             @csrf
             <input type="hidden" name="category" id="category" value="snack">
-
+            <input type="hidden" name="source" id="source" value="inventory">
+            <label>What products are you discarding?</label>
             <div class="form-group">
-                <label>What product are you discarding?</label>
-                <select name="product_name" id="productName" required>
-                    <option value="">-- Choose a Product --</option>
-                    @if(!empty($shelfItems) && $shelfItems->count() > 0)
-                        @foreach($shelfItems as $shelfItem)
-                            <option value="{{ e(trim($shelfItem->product->product_name)) }}" 
-                                    data-price="{{ $shelfItem->price }}" 
+                <!-- Move DataTables controls here -->
+                <div class="product-table-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div id="productTable_length"></div>
+                    <div id="productTable_filter"></div>
+                </div>
+                <div class="product-table-container">
+                    <table id="productTable" class="product-table">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Price (₱)</th>
+                                <th>Stock</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody id="productTableBody">
+                            
+                            {{-- Inventory products --}}
+                            @foreach($products as $product)
+                                <tr data-source="inventory"
+                                    data-product-name="{{ e(trim($product->product_name)) }}"
+                                    data-price="{{ $product->purchase_cost }}"
+                                    data-category="{{ $product->category }}"
+                                    data-stock="{{ $product->quantity }}">
+                                    <td>{{ e(trim($product->product_name)) }}</td>
+                                    <td>{{ number_format($product->purchase_cost, 2) }}</td>
+                                    <td>{{ $product->quantity }}</td>
+                                    <td>
+                                        <button type="button" class="select-product-btn"
+                                            @if($product->quantity == 0) disabled @endif>
+                                            @if($product->quantity == 0) No Stock @else Select @endif
+                                        </button>
+                                    </td>
+                                </tr>
+                                
+                            @endforeach
+                            {{-- Shelfed items --}}
+                            @foreach($shelfItems as $shelfItem)
+                                @php
+                                    $profit = $shelfItem->price - $shelfItem->product->purchase_cost;
+                                @endphp
+                                <tr data-source="shelf"
+                                    data-product-name="{{ e(trim($shelfItem->product->product_name)) }}"
+                                    data-price="{{ $profit }}"
                                     data-category="{{ $shelfItem->product->category }}"
                                     data-stock="{{ $shelfItem->quantity_added }}">
-                                {{ e(trim($shelfItem->product->product_name)) }} (Stock: {{ $shelfItem->quantity_added }})
-                            </option>
-                        @endforeach
-                    @else
-                        <option value="" disabled>No products available</option>
-                    @endif
-                </select>
+                                    <td>{{ e(trim($shelfItem->product->product_name)) }}</td>
+                                    <td>{{ number_format($profit, 2) }}</td>
+                                    <td>{{ $shelfItem->quantity_added }}</td>
+                                    <td>
+                                        <button type="button" class="select-product-btn"
+                                            @if($shelfItem->quantity_added == 0) disabled @endif>
+                                            @if($shelfItem->quantity_added == 0) No Stock @else Select @endif
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <span id="productError" style="color: red; display: none;">Please select at least one product!</span>
             </div>
 
             <div class="form-group">
-                <label>How many items?</label>
-                <input type="number" name="quantity" id="quantity" min="1" placeholder="e.g., 5" required>
-                <span id="quantityError" style="color: red; display: none;">Insufficient stock!</span>
+                <label>Selected Products</label>
+                <div class="selected-product-table-container">
+                    <table id="selectedProductTable" class="selected-product-table">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Price (₱)</th>
+                                <th>Quantity</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4">No products selected</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="form-group">
-                <label>Why are you discarding it?</label>
+                <label>Why are you discarding these items?</label>
                 <textarea name="reason" id="reason" placeholder="e.g., Expired, Damaged" maxlength="255" required></textarea>
                 <div class="trsh-char-counter" id="charCounter">255 characters remaining</div>
                 <div id="reasonError" style="color: red; display: none;">
@@ -85,12 +161,36 @@
             </div>
             <div class="total-loss-display">
                 <label>Total Loss (₱)</label>
-                <div id="totalLossDisplay">Enter product and quantity to see total loss.</div>
+                <div id="totalLossDisplay">Select products to see total loss.</div>
             </div>
             <button type="submit" class="btn save-btn" id="saveBtn">Add</button>
         </form>
         <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 10px;">
             <i class="fa-solid fa-spinner fa-spin"></i> Saving...
+        </div>
+    </div>
+</div>
+
+<!-- Stock Limit Warning Modal -->
+<div class="modal-overlay" data-modal-id="stockLimitModal"></div>
+<div id="stockLimitModal" class="modal warning-modal">
+    <div class="modal-content warning-modal-content">
+        <span class="close-btn warning-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
+        <h2>Stock Limit Reached</h2>
+        <p id="stockLimitMessage">Cannot add more of <span id="stockLimitProduct"></span>; stock limit reached!</p>
+        <button class="btn warning-ok-btn">OK</button>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" data-modal-id="deleteConfirmModal"></div>
+<div id="deleteConfirmModal" class="modal delete-modal">
+    <div class="modal-content delete-modal-content">
+        <h2>Confirm Deletion</h2>
+        <p id="deleteConfirmMessage">Are you sure you want to delete this spoilage entry?</p>
+        <div class="delete-btn-container">
+            <button class="btn delete-cancel-btn">Cancel</button>
+            <button class="btn delete-confirm-btn">Delete</button>
         </div>
     </div>
 </div>
@@ -134,7 +234,7 @@
         </thead>
         <tbody>
             @foreach($trashes as $trash)
-            <tr>
+            <tr data-trash-id="{{ $trash->id }}">
                 <td>{{ $trash->id }}</td>
                 <td>{{ $trash->product_name }}</td>
                 <td>{{ $trash->category }}</td>
@@ -143,10 +243,7 @@
                 <td>₱{{ number_format($trash->total_loss, 2) }}</td>
                 <td>{{ $trash->created_at->format('F j Y/ g:i A') }}</td>
                 <td>
-                    <form action="{{ route('trash.destroy', $trash) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this trash entry?');">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="btn delete-btn"><i class="fa-solid fa-trash"></i></button>
-                    </form>
+                    <button type="button" class="btn delete-btn" data-trash-id="{{ $trash->id }}"><i class="fa-solid fa-trash"></i></button>
                 </td>
             </tr>
             @endforeach
@@ -160,9 +257,10 @@ function submitForm() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize DataTables
+    // Initialize DataTables for Trash Table
     const trashTable = $('#trashTable').DataTable({
         pageLength: 10,
+        lengthMenu: [10, 25, 50, 100, 250],
         responsive: true,
         searching: true,
         lengthChange: true,
@@ -182,6 +280,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Initialize DataTables for Product Table
+    const productTable = $('#productTable').DataTable({
+        pageLength: 5,
+        lengthMenu: [5, 10, 25, 50, 100,],
+        responsive: true,
+        searching: true,
+        lengthChange: true,
+        paging: true,
+        order: [[0, 'asc']],
+        columnDefs: [
+            { orderable: false, targets: 3 }
+        ],
+        language: {
+            search: "Search:",
+            lengthMenu: "Show _MENU_ entries",
+            paginate: {
+                previous: "Previous",
+                next: "Next"
+            },
+            emptyTable: "No products available."
+        }
+    });
+
+    // Success Modal Auto-Dismiss
+    const successModal = document.getElementById('successModal');
+    if (successModal) {
+        openModal("successModal");
+        setTimeout(() => {
+            closeModal("successModal");
+        }, 3000);
+    }
+
     // Character counter for reason textarea
     const reasonInput = document.getElementById('reason');
     const charCounter = document.getElementById('charCounter');
@@ -195,23 +325,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Modal and form handling
     const trashModal = document.getElementById('trashModal');
+    const stockLimitModal = document.getElementById('stockLimitModal');
+    const deleteConfirmModal = document.getElementById('deleteConfirmModal');
     const trashForm = document.getElementById('trashForm');
     const closeBtns = document.querySelectorAll('.close-btn');
     const loadingSpinner = document.getElementById('loadingSpinner');
-    const productSelect = document.getElementById('productName');
-    const quantityInput = document.getElementById('quantity');
-    const quantityError = document.getElementById('quantityError');
+    const productError = document.getElementById('productError');
     const totalLossDisplay = document.getElementById('totalLossDisplay');
     const categoryInput = document.getElementById('category');
     const tabButtons = document.querySelectorAll('.tab-btn');
+    const subTabButtons = document.querySelectorAll('.sub-tab-btn');
+    const sourceInput = document.getElementById('source');
     const saveBtn = document.getElementById('saveBtn');
-
-    // Prevent 'e' in quantity input
-    quantityInput.addEventListener('keydown', function (e) {
-        if (e.key === 'e' || e.key === 'E') {
-            e.preventDefault();
-        }
-    });
+    const selectedProductTable = document.getElementById('selectedProductTable');
+    const stockLimitProduct = document.getElementById('stockLimitProduct');
+    const warningOkBtn = document.querySelector('.warning-ok-btn');
+    const deleteConfirmBtn = document.querySelector('.delete-confirm-btn');
+    const deleteCancelBtn = document.querySelector('.delete-cancel-btn');
 
     // Restrict reason input to allowed characters
     const reasonRegex = /^[a-zA-Z\s',&À-ÿ-]+$/;
@@ -226,68 +356,251 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Store all product options
-    const allProductOptions = Array.from(productSelect.options).slice(1);
+    // Store all product rows
+    const allProductRows = Array.from(document.querySelectorAll('#productTable tbody tr'));
 
-    // Function to filter products by category
-    function filterProductsByCategory(category) {
-        while (productSelect.options.length > 1) {
-            productSelect.remove(1);
+    // Array to track selected products
+    let selectedProducts = [];
+    let currentTrashId = null;
+
+    // Modal open and close functions
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'block';
+            const overlay = document.querySelector(`.modal-overlay[data-modal-id="${modalId}"]`);
+            if (overlay) {
+                overlay.style.display = 'block';
+                setTimeout(() => overlay.classList.add('active'), 10); // Ensure transition works
+            }
+            document.body.classList.add('modal-open'); // Disable scrolling
         }
+    }
 
-        const filteredOptions = allProductOptions.filter(option => 
-            option.getAttribute('data-category') === category || !option.getAttribute('data-category')
-        );
-        filteredOptions.forEach(option => {
-            const newOption = document.createElement('option');
-            newOption.value = option.value;
-            newOption.text = option.text;
-            newOption.setAttribute('data-price', option.getAttribute('data-price'));
-            newOption.setAttribute('data-category', option.getAttribute('data-category'));
-            newOption.setAttribute('data-stock', option.getAttribute('data-stock'));
-            productSelect.appendChild(newOption);
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            const overlay = document.querySelector(`.modal-overlay[data-modal-id="${modalId}"]`);
+            if (overlay) {
+                overlay.classList.remove('active');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    modal.style.display = 'none';
+                    document.body.classList.remove('modal-open'); // Re-enable scrolling
+                }, 300); // Match the transition duration
+            } else {
+                modal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+            }
+        }
+    }
+
+    // Close modal when clicking outside
+    $(document).on('click', '.modal-overlay', function(e) {
+        if (e.target.classList.contains('modal-overlay')) {
+            const modalId = $(this).data('modal-id');
+            closeModal(modalId);
+        }
+    });
+
+    // Function to update hidden inputs for form submission
+    function updateHiddenInputs() {
+        const form = document.getElementById('trashForm');
+        form.querySelectorAll('input[name="product_names[]"], input[name="quantities[]"]').forEach(input => input.remove());
+        
+        selectedProducts.forEach(product => {
+            const nameInput = document.createElement('input');
+            nameInput.type = 'hidden';
+            nameInput.name = 'product_names[]';
+            nameInput.value = product.name;
+            form.appendChild(nameInput);
+
+            const qtyInput = document.createElement('input');
+            qtyInput.type = 'hidden';
+            qtyInput.name = 'quantities[]';
+            qtyInput.value = product.quantity;
+            form.appendChild(qtyInput);
+        });
+    }
+
+    // Function to update selected product table
+    function updateSelectedProductTable() {
+        const tbody = selectedProductTable.querySelector('tbody');
+        tbody.innerHTML = '';
+
+        if (selectedProducts.length > 0) {
+            selectedProducts.forEach((product, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.name}</td>
+                    <td>${parseFloat(product.price).toFixed(2)}</td>
+                    <td>
+                        <input type="number" class="selected-qty-input" data-index="${index}" min="1" max="${product.stock}" value="${product.quantity}" style="width:100px;">
+                        <span class="stock-info" style="font-size:11px;color:#888;">/ ${product.stock}</span>
+                    </td>
+                    <td><button type="button" class="remove-product-btn" data-index="${index}">Remove</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Quantity input event
+            tbody.querySelectorAll('.selected-qty-input').forEach(input => {
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === '.' || e.key === 'Decimal') {
+                        e.preventDefault();
+                    }
+                });
+                input.addEventListener('input', function () {
+                    const idx = parseInt(this.getAttribute('data-index'));
+                    let val = this.value;
+                    // Allow empty input for editing
+                    if (val === "") {
+                        selectedProducts[idx].quantity = "";
+                        validateQuantities();
+                        updateTotalLoss();
+                        return;
+                    }
+                    val = parseInt(val);
+                    const max = parseInt(this.max);
+                    if (isNaN(val)) {
+                        selectedProducts[idx].quantity = "";
+                    } else if (val < 1) {
+                        selectedProducts[idx].quantity = 1;
+                        this.value = 1;
+                    } else if (val > max) {
+                        selectedProducts[idx].quantity = max;
+                        this.value = max;
+                    } else {
+                        selectedProducts[idx].quantity = val;
+                    }
+                    updateTotalLoss();
+                    validateQuantities();
+                });
+            });
+
+            tbody.querySelectorAll('.remove-product-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    selectedProducts.splice(index, 1);
+                    updateSelectedProductTable();
+                    updateHiddenInputs();
+                    updateTotalLoss();
+                    validateQuantities();
+                    filterProductsByCategory(categoryInput.value, sourceInput.value);
+                });
+            });
+        } else {
+            const row = document.createElement('tr');
+            row.innerHTML = '<td colspan="4">No products selected</td>';
+            tbody.appendChild(row);
+        }
+    }
+
+    // Function to filter products by category and source
+    function filterProductsByCategory(category, source = sourceInput.value) {
+        // Remove manual row show/hide, use DataTables custom filter instead
+        productTable.search('').draw();
+
+        // Remove previous custom filter to avoid stacking
+        $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(function(fn) {
+            // Remove any previous filter for this table
+            return !fn._isProductCategorySourceFilter;
         });
 
-        productSelect.value = '';
+        // Add new custom filter
+        var customFilter = function(settings, data, dataIndex, rowData, counter) {
+            // Only apply to productTable
+            if (settings.nTable !== productTable.table().node()) return true;
+            // Get row node
+            var row = productTable.row(dataIndex).node();
+            var rowCategory = row.getAttribute('data-category');
+            var rowSource = row.getAttribute('data-source');
+            if (source === 'all') {
+                return (rowCategory === category || !rowCategory);
+            } else {
+                return (rowCategory === category || !rowCategory) && rowSource === source;
+            }
+        };
+        customFilter._isProductCategorySourceFilter = true;
+        $.fn.dataTable.ext.search.push(customFilter);
+
+        productTable.draw();
+
+        // Re-attach select button events
+        const selectButtons = document.querySelectorAll('#productTable .select-product-btn');
+        selectButtons.forEach(button => {
+            if (!button.disabled) {
+                button.removeEventListener('click', handleProductSelection);
+                button.addEventListener('click', handleProductSelection);
+            }
+        });
+
+        productError.style.display = 'none';
+    }
+
+    // Function to handle product selection
+    function handleProductSelection(event) {
+        const row = event.target.closest('tr');
+        const productName = row.getAttribute('data-product-name');
+        const price = parseFloat(row.getAttribute('data-price'));
+        const stock = parseInt(row.getAttribute('data-stock'));
+
+        const existingProduct = selectedProducts.find(p => p.name === productName);
+        if (existingProduct) {
+            if (existingProduct.quantity < stock) {
+                existingProduct.quantity += 1;
+            } else {
+                stockLimitProduct.textContent = productName;
+                openModal("stockLimitModal");
+                return;
+            }
+        } else {
+            if (stock > 0) {
+                selectedProducts.push({
+                    name: productName,
+                    price: price,
+                    quantity: 1,
+                    stock: stock
+                });
+            } else {
+                stockLimitProduct.textContent = productName;
+                openModal("stockLimitModal");
+                return;
+            }
+        }
+
+        updateSelectedProductTable();
+        updateHiddenInputs();
         updateTotalLoss();
-        quantityError.style.display = 'none';
+        validateQuantities();
+        filterProductsByCategory(categoryInput.value, sourceInput.value);
     }
 
     // Function to calculate and update total loss display
     function updateTotalLoss() {
-        const selectedOption = productSelect.options[productSelect.selectedIndex];
-        const price = selectedOption && selectedOption.getAttribute('data-price') ? parseFloat(selectedOption.getAttribute('data-price')) : 0;
-        const quantity = parseInt(quantityInput.value) || 0;
-        const totalLoss = price * quantity;
-        totalLossDisplay.textContent = totalLoss > 0 ? `₱${totalLoss.toFixed(2)}` : 'Enter product and quantity to see total loss.';
+        const totalLoss = selectedProducts.reduce((sum, product) => {
+            return sum + (product.price * product.quantity);
+        }, 0);
+        totalLossDisplay.textContent = totalLoss > 0 ? `₱${totalLoss.toFixed(2)}` : 'Select products to see total loss.';
     }
 
-    // Validate quantity against stock
-    function validateQuantity() {
-        const selectedOption = productSelect.options[productSelect.selectedIndex];
-        const stock = selectedOption && selectedOption.getAttribute('data-stock') ? parseInt(selectedOption.getAttribute('data-stock')) : 0;
-        const quantity = parseInt(quantityInput.value) || 0;
-        
-        if (quantity > stock && stock !== null) {
-            quantityError.style.display = 'block';
-            saveBtn.disabled = true;
-            return false;
-        } else {
-            quantityError.style.display = 'none';
-            saveBtn.disabled = false;
-            return true;
-        }
+    // Validate quantities against stock
+    function validateQuantities() {
+        let isValid = true;
+        selectedProducts.forEach(product => {
+            // Quantity must be a number, not empty, >=1, <=stock
+            if (
+                product.quantity === "" ||
+                isNaN(product.quantity) ||
+                product.quantity < 1 ||
+                product.quantity > product.stock
+            ) {
+                isValid = false;
+            }
+        });
+        saveBtn.disabled = !isValid || selectedProducts.length === 0;
+        return isValid;
     }
-
-    // Event listeners for real-time total loss calculation and quantity validation
-    productSelect.addEventListener('change', function () {
-        updateTotalLoss();
-        validateQuantity();
-    });
-    quantityInput.addEventListener('input', function () {
-        updateTotalLoss();
-        validateQuantity();
-    });
 
     // Tab click event
     tabButtons.forEach(button => {
@@ -297,32 +610,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const category = this.getAttribute('data-category');
             categoryInput.value = category;
-            filterProductsByCategory(category);
+            filterProductsByCategory(category, sourceInput.value);
+        });
+    });
+
+    // Sub-tab switching logic
+    subTabButtons.forEach(btn => {
+        btn.addEventListener('click', function () {
+            subTabButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const source = this.getAttribute('data-source');
+            sourceInput.value = source;
+            filterProductsByCategory(categoryInput.value, source);
         });
     });
 
     // Show modal for new trash entry
     document.getElementById('addTrashBtn').addEventListener('click', function () {
-        Array.from(productSelect.options).forEach(option => {
-            if (option.text.includes('(Not in current inventory)')) {
-                option.remove();
-            }
-        });
-
-        trashModal.style.display = 'block';
+        openModal("trashModal");
         trashForm.reset();
-        productSelect.value = '';
+        selectedProducts = [];
         categoryInput.value = 'snack';
-        totalLossDisplay.textContent = 'Enter product and quantity to see total loss.';
+        totalLossDisplay.textContent = 'Select products to see total loss.';
         loadingSpinner.style.display = 'none';
-        saveBtn.disabled = false;
-        quantityError.style.display = 'none';
+        saveBtn.disabled = true;
+        productError.style.display = 'none';
         reasonError.style.display = 'none';
         reasonInput.setCustomValidity('');
 
         tabButtons.forEach(btn => btn.classList.remove('active'));
         tabButtons[0].classList.add('active');
-        filterProductsByCategory('snack');
+        subTabButtons.forEach(btn => btn.classList.remove('active'));
+        subTabButtons[0].classList.add('active');
+        sourceInput.value = 'inventory';
+        filterProductsByCategory('snack', 'inventory');
+        updateSelectedProductTable();
+        updateHiddenInputs();
         updateTotalLoss();
     });
 
@@ -331,15 +654,15 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
 
         try {
-            const productName = document.getElementById('productName').value.trim();
-            const category = document.getElementById('category').value.trim();
-            const quantity = document.getElementById('quantity').value.trim();
-            const reason = document.getElementById('reason').value.trim();
-            const selectedOption = productSelect.options[productSelect.selectedIndex];
-            const stock = selectedOption && selectedOption.getAttribute('data-stock') ? parseInt(selectedOption.getAttribute('data-stock')) : 0;
+            const category = categoryInput.value.trim();
+            const reason = reasonInput.value.trim();
 
-            // Basic form validation
-            if (!productName || !category || !quantity || !reason) {
+            if (selectedProducts.length === 0) {
+                productError.style.display = 'block';
+                alert('Please select at least one product!');
+                return;
+            }
+            if (!category || !reason) {
                 alert('Please fill in all fields!');
                 return;
             }
@@ -350,13 +673,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            if (parseInt(quantity) > stock && stock !== null) {
-                quantityError.style.display = 'block';
-                alert('Insufficient stock! The quantity entered exceeds available stock.');
+            if (!validateQuantities()) {
+                alert('One or more products have invalid or empty quantities!');
                 return;
             }
 
-            // Proceed with form submission
             loadingSpinner.style.display = 'block';
             saveBtn.disabled = true;
             trashForm.submit();
@@ -367,17 +688,55 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Close modal
+    // Close modals
     closeBtns.forEach(btn => btn.addEventListener('click', () => {
-        trashModal.style.display = 'none';
+        closeModal(btn.closest('.modal').id);
         loadingSpinner.style.display = 'none';
-        saveBtn.disabled = false;
-        quantityError.style.display = 'none';
+        saveBtn.disabled = true;
+        productError.style.display = 'none';
         reasonError.style.display = 'none';
         reasonInput.setCustomValidity('');
+        selectedProducts = [];
+        updateSelectedProductTable();
+        updateHiddenInputs();
+        updateTotalLoss();
     }));
+
+    // Stock Limit Modal OK Button
+    warningOkBtn.addEventListener('click', () => {
+        closeModal("stockLimitModal");
+    });
+
+    // Delete Confirmation Handling
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            currentTrashId = this.getAttribute('data-trash-id');
+            openModal("deleteConfirmModal");
+        });
+    });
+
+    deleteConfirmBtn.addEventListener('click', () => {
+        if (currentTrashId) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `{{ route('trash.destroy', ':id') }}`.replace(':id', currentTrashId);
+            form.innerHTML = `
+                @csrf
+                @method('DELETE')
+            `;
+            document.body.appendChild(form);
+            form.submit();
+        }
+        closeModal("deleteConfirmModal");
+    });
+
+    deleteCancelBtn.addEventListener('click', () => {
+        closeModal("deleteConfirmModal");
+        currentTrashId = null;
+    });
 });
 </script>
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
 @endsection

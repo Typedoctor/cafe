@@ -9,65 +9,68 @@
 
 @section('content')
 
-<!-- Damaged Product Modal -->
-<div id="damagedProductModal" class="dmg-modal">
-    <div class="dmg-modal-content">
-        <span class="dmg-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
-        <h2 id="modalTitle">Report Damaged Product</h2>
-        <div id="errorMessages" class="dmg-error-messages" style="display: none;"></div>
-        <form id="damagedProductForm" method="POST">
-            @csrf
-            <input type="hidden" name="_method" id="methodField" value="POST">
-            <input type="hidden" name="id" id="damagedProductId">
-            <div class="dmg-form-group">
-                <label>Product Name:</label>
-                <input type="text" name="product_name" id="productName" required maxlength="50">
-                <small id="productNameCount">0 / 50</small>
-                <span id="productNameInvalid" class="invalid-indicator">Product name can only contain letters, spaces, apostrophes, hyphens, commas, and ampersands</span>
+<!-- Overlays for Modals -->
+<div class="dmg-modal-overlay" data-modal-id="damagedProductModal">
+    <!-- Damaged Product Modal -->
+    <div id="damagedProductModal" class="dmg-modal">
+        <div class="dmg-modal-content">
+            <span class="dmg-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
+            <h2 id="modalTitle">Report Damaged Product</h2>
+            <div id="errorMessages" class="dmg-error-messages" style="display: none;"></div>
+            <form id="damagedProductForm" method="POST">
+                @csrf
+                <input type="hidden" name="_method" id="methodField" value="POST">
+                <input type="hidden" name="id" id="damagedProductId">
+                <div class="dmg-form-group">
+                    <label>Product Name:</label>
+                    <input type="text" name="product_name" id="productName" required maxlength="50">
+                    <small id="productNameCount">0 / 50</small>
+                    <span id="productNameInvalid" class="invalid-indicator">Product name can only contain letters, spaces, apostrophes, hyphens, commas, and ampersands</span>
+                </div>
+                <div class="dmg-form-group">
+                    <label>Quantity:<br><span class="quantity-note">Must be between 1 and 9999</span></label>
+                    <input type="number" name="quantity" id="quantity" min="1" max="9999" required>
+                </div>
+                <div class="dmg-form-group">
+                    <label>Price per Item (₱):<br><span class="quantity-note">Enter the cost per unit (1 to 1200)</span></label>
+                    <input type="number" name="price_per_item" id="pricePerItem" max="1200"  required>
+                    <small id="totalCostDisplay">Total Cost: ₱0.00</small>
+                </div>
+                <div class="dmg-form-group">
+                    <label>Supplier:</label>
+                    <input type="text" name="supplier" id="supplier" required maxlength="50">
+                    <small id="supplierCount">0 / 50</small>
+                    <span id="supplierInvalid" class="invalid-indicator">Supplier can only contain letters, spaces, commas, periods, ampersands, apostrophes, and hyphens</span>
+                </div>
+                <div class="dmg-form-group">
+                    <label>Status:</label>
+                    <select name="status" id="status" required>
+                        <option value="Successfully Returned">Successfully Returned</option>
+                        <option value="Marked as Loss">Marked as Loss</option>
+                    </select>
+                </div>
+                <div class="dmg-form-group">
+                    <label>Reported At:</label>
+                    <input type="datetime-local" name="reported_at" id="reportedAt">
+                </div>
+                <div class="dmg-form-group">
+                    <label>Reason:</label>
+                    <textarea name="reason" id="reason" required maxlength="100"></textarea>
+                    <small id="reasonCount">0 / 100</small>
+                    <span id="reasonInvalid" class="invalid-indicator">Reason can only contain letters, numbers, spaces, commas, periods, parentheses, and hyphens</span>
+                </div>
+                <button type="submit" class="dmg-btn dmg-save-btn" id="SaveBtn">ADD</button>
+            </form>
+            <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 10px;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Saving...
             </div>
-            <div class="dmg-form-group">
-                <label>Quantity:<br><span class="quantity-note">Must be between 1 and 9999</span></label>
-                <input type="number" name="quantity" id="quantity" min="1" max="9999" required>
-            </div>
-            <div class="dmg-form-group">
-                <label>Price per Item (₱):<br><span class="quantity-note">Enter the cost per unit (1 to 1200)</span></label>
-                <input type="number" name="price_per_item" id="pricePerItem" max="1200" placeholder="Minimum 1" required>
-                <small id="totalCostDisplay">Total Cost: ₱0.00</small>
-            </div>
-            <div class="dmg-form-group">
-                <label>Supplier:</label>
-                <input type="text" name="supplier" id="supplier" required maxlength="50">
-                <small id="supplierCount">0 / 50</small>
-                <span id="supplierInvalid" class="invalid-indicator">Supplier can only contain letters, spaces, commas, periods, ampersands, apostrophes, and hyphens</span>
-            </div>
-            <div class="dmg-form-group">
-                <label>Status:</label>
-                <select name="status" id="status" required>
-                    <option value="Successfully Returned">Successfully Returned</option>
-                    <option value="Marked as Loss">Marked as Loss</option>
-                </select>
-            </div>
-            <div class="dmg-form-group">
-                <label>Reported At:</label>
-                <input type="datetime-local" name="reported_at" id="reportedAt">
-            </div>
-            <div class="dmg-form-group">
-                <label>Reason:</label>
-                <textarea name="reason" id="reason" required maxlength="100"></textarea>
-                <small id="reasonCount">0 / 100</small>
-                <span id="reasonInvalid" class="invalid-indicator">Reason can only contain letters, numbers, spaces, commas, periods, parentheses, and hyphens</span>
-            </div>
-            <button type="submit" class="dmg-btn dmg-save-btn" id="SaveBtn">ADD</button>
-        </form>
-        <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 10px;">
-            <i class="fa-solid fa-spinner fa-spin"></i> Saving...
         </div>
     </div>
 </div>
 
-<!-- Product Details Modal -->
-<div class="dmg-modal-overlay" id="productDetailsModal">
-    <div class="dmg-product-modal">
+<div class="dmg-modal-overlay" data-modal-id="productDetailsModal">
+    <!-- Product Details Modal -->
+    <div id="productDetailsModal" class="dmg-product-modal">
         <div class="dmg-product-header">Product Details</div>
         <div class="dmg-product-details" id="productDetails"></div>
         <div class="dmg-modal-buttons">
@@ -229,6 +232,37 @@
             const reasonInvalid = document.getElementById("reasonInvalid");
             const loadingSpinner = document.getElementById("loadingSpinner");
 
+            function openModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.style.display = 'block';
+                    const overlay = document.querySelector(`.dmg-modal-overlay[data-modal-id="${modalId}"]`);
+                    if (overlay) {
+                        overlay.style.display = 'block';
+                        setTimeout(() => overlay.classList.add('active'), 10); // Ensure transition works
+                    }
+                    document.body.classList.add('modal-open'); // Disable scrolling
+                }
+            }
+
+            function closeModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    const overlay = document.querySelector(`.dmg-modal-overlay[data-modal-id="${modalId}"]`);
+                    if (overlay) {
+                        overlay.classList.remove('active');
+                        setTimeout(() => {
+                            overlay.style.display = 'none';
+                            modal.style.display = 'none';
+                            document.body.classList.remove('modal-open'); // Re-enable scrolling
+                        }, 300); // Match the transition duration
+                    } else {
+                        modal.style.display = 'none';
+                        document.body.classList.remove('modal-open');
+                    }
+                }
+            }
+
             function showError(element, message) {
                 element.style.display = 'block';
                 element.innerHTML = message;
@@ -291,7 +325,7 @@
 
             function enforceValidPrice() {
                 pricePerItemInput.addEventListener("input", function () {
-                    let val = parseFloat(this.value) || 1;
+                    let val = parseFloat(this.value) ;
                     this.value = Math.min(Math.max(val, 1), 1200);
                     updateTotalCost();
                 });
@@ -331,7 +365,6 @@
                 modalTitle.innerText = "Report Damaged Product";
                 methodField.value = "POST";
                 damagedProductForm.action = "{{ route('damaged-products.store') }}";
-                damagedProductModal.style.display = "block";
                 SaveBtn.innerText = "ADD";
                 damagedProductForm.reset();
                 quantityInput.value = 1;
@@ -344,6 +377,7 @@
                 updateCharacterCount('reason', 'reasonCount', 100);
                 updateCharacterCount('supplier', 'supplierCount', 50);
                 updateTotalCost();
+                openModal("damagedProductModal");
             });
 
             document.querySelectorAll('.dmg-edit-btn').forEach(button => {
@@ -360,7 +394,6 @@
                     statusInput.value = this.dataset.status;
                     document.getElementById("reportedAt").value = this.dataset.reported_at;
                     SaveBtn.innerText = "UPDATE";
-                    damagedProductModal.style.display = "block";
                     clearErrors();
                     loadingSpinner.style.display = 'none';
                     SaveBtn.disabled = false;
@@ -368,12 +401,12 @@
                     updateCharacterCount('reason', 'reasonCount', 100);
                     updateCharacterCount('supplier', 'supplierCount', 50);
                     updateTotalCost();
+                    openModal("damagedProductModal");
                 });
             });
 
             // Handle row click to show product details modal
             $(document).on('click', '.dmg-product-row', function(e) {
-                // Prevent modal from opening if clicking on action buttons
                 if ($(e.target).closest('.dmg-edit-btn, .dmg-delete-btn').length) {
                     return;
                 }
@@ -392,24 +425,19 @@
                     <div class="dmg-reason-text">${product.reason}</div>
                 `;
                 $('#productDetails').html(detailsHtml);
-                $('#productDetailsModal').css('display', 'flex').addClass('active');
+                openModal("productDetailsModal");
             });
 
             // Close product details modal
             $('#closeProductModal').on('click', function() {
-                $('#productDetailsModal').removeClass('active').delay(300).queue(function(next) {
-                    $(this).css('display', 'none');
-                    next();
-                });
+                closeModal("productDetailsModal");
             });
 
             // Close product details modal when clicking outside
             $(document).on('click', '.dmg-modal-overlay', function(e) {
-                if (e.target === this) {
-                    $('#productDetailsModal').removeClass('active').delay(300).queue(function(next) {
-                        $(this).css('display', 'none');
-                        next();
-                    });
+                if (e.target.classList.contains('dmg-modal-overlay')) {
+                    const modalId = $(this).data('modal-id');
+                    closeModal(modalId);
                 }
             });
 
@@ -477,7 +505,7 @@
             });
 
             closeBtn.forEach(btn => btn.addEventListener("click", () => {
-                damagedProductModal.style.display = "none";
+                closeModal("damagedProductModal");
                 clearErrors();
                 loadingSpinner.style.display = 'none';
                 SaveBtn.disabled = false;
@@ -485,7 +513,7 @@
 
             window.addEventListener("click", event => {
                 if (event.target === damagedProductModal) {
-                    damagedProductModal.style.display = "none";
+                    closeModal("damagedProductModal");
                     clearErrors();
                     loadingSpinner.style.display = 'none';
                     SaveBtn.disabled = false;

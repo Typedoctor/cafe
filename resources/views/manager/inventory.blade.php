@@ -14,7 +14,7 @@
             font-size: 0.8em;
             margin-top: 5px;
         }
-        .product-name-error, .supplier-error, .quantity-error {
+        .product-name-error, .supplier-error, .quantity-error, .purchase-cost-error {
             border: 1px solid red;
         }
     </style>
@@ -22,6 +22,12 @@
 
 @section('content')
 
+<!-- Overlays for Modals -->
+<div class="inv-modal-overlay" data-modal-id="productModal"></div>
+<div class="inv-modal-overlay" data-modal-id="deleteModal"></div>
+<div class="inv-modal-overlay" data-modal-id="tableSuccessModal"></div>
+
+<!-- Add/Edit Product Modal -->
 <div id="productModal" class="inv-modal">
     <div class="inv-modal-content">
         <span class="inv-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -48,8 +54,8 @@
                 </select>
             </div>
             <div class="inv-form-group">
-                <label>Quantity: <span class="quantity-note">Must be between 1 and 1200</span></label>
-                <input type="number" name="quantity" id="quantity" min="1" max="1200" required>
+                <label>Quantity: <span class="quantity-note">Must be between 1 and 9999</span></label>
+                <input type="number" name="quantity" id="quantity" min="1" max="9999" required>
             </div>
             <div class="inv-form-group">
                 <label>Unit of Measurement:</label>
@@ -62,6 +68,10 @@
                 </select>
             </div>
             <div class="inv-form-group">
+                <label>Purchase Cost:</label>
+                <input type="number" name="purchase_cost" id="purchaseCost" min="0.01" step="0.01" required value="{{ old('purchase_cost', $product->purchase_cost ?? '') }}">
+            </div>
+            <div class="inv-form-group">
                 <label>Supplier:</label>
                 <input type="text" name="supplier" id="supplier" required maxlength="50" value="{{ old('supplier', $product->supplier ?? '') }}">
                 <small id="supplierCount">0 / 50</small>
@@ -72,32 +82,43 @@
     </div>
 </div>
 
-<!-- Success Modal -->
-<div id="tableSuccessModal" class="inv-modal-success">
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="inv-modal delete">
     <div class="inv-modal-content">
-        <p id="successMessage">Product saved successfully!</p>
-        <button class="inv-close-success-btn" onclick="closeModal()">Close</button>
+        <span class="inv-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
+        <h2>Confirm Deletion</h2>
+        <p>Are you sure you want to delete this product?</p>
+        <div class="delete-btn-container">
+            <button class="delete-cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+            <button class="delete-confirm-btn" id="confirmDeleteBtn">Delete</button>
+        </div>
     </div>
 </div>
-    <div class="rep-metric-container">
-        <div class="rep-metric-box">
-            <div class="rep-metric-title">Total Items in stock</div>
-            <div class="rep-metric-value">{{ $products->count() }}</div>
-        </div>
-        <div class="rep-metric-box rep-metric-box--low">
-            <div class="rep-metric-title">Low Stock Items</div>
-            <div class="rep-metric-value">{{ $products->whereBetween('quantity', [3, 5])->count() }}</div>
-        </div>
-        <div class="rep-metric-box rep-metric-box--critical">
-            <div class="rep-metric-title">Critical Stock Items</div>
-            <div class="rep-metric-value">{{ $products->where('quantity', '<=', 2)->count() }}</div>
-        </div>
-    </div>
-<div class="inv-table-container" id="transaction-table"> 
-   
-    <!-- Metric Boxes -->
 
-       <div class="inv-section-title">Products List</div>
+<!-- Success Modal -->
+<div id="tableSuccessModal" class="inv-modal-success">
+    <div class="inv-modal-success-content">
+        <p id="successMessage">Product saved successfully!</p>
+    </div>
+</div>
+
+<div class="rep-metric-container">
+    <div class="rep-metric-box">
+        <div class="rep-metric-title">Total Items in stock</div>
+        <div class="rep-metric-value">{{ $products->count() }}</div>
+    </div>
+    <div class="rep-metric-box rep-metric-box--low">
+        <div class="rep-metric-title">Low Stock Items</div>
+        <div class="rep-metric-value">{{ $products->whereBetween('quantity', [3, 5])->count() }}</div>
+    </div>
+    <div class="rep-metric-box rep-metric-box--critical">
+        <div class="rep-metric-title">Critical Stock Items</div>
+        <div class="rep-metric-value">{{ $products->where('quantity', '<=', 2)->count() }}</div>
+    </div>
+</div>
+
+<div class="inv-table-container" id="transaction-table"> 
+    <div class="inv-section-title">Products List</div>
     <div class="category-filter-wrapper">
         <div class="category-filter">
             <select id="categoryFilter">
@@ -121,6 +142,7 @@
                 <th>Category</th>
                 <th>In stock</th>
                 <th>Unit</th>
+                <th>Purchase Cost</th>
                 <th>Supplier</th>
                 <th>Actions</th>
             </tr>
@@ -133,6 +155,7 @@
                 <td title="{{ $product->category }}">{{ $product->category }}</td>
                 <td class="{{ $product->quantity <= 2 ? 'product-critical' : ($product->quantity >= 3 && $product->quantity <= 5 ? 'product-low' : '') }}">{{ $product->quantity }}</td>
                 <td>{{ $product->unit_of_measurement }}</td>
+                <td>{{ number_format($product->purchase_cost, 2) }}</td>
                 <td title="{{ $product->supplier }}">{{ $product->supplier }}</td>
                 <td>
                     <button class="inv-btn inv-edit-btn" 
@@ -141,12 +164,13 @@
                             data-category="{{ $product->category }}" 
                             data-supplier="{{ $product->supplier }}" 
                             data-quantity="{{ $product->quantity }}"
-                            data-unit-of-measurement="{{ $product->unit_of_measurement }}">
+                            data-unit-of-measurement="{{ $product->unit_of_measurement }}"
+                            data-purchase-cost="{{ $product->purchase_cost }}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
                     <button class="inv-btn inv-delete-btn" 
                             data-id="{{ $product->id }}"
-                            onclick="deleteProduct({{ $product->id }})">
+                            onclick="showDeleteModal({{ $product->id }})">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </td>
@@ -162,9 +186,48 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
-function closeModal() {
-    const tableSuccessModal = document.getElementById("tableSuccessModal");
-    tableSuccessModal.style.display = 'none';
+// Set up CSRF token for all AJAX requests
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') || ''
+    }
+});
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'block';
+        const overlay = document.querySelector(`.inv-modal-overlay[data-modal-id="${modalId}"]`);
+        if (overlay) {
+            overlay.style.display = 'block';
+        }
+        document.body.classList.add('modal-open'); // Disable scrolling
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        const overlay = document.querySelector(`.inv-modal-overlay[data-modal-id="${modalId}"]`);
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+        document.body.classList.remove('modal-open'); // Re-enable scrolling
+    }
+}
+
+function closeDeleteModal() {
+    closeModal("deleteModal");
+}
+
+function showDeleteModal(productId) {
+    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+    confirmDeleteBtn.onclick = function() {
+        deleteProduct(productId);
+        closeDeleteModal();
+    };
+    openModal("deleteModal");
 }
 
 function updateCharacterCount(inputId, countId) {
@@ -186,40 +249,45 @@ function updateMetrics() {
             $('.rep-metric-value').eq(1).text(data.lowStockItems);
             $('.rep-metric-value').eq(2).text(data.criticalStockItems);
         },
-        error: function() {
-            console.error('Failed to update metric boxes');
+        error: function(xhr) {
+            console.error('Failed to update metric boxes:', xhr.responseText);
         }
     });
 }
 
 function deleteProduct(productId) {
-    if (!confirm('Are you sure you want to delete this product?')) {
+    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+    if (!csrfToken) {
+        $('#errorMessages').css('display', 'block').html('CSRF token not found. Please refresh the page.');
+        console.error('CSRF token not found in meta tag');
         return;
     }
 
     $.ajax({
-        url: `/products/${productId}`,
+        url: "{{ url('products') }}/" + productId,
         type: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
         success: function(response) {
-            $('#tableSuccessModal').find('#successMessage').text('Product deleted successfully!');
-            $('#tableSuccessModal').css('display', 'block');
-            setTimeout(() => {
-                $('#tableSuccessModal').css('display', 'none');
-            }, 2000);
-
+            $('#tableSuccessModal').removeClass('add update delete').addClass('delete show');
+            $('#successMessage').text('Product deleted successfully!');
             let table = $('#productsTable').DataTable();
-            table.row($(`tr[data-id="${productId}"]`)).remove().draw();
+            let row = table.row($(`tr[data-id="${productId}"]`));
+            if (row.length) {
+                row.remove().draw(false);
+            }
             updateMetrics();
+            closeModal("tableSuccessModal");
         },
         error: function(xhr) {
             let errorMsg = xhr.responseJSON?.message || 'An error occurred while deleting the product.';
-            if (xhr.status === 422) {
+            if (xhr.status === 419) {
+                errorMsg = 'CSRF token mismatch. Please refresh the page and try again.';
+            } else if (xhr.status === 422) {
                 errorMsg = Object.values(xhr.responseJSON.errors || {}).flat().join('<br>');
+            } else if (xhr.status === 404) {
+                errorMsg = 'Product not found.';
             }
             $('#errorMessages').css('display', 'block').html(errorMsg);
+            console.error('Delete error:', xhr.responseText);
         }
     });
 }
@@ -227,18 +295,20 @@ function deleteProduct(productId) {
 $(document).ready(function () {
     let table = $('#productsTable').DataTable({
         pageLength: 10,
+        lengthMenu: [10, 25, 50, 100, 250, 500],
         responsive: true,
         order: [[0, 'asc']],
         autoWidth: false,
         columnDefs: [
-            { orderable: false, targets: 6 },
+            { orderable: false, targets: 7 },
             { width: '50px', targets: 0 },
             { width: '180px', targets: 1 },
             { width: '60px', targets: 2 },
             { width: '50px', targets: 3 },
             { width: '80px', targets: 4 },
-            { width: '180px', targets: 5 },
-            { width: '80px', targets: 6 }
+            { width: '80px', targets: 5 },
+            { width: '180px', targets: 6 },
+            { width: '80px', targets: 7 }
         ]
     });
 
@@ -251,7 +321,6 @@ $(document).ready(function () {
         const modalTitle = document.getElementById("modalTitle");
         const methodField = document.getElementById("methodField");
         const productForm = document.getElementById("productForm");
-        const productModal = document.getElementById("productModal");
         const SaveBtn = document.getElementById("SaveBtn");
 
         modalTitle.innerText = "Edit Product";
@@ -263,8 +332,9 @@ $(document).ready(function () {
         document.getElementById("quantity").value = Math.max(1, parseInt(this.dataset.quantity));
         document.getElementById("unitOfMeasurement").value = this.dataset.unitOfMeasurement;
         document.getElementById("supplier").value = this.dataset.supplier.replace(/[^a-zA-Z\s,.&'\-.À-ÿ]/g, '');
+        document.getElementById("purchaseCost").value = parseFloat(this.dataset.purchaseCost).toFixed(2);
         SaveBtn.innerText = "UPDATE";
-        productModal.style.display = "block";
+        openModal("productModal");
         document.getElementById("errorMessages").style.display = "none";
 
         updateCharacterCount('productName', 'productNameCount');
@@ -274,6 +344,7 @@ $(document).ready(function () {
 
 document.addEventListener("DOMContentLoaded", function () {
     const productModal = document.getElementById("productModal");
+    const deleteModal = document.getElementById("deleteModal");
     const productForm = document.getElementById("productForm");
     const modalTitle = document.getElementById("modalTitle");
     const methodField = document.getElementById("methodField");
@@ -288,13 +359,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const tableSuccessModal = document.getElementById("tableSuccessModal");
     const productNameInvalid = document.getElementById("productNameInvalid");
     const supplierInvalid = document.getElementById("supplierInvalid");
+    const purchaseCostInput = document.getElementById("purchaseCost");
 
-    function showTableSuccessModal(message) {
+    function showTableSuccessModal(message, action) {
         $('#successMessage').text(message);
-        tableSuccessModal.style.display = 'block';
+        $('#tableSuccessModal')
+            .removeClass('add update delete show')
+            .addClass(`${action}`)
+            .css({ display: 'block', opacity: 1 });
+
         setTimeout(() => {
-            tableSuccessModal.style.display = 'none';
-        }, 2000);
+            closeModal("tableSuccessModal");
+        }, 2500);
     }
 
     function showError(message) {
@@ -310,6 +386,7 @@ document.addEventListener("DOMContentLoaded", function () {
         productNameInput.classList.remove('product-name-error');
         supplierInput.classList.remove('supplier-error');
         quantityInput.classList.remove('quantity-error');
+        purchaseCostInput.classList.remove('purchase-cost-error');
     }
 
     function enforceValidProductName() {
@@ -324,8 +401,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function enforceValidQuantity() {
         quantityInput.addEventListener("input", function () {
-            let val = parseInt(this.value) || 1;
-            this.value = Math.min(Math.max(val, 1), 1200);
+            let val = parseInt(this.value);
+            this.value = Math.min(Math.max(val, 1), 9999);
         });
     }
 
@@ -336,6 +413,15 @@ document.addEventListener("DOMContentLoaded", function () {
             supplierInvalid.style.display = value === this.value ? 'none' : 'block';
             supplierInput.classList.toggle('supplier-error', value !== this.value);
             updateCharacterCount('supplier', 'supplierCount');
+        });
+    }
+
+    function enforceValidPurchaseCost() {
+        purchaseCostInput.addEventListener("input", function () {
+            let val = parseFloat(this.value);
+            if (isNaN(val) || val < 0.01) {
+                this.value = '';
+            }
         });
     }
 
@@ -351,18 +437,19 @@ document.addEventListener("DOMContentLoaded", function () {
         updateCharacterCount('supplier', 'supplierCount');
     }
 
+    if (purchaseCostInput) enforceValidPurchaseCost();
+
     document.getElementById("addStockBtn").addEventListener("click", function () {
         modalTitle.innerText = "Add New Product";
         methodField.value = "POST";
         productForm.action = "{{ route('products.store') }}";
-        productModal.style.display = "block";
         SaveBtn.innerText = "ADD";
         productForm.reset();
-        quantityInput.value = 1;
         document.getElementById("unitOfMeasurement").value = "pieces";
         clearErrors();
         updateCharacterCount('productName', 'productNameCount');
         updateCharacterCount('supplier', 'supplierCount');
+        openModal("productModal");
     });
 
     productForm.addEventListener("submit", function (event) {
@@ -374,6 +461,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const quantity = parseInt(quantityInput.value);
         const category = document.getElementById("category").value;
         const unitOfMeasurement = document.getElementById("unitOfMeasurement").value;
+        const purchaseCost = parseFloat(purchaseCostInput.value);
         let errors = [];
 
         if (!productName || !supplier || !category || !unitOfMeasurement) {
@@ -392,9 +480,14 @@ document.addEventListener("DOMContentLoaded", function () {
             supplierInvalid.style.display = 'block';
         }
 
-        if (quantity > 1200 || quantity < 1) {
-            errors.push("Quantity must be between 1 and 1200.");
+        if (quantity > 9999 || quantity < 1) {
+            errors.push("Quantity must be between 1 and 9999.");
             quantityInput.classList.add('quantity-error');
+        }
+
+        if (isNaN(purchaseCost) || purchaseCost < 0.01) {
+            errors.push("Purchase cost must be at least 0.01.");
+            purchaseCostInput.classList.add('purchase-cost-error');
         }
 
         if (errors.length > 0) {
@@ -407,7 +500,12 @@ document.addEventListener("DOMContentLoaded", function () {
             type: methodField.value === "POST" ? "POST" : "PUT",
             data: $(productForm).serialize(),
             success: function(response) {
-                showTableSuccessModal(methodField.value === "POST" ? "Product added successfully!" : "Product updated successfully!");
+                const action = methodField.value === "POST" ? "add" : "update";
+                if (!response.product || !response.product.id) {
+                    showError('Product was not saved. Please check for errors.');
+                    return;
+                }
+                showTableSuccessModal(methodField.value === "POST" ? "Product added successfully!" : "Product updated successfully!", action);
                 let table = $('#productsTable').DataTable();
                 const quantity = parseInt(response.product.quantity);
                 const stockClass = quantity <= 2 ? 'product-critical' : (quantity >= 3 && quantity <= 5 ? 'product-low' : '');
@@ -415,8 +513,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     response.product.id,
                     response.product.product_name,
                     response.product.category,
-                    `<span class="${stockClass}">${response.product.quantity}</span>`,
+                    response.product.quantity,
                     response.product.unit_of_measurement,
+                    parseFloat(response.product.purchase_cost).toFixed(2),
                     response.product.supplier,
                     `<button class="inv-btn inv-edit-btn" 
                              data-id="${response.product.id}" 
@@ -424,27 +523,37 @@ document.addEventListener("DOMContentLoaded", function () {
                              data-category="${response.product.category}" 
                              data-supplier="${response.product.supplier}" 
                              data-quantity="${response.product.quantity}"
-                             data-unit-of-measurement="${response.product.unit_of_measurement}">
+                             data-unit-of-measurement="${response.product.unit_of_measurement}"
+                             data-purchase-cost="${response.product.purchase_cost}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
                     <button class="inv-btn inv-delete-btn" 
                             data-id="${response.product.id}"
-                            onclick="deleteProduct(${response.product.id})">
+                            onclick="showDeleteModal(${response.product.id})">
                         <i class="fa-solid fa-trash"></i>
                     </button>`
                 ];
 
+                let rowNode;
                 if (methodField.value === "POST") {
-                    table.row.add(newRow).node().setAttribute('data-id', response.product.id);
-                    table.draw();
+                    rowNode = table.row.add(newRow).draw(false).node();
+                    $(rowNode).attr('data-id', response.product.id);
                 } else {
                     let row = table.row($(`tr[data-id="${response.product.id}"]`));
-                    row.data(newRow).draw();
+                    row.data(newRow).draw(false);
+                    rowNode = row.node();
                 }
 
-                productModal.style.display = "none";
+                if (rowNode) {
+                    const $td = $('td', rowNode).eq(3);
+                    $td.removeClass('product-low product-critical');
+                    if (stockClass) {
+                        $td.addClass(stockClass);
+                    }
+                }
+
+                closeModal("productModal");
                 productForm.reset();
-                quantityInput.value = 1;
                 document.getElementById("unitOfMeasurement").value = "pieces";
                 clearErrors();
                 updateCharacterCount('productName', 'productNameCount');
@@ -453,7 +562,9 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             error: function(xhr) {
                 let errorMsg = xhr.responseJSON?.message || 'An error occurred while saving the product.';
-                if (xhr.status === 422) {
+                if (xhr.status === 419) {
+                    errorMsg = 'CSRF token mismatch. Please refresh the page and try again.';
+                } else if (xhr.status === 422) {
                     errorMsg = Object.values(xhr.responseJSON.errors || {}).flat().join('<br>');
                 }
                 showError(errorMsg);
@@ -462,27 +573,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     closeBtn.addEventListener("click", () => {
-        productModal.style.display = "none";
+        closeModal("productModal");
         clearErrors();
         productForm.reset();
-        quantityInput.value = 1;
         document.getElementById("unitOfMeasurement").value = "pieces";
         updateCharacterCount('productName', 'productNameCount');
         updateCharacterCount('supplier', 'supplierCount');
     });
 
     window.addEventListener("click", event => {
-        if (event.target === productModal) {
-            productModal.style.display = "none";
+        if (event.target.classList.contains('inv-modal') || event.target.classList.contains('inv-close-btn')) {
+            closeModal(event.target.id || event.target.closest('.inv-modal').id);
             clearErrors();
             productForm.reset();
-            quantityInput.value = 1;
             document.getElementById("unitOfMeasurement").value = "pieces";
             updateCharacterCount('productName', 'productNameCount');
             updateCharacterCount('supplier', 'supplierCount');
-        }
-        if (event.target === tableSuccessModal) {
-            tableSuccessModal.style.display = "none";
         }
     });
 });

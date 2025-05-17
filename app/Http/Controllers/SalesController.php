@@ -16,8 +16,8 @@ class SalesController extends Controller
             'tab' => 'nullable|in:transactions,summary'
         ]);
 
-        $month = $request->input('month', now()->month);
-        $year = $request->input('year', now()->year);
+        $month = $request->input('month');
+        $year = $request->input('year');
         $tab = $request->input('tab', 'transactions');
         $query = Sale::select(
             'order_id',
@@ -32,8 +32,12 @@ class SalesController extends Controller
             'created_at'
         );
 
-        $query->whereMonth('created_at', $month);
-        $query->whereYear('created_at', $year);
+        if ($month) {
+            $query->whereMonth('created_at', $month);
+        }
+        if ($year) {
+            $query->whereYear('created_at', $year);
+        }
 
         $saleLogs = $query->orderBy('created_at', 'desc')->get();
 
@@ -43,8 +47,12 @@ class SalesController extends Controller
             DB::raw('SUM(total_price) as total_revenue')
         );
 
-        $summaryQuery->whereMonth('created_at', $month);
-        $summaryQuery->whereYear('created_at', $year);
+        if ($month) {
+            $summaryQuery->whereMonth('created_at', $month);
+        }
+        if ($year) {
+            $summaryQuery->whereYear('created_at', $year);
+        }
 
         $salesSummary = $summaryQuery->groupBy('product_name')
                                      ->orderBy('total_quantity_sold', 'desc')

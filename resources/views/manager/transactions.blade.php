@@ -49,7 +49,7 @@
                 <!-- Filter Button -->
                
                 <!-- Reset Button -->
-                <a href="{{ route('transactions.index') }}" class="trn-reset-btn">Reset</a>
+                <a href="{{ route('transactions.index', ['month' => \Carbon\Carbon::now()->month, 'year' => \Carbon\Carbon::now()->year]) }}" class="trn-reset-btn">Reset</a>
             </div>
         </div>
     </form>

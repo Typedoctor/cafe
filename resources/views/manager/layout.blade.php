@@ -3,6 +3,13 @@
 <head>
     <title>@yield('title')</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!--FONT AWESOME-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!--GOOGLE FONTS-->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Play&display=swap" rel="stylesheet"> 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <!--CSS-->
     <link rel="stylesheet" href="{{ asset('css/manager-dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manager-sales.css') }}">
      <link rel="stylesheet" href="{{ asset('css/datatable.css') }}">
@@ -13,7 +20,9 @@
 <div class="sidebar">
     <ul>
         <li>
-            <img src="{{ asset('icons/logo.png') }}" alt="LNU Logo" class="nav-logo">
+        <img src="{{ url('images/logo.png') }}" alt="Profile Picture" class="sidebar-logo">
+
+
            
         </li>
         <li><a href="{{ route('manager.dashboard') }}" class="active " ><i class="fa-solid fa-grip"></i>Dashboard</a></li>
@@ -31,8 +40,34 @@
 
 <div class="content">
     @yield('content')
-    <h1>this is the footer</h1>
 </div>
+
+<footer>
+    <div class="footer">
+        <div class="row">
+            <a href="#"><i class="fa fa-facebook"></i></a>
+            <a href="#"><i class="fa fa-instagram"></i></a>
+            <a href="#"><i class="fa fa-twitter"></i></a>
+            <a href="#"><i class="fa fa-reddit"></i></a>
+            <a href="#"><i class="fa fa-linkedin"></i></a>
+            <a href="#"><i class="fa fa-youtube"></i></a>
+        </div>
+
+        <div class="row">
+            <ul>
+                <li><a href="#">Contact us</a></li>
+                <li><a href="#">Our Services</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms & Conditions</a></li>
+                <li><a href="#">Support</a></li>
+            </ul>
+        </div>
+
+        <div class="row">
+             CafeCost Copyright © 2025 CafeCost. All rights reserved. 
+        </div>
+    </div>
+</footer>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {

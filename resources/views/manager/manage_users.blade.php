@@ -6,26 +6,12 @@
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="{{ asset('css/manager-user.css') }}">
-    <style>
-        .usr-form-group small {
-            display: block;
-            margin-top: 5px;
-            font-size: 0.8em;
-            color: #666;
-        }
-        .invalid-indicator {
-            display: none;
-            color: red;
-            font-size: 0.8em;
-            margin-top: 5px;
-        }
-        .name-error {
-            border: 1px solid red;
-        }
-    </style>
 @endpush
 
 @section('content')
+
+<!-- Overlay for Modal -->
+<div class="usr-modal-overlay" data-modal-id="userModal"></div>
 
 <div id="userModal" class="usr-modal">
     <span class="usr-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -122,7 +108,6 @@
     @method('PUT')
     <input type="hidden" name="is_active" id="status-value">
 </form>
-@endsection
 
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -145,7 +130,6 @@ $(document).ready(function () {
         const modalTitle = document.getElementById("modalTitle");
         const methodField = document.getElementById("methodField");
         const userForm = document.getElementById("userForm");
-        const userModal = document.getElementById("userModal");
         const saveBtn = document.getElementById("saveBtn");
         const confirmPasswordGroup = document.getElementById("confirmPasswordGroup");
         const passwordInput = document.getElementById("password");
@@ -164,11 +148,17 @@ $(document).ready(function () {
         passwordInput.required = false;
         confirmPasswordInput.required = false;
         saveBtn.innerText = "UPDATE";
-        userModal.style.display = "block";
-        document.getElementById("errorMessages").style.display = "none";
-
-        // Update character counter
+        clearErrors();
         updateCharacterCount('name', 'nameCount', 24);
+        openModal("userModal");
+    });
+
+    // Close modal when clicking outside
+    $(document).on('click', '.usr-modal-overlay', function(e) {
+        if (e.target.classList.contains('usr-modal-overlay')) {
+            const modalId = $(this).data('modal-id');
+            closeModal(modalId);
+        }
     });
 });
 
@@ -187,6 +177,37 @@ document.addEventListener("DOMContentLoaded", function () {
     const statusForm = document.getElementById("status-form");
     const statusValue = document.getElementById("status-value");
     const nameInvalid = document.getElementById("nameInvalid");
+
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'block';
+            const overlay = document.querySelector(`.usr-modal-overlay[data-modal-id="${modalId}"]`);
+            if (overlay) {
+                overlay.style.display = 'block';
+                setTimeout(() => overlay.classList.add('active'), 10); // Ensure transition works
+            }
+            document.body.classList.add('modal-open'); // Disable scrolling
+        }
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            const overlay = document.querySelector(`.usr-modal-overlay[data-modal-id="${modalId}"]`);
+            if (overlay) {
+                overlay.classList.remove('active');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    modal.style.display = 'none';
+                    document.body.classList.remove('modal-open'); // Re-enable scrolling
+                }, 300); // Match the transition duration
+            } else {
+                modal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+            }
+        }
+    }
 
     // Function to display error messages
     function showError(message) {
@@ -275,20 +296,20 @@ document.addEventListener("DOMContentLoaded", function () {
         confirmPasswordInput.required = true;
         document.getElementById("isActive").value = "1"; // Default to active for new users
         saveBtn.innerText = "ADD";
-        userModal.style.display = "block";
         userForm.reset();
         clearErrors();
         updateCharacterCount('name', 'nameCount', 24); // Reset counter
+        openModal("userModal");
     });
 
     closeBtn.addEventListener("click", () => {
-        userModal.style.display = "none";
+        closeModal("userModal");
         clearErrors();
     });
 
     window.addEventListener("click", event => {
         if (event.target === userModal) {
-            userModal.style.display = "none";
+            closeModal("userModal");
             clearErrors();
         }
     });
@@ -339,3 +360,4 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 @endpush
+@endsection
