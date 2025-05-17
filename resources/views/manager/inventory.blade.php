@@ -513,7 +513,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     response.product.id,
                     response.product.product_name,
                     response.product.category,
-                    `<span class="${stockClass}">${response.product.quantity}</span>`,
+                    response.product.quantity,
                     response.product.unit_of_measurement,
                     parseFloat(response.product.purchase_cost).toFixed(2),
                     response.product.supplier,
@@ -534,13 +534,22 @@ document.addEventListener("DOMContentLoaded", function () {
                     </button>`
                 ];
 
+                let rowNode;
                 if (methodField.value === "POST") {
-                    table.row.add(newRow).draw(false);
-                    const lastRow = $('#productsTable tbody tr').last();
-                    lastRow.attr('data-id', response.product.id);
+                    rowNode = table.row.add(newRow).draw(false).node();
+                    $(rowNode).attr('data-id', response.product.id);
                 } else {
                     let row = table.row($(`tr[data-id="${response.product.id}"]`));
                     row.data(newRow).draw(false);
+                    rowNode = row.node();
+                }
+
+                if (rowNode) {
+                    const $td = $('td', rowNode).eq(3);
+                    $td.removeClass('product-low product-critical');
+                    if (stockClass) {
+                        $td.addClass(stockClass);
+                    }
                 }
 
                 closeModal("productModal");
