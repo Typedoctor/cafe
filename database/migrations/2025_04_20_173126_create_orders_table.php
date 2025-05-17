@@ -1,0 +1,29 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('orders', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('customer_name', 255);
+            $table->text('special_instructions')->nullable();
+            $table->string('status')->default('completed');
+            $table->string('order_type', 255);
+            $table->decimal('total_price', 10, 2);
+            $table->decimal('money_received', 10, 2)->default(0.00);
+            $table->decimal('change', 10, 2)->default(0.00);
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('orders');
+    }
+};

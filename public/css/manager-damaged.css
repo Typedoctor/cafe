@@ -1,0 +1,666 @@
+.quantity-note {
+    font-size: 0.8em;
+    color: red;
+    font-style: italic;
+}
+
+.quantity-error, .product-name-error {
+    border: 2px solid red;
+}
+
+.dmg-form-group small {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.8em;
+    color: #666;
+}
+
+.invalid-indicator {
+    color: red;
+    font-size: 0.8em;
+    display: none;
+    margin-top: 5px;
+}
+
+.dmg-title {
+    font-size: 32px;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #333;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}
+
+.dmg-section-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 30px;
+    color: #333;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+}
+
+.dmg-btn {
+    background-color: #177ead;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.dmg-add-btn {
+    background-color: #3590C0;
+    margin-left: 20px;
+}
+
+.dmg-add-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
+}
+
+.dmg-save-btn {
+    background-color: #3590C0;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    border-radius: 10px;
+    border: none;
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.dmg-save-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
+}
+
+.dmg-edit-btn {
+    background-color: #3590C0;
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin: 3px;
+}
+
+.dmg-edit-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
+}
+
+.dmg-delete-btn {
+    background-color: #dc3545;
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin: 3px;
+}
+
+.dmg-delete-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
+}
+
+.dmg-table-container, .inv-table-container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    margin: 20px 0px;
+}
+
+.dmg-table, .rep-table, #damagedProductsTable {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+.dmg-table tr, .rep-table tr, #damagedProductsTable tr {
+    height: 48px;
+}
+
+.dmg-table th, .dmg-table td,
+.rep-table th, .rep-table td,
+#damagedProductsTable th, #damagedProductsTable td {
+    padding: 0.75rem;
+    text-align: left;
+    border: 1px solid #ddd;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: middle;
+    min-width: 100px;
+}
+
+/* Apply ellipsis to the first 10 columns */
+.dmg-table th:nth-child(-n+10), .dmg-table td:nth-child(-n+10),
+.rep-table th:nth-child(-n+10), .rep-table td:nth-child(-n+10),
+#damagedProductsTable th:nth-child(-n+10), #damagedProductsTable td:nth-child(-n+10) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Ensure the last column wraps and does not have ellipsis */
+.dmg-table th:last-child, .dmg-table td:last-child,
+.rep-table th:last-child, .rep-table td:last-child,
+#damagedProductsTable th:last-child, #damagedProductsTable td:last-child {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+.dmg-table th, .rep-table th, #damagedProductsTable th {
+    background-color: #10394f;
+    color: white;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    height: 48px;
+}
+
+.dmg-table tr:nth-child(even),
+.rep-table tr:nth-child(even),
+#damagedProductsTable tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.dmg-table tr:hover,
+.rep-table tr:hover,
+#damagedProductsTable tr:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+#damagedProductsTable th:nth-child(1),
+#damagedProductsTable td:nth-child(1) {
+    min-width: 10px;
+}
+
+#damagedProductsTable th:nth-child(2),
+#damagedProductsTable td:nth-child(2) {
+    min-width: 150px;
+    max-width: 180px !important;
+}
+
+#damagedProductsTable th:nth-child(3),
+#damagedProductsTable td:nth-child(3) {
+    min-width: 50px;
+    max-width: 50px !important;
+}
+
+#damagedProductsTable th:nth-child(4),
+#damagedProductsTable td:nth-child(4) {
+    min-width: 80px;
+    max-width: 80px !important;
+}
+
+#damagedProductsTable th:nth-child(5),
+#damagedProductsTable td:nth-child(5) {
+    min-width: 80px;
+    max-width: 80px !important;
+}
+
+#damagedProductsTable th:nth-child(6),
+#damagedProductsTable td:nth-child(6) {
+    min-width: 150px;
+    max-width: 180px !important;
+}
+
+#damagedProductsTable th:nth-child(7),
+#damagedProductsTable td:nth-child(7) {
+    min-width: 60px;
+    max-width: 60px !important;
+}
+
+#damagedProductsTable th:nth-child(8),
+#damagedProductsTable td:nth-child(8) {
+    min-width: 130px;
+    max-width: 150px !important;
+}
+
+#damagedProductsTable th:nth-child(9),
+#damagedProductsTable td:nth-child(9) {
+    min-width: 130px;
+    max-width: 150px !important;
+}
+
+#damagedProductsTable th:nth-child(10),
+#damagedProductsTable td:nth-child(10) {
+    min-width: 150px;
+    max-width: 180px !important;
+}
+
+#damagedProductsTable th:nth-child(11),
+#damagedProductsTable td:nth-child(11) {
+    min-width: 80px;
+    max-width: 80px !important;
+}
+
+#damagedProductsTable_wrapper .dataTables_filter input {
+    border: 1px solid #ccc;
+    padding: 6px;
+    border-radius: 4px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+#damagedProductsTable_wrapper .dataTables_filter input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+#damagedProductsTable_wrapper .dataTables_paginate .paginate_button {
+    padding: 6px 12px;
+    margin: 0 2px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+#damagedProductsTable_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+#damagedProductsTable_wrapper .dataTables_length select {
+    border: 1px solid #e0e0e0;
+    padding: 6px;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+#damagedProductsTable_wrapper .dataTables_length select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+#damagedProductsTable_wrapper .dataTables_info {
+    font-size: 16px;
+    color: #555;
+    font-family: 'Poppins', sans-serif;
+}
+
+.dmg-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: white;
+    padding: 30px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    z-index: 1000;
+}
+
+.dmg-modal-content {
+    font-size: 16px;
+    font-weight: 500;
+    color: #000000;
+    margin-bottom: 8px;
+    font-family: 'Poppins', sans-serif;
+    overflow-y: auto;
+}
+
+.dmg-close-btn {
+    margin-left: 350px;
+    cursor: pointer;
+    color: rgb(162, 5, 5);
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.dmg-modal h2 {
+    font-size: 24px;
+    margin-bottom: 25px;
+    color: #333;
+    font-weight: 600;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+}
+
+.dmg-form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.dmg-form-group label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 8px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.dmg-form-group select,
+.dmg-form-group input,
+.dmg-form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    height: 48px;
+    font-size: 16px;
+    color: #333;
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.dmg-form-group textarea {
+    height: auto;
+    min-height: 100px;
+    resize: vertical;
+}
+
+.dmg-form-group input:focus,
+.dmg-form-group textarea:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.dmg-error-messages {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.dmg-success-message {
+    background-color: #ffffff;
+    color: #1aa528;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    max-width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.dmg-header-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.dmg-tabs {
+    display: flex;
+    background-color: #10394f;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 10px;
+    width: fit-content;
+    margin-right: 20px;
+}
+
+.dmg-tab {
+    padding: 5px 10px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    align-items: center;
+}
+
+.dmg-tab.active {
+    border-bottom: 2px solid #ffffff;
+    font-weight: bold;
+}
+
+.product-name-error,
+.quantity-error,
+.price-error {
+    border: 1px solid red;
+}
+
+/* Modal Overlay */
+.dmg-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.dmg-modal-overlay.active {
+    opacity: 1;
+}
+
+/* Product Details Modal */
+.dmg-product-modal {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 550px;
+    padding: 25px;
+    box-sizing: border-box;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+    z-index: 1001;
+    font-family: 'Poppins', sans-serif;
+    max-height: 95vh;
+    overflow-y: auto;
+}
+
+.dmg-modal-overlay.active .dmg-product-modal {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+.dmg-product-header {
+    background-color: #10394f;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px 8px 0 0;
+    margin: -25px -25px 20px -25px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.dmg-product-details {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background: #f9f9f9;
+}
+
+.dmg-product-details p {
+    margin: 10px 0;
+    font-size: 16px;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+}
+
+.dmg-product-details strong {
+    color: #10394f;
+    font-weight: 600;
+}
+
+.dmg-reason-text, .dmg-supplier-text {
+    margin-left: 5px;
+    word-break: break-word;
+    max-width: 100%;
+    font-size: 16px;
+    color: #333;
+}
+
+.dmg-modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.dmg-modal-close {
+    background-color: rgb(217, 9, 9);
+    color: white;
+    padding: 12px 25px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.dmg-modal-close:hover {
+    background-color: rgb(178, 11, 11);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(178, 11, 11, 0.5);
+}
+
+/* Prevent Scrolling When Modal is Active */
+body.modal-open {
+    overflow: hidden;
+    height: 100%;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .dmg-modal {
+        width: 90%;
+        max-width: 400px;
+        padding: 20px;
+    }
+
+    .dmg-close-btn {
+        margin-left: auto;
+        display: block;
+    }
+
+    .dmg-header-row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .dmg-tabs {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .dmg-add-btn {
+        margin-left: 0;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .dmg-table-container,
+    .inv-table-container {
+        overflow-x: auto;
+    }
+
+    #damagedProductsTable th:nth-child(2),
+    #damagedProductsTable td:nth-child(2) {
+        min-width: 120px;
+        max-width: 120px !important;
+    }
+
+    #damagedProductsTable th:nth-child(6),
+    #damagedProductsTable td:nth-child(6) {
+        min-width: 120px;
+        max-width: 120px !important;
+    }
+
+    #damagedProductsTable th:nth-child(7),
+    #damagedProductsTable td:nth-child(7) {
+        min-width: 50px;
+        max-width: 50px !important;
+    }
+
+    #damagedProductsTable th:nth-child(8),
+    #damagedProductsTable td:nth-child(8) {
+        min-width: 130px;
+        max-width: 130px !important;
+    }
+
+    #damagedProductsTable th:nth-child(9),
+    #damagedProductsTable td:nth-child(9) {
+        min-width: 130px;
+        max-width: 130px !important;
+    }
+
+    #damagedProductsTable th:nth-child(10),
+    #damagedProductsTable td:nth-child(10) {
+        min-width: 50px;
+        max-width: 50px !important;
+    }
+
+    .dmg-product-modal {
+        max-width: 90%;
+        padding: 20px;
+    }
+
+    .dmg-product-header {
+        margin: -20px -20px 15px -20px;
+        font-size: 16px;
+    }
+
+    .dmg-product-details p {
+        font-size: 14px;
+    }
+
+    .dmg-reason-text, .dmg-supplier-text {
+        font-size: 14px;
+    }
+
+    .dmg-modal-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

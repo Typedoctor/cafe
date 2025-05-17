@@ -5,20 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use Maatwebsite\Excel\Facades\Excel;
+//use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransactionsExport;
 
 class ManagerTransactionController extends Controller
 {
     public function index(Request $request)
     {
-        // Get filter values
-        $month = $request->input('month', 'all');
-        $year = $request->input('year', 'all');
-        $search = $request->input('search');
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
 
-        // Start building the query
+        $month = $request->input('month', $currentMonth);
+        $year = $request->input('year', $currentYear);
+
         $query = Transaction::select(
+            'transaction_id',
             'user_id',
             'customer_name',
             'order_type',
@@ -26,6 +27,8 @@ class ManagerTransactionController extends Controller
             \DB::raw('GROUP_CONCAT(product_name) as product_names'),
             \DB::raw('SUM(quantity) as total_quantity'),
             \DB::raw('SUM(total_price) as total_price'),
+            'money_received',
+            'change', // Add change to the select statement
             'special_instructions',
             'created_at',
             'updated_at'
@@ -41,21 +44,18 @@ class ManagerTransactionController extends Controller
             $query->whereYear('created_at', $year);
         }
 
-        // Apply search filter
-        if (!empty($search)) {
-            $query->where('customer_name', 'like', '%' . $search . '%');
-        }
-
-        // Group and paginate
         $summarizedTransactions = $query->groupBy(
+            'transaction_id',
             'user_id',
             'customer_name',
             'order_type',
             'status',
             'special_instructions',
+            'money_received',
+            'change', // This can stay, but it's not strictly necessary
             'created_at',
             'updated_at'
-        )->paginate(10);
+        )->get();
 
         return view('manager.transactions', compact('summarizedTransactions'));
     }

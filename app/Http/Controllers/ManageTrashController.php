@@ -2,144 +2,164 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Trash;
+use App\Models\Spoilage;
+use App\Models\ShelfItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ManageTrashController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Trash::latest();
+        $month = $request->input('month', now()->month);
+        $year = $request->input('year', now()->year);
 
-        // Search by product name
-        if ($request->has('search')) {
-            $query->where('product_name', 'like', '%' . $request->search . '%');
-        }
+        $trashes = Spoilage::query()
+            ->when($month && $year, function ($query) use ($month, $year) {
+                return $query->whereMonth('created_at', $month)
+                             ->whereYear('created_at', $year);
+            })
+            ->latest()
+            ->get();
 
-        // Filter by category
-        if ($request->has('category') && $request->category !== 'all') {
-            $query->where('category', $request->category);
-        }
+        $shelfItems = ShelfItem::with('product')
+            ->whereHas('product')
+            ->orderBy('product_id')
+            ->get();
 
-        // Filter by month
-        if ($request->has('month') && $request->month !== 'all') {
-            $query->whereMonth('created_at', $request->month);
-        }
+        $products = Product::all();
 
-        // Filter by year
-        if ($request->has('year') && $request->year !== 'all') {
-            $query->whereYear('created_at', $request->year);
-        }
-
-        $trashes = $query->get();
-        $products = Product::orderBy('product_name')->get();
-        
-        return view('cashier.manage_trash', compact('trashes', 'products'));
-    }
-
-    public function create()
-    {
-        $products = Product::orderBy('product_name')->get();
-        return view('cashier.manage_trash', compact('products'));
+        return view('cashier.manage_trash', compact('trashes', 'shelfItems', 'products'));
     }
 
     public function store(Request $request)
     {
-        \Log::info('Store request data: ' . json_encode($request->all()));
         $validated = $request->validate([
-            'product_name' => 'required|string|max:255|exists:products,product_name',
+            'product_names' => 'required|array|min:1',
+            'product_names.*' => 'required|string',
+            'quantities' => 'required|array|min:1',
+            'quantities.*' => 'required|integer|min:1',
             'category' => 'required|string|in:snack,drink,meal,dessert',
-            'quantity' => 'required|integer|min:1',
             'reason' => 'required|string|max:255',
+            'source' => 'required|string|in:inventory,shelf,all',
         ]);
 
         try {
-            DB::transaction(function () use ($validated) {
-                $product = Product::where('product_name', $validated['product_name'])->firstOrFail();
-                if ($product->quantity < $validated['quantity']) {
-                    throw new \Exception('Not enough product quantity available.');
+            DB::transaction(function () use ($validated, $request) {
+                $productNames = $validated['product_names'];
+                $quantities = $validated['quantities'];
+                $source = $request->input('source', 'inventory');
+
+                if (count($productNames) !== count($quantities)) {
+                    throw new \Exception('Mismatch between product names and quantities.');
                 }
 
-                // Calculate total_loss
-                $validated['total_loss'] = $product->price * $validated['quantity'];
+                $errors = [];
 
-                Trash::create($validated);
-                $product->decrement('quantity', $validated['quantity']);
-            });
-        } catch (\Exception $e) {
-            return back()->withErrors(['quantity' => $e->getMessage()])->withInput();
-        }
-        
-        return redirect()->route('trash.index')
-            ->with('success', 'Trash entry added successfully!');
-    }
+                foreach ($productNames as $index => $productName) {
+                    $quantity = $quantities[$index];
+                    $category = $validated['category'];
+                    $reason = $validated['reason'];
 
-    public function edit(Trash $trash)
-    {
-        $products = Product::orderBy('product_name')->get();
-        return view('cashier.manage_trash', compact('trash', 'products'));
-    }
+                    $itemSource = $source;
+                    // If "all", determine source by checking shelf first, then inventory
+                    $shelfItem = ShelfItem::with('product')
+                        ->whereHas('product', function ($query) use ($productName) {
+                            $query->where('product_name', $productName);
+                        })
+                        ->first();
 
-    public function update(Request $request, Trash $trash)
-    {
-        \Log::info('Update request data: ' . json_encode($request->all()));
-        $validated = $request->validate([
-            'product_name' => 'required|string|max:255|exists:products,product_name',
-            'category' => 'required|string|in:snack,drink,meal,dessert',
-            'quantity' => 'required|integer|min:1',
-            'reason' => 'required|string|max:255',
-        ]);
+                    $product = Product::where('product_name', $productName)->first();
 
-        try {
-            DB::transaction(function () use ($validated, $trash) {
-                $product = Product::where('product_name', $validated['product_name'])->firstOrFail();
-                $quantityDifference = $validated['quantity'] - $trash->quantity;
+                    if ($itemSource === 'all') {
+                        if ($shelfItem && $shelfItem->quantity_added > 0) {
+                            $itemSource = 'shelf';
+                        } elseif ($product && $product->quantity > 0) {
+                            $itemSource = 'inventory';
+                        } else {
+                            $itemSource = null;
+                        }
+                    }
 
-                if ($quantityDifference > 0 && $product->quantity < $quantityDifference) {
-                    throw new \Exception('Not enough product quantity available.');
-                }
+                    if ($itemSource === 'shelf' && $shelfItem) {
+                        if ($shelfItem->quantity_added < $quantity) {
+                            $errors[] = "Not enough quantity available for '$productName' in shelf. Available: {$shelfItem->quantity_added}, Requested: $quantity.";
+                            continue;
+                        }
+                        $price = $shelfItem->price - $shelfItem->product->purchase_cost;
+                        $totalLoss = $price * $quantity;
 
-                // Calculate total_loss
-                $validated['total_loss'] = $product->price * $validated['quantity'];
+                        Spoilage::create([
+                            'product_name' => $productName,
+                            'category' => $category,
+                            'quantity' => $quantity,
+                            'reason' => $reason,
+                            'total_loss' => $totalLoss,
+                        ]);
+                        $shelfItem->decrement('quantity_added', $quantity);
+                    } elseif ($itemSource === 'inventory' && $product) {
+                        if ($product->quantity < $quantity) {
+                            $errors[] = "Not enough quantity available for '$productName' in inventory. Available: {$product->quantity}, Requested: $quantity.";
+                            continue;
+                        }
+                        $price = $product->purchase_cost;
+                        $totalLoss = $price * $quantity;
 
-                // If product_name changed, restore quantity to the old product
-                if ($trash->product_name !== $validated['product_name']) {
-                    $oldProduct = Product::where('product_name', $trash->product_name)->first();
-                    if ($oldProduct) {
-                        $oldProduct->increment('quantity', $trash->quantity);
+                        Spoilage::create([
+                            'product_name' => $productName,
+                            'category' => $category,
+                            'quantity' => $quantity,
+                            'reason' => $reason,
+                            'total_loss' => $totalLoss,
+                        ]);
+                        $product->decrement('quantity', $quantity);
+                    } else {
+                        $errors[] = "Product '$productName' not found in shelf or inventory.";
                     }
                 }
 
-                $trash->update($validated);
-                if ($quantityDifference != 0) {
-                    $product->decrement('quantity', $quantityDifference);
+                if (!empty($errors)) {
+                    throw new \Exception(implode(' ', $errors));
                 }
             });
-        } catch (\Exception $e) {
-            return back()->withErrors(['quantity' => $e->getMessage()])->withInput();
-        }
 
-        return redirect()->route('trash.index')
-            ->with('success', 'Trash entry updated successfully!');
+            return redirect()->route('trash.index', $request->only(['month', 'year']))
+                ->with('success', 'Trash entries added successfully!');
+        } catch (\Exception $e) {
+            \Log::error('Error in store transaction', ['error' => $e->getMessage()]);
+            return redirect()->route('trash.index', $request->only(['month', 'year']))
+                ->withErrors(['quantity' => $e->getMessage()])
+                ->withInput();
+        }
     }
 
-    public function destroy(Trash $trash)
+    public function destroy($id)
     {
+        $trash = Spoilage::find($id);
+        if (!$trash) {
+            return redirect()->route('trash.index')->with('error', 'Trash entry not found');
+        }
+
         try {
             DB::transaction(function () use ($trash) {
-                $product = Product::where('product_name', $trash->product_name)->first();
-                if ($product) {
-                    $product->increment('quantity', $trash->quantity);
+                $shelfItem = ShelfItem::with('product')
+                    ->whereHas('product', function ($query) use ($trash) {
+                        $query->where('product_name', $trash->product_name);
+                    })
+                    ->first();
+
+                if ($shelfItem) {
+                    $shelfItem->increment('quantity_added', $trash->quantity);
                 }
+
                 $trash->delete();
             });
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to delete trash entry.']);
+            return redirect()->route('trash.index')->with('error', 'Failed to delete trash entry');
         }
 
-        return redirect()->route('trash.index')
-            ->with('success', 'Trash entry deleted successfully!');
+        return redirect()->route('trash.index')->with('success', 'Trash entry deleted successfully and quantity restored');
     }
 }

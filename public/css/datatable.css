@@ -1,0 +1,17 @@
+.dataTables_wrapper .dataTables_filter input {
+    float: right !important;
+    border: 1px solid #000000;
+    padding: 6px;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+.dataTables_wrapper .dataTables_length {
+    float: left !important;
+    margin-bottom: 10px;
+}
+.dataTables_wrapper .dataTables_length select{
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+ }

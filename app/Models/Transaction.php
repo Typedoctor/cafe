@@ -2,11 +2,34 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use App\Traits\Auditable;
 
 class Transaction extends Model
 {
-    protected $fillable = ['customer_name','user_id', 'product_id','product_name', 'quantity', 'total_price', 'special_instructions', 'order_type', 'status'];
+    use HasFactory;
+    use Auditable;
+
+    protected $fillable = [
+        'customer_name',
+        'user_id',
+        'product_name',
+        'quantity',
+        'total_price',
+        'special_instructions',
+        'order_type',
+        'status',
+        'transaction_id',
+        'change', 
+        'money_received',
+    ];
+
+    protected $casts = [
+        'total_price' => 'decimal:2',
+    ];
 
     public function user()
     {
@@ -15,6 +38,18 @@ class Transaction extends Model
 
     public function product()
     {
-        return $this->belongsTo(Product::class,'product_id');
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($transaction) {
+            // Generate a transaction_id in the format T-YYYYMMDD-HHMMSS-XXXX
+            $timestamp = now()->format('YmdHis');
+            $random = strtoupper(Str::random(4));
+            $transaction->transaction_id = "T-{$timestamp}-{$random}";
+        });
     }
 }

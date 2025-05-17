@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Trash;
-use App\Models\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
@@ -14,68 +13,65 @@ class ThrownItems extends Seeder
      */
     public function run(): void
     {
-        // Create Product entries with quantity 0 and calculated price
-       
+        // Products from ProductSeeder
+        $products = [
+            ['name' => 'Espresso', 'category' => 'drink', 'price' => 3.50],
+            ['name' => 'Americano', 'category' => 'drink', 'price' => 3.00],
+            ['name' => 'Latte', 'category' => 'drink', 'price' => 4.00],
+            ['name' => 'Hot Chocolate', 'category' => 'drink', 'price' => 3.50],
+            ['name' => 'Iced Coffee', 'category' => 'drink', 'price' => 4.00],
+            ['name' => 'Plain Croissant', 'category' => 'snack', 'price' => 2.50],
+            ['name' => 'Chocolate Croissant', 'category' => 'snack', 'price' => 3.00],
+            ['name' => 'Blueberry Muffin', 'category' => 'snack', 'price' => 2.50],
+            ['name' => 'Cheese Danish', 'category' => 'snack', 'price' => 3.00],
+            ['name' => 'Cinnamon Roll', 'category' => 'snack', 'price' => 3.50],
+            ['name' => 'Ham and Cheese Sandwich', 'category' => 'meal', 'price' => 6.00],
+            ['name' => 'Veggie Wrap', 'category' => 'meal', 'price' => 5.50],
+            ['name' => 'Chicken Caesar Salad', 'category' => 'meal', 'price' => 7.00],
+            ['name' => 'Quiche Lorraine', 'category' => 'meal', 'price' => 6.50],
+            ['name' => 'Avocado Toast', 'category' => 'meal', 'price' => 5.00],
+            ['name' => 'Chocolate Cake', 'category' => 'dessert', 'price' => 4.00],
+            ['name' => 'Tiramisu', 'category' => 'dessert', 'price' => 4.50],
+            ['name' => 'Apple Pie', 'category' => 'dessert', 'price' => 4.00],
+            ['name' => 'Fudge Brownie', 'category' => 'dessert', 'price' => 3.00],
+            ['name' => 'Chocolate Chip Cookie', 'category' => 'dessert', 'price' => 2.00],
+        ];
 
-        Product::create([
-            'product_name' => 'Burger',
-            'category' => 'snack',
-            'quantity' => 0,
-            'price' => 100.00, // total_loss (500.00) / quantity (5) from Trash
-        ]);
+        // Reasons for throwing items
+        $reasons = ['Expired', 'Spoiled', 'Mold', 'Damaged', 'Overstock'];
 
-        Product::create([
-            'product_name' => 'King',
-            'category' => 'meal',
-            'quantity' => 0,
-            'price' => 250.00, // total_loss (500.00) / quantity (2) from Trash
-        ]);
+        // Date range: January 1, 2025, to May 6, 2025
+        $startDate = Carbon::create(2025, 1, 1);
+        $endDate = Carbon::create(2025, 5, 6);
+        $daysDiff = $startDate->diffInDays($endDate);
 
-        Product::create([
-            'product_name' => 'Cake',
-            'category' => 'dessert',
-            'quantity' => 0,
-            'price' => 150.00, // total_loss (1200.00) / quantity (8) from Trash
-        ]);
+        // Shuffle products to randomize selection
+        shuffle($products);
 
-        // Daily (today)
-        Trash::create([
-            'product_name' => 'Coffee',
-            'category' => 'drink',
-            'quantity' => 10,
-            'reason' => 'Expired',
-            'total_loss' => 1000.00,
-            'created_at' => Carbon::today(),
-        ]);
-
-        // Note: The second Coffee entry was changed to Burger to match the Product entry
-        Trash::create([
-            'product_name' => 'Burger',
-            'category' => 'snack',
-            'quantity' => 5,
-            'reason' => 'Spoiled',
-            'total_loss' => 500.00,
-            'created_at' => Carbon::today()->startOfYear(),
-        ]);
-
-        // Monthly (this month, but not today)
-        Trash::create([
-            'product_name' => 'King',
-            'category' => 'meal',
-            'quantity' => 2,
-            'reason' => 'Mold',
-            'total_loss' => 500.00,
-            'created_at' => Carbon::now()->startOfMonth(),
-        ]);
-
-        // Yearly (this year, but not this month)
-        Trash::create([
-            'product_name' => 'Cake',
-            'category' => 'dessert',
-            'quantity' => 8,
-            'reason' => 'Expired',
-            'total_loss' => 1200.00,
-            'created_at' => Carbon::now()->startOfYear(),
-        ]);
+        // Use each product only once
+        foreach ($products as $product) {
+            // Random quantity (1 to 10)
+            $quantity = rand(1, 10);
+            
+            // Calculate total loss
+            $totalLoss = $quantity * $product['price'];
+            
+            // Random reason
+            $reason = $reasons[array_rand($reasons)];
+            
+            // Random date between Jan 1 and May 6
+            $randomDays = rand(0, $daysDiff);
+            $randomDate = $startDate->copy()->addDays($randomDays);
+            
+            // Create Trash entry
+            Trash::create([
+                'product_name' => $product['name'],
+                'category' => $product['category'],
+                'quantity' => $quantity,
+                'reason' => $reason,
+                'total_loss' => $totalLoss,
+                'created_at' => $randomDate,
+            ]);
+        }
     }
 }
