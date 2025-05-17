@@ -11,9 +11,12 @@ class DatabaseSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
-        // Call the TransactionsTableSeeder to populate the transactions table
-        $this->call(TransactionsTableSeeder::class);
+        //populates the database with dummy data
+        $this->call([
+            TransactionsTableSeeder::class, //for transaction table
+            SpoilagesTableSeeder::class, //for spoilage table
+        ]);
     }
 }
