@@ -14,7 +14,8 @@ class Product extends Model
         'category',
         'quantity',
         'supplier',
-        'unit_of_measurement'
+        'unit_of_measurement',
+        'purchase_cost', // Add purchase cost
     ];
 
     public function orderItems()

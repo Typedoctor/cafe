@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('supplier'); // String for supplier name
             $table->integer('quantity'); // Integer for positive quantities
             $table->enum('unit_of_measurement', ['pieces', 'liters', 'kilograms', 'grams'])->default('pieces'); // Unit of measurement
+            $table->decimal('purchase_cost', 10, 2)->default(0); // Add purchase cost
             $table->timestamps(); // Created_at and updated_at
         });
     }

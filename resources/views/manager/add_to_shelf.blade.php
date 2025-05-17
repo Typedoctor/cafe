@@ -170,37 +170,37 @@
         <table class="shelf-items-table" id="shelfItemsTable">
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Product Name</th>
-                    <th>Price (₱)</th>
+                    <th>Price</th>
+                    <th>Purchase Cost</th>
+                    <th>Profit</th>
                     <th>Quantity Added</th>
-                    <th>Category</th>
-                    <th style="width: 150px;">Actions</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($shelfItems as $item)
-                    <tr>
-                        <td>{{ $item->id }}</td>
-                        <td>{{ $item->product->product_name }}</td>
-                        <td>{{ $item->price ? number_format($item->price, 2) : 'N/A' }}</td>
-                        <td class="{{ $item->quantity_added == 0 ? 'shelf-out-of-stock' : ($item->quantity_added <= 2 ? 'product-critical' : ($item->quantity_added >= 3 && $item->quantity_added <= 5 ? 'product-low' : '')) }}">{{ $item->quantity_added }}</td>
-                        <td>{{ $item->product->category }}</td>
-                        <td>
-                            <button type="button" class="shelf-btn shelf-edit-btn" 
-                                    data-shelf-item-id="{{ $item->id }}"
-                                    data-product-name="{{ $item->product->product_name }}"
-                                    data-quantity-added="{{ $item->quantity_added }}"
-                                    data-price="{{ $item->price ?? '' }}"
-                                    data-product-id="{{ $item->product_id }}"
-                                    data-available-stock="{{ $item->product->quantity }}">
-                                <i class="fa-solid fa-pencil"></i>
-                            </button>
-                            <button type="button" class="shelf-btn shelf-delete-btn" data-shelf-item-id="{{ $item->id }}">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>{{ $item->product->product_name }}</td>
+                    <td>₱{{ number_format($item->price, 2) }}</td>
+                    <td>₱{{ number_format($item->product->purchase_cost, 2) }}</td>
+                    <td>₱{{ number_format($item->price - $item->product->purchase_cost, 2) }}</td>
+                    <td>{{ $item->quantity_added }}</td>
+                    <td>
+                        <button type="button" class="shelf-btn shelf-edit-btn" 
+                                data-shelf-item-id="{{ $item->id }}"
+                                data-product-name="{{ $item->product->product_name }}"
+                                data-quantity-added="{{ $item->quantity_added }}"
+                                data-price="{{ $item->price ?? '' }}"
+                                data-product-id="{{ $item->product_id }}"
+                                data-available-stock="{{ $item->product->quantity }}">
+                            <i class="fa-solid fa-pencil"></i>
+                        </button>
+                        <button type="button" class="shelf-btn shelf-delete-btn" data-shelf-item-id="{{ $item->id }}">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
                 @endforeach
             </tbody>
         </table>

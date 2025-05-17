@@ -63,6 +63,10 @@
                 </select>
             </div>
             <div class="inv-form-group">
+                <label>Purchase Cost:</label>
+                <input type="number" name="purchase_cost" id="purchaseCost" min="0" step="0.01" required value="{{ old('purchase_cost', $product->purchase_cost ?? '') }}">
+            </div>
+            <div class="inv-form-group">
                 <label>Supplier:</label>
                 <input type="text" name="supplier" id="supplier" required maxlength="50" value="{{ old('supplier', $product->supplier ?? '') }}">
                 <small id="supplierCount">0 / 50</small>
@@ -133,6 +137,7 @@
                 <th>Category</th>
                 <th>In stock</th>
                 <th>Unit</th>
+                <th>Purchase Cost</th>
                 <th>Supplier</th>
                 <th>Actions</th>
             </tr>
@@ -145,6 +150,7 @@
                 <td title="{{ $product->category }}">{{ $product->category }}</td>
                 <td class="{{ $product->quantity <= 2 ? 'product-critical' : ($product->quantity >= 3 && $product->quantity <= 5 ? 'product-low' : '') }}">{{ $product->quantity }}</td>
                 <td>{{ $product->unit_of_measurement }}</td>
+                <td>{{ number_format($product->purchase_cost, 2) }}</td>
                 <td title="{{ $product->supplier }}">{{ $product->supplier }}</td>
                 <td>
                     <button class="inv-btn inv-edit-btn" 
@@ -153,7 +159,8 @@
                             data-category="{{ $product->category }}" 
                             data-supplier="{{ $product->supplier }}" 
                             data-quantity="{{ $product->quantity }}"
-                            data-unit-of-measurement="{{ $product->unit_of_measurement }}">
+                            data-unit-of-measurement="{{ $product->unit_of_measurement }}"
+                            data-purchase-cost="{{ $product->purchase_cost }}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
                     <button class="inv-btn inv-delete-btn" 
@@ -268,14 +275,15 @@ $(document).ready(function () {
         order: [[0, 'asc']],
         autoWidth: false,
         columnDefs: [
-            { orderable: false, targets: 6 },
+            { orderable: false, targets: 7 },
             { width: '50px', targets: 0 },
             { width: '180px', targets: 1 },
             { width: '60px', targets: 2 },
             { width: '50px', targets: 3 },
             { width: '80px', targets: 4 },
-            { width: '180px', targets: 5 },
-            { width: '80px', targets: 6 }
+            { width: '80px', targets: 5 },
+            { width: '180px', targets: 6 },
+            { width: '80px', targets: 7 }
         ]
     });
 
@@ -300,6 +308,7 @@ $(document).ready(function () {
         document.getElementById("quantity").value = Math.max(1, parseInt(this.dataset.quantity));
         document.getElementById("unitOfMeasurement").value = this.dataset.unitOfMeasurement;
         document.getElementById("supplier").value = this.dataset.supplier.replace(/[^a-zA-Z\s,.&'\-.À-ÿ]/g, '');
+        document.getElementById("purchaseCost").value = parseFloat(this.dataset.purchaseCost).toFixed(2);
         SaveBtn.innerText = "UPDATE";
         productModal.style.display = "block";
         document.getElementById("errorMessages").style.display = "none";
@@ -453,6 +462,10 @@ document.addEventListener("DOMContentLoaded", function () {
             data: $(productForm).serialize(),
             success: function(response) {
                 const action = methodField.value === "POST" ? "add" : "update";
+                if (!response.product || !response.product.id) {
+                    showError('Product was not saved. Please check for errors.');
+                    return;
+                }
                 showTableSuccessModal(methodField.value === "POST" ? "Product added successfully!" : "Product updated successfully!", action);
                 let table = $('#productsTable').DataTable();
                 const quantity = parseInt(response.product.quantity);
@@ -463,6 +476,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     response.product.category,
                     `<span class="${stockClass}">${response.product.quantity}</span>`,
                     response.product.unit_of_measurement,
+                    parseFloat(response.product.purchase_cost).toFixed(2),
                     response.product.supplier,
                     `<button class="inv-btn inv-edit-btn" 
                              data-id="${response.product.id}" 
@@ -470,7 +484,8 @@ document.addEventListener("DOMContentLoaded", function () {
                              data-category="${response.product.category}" 
                              data-supplier="${response.product.supplier}" 
                              data-quantity="${response.product.quantity}"
-                             data-unit-of-measurement="${response.product.unit_of_measurement}">
+                             data-unit-of-measurement="${response.product.unit_of_measurement}"
+                             data-purchase-cost="${response.product.purchase_cost}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
                     <button class="inv-btn inv-delete-btn" 
@@ -481,16 +496,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 ];
 
                 if (methodField.value === "POST") {
-                    table.row.add(newRow).node().setAttribute('data-id', response.product.id);
-                    table.draw();
+                    table.row.add(newRow).draw(false);
+                    // Set data-id attribute for the new row
+                    const lastRow = $('#productsTable tbody tr').last();
+                    lastRow.attr('data-id', response.product.id);
                 } else {
                     let row = table.row($(`tr[data-id="${response.product.id}"]`));
-                    row.data(newRow).draw();
+                    row.data(newRow).draw(false);
                 }
 
                 productModal.style.display = "none";
                 productForm.reset();
                 quantityInput.value = 1;
+                purchaseCostInput.value = "0.00";
                 document.getElementById("unitOfMeasurement").value = "pieces";
                 clearErrors();
                 updateCharacterCount('productName', 'productNameCount');

@@ -59,13 +59,13 @@
                                     @foreach ($shelfItems->where('product.category', $category) as $shelfItem)
                                         <tr>
                                             <td>{{ $shelfItem->product->product_name }}</td>
-                                            <td>₱{{ number_format($shelfItem->price, 2) }}</td>
+                                            <td>₱{{ number_format($shelfItem->price - $shelfItem->product->purchase_cost, 2) }}</td>
                                             <td class="csh-stock" data-product-id="{{ $shelfItem->product_id }}">{{ $shelfItem->quantity_added }}</td>
                                             <td>
                                                 <button type="button" class="csh-add-product-btn"
                                                         data-product-id="{{ $shelfItem->product_id }}"
                                                         data-product-name="{{ $shelfItem->product->product_name }}"
-                                                        data-product-price="{{ $shelfItem->price }}"
+                                                        data-product-price="{{ $shelfItem->price - $shelfItem->product->purchase_cost }}"
                                                         data-product-stock="{{ $shelfItem->quantity_added }}"
                                                         {{ $shelfItem->quantity_added <= 0 ? 'disabled' : '' }}>
                                                     {{ $shelfItem->quantity_added <= 0 ? 'Out of Stock' : 'Add to Order' }}
@@ -194,6 +194,14 @@
             @else
                 @foreach ($orders as $order)
                     @php
+                        $totalProfit = 0;
+                        foreach ($order->orderItems as $item) {
+                            $shelfItem = $shelfItems->firstWhere('product_id', $item->product_id);
+                            if ($shelfItem) {
+                                $profitPerItem = $shelfItem->price - $shelfItem->product->purchase_cost;
+                                $totalProfit += $profitPerItem * $item->quantity;
+                            }
+                        }
                         $productsString = '';
                         foreach ($order->orderItems as $index => $item) {
                             $productsString .= $item->quantity . ' x ' . ($item->product->product_name ?? 'N/A');
@@ -207,6 +215,7 @@
                          data-order-type="{{ $order->order_type }}"
                          data-special-instructions="{{ $order->special_instructions ?? 'None' }}"
                          data-total-price="{{ number_format($order->total_price, 2) }}"
+                         data-total-profit="{{ number_format($totalProfit, 2) }}"
                          data-time="{{ $order->created_at->format('h:i A') }}"
                          data-products="{{ $productsString }}"
                          data-money-received="{{ number_format($order->money_received, 2) }}">
@@ -223,6 +232,7 @@
                             <span class="csh-order-time">{{ $order->created_at->format('h:i A') }}</span>
                             <span class="csh-order-customer">{{ $order->customer_name }}</span>
                             <span class="csh-order-type">{{ $order->order_type }}</span>
+                            <span class="csh-order-profit">Profit: ₱{{ number_format($totalProfit, 2) }}</span>
                         </div>
                     </div>
                 @endforeach

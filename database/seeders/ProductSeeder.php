@@ -115,6 +115,7 @@ class ProductSeeder extends Seeder
                 'supplier' => Arr::random($suppliers),
                 'quantity' => $quantity,
                 'unit_of_measurement' => $unitOfMeasurement, // Add unit of measurement
+                'purchase_cost' => rand(10, 200), // Add random purchase cost for seeding
             ]);
         }
 
