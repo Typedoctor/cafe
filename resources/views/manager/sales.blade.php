@@ -1,4 +1,3 @@
-
 @extends('manager.layout')
 
 @section('title', 'Sales Log')
@@ -14,17 +13,24 @@
         <div class="sl-tab sl-transactions {{ $tab === 'transactions' ? 'active' : '' }}" onclick="showTab('transactions')">ALL TRANSACTIONS</div>
         <div class="sl-tab sl-summary {{ $tab === 'summary' ? 'active' : '' }}" onclick="showTab('summary')">SALES SUMMARY</div>
     </div>
+    @php
+        $selectedMonth = request()->has('month') ? request('month') : now()->month;
+        $selectedYear = request()->has('year') ? request('year') : now()->year;
+    @endphp
     <div class="sl-filter-box">
         <select class="sl-month-filter" name="month" onchange="submitForm()">
+            <option value="" {{ $selectedMonth === '' ? 'selected' : '' }}>All Months</option>
             @for ($m = 1; $m <= 12; $m++)
-                <option value="{{ $m }}" {{ request('month', now()->month) == $m ? 'selected' : '' }}>{{ \Carbon\Carbon::create()->month($m)->format('F') }}</option>
+                <option value="{{ $m }}" {{ (string)$selectedMonth === (string)$m ? 'selected' : '' }}>{{ \Carbon\Carbon::create()->month($m)->format('F') }}</option>
             @endfor
         </select>
         <select class="sl-year-filter" name="year" onchange="submitForm()">
+            <option value="" {{ $selectedYear === '' ? 'selected' : '' }}>All Years</option>
             @for ($y = now()->year; $y >= now()->year - 5; $y--)
-                <option value="{{ $y }}" {{ request('year', now()->year) == $y ? 'selected' : '' }}>{{ $y }}</option>
+                <option value="{{ $y }}" {{ (string)$selectedYear === (string)$y ? 'selected' : '' }}>{{ $y }}</option>
             @endfor
         </select>
+        <button type="button" class="sl-reset-btn" onclick="resetFilters()">Reset</button>
     </div>
     <input type="hidden" name="tab" id="tabInput" value="{{ $tab }}">
 </form>
@@ -221,6 +227,15 @@ function showTab(tabName) {
 }
 
 function submitForm() {
+    document.getElementById('filterForm').submit();
+}
+
+function resetFilters() {
+    const now = new Date();
+    const month = now.getMonth() + 1; // JS months are 0-based
+    const year = now.getFullYear();
+    document.querySelector('.sl-month-filter').value = month;
+    document.querySelector('.sl-year-filter').value = year;
     document.getElementById('filterForm').submit();
 }
 </script>

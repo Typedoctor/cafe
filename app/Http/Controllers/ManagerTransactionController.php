@@ -12,8 +12,11 @@ class ManagerTransactionController extends Controller
 {
     public function index(Request $request)
     {
-        $month = $request->input('month', 'all');
-        $year = $request->input('year', 'all');
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        $month = $request->input('month', $currentMonth);
+        $year = $request->input('year', $currentYear);
 
         $query = Transaction::select(
             'transaction_id',
@@ -40,8 +43,6 @@ class ManagerTransactionController extends Controller
         if ($year !== 'all') {
             $query->whereYear('created_at', $year);
         }
-
-       
 
         $summarizedTransactions = $query->groupBy(
             'transaction_id',

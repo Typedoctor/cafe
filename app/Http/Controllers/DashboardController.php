@@ -146,8 +146,8 @@ class DashboardController extends Controller
 
         // Top 3 products for chart
         $topProducts = $querySalesChart
-            ->select('product_name', \DB::raw('SUM(quantity) as total_quantity'))
-            ->groupBy('product_name')
+            ->select('product_id', \DB::raw('SUM(quantity) as total_quantity'))
+            ->groupBy('product_id')
             ->orderByDesc('total_quantity')
             ->take(3)
             ->with('product')
@@ -165,7 +165,7 @@ class DashboardController extends Controller
         foreach ($topProducts as $index => $product) {
             $productSales = [];
             foreach ($intervals as $interval) {
-                $quantity = Sale::where('product_name', $product->product_name)
+                $quantity = Sale::where('product_id', $product->product_id)
                     ->whereBetween('created_at', [$interval['start'], $interval['end']])
                     ->sum('quantity');
                 $productSales[] = $quantity ?: 0;

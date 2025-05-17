@@ -64,9 +64,13 @@
             @csrf
             <input type="hidden" name="category" id="category" value="snack">
             <input type="hidden" name="source" id="source" value="inventory">
-
+            <label>What products are you discarding?</label>
             <div class="form-group">
-                <label>What products are you discarding?</label>
+                <!-- Move DataTables controls here -->
+                <div class="product-table-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div id="productTable_length"></div>
+                    <div id="productTable_filter"></div>
+                </div>
                 <div class="product-table-container">
                     <table id="productTable" class="product-table">
                         <thead>
@@ -77,7 +81,9 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
+                        
                         <tbody id="productTableBody">
+                            
                             {{-- Inventory products --}}
                             @foreach($products as $product)
                                 <tr data-source="inventory"
@@ -95,6 +101,7 @@
                                         </button>
                                     </td>
                                 </tr>
+                                
                             @endforeach
                             {{-- Shelfed items --}}
                             @foreach($shelfItems as $shelfItem)

@@ -34,6 +34,7 @@
                 <option value="{{ $y }}" {{ request('year', now()->year) == $y ? 'selected' : '' }}>{{ $y }}</option>
             @endfor
         </select>
+        <button type="button" class="rep-reset-btn" onclick="resetFilters()">Reset Filters</button>
     </div>
     <input type="hidden" name="period" id="periodInput" value="{{ $period }}">
     <input type="hidden" name="tab" id="tabInput" value="{{ $tab }}">
@@ -834,6 +835,23 @@ function changeTimePeriod(period) {
     });
     event.target.classList.add('active');
     document.getElementById('periodInput').value = period;
+    submitForm();
+}
+
+function resetFilters() {
+    // Set tab to profit
+    document.getElementById('tabInput').value = 'profit';
+    // Set period to daily
+    document.getElementById('periodInput').value = 'daily';
+    // Set subtab to all-transactions
+    document.getElementById('subtabInput').value = 'all-transactions';
+    // Set month to current month
+    var now = new Date();
+    var currentMonth = now.getMonth() + 1;
+    var currentYear = now.getFullYear();
+    document.querySelector('.rep-month-filter').value = currentMonth;
+    document.querySelector('.rep-year-filter').value = currentYear;
+    // Submit form
     submitForm();
 }
 
