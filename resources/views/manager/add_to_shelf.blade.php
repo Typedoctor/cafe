@@ -340,6 +340,7 @@
                     overlay.style.display = 'block';
                 }
                 if (modalId === 'shelfModal') {
+                    document.body.classList.add('modal-open'); // Disable scrolling
                     const activeTab = document.querySelector('.shelf-tab-link-categ.active')?.dataset.tab;
                     if (activeTab && productTables[activeTab]) {
                         productTables[activeTab].draw();
@@ -361,6 +362,7 @@
                     overlay.style.display = 'none';
                 }
                 if (modalId === 'shelfModal') {
+                    document.body.classList.remove('modal-open'); // Re-enable scrolling
                     idx = 0;
                     $('#selected-products-body').empty();
                     initializeSelectedProductsTable();

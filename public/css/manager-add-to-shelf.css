@@ -708,6 +708,10 @@ div.dataTables_wrapper div.dataTables_length select {
 .rep-metric-box--critical .rep-metric-value {
     color: #721c24;
 }
+body.modal-open {
+    overflow: hidden;
+    height: 100%;
+}
 @media (max-width: 768px) {
     .shelf-modal {
         width: 95%;

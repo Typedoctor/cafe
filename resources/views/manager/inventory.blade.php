@@ -22,6 +22,11 @@
 
 @section('content')
 
+<!-- Overlays for Modals -->
+<div class="inv-modal-overlay" data-modal-id="productModal"></div>
+<div class="inv-modal-overlay" data-modal-id="deleteModal"></div>
+<div class="inv-modal-overlay" data-modal-id="tableSuccessModal"></div>
+
 <!-- Add/Edit Product Modal -->
 <div id="productModal" class="inv-modal">
     <div class="inv-modal-content">
@@ -80,7 +85,7 @@
 <!-- Delete Confirmation Modal -->
 <div id="deleteModal" class="inv-modal delete">
     <div class="inv-modal-content">
-        
+        <span class="inv-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
         <h2>Confirm Deletion</h2>
         <p>Are you sure you want to delete this product?</p>
         <div class="delete-btn-container">
@@ -188,21 +193,41 @@ $.ajaxSetup({
     }
 });
 
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'block';
+        const overlay = document.querySelector(`.inv-modal-overlay[data-modal-id="${modalId}"]`);
+        if (overlay) {
+            overlay.style.display = 'block';
+        }
+        document.body.classList.add('modal-open'); // Disable scrolling
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        const overlay = document.querySelector(`.inv-modal-overlay[data-modal-id="${modalId}"]`);
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+        document.body.classList.remove('modal-open'); // Re-enable scrolling
+    }
+}
+
 function closeDeleteModal() {
-    const deleteModal = document.getElementById("deleteModal");
-    deleteModal.style.display = 'none';
+    closeModal("deleteModal");
 }
 
 function showDeleteModal(productId) {
-    const deleteModal = document.getElementById("deleteModal");
     const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
-    
     confirmDeleteBtn.onclick = function() {
         deleteProduct(productId);
         closeDeleteModal();
     };
-    
-    deleteModal.style.display = 'block';
+    openModal("deleteModal");
 }
 
 function updateCharacterCount(inputId, countId) {
@@ -231,7 +256,6 @@ function updateMetrics() {
 }
 
 function deleteProduct(productId) {
-    // Verify CSRF token exists
     const csrfToken = $('meta[name="csrf-token"]').attr('content');
     if (!csrfToken) {
         $('#errorMessages').css('display', 'block').html('CSRF token not found. Please refresh the page.');
@@ -245,13 +269,13 @@ function deleteProduct(productId) {
         success: function(response) {
             $('#tableSuccessModal').removeClass('add update delete').addClass('delete show');
             $('#successMessage').text('Product deleted successfully!');
-            
             let table = $('#productsTable').DataTable();
             let row = table.row($(`tr[data-id="${productId}"]`));
             if (row.length) {
                 row.remove().draw(false);
             }
             updateMetrics();
+            closeModal("tableSuccessModal");
         },
         error: function(xhr) {
             let errorMsg = xhr.responseJSON?.message || 'An error occurred while deleting the product.';
@@ -297,7 +321,6 @@ $(document).ready(function () {
         const modalTitle = document.getElementById("modalTitle");
         const methodField = document.getElementById("methodField");
         const productForm = document.getElementById("productForm");
-        const productModal = document.getElementById("productModal");
         const SaveBtn = document.getElementById("SaveBtn");
 
         modalTitle.innerText = "Edit Product";
@@ -311,7 +334,7 @@ $(document).ready(function () {
         document.getElementById("supplier").value = this.dataset.supplier.replace(/[^a-zA-Z\s,.&'\-.À-ÿ]/g, '');
         document.getElementById("purchaseCost").value = parseFloat(this.dataset.purchaseCost).toFixed(2);
         SaveBtn.innerText = "UPDATE";
-        productModal.style.display = "block";
+        openModal("productModal");
         document.getElementById("errorMessages").style.display = "none";
 
         updateCharacterCount('productName', 'productNameCount');
@@ -342,13 +365,10 @@ document.addEventListener("DOMContentLoaded", function () {
         $('#tableSuccessModal')
             .removeClass('add update delete show')
             .addClass(`${action}`)
-            .css({ display: 'block', opacity: 1 }); // Ensure modal is visible and reset opacity
+            .css({ display: 'block', opacity: 1 });
 
-        // Set a timeout to hide the modal after animation duration (2.5s)
         setTimeout(() => {
-            $('#tableSuccessModal').css({ display: 'none' });
-            // Remove classes to reset state completely
-            $('#tableSuccessModal').removeClass('add update delete show');
+            closeModal("tableSuccessModal");
         }, 2500);
     }
 
@@ -410,7 +430,6 @@ document.addEventListener("DOMContentLoaded", function () {
         modalTitle.innerText = "Add New Product";
         methodField.value = "POST";
         productForm.action = "{{ route('products.store') }}";
-        productModal.style.display = "block";
         SaveBtn.innerText = "ADD";
         productForm.reset();
         quantityInput.value = 1;
@@ -418,6 +437,7 @@ document.addEventListener("DOMContentLoaded", function () {
         clearErrors();
         updateCharacterCount('productName', 'productNameCount');
         updateCharacterCount('supplier', 'supplierCount');
+        openModal("productModal");
     });
 
     productForm.addEventListener("submit", function (event) {
@@ -498,7 +518,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (methodField.value === "POST") {
                     table.row.add(newRow).draw(false);
-                    // Set data-id attribute for the new row
                     const lastRow = $('#productsTable tbody tr').last();
                     lastRow.attr('data-id', response.product.id);
                 } else {
@@ -506,10 +525,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     row.data(newRow).draw(false);
                 }
 
-                productModal.style.display = "none";
+                closeModal("productModal");
                 productForm.reset();
                 quantityInput.value = 1;
-                purchaseCostInput.value = "0.00";
+                document.getElementById("purchaseCost").value = "0.00";
                 document.getElementById("unitOfMeasurement").value = "pieces";
                 clearErrors();
                 updateCharacterCount('productName', 'productNameCount');
@@ -529,7 +548,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     closeBtn.addEventListener("click", () => {
-        productModal.style.display = "none";
+        closeModal("productModal");
         clearErrors();
         productForm.reset();
         quantityInput.value = 1;
@@ -539,17 +558,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     window.addEventListener("click", event => {
-        if (event.target === productModal) {
-            productModal.style.display = "none";
+        if (event.target.classList.contains('inv-modal') || event.target.classList.contains('inv-close-btn')) {
+            closeModal(event.target.id || event.target.closest('.inv-modal').id);
             clearErrors();
             productForm.reset();
             quantityInput.value = 1;
             document.getElementById("unitOfMeasurement").value = "pieces";
             updateCharacterCount('productName', 'productNameCount');
             updateCharacterCount('supplier', 'supplierCount');
-        }
-        if (event.target === deleteModal) {
-            deleteModal.style.display = "none";
         }
     });
 });
