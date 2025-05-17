@@ -20,7 +20,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'product_name' => 'required|string|max:50|unique:products,product_name',
             'category' => 'required|string|in:snack,drink,meal,dessert',
-            'quantity' => 'required|integer|min:1|max:1200',
+            'quantity' => 'required|integer|min:1|max:9999',
             'supplier' => 'required|string|max:50',
             'unit_of_measurement' => 'required|in:pieces,liters,kilograms,grams',
         ]);
@@ -63,7 +63,7 @@ class ProductController extends Controller
                 Rule::unique('products', 'product_name')->ignore($product->id),
             ],
             'category' => 'required|string|in:snack,drink,meal,dessert',
-            'quantity' => 'required|integer|min:1|max:1200',
+            'quantity' => 'required|integer|min:1|max:9999',
             'supplier' => 'required|string|max:50',
             'unit_of_measurement' => 'required|in:pieces,liters,kilograms,grams',
         ]);

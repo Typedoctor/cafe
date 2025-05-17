@@ -8,6 +8,7 @@
     <!--GOOGLE FONTS-->
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Play&display=swap" rel="stylesheet"> 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <!--CSS-->
     <link rel="stylesheet" href="{{ asset('css/manager-dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manager-sales.css') }}">
