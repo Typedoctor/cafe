@@ -130,6 +130,11 @@
     max-width: 120px; /* Date */
 }
 
+.inventory-table th:nth-child(8),
+.inventory-table td:nth-child(8) {
+    max-width: 150px; /* Actions - Increased width */
+}
+
 .product-table th:nth-child(1),
 .product-table td:nth-child(1) {
     max-width: 250px; /* Product Name */
@@ -292,11 +297,6 @@
     transform: translateY(-2px);
 }
 
-.warning-close-btn {
-    margin-left: 350px;
-    color: #856404;
-}
-
 /* Delete Confirmation Modal */
 .delete-modal {
     display: none;
@@ -358,11 +358,6 @@
 .delete-cancel-btn:hover {
     background-color: #5a6268;
     transform: translateY(-2px);
-}
-
-.delete-close-btn {
-    margin-left: 350px;
-    color: #dc3545;
 }
 
 /* Form Styles */
@@ -454,6 +449,32 @@
     background-color: #024767;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Darker overlay */
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+}
+
+/* Prevent Scrolling When Modal is Active */
+body.modal-open {
+    overflow: hidden;
+    height: 100%;
 }
 
 /* DataTables Styles */

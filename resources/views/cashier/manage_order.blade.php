@@ -232,7 +232,7 @@
                             <span class="csh-order-time">{{ $order->created_at->format('h:i A') }}</span>
                             <span class="csh-order-customer">{{ $order->customer_name }}</span>
                             <span class="csh-order-type">{{ $order->order_type }}</span>
-                            <span class="csh-order-profit">Profit: ₱{{ number_format($totalProfit, 2) }}</span>
+                            
                         </div>
                     </div>
                 @endforeach

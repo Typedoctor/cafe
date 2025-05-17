@@ -455,7 +455,7 @@
     border: 1px solid red;
 }
 
-/* Product Details Modal */
+/* Modal Overlay */
 .dmg-modal-overlay {
     display: none;
     position: fixed;
@@ -463,8 +463,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 1000;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
     justify-content: center;
     align-items: center;
     opacity: 0;
@@ -475,6 +475,7 @@
     opacity: 1;
 }
 
+/* Product Details Modal */
 .dmg-product-modal {
     background: #fff;
     border-radius: 12px;
@@ -562,6 +563,13 @@
     box-shadow: 0 4px 12px rgba(178, 11, 11, 0.5);
 }
 
+/* Prevent Scrolling When Modal is Active */
+body.modal-open {
+    overflow: hidden;
+    height: 100%;
+}
+
+/* Responsive Styles */
 @media (max-width: 768px) {
     .dmg-modal {
         width: 90%;

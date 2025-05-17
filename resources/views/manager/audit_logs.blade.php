@@ -9,7 +9,6 @@
 
 @section('content')
 
-
     <!-- Display validation errors -->
     @if ($errors->any())
         <div class="alert alert-danger">
@@ -110,14 +109,18 @@
         </table>
     </div>
 
+    <!-- Overlay for Modal -->
+    <div class="audit-modal-overlay" data-modal-id="changesModal"></div>
+
     <!-- Changes Modal -->
     <div id="changesModal" class="modal">
         <div class="modal-content">
             <span class="close">×</span>
-            <h2 id="modalTitle" style="text-align:center;">Changes</h2>
+            <h2 id="modalTitle">Changes</h2>
             <div id="changesContent"></div>
         </div>
     </div>
+
 @endsection
 
 @push('scripts')
@@ -139,6 +142,14 @@
                     }
                 }
             });
+
+            // Close modal when clicking outside
+            $(document).on('click', '.audit-modal-overlay', function(e) {
+                if (e.target.classList.contains('audit-modal-overlay')) {
+                    const modalId = $(this).data('modal-id');
+                    closeModal(modalId);
+                }
+            });
         });
 
         // Modal handling
@@ -147,13 +158,44 @@
         const changesContent = document.getElementById('changesContent');
         const modalTitle = document.getElementById('modalTitle');
 
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                const overlay = document.querySelector(`.audit-modal-overlay[data-modal-id="${modalId}"]`);
+                if (overlay) {
+                    overlay.style.display = 'block';
+                    setTimeout(() => overlay.classList.add('active'), 10); // Ensure transition works
+                }
+                document.body.classList.add('modal-open'); // Disable scrolling
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                const overlay = document.querySelector(`.audit-modal-overlay[data-modal-id="${modalId}"]`);
+                if (overlay) {
+                    overlay.classList.remove('active');
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        modal.style.display = 'none';
+                        document.body.classList.remove('modal-open'); // Re-enable scrolling
+                    }, 300); // Match the transition duration
+                } else {
+                    modal.style.display = 'none';
+                    document.body.classList.remove('modal-open');
+                }
+            }
+        }
+
         closeBtn.onclick = function() {
-            modal.style.display = "none";
+            closeModal("changesModal");
         }
 
         window.onclick = function(event) {
             if (event.target == modal) {
-                modal.style.display = "none";
+                closeModal("changesModal");
             }
         }
 
@@ -183,7 +225,7 @@
             }
             content += '</table>';
             changesContent.innerHTML = content;
-            modal.style.display = "block";
+            openModal("changesModal");
         }
 
         function showNewRecord(values, userName) {
@@ -195,7 +237,7 @@
             }
             content += '</table>';
             changesContent.innerHTML = content;
-            modal.style.display = "block";
+            openModal("changesModal");
         }
 
         function showDeletedRecord(values, userName) {
@@ -207,7 +249,7 @@
             }
             content += '</table>';
             changesContent.innerHTML = content;
-            modal.style.display = "block";
+            openModal("changesModal");
         }
     </script>
 @endpush

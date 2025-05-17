@@ -3,16 +3,17 @@
 @section('title', 'Manage Trash')
 
 @push('styles')
-
+    
 @endpush
 
 @section('content')
-
- <head>
-    <link rel="stylesheet" href="{{ asset('css/cashier-trash.css') }}">
-</head> 
+<head>
+   <link rel="stylesheet" href="{{ asset('css/cashier-trash.css') }}">
+  
+</head>
 <!-- Display Success/Error Messages -->
 @if (session('success'))
+    <div class="modal-overlay" data-modal-id="successModal"></div>
     <div id="successModal" class="success-modal">
         <div class="success-modal-content">
             <p>{{ session('success') }}</p>
@@ -38,13 +39,13 @@
     // Get all products for inventory tab
     $products = \App\Models\Product::all();
 @endphp
+
 <!-- Add Trash Modal -->
+<div class="modal-overlay" data-modal-id="trashModal"></div>
 <div id="trashModal" class="modal">
-     <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
+    <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
     <div class="modal-content">
-       
-        
-           <!-- Sub Tabs -->
+        <!-- Sub Tabs -->
         <div class="sub-tabs" style="display:flex;justify-content:center;gap:10px;margin-bottom:10px;">
             <button type="button" class="sub-tab-btn active" data-source="inventory">Inventory</button>
             <button type="button" class="sub-tab-btn" data-source="shelf">Shelfed Items</button>
@@ -52,7 +53,6 @@
         </div>
         <br>
         <!-- Category Tabs -->
-       
         <div class="category-tabs">
             <button class="tab-btn active" data-category="snack">Snack</button>
             <button class="tab-btn" data-category="drink">Drink</button>
@@ -165,6 +165,7 @@
 </div>
 
 <!-- Stock Limit Warning Modal -->
+<div class="modal-overlay" data-modal-id="stockLimitModal"></div>
 <div id="stockLimitModal" class="modal warning-modal">
     <div class="modal-content warning-modal-content">
         <span class="close-btn warning-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
@@ -175,9 +176,9 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
+<div class="modal-overlay" data-modal-id="deleteConfirmModal"></div>
 <div id="deleteConfirmModal" class="modal delete-modal">
     <div class="modal-content delete-modal-content">
-       
         <h2>Confirm Deletion</h2>
         <p id="deleteConfirmMessage">Are you sure you want to delete this spoilage entry?</p>
         <div class="delete-btn-container">
@@ -296,10 +297,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Success Modal Auto-Dismiss
     const successModal = document.getElementById('successModal');
     if (successModal) {
-        successModal.classList.add('show');
+        openModal("successModal");
         setTimeout(() => {
-            successModal.classList.remove('show');
-            successModal.style.display = 'none';
+            closeModal("successModal");
         }, 3000);
     }
 
@@ -353,6 +353,46 @@ document.addEventListener('DOMContentLoaded', function () {
     // Array to track selected products
     let selectedProducts = [];
     let currentTrashId = null;
+
+    // Modal open and close functions
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'block';
+            const overlay = document.querySelector(`.modal-overlay[data-modal-id="${modalId}"]`);
+            if (overlay) {
+                overlay.style.display = 'block';
+                setTimeout(() => overlay.classList.add('active'), 10); // Ensure transition works
+            }
+            document.body.classList.add('modal-open'); // Disable scrolling
+        }
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            const overlay = document.querySelector(`.modal-overlay[data-modal-id="${modalId}"]`);
+            if (overlay) {
+                overlay.classList.remove('active');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    modal.style.display = 'none';
+                    document.body.classList.remove('modal-open'); // Re-enable scrolling
+                }, 300); // Match the transition duration
+            } else {
+                modal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+            }
+        }
+    }
+
+    // Close modal when clicking outside
+    $(document).on('click', '.modal-overlay', function(e) {
+        if (e.target.classList.contains('modal-overlay')) {
+            const modalId = $(this).data('modal-id');
+            closeModal(modalId);
+        }
+    });
 
     // Function to update hidden inputs for form submission
     function updateHiddenInputs() {
@@ -455,7 +495,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 existingProduct.quantity += 1;
             } else {
                 stockLimitProduct.textContent = productName;
-                stockLimitModal.style.display = 'block';
+                openModal("stockLimitModal");
                 return;
             }
         } else {
@@ -468,7 +508,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             } else {
                 stockLimitProduct.textContent = productName;
-                stockLimitModal.style.display = 'block';
+                openModal("stockLimitModal");
                 return;
             }
         }
@@ -525,7 +565,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Show modal for new trash entry
     document.getElementById('addTrashBtn').addEventListener('click', function () {
-        trashModal.style.display = 'block';
+        openModal("trashModal");
         trashForm.reset();
         selectedProducts = [];
         categoryInput.value = 'snack';
@@ -588,9 +628,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Close modals
     closeBtns.forEach(btn => btn.addEventListener('click', () => {
-        trashModal.style.display = 'none';
-        stockLimitModal.style.display = 'none';
-        deleteConfirmModal.style.display = 'none';
+        closeModal(btn.closest('.modal').id);
         loadingSpinner.style.display = 'none';
         saveBtn.disabled = true;
         productError.style.display = 'none';
@@ -604,14 +642,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Stock Limit Modal OK Button
     warningOkBtn.addEventListener('click', () => {
-        stockLimitModal.style.display = 'none';
+        closeModal("stockLimitModal");
     });
 
     // Delete Confirmation Handling
     document.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', function () {
             currentTrashId = this.getAttribute('data-trash-id');
-            deleteConfirmModal.style.display = 'block';
+            openModal("deleteConfirmModal");
         });
     });
 
@@ -627,11 +665,11 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.appendChild(form);
             form.submit();
         }
-        deleteConfirmModal.style.display = 'none';
+        closeModal("deleteConfirmModal");
     });
 
     deleteCancelBtn.addEventListener('click', () => {
-        deleteConfirmModal.style.display = 'none';
+        closeModal("deleteConfirmModal");
         currentTrashId = null;
     });
 });
