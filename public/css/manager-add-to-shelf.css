@@ -340,35 +340,95 @@ div.dataTables_wrapper div.dataTables_length select {
     color: #333 !important;
     transition: all 0.3s ease !important;
 }
-.shelf-modal-success {
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -60%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+}
+@keyframes fadeOut {
+    from { opacity: 1; transform: translate(-50%, -50%); }
+    to { opacity: 0; transform: translate(-50%, -60%); }
+}
+.confirm-deletion-modal {
     display: none;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 200px;
-    max-height: 80vh;
-    background: rgb(4, 186, 150);
-    padding: 30px;
-    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
+    width: 400px;
+    background: #fff;
+    padding: 20px;
     border-radius: 12px;
-    z-index: 1000;
-    overflow-y: auto;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1001;
+    border-left: 5px solid #dc3545;
+    animation: fadeIn 0.5s ease-in-out;
 }
+.confirm-deletion-modal h2 {
+    font-size: 20px;
+    color: #dc3545;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+.confirm-deletion-modal p {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 20px;
+}
+.confirm-deletion-modal .modal-btn {
+    padding: 8px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 0 5px;
+}
+.confirm-deletion-modal .cancel-btn {
+    background-color: #6c757d;
+    color: white;
+}
+.confirm-deletion-modal .delete-btn {
+    background-color: #dc3545;
+    color: white;
+}
+.confirm-deletion-modal .cancel-btn:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+.confirm-deletion-modal .delete-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+.shelf-modal-success,
 .shelf-delete-modal-success {
     display: none;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 200px;
-    max-height: 80vh;
-    background: rgb(220, 53, 69);
-    padding: 30px;
-    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
+    width: 400px;
+    background: #4CAF50;
+    color: white;
+    padding: 20px;
     border-radius: 12px;
-    z-index: 1000;
-    overflow-y: auto;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1001;
+    animation: fadeIn 0.5s ease-in-out;
+}
+.shelf-delete-modal-success {
+    background-color: #dc3545;
+}
+.shelf-modal-success.show,
+.shelf-delete-modal-success.show {
+    display: block;
+    animation: fadeOut 0.5s ease-in-out 2.5s forwards;
+}
+.shelf-modal-success p,
+.shelf-delete-modal-success p {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+    text-align: center;
+    padding: 5px 0; /* Ensure padding to make text visible */
 }
 .shelf-modal {
     display: none;
@@ -407,19 +467,6 @@ div.dataTables_wrapper div.dataTables_length select {
     text-align: center;
     font-family: 'Poppins', sans-serif;
 }
-.shelf-modal-content,
-.shelf-delete-modal-content {
-    align-items: center !important;
-    font-size: 16px;
-    font-weight: 500;
-    color: #ffffff;
-    margin-bottom: 8px;
-    font-family: 'Poppins', sans-serif;
-    position: relative;
-    padding-top: 30px;
-    max-width: 100%;
-    overflow-x: hidden;
-}
 .shelf-add-modal-content,
 .shelf-edit-modal-content {
     align-items: center !important;
@@ -454,29 +501,6 @@ div.dataTables_wrapper div.dataTables_length select {
     color: rgb(162, 5, 5);
     font-size: 18px;
     font-weight: bold;
-}
-.shelf-close-success-btn,
-.shelf-close-delete-success-btn {
-    background-color: #ebf0f4;
-    color: rgb(47, 40, 40);
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: 500;
-    font-family: 'Poppins', sans-serif;
-    cursor: pointer;
-    border-radius: 10px;
-    border: none;
-    justify-content: center;
-    width: 100px;
-    text-align: center;
-    margin: 20px auto;
-    display: block;
-}
-.shelf-close-success-btn:hover,
-.shelf-close-delete-success-btn:hover {
-    background-color: #5a6268;
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.5);
 }
 .shelf-form-input {
     width: 100%;
@@ -590,8 +614,6 @@ div.dataTables_wrapper div.dataTables_length select {
 .shelf-form-input.quantity-error {
     border: 2px solid red !important;
 }
-
-/* Metric Box Styles */
 .rep-metric-container {
     display: flex;
     justify-content: center;
@@ -610,11 +632,11 @@ div.dataTables_wrapper div.dataTables_length select {
     min-width: 150px;
 }
 .rep-metric-box--low {
-    background-color: #fff3cd; /* Yellow background for Low Stock Items */
+    background-color: #fff3cd;
     color: #856404;
 }
 .rep-metric-box--critical {
-    background-color: #f8d7da; /* Red background for Critical Stock Items */
+    background-color: #f8d7da;
     color: #721c24;
 }
 .rep-metric-title {
@@ -626,7 +648,7 @@ div.dataTables_wrapper div.dataTables_length select {
 }
 .rep-metric-box--low .rep-metric-title,
 .rep-metric-box--critical .rep-metric-title {
-    color: #333; /* Keep title color consistent for readability */
+    color: #333;
 }
 .rep-metric-value {
     font-size: 24px;
@@ -634,12 +656,11 @@ div.dataTables_wrapper div.dataTables_length select {
     color: #10394f;
 }
 .rep-metric-box--low .rep-metric-value {
-    color: #856404; /* Match text color to low stock for consistency */
+    color: #856404;
 }
 .rep-metric-box--critical .rep-metric-value {
-    color: #721c24; /* Match text color to critical stock for consistency */
+    color: #721c24;
 }
-
 @media (max-width: 768px) {
     .shelf-modal {
         width: 95%;
@@ -690,5 +711,14 @@ div.dataTables_wrapper div.dataTables_length select {
         width: 100%;
         max-width: 300px;
         margin: 10px 0;
+    }
+    .confirm-deletion-modal {
+        width: 90%;
+        max-width: 300px;
+    }
+    .shelf-modal-success,
+    .shelf-delete-modal-success {
+        width: 90%;
+        max-width: 250px;
     }
 }
