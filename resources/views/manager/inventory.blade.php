@@ -14,7 +14,7 @@
             font-size: 0.8em;
             margin-top: 5px;
         }
-        .product-name-error, .supplier-error, .quantity-error {
+        .product-name-error, .supplier-error, .quantity-error, .purchase-cost-error {
             border: 1px solid red;
         }
     </style>
@@ -69,7 +69,7 @@
             </div>
             <div class="inv-form-group">
                 <label>Purchase Cost:</label>
-                <input type="number" name="purchase_cost" id="purchaseCost" min="0" step="0.01" required value="{{ old('purchase_cost', $product->purchase_cost ?? '') }}">
+                <input type="number" name="purchase_cost" id="purchaseCost" min="0.01" step="0.01" required value="{{ old('purchase_cost', $product->purchase_cost ?? '') }}">
             </div>
             <div class="inv-form-group">
                 <label>Supplier:</label>
@@ -359,6 +359,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const tableSuccessModal = document.getElementById("tableSuccessModal");
     const productNameInvalid = document.getElementById("productNameInvalid");
     const supplierInvalid = document.getElementById("supplierInvalid");
+    const purchaseCostInput = document.getElementById("purchaseCost");
 
     function showTableSuccessModal(message, action) {
         $('#successMessage').text(message);
@@ -385,6 +386,7 @@ document.addEventListener("DOMContentLoaded", function () {
         productNameInput.classList.remove('product-name-error');
         supplierInput.classList.remove('supplier-error');
         quantityInput.classList.remove('quantity-error');
+        purchaseCostInput.classList.remove('purchase-cost-error');
     }
 
     function enforceValidProductName() {
@@ -399,7 +401,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function enforceValidQuantity() {
         quantityInput.addEventListener("input", function () {
-            let val = parseInt(this.value) || 1;
+            let val = parseInt(this.value);
             this.value = Math.min(Math.max(val, 1), 9999);
         });
     }
@@ -411,6 +413,15 @@ document.addEventListener("DOMContentLoaded", function () {
             supplierInvalid.style.display = value === this.value ? 'none' : 'block';
             supplierInput.classList.toggle('supplier-error', value !== this.value);
             updateCharacterCount('supplier', 'supplierCount');
+        });
+    }
+
+    function enforceValidPurchaseCost() {
+        purchaseCostInput.addEventListener("input", function () {
+            let val = parseFloat(this.value);
+            if (isNaN(val) || val < 0.01) {
+                this.value = '';
+            }
         });
     }
 
@@ -426,13 +437,14 @@ document.addEventListener("DOMContentLoaded", function () {
         updateCharacterCount('supplier', 'supplierCount');
     }
 
+    if (purchaseCostInput) enforceValidPurchaseCost();
+
     document.getElementById("addStockBtn").addEventListener("click", function () {
         modalTitle.innerText = "Add New Product";
         methodField.value = "POST";
         productForm.action = "{{ route('products.store') }}";
         SaveBtn.innerText = "ADD";
         productForm.reset();
-        quantityInput.value = 1;
         document.getElementById("unitOfMeasurement").value = "pieces";
         clearErrors();
         updateCharacterCount('productName', 'productNameCount');
@@ -449,6 +461,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const quantity = parseInt(quantityInput.value);
         const category = document.getElementById("category").value;
         const unitOfMeasurement = document.getElementById("unitOfMeasurement").value;
+        const purchaseCost = parseFloat(purchaseCostInput.value);
         let errors = [];
 
         if (!productName || !supplier || !category || !unitOfMeasurement) {
@@ -470,6 +483,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (quantity > 9999 || quantity < 1) {
             errors.push("Quantity must be between 1 and 9999.");
             quantityInput.classList.add('quantity-error');
+        }
+
+        if (isNaN(purchaseCost) || purchaseCost < 0.01) {
+            errors.push("Purchase cost must be at least 0.01.");
+            purchaseCostInput.classList.add('purchase-cost-error');
         }
 
         if (errors.length > 0) {
@@ -527,8 +545,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 closeModal("productModal");
                 productForm.reset();
-                quantityInput.value = 1;
-                document.getElementById("purchaseCost").value = "0.00";
                 document.getElementById("unitOfMeasurement").value = "pieces";
                 clearErrors();
                 updateCharacterCount('productName', 'productNameCount');
@@ -551,7 +567,6 @@ document.addEventListener("DOMContentLoaded", function () {
         closeModal("productModal");
         clearErrors();
         productForm.reset();
-        quantityInput.value = 1;
         document.getElementById("unitOfMeasurement").value = "pieces";
         updateCharacterCount('productName', 'productNameCount');
         updateCharacterCount('supplier', 'supplierCount');
@@ -562,7 +577,6 @@ document.addEventListener("DOMContentLoaded", function () {
             closeModal(event.target.id || event.target.closest('.inv-modal').id);
             clearErrors();
             productForm.reset();
-            quantityInput.value = 1;
             document.getElementById("unitOfMeasurement").value = "pieces";
             updateCharacterCount('productName', 'productNameCount');
             updateCharacterCount('supplier', 'supplierCount');
