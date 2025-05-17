@@ -37,7 +37,8 @@
                             <table class="shelf-product-table" id="{{ $category }}-product-table">
                                 <thead>
                                     <tr>
-                                        <th>Product Name</th>   
+                                        <th>Product Name</th>
+                                        <th>Category</th>
                                         <th>Stock</th>
                                         <th>Purchase Cost</th>
                                         <th>Action</th>
@@ -47,6 +48,7 @@
                                     @foreach ($products->where('category', $category) as $product)
                                         <tr>
                                             <td>{{ $product->product_name }}</td>
+                                            <td style="text-transform: capitalize;">{{ $product->category }}</td>
                                             <td class="{{ $product->quantity == 0 ? 'shelf-out-of-stock' : ($product->quantity <= 2 ? 'product-critical' : ($product->quantity <= 5 ? 'product-low' : '')) }}">{{ $product->quantity }}</td>
                                             <td>₱{{ number_format($product->purchase_cost, 2) }}</td>
                                             <td>
@@ -64,6 +66,7 @@
                                     @if ($products->where('category', $category)->isEmpty())
                                         <tr>
                                             <td>No {{ $category }} products available.</td>
+                                            <td></td>
                                             <td></td>
                                             <td></td>
                                             <td></td>
@@ -178,13 +181,25 @@
     </div>
     <div class="shelf-table-container">
         <div class="shelf-section-title">Shelfed Items</div>
-        <div class="shelf-top-bar">
-            <button id="openModalBtn" class="shelf-btn shelf-add-btn">+ Add to Shelf</button>
+        <div class="category-filter-wrapper">
+            <div class="category-filter">
+                <select id="shelfCategoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="meal">Meal</option>
+                    <option value="drink">Drink</option>
+                    <option value="dessert">Dessert</option>
+                    <option value="snack">Snack</option>
+                </select>
+            </div>
+            <div class="shelf-top-bar">
+                <button id="openModalBtn" class="shelf-btn shelf-add-btn">+ Add to Shelf</button>
+            </div>
         </div>
         <table class="shelf-items-table" id="shelfItemsTable">
             <thead>
                 <tr>
                     <th>Product Name</th>
+                    <th>Category</th>
                     <th>Price</th>
                     <th>Purchase Cost</th>
                     <th>Profit</th>
@@ -194,8 +209,9 @@
             </thead>
             <tbody>
                 @foreach ($shelfItems as $item)
-                <tr>
+                <tr data-category="{{ $item->product->category }}">
                     <td>{{ $item->product->product_name }}</td>
+                    <td style="text-transform: capitalize;">{{ $item->product->category }}</td>
                     <td>₱{{ number_format($item->price, 2) }}</td>
                     <td>₱{{ number_format($item->product->purchase_cost, 2) }}</td>
                     <td>₱{{ number_format($item->price - $item->product->purchase_cost, 2) }}</td>
@@ -254,22 +270,30 @@
                 responsive: true,
                 order: [[0, 'asc']],
                 searching: true,
-                columnDefs: [{ orderable: false, targets: 5 }],
+                columnDefs: [{ orderable: false, targets: 6 }],
                 language: {
                     search: "Search shelfed items:",
                     emptyTable: "No shelfed items available."
                 }
             });
 
+            // Category filter for shelfed items
+            $('#shelfCategoryFilter').on('change', function() {
+                let value = this.value;
+                let table = $('#shelfItemsTable').DataTable();
+                table.column(1).search(value).draw();
+            });
+
             // Initialize product tables for each category
             const categories = ['meal', 'drink', 'dessert', 'snack'];
             categories.forEach(category => {
                 productTables[category] = $(`#${category}-product-table`).DataTable({
-                    pageLength: 5,
+                pageLength: 5,
+                lengthMenu: [5, 10, 25, 50, 100,],
                     responsive: true,
                     searching: true,
                     ordering: true,
-                    columnDefs: [{ orderable: false, targets: 3 }],
+                    columnDefs: [{ orderable: false, targets: 4 }],
                     language: {
                         search: "Search products:",
                         emptyTable: `No ${category} products available.`
@@ -293,7 +317,8 @@
                     selectedProductsTable.destroy();
                 }
                 selectedProductsTable = $('#selected-products-table').DataTable({
-                    pageLength: 5,
+                pageLength: 5,
+                lengthMenu: [5, 10, 25, 50, 100,],
                     responsive: true,
                     searching: true,
                     ordering: true,

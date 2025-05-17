@@ -253,6 +253,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize DataTables for Trash Table
     const trashTable = $('#trashTable').DataTable({
         pageLength: 10,
+        lengthMenu: [10, 25, 50, 100, 250],
         responsive: true,
         searching: true,
         lengthChange: true,
@@ -274,7 +275,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initialize DataTables for Product Table
     const productTable = $('#productTable').DataTable({
-        pageLength: 10,
+        pageLength: 5,
+        lengthMenu: [5, 10, 25, 50, 100,],
         responsive: true,
         searching: true,
         lengthChange: true,
@@ -425,10 +427,48 @@ document.addEventListener('DOMContentLoaded', function () {
                 row.innerHTML = `
                     <td>${product.name}</td>
                     <td>${parseFloat(product.price).toFixed(2)}</td>
-                    <td>${product.quantity}</td>
+                    <td>
+                        <input type="number" class="selected-qty-input" data-index="${index}" min="1" max="${product.stock}" value="${product.quantity}" style="width:100px;">
+                        <span class="stock-info" style="font-size:11px;color:#888;">/ ${product.stock}</span>
+                    </td>
                     <td><button type="button" class="remove-product-btn" data-index="${index}">Remove</button></td>
                 `;
                 tbody.appendChild(row);
+            });
+
+            // Quantity input event
+            tbody.querySelectorAll('.selected-qty-input').forEach(input => {
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === '.' || e.key === 'Decimal') {
+                        e.preventDefault();
+                    }
+                });
+                input.addEventListener('input', function () {
+                    const idx = parseInt(this.getAttribute('data-index'));
+                    let val = this.value;
+                    // Allow empty input for editing
+                    if (val === "") {
+                        selectedProducts[idx].quantity = "";
+                        validateQuantities();
+                        updateTotalLoss();
+                        return;
+                    }
+                    val = parseInt(val);
+                    const max = parseInt(this.max);
+                    if (isNaN(val)) {
+                        selectedProducts[idx].quantity = "";
+                    } else if (val < 1) {
+                        selectedProducts[idx].quantity = 1;
+                        this.value = 1;
+                    } else if (val > max) {
+                        selectedProducts[idx].quantity = max;
+                        this.value = max;
+                    } else {
+                        selectedProducts[idx].quantity = val;
+                    }
+                    updateTotalLoss();
+                    validateQuantities();
+                });
             });
 
             tbody.querySelectorAll('.remove-product-btn').forEach(button => {
@@ -451,26 +491,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to filter products by category and source
     function filterProductsByCategory(category, source = sourceInput.value) {
-        productTable.column(0).search('');
-        productTable.draw();
+        // Remove manual row show/hide, use DataTables custom filter instead
+        productTable.search('').draw();
 
-        productTable.rows().every(function () {
-            const row = this.node();
-            const rowCategory = row.getAttribute('data-category');
-            const rowSource = row.getAttribute('data-source');
-            let show = false;
-            if (source === 'all') {
-                show = (rowCategory === category || !rowCategory);
-            } else {
-                show = (rowCategory === category || !rowCategory) && rowSource === source;
-            }
-            if (show) {
-                $(row).show();
-            } else {
-                $(row).hide();
-            }
+        // Remove previous custom filter to avoid stacking
+        $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(function(fn) {
+            // Remove any previous filter for this table
+            return !fn._isProductCategorySourceFilter;
         });
 
+        // Add new custom filter
+        var customFilter = function(settings, data, dataIndex, rowData, counter) {
+            // Only apply to productTable
+            if (settings.nTable !== productTable.table().node()) return true;
+            // Get row node
+            var row = productTable.row(dataIndex).node();
+            var rowCategory = row.getAttribute('data-category');
+            var rowSource = row.getAttribute('data-source');
+            if (source === 'all') {
+                return (rowCategory === category || !rowCategory);
+            } else {
+                return (rowCategory === category || !rowCategory) && rowSource === source;
+            }
+        };
+        customFilter._isProductCategorySourceFilter = true;
+        $.fn.dataTable.ext.search.push(customFilter);
+
+        productTable.draw();
+
+        // Re-attach select button events
         const selectButtons = document.querySelectorAll('#productTable .select-product-btn');
         selectButtons.forEach(button => {
             if (!button.disabled) {
@@ -532,7 +581,13 @@ document.addEventListener('DOMContentLoaded', function () {
     function validateQuantities() {
         let isValid = true;
         selectedProducts.forEach(product => {
-            if (product.quantity > product.stock) {
+            // Quantity must be a number, not empty, >=1, <=stock
+            if (
+                product.quantity === "" ||
+                isNaN(product.quantity) ||
+                product.quantity < 1 ||
+                product.quantity > product.stock
+            ) {
                 isValid = false;
             }
         });
@@ -612,7 +667,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (!validateQuantities()) {
-                alert('One or more products exceed available stock!');
+                alert('One or more products have invalid or empty quantities!');
                 return;
             }
 

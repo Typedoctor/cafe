@@ -185,7 +185,7 @@
 }
 
 .select-product-btn:disabled {
-    background-color: #670808;
+    background-color: #ad0606;
     cursor: not-allowed;
     font-family: 'Poppins', sans-serif;
 }
