@@ -76,6 +76,7 @@
                             <tr>
                                 <th>Product Name</th>
                                 <th>Price (₱)</th>
+                                <th>Source</th> <!-- Added Source column -->
                                 <th>Stock</th>
                                 <th>Action</th>
                             </tr>
@@ -91,6 +92,7 @@
                                     data-stock="{{ $product->quantity }}">
                                     <td>{{ e(trim($product->product_name)) }}</td>
                                     <td>{{ number_format($product->purchase_cost, 2) }}</td>
+                                    <td>Inventory</td> <!-- Source column value -->
                                     <td>{{ $product->quantity }}</td>
                                     <td>
                                         <button type="button" class="select-product-btn"
@@ -112,6 +114,7 @@
                                     data-stock="{{ $shelfItem->quantity_added }}">
                                     <td>{{ e(trim($shelfItem->product->product_name)) }}</td>
                                     <td>{{ number_format($profit, 2) }}</td>
+                                    <td>Shelfed Item</td> <!-- Source column value -->
                                     <td>{{ $shelfItem->quantity_added }}</td>
                                     <td>
                                         <button type="button" class="select-product-btn"
