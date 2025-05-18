@@ -86,7 +86,7 @@
                         'order_type' => $log->order_type ?? 'N/A',
                         'status' => $log->status ?? 'N/A',
                         'special_instructions' => $log->special_instructions ?? 'N/A',
-                        'created_at' => $log->created_at ? \Carbon\Carbon::parse($log->created_at)->format('F j Y, g:i A') : 'N/A'
+                        'created_at' => $log->created_at ? \Carbon\Carbon::parse($log->created_at)->format('M j Y / g:i A'): 'N/A'
                     ]) }}">
                         <td>{{ $log->order_id ?? 'N/A' }}</td>
                         <td>{{ $log->product_name ?? 'N/A' }}</td>
@@ -97,7 +97,7 @@
                         <td>{{ $log->order_type ?? 'N/A' }}</td>
                         <td>{{ $log->status ?? 'N/A' }}</td>
                         <td>{{ $log->special_instructions ?? 'N/A' }}</td>
-                        <td>{{ $log->created_at ? \Carbon\Carbon::parse($log->created_at)->format('F j Y, g:i A') : 'N/A' }}</td>
+                        <td>{{ $log->created_at ? \Carbon\Carbon::parse($log->created_at)->format("M j Y / g:i A") : 'N/A' }}</td>
                     </tr>
                 @empty
                     <tr>

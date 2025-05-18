@@ -21,8 +21,8 @@ body {
     padding: 20px;
     max-width: 900px;
     margin: 0 auto;
-    height: 800px; /* Fixed height */
-    max-height: 800px; /* Prevent growing beyond this */
+    height: 700px; /* Fixed height */
+    max-height: 700px; /* Prevent growing beyond this */
     display: flex;
     flex-direction: column;
 }

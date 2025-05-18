@@ -14,37 +14,27 @@
     <form id="transactionFilterForm" method="GET" action="{{ route('cashier-transactions.index') }}">
         <div class="trn-filter-row">
             <div class="trn-filter-box">
+                @php
+                    $selectedMonth = request()->has('month') ? request('month') : now()->month;
+                    $selectedYear = request()->has('year') ? request('year') : now()->year;
+                @endphp
                 <select name="month" class="trn-month-filter">
-                    <option value="all" {{ request()->input('month', 'all') == 'all' ? 'selected' : '' }}>All Months</option>
-                    @php
-                        $currentMonth = \Carbon\Carbon::now()->month;
-                        $months = [
-                            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-                            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-                            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
-                        ];
-                    @endphp
-                    @foreach ($months as $num => $name)
-                        <option value="{{ $num }}" {{ request()->input('month', $currentMonth) == $num ? 'selected' : '' }}>
-                            {{ $name }}
+                    <option value="all" {{ $selectedMonth === 'all' ? 'selected' : '' }}>All Months</option>
+                    @for ($m = 1; $m <= 12; $m++)
+                        <option value="{{ $m }}" {{ (string)$selectedMonth === (string)$m ? 'selected' : '' }}>
+                            {{ \Carbon\Carbon::create()->month($m)->format('F') }}
                         </option>
-                    @endforeach
+                    @endfor
                 </select>
                 <select name="year" class="trn-year-filter">
-                    <option value="all" {{ request()->input('year', 'all') == 'all' ? 'selected' : '' }}>All Years</option>
-                    @php
-                        $currentYear = \Carbon\Carbon::now()->year;
-                        $startYear = 2020;
-                        $years = range($currentYear, $startYear);
-                    @endphp
-                    @foreach ($years as $year)
-                        <option value="{{ $year }}" {{ request()->input('year', $currentYear) == $year ? 'selected' : '' }}>
-                            {{ $year }}
+                    <option value="all" {{ $selectedYear === 'all' ? 'selected' : '' }}>All Years</option>
+                    @for ($y = now()->year; $y >= 2020; $y--)
+                        <option value="{{ $y }}" {{ (string)$selectedYear === (string)$y ? 'selected' : '' }}>
+                            {{ $y }}
                         </option>
-                    @endforeach
+                    @endfor
                 </select>
-              
-                <a href="{{ route('cashier-transactions.index') }}" class="trn-reset-btn">Reset</a>
+                <a href="{{ route('cashier-transactions.index', ['month' => now()->month, 'year' => now()->year]) }}" class="trn-reset-btn">Reset</a>
             </div>
         </div>
     </form>
@@ -74,7 +64,7 @@
                         "money_received" => (float) ($transaction->money_received ?? 0),
                         "change" => (float) ($transaction->change ?? 0),
                         "total_price" => (float) ($transaction->total_price ?? 0),
-                        "created_at" => isset($transaction->created_at) && $transaction->created_at ? \Carbon\Carbon::parse($transaction->created_at)->format("F j Y / g:i A") : "N/A"
+                        "created_at" => isset($transaction->created_at) && $transaction->created_at ? \Carbon\Carbon::parse($transaction->created_at)->format("M j Y / g:i A") : "N/A"
                     ]) }}">
                         <td>{{ $transaction->transaction_id ?? "N/A" }}</td>
                         <td>{{ $transaction->customer_name ?? "Unknown" }}</td>

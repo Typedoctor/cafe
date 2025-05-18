@@ -154,7 +154,7 @@
 
               $order = Order::with('orderItems.product')->findOrFail($validated['order_id']);
               
-              if ($order->status === 'completed') {
+              if ($order->status === 'Completed') {
                   return redirect()->route('cashier.manage_order')
                       ->withErrors(['error' => 'Cannot cancel a completed order.']);
               }
@@ -195,7 +195,7 @@
 
               $order = Order::with('orderItems.product')->findOrFail($validated['order_id']);
               
-              if ($order->status === 'completed') {
+              if ($order->status === 'Completed') {
                   return redirect()->route('cashier.manage_order')
                       ->withErrors(['error' => 'Order is already completed.']);
               }
@@ -217,7 +217,7 @@
                   Sale::where('order_id', $order->id)
                       ->where('product_id', $item->product_id)
                       ->where('quantity', $item->quantity)
-                      ->update(['status' => 'completed', 'change' => $change]);
+                      ->update(['status' => 'Completed', 'change' => $change]);
               }
 
               if (empty($product_names)) {
@@ -233,11 +233,11 @@
                   'change' => $change,
                   'special_instructions' => $order->special_instructions ?? '',
                   'order_type' => $order->order_type,
-                  'status' => 'completed',
+                  'status' => 'Completed',
                   'money_received' => $order->money_received,
               ]);
 
-              $order->status = 'completed';
+              $order->status = 'Completed';
               $order->save();
 
               $order->orderItems()->delete();

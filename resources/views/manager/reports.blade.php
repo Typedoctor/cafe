@@ -88,7 +88,7 @@
                             "money_received" => $transaction->money_received ?? 0,
                             "change" => $transaction->change ?? 0,
                             "total_price" => $transaction->total_price ?? 0,
-                            "created_at" => \Carbon\Carbon::parse($transaction->created_at)->format("F j Y / g:i A")
+                            "created_at" => \Carbon\Carbon::parse($transaction->created_at)->format("M j Y / g:i A")
                         ]) }}'>
                             <td>{{ $transaction->transaction_id ?? "N/A" }}</td>
                             <td>{{ $transaction->customer_name ?? "Unknown" }}</td>
@@ -137,7 +137,7 @@
                             "order_type" => $log->order_type ?? "N/A",
                             "status" => $log->status ?? "N/A",
                             "special_instructions" => $log->special_instructions ?? "N/A",
-                            "created_at" => $log->created_at ? \Carbon\Carbon::parse($log->created_at)->format("F j Y / g:i A") : "N/A"
+                            "created_at" => $log->created_at ? \Carbon\Carbon::parse($log->created_at)->format("M j Y / g:i A") : "N/A"
                         ]) }}'>
                             <td>{{ $log->order_id ?? 'N/A' }}</td>
                             <td>{{ $log->product_name ?? 'N/A' }}</td>
@@ -148,7 +148,7 @@
                             <td>{{ $log->order_type ?? 'N/A' }}</td>
                             <td>{{ $log->status ?? 'N/A' }}</td>
                             <td>{{ $log->special_instructions ?? 'N/A' }}</td>
-                            <td>{{ $log->created_at ? \Carbon\Carbon::parse($log->created_at)->format('F j Y, g:i A') : 'N/A' }}</td>
+                            <td>{{ $log->created_at ? \Carbon\Carbon::parse($log->created_at)->format('M j Y, g:i A') : 'N/A' }}</td>
                         </tr>
                     @empty
                         <tr>

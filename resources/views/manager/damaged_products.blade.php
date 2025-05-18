@@ -137,29 +137,26 @@
     <div class="dmg-search-filter-container" style="margin-bottom: 20px; display: flex; justify-content: center;">
         <form id="damagedProductFilterForm" method="GET" action="{{ route('damaged-products.index') }}" style="display: flex; gap: 10px; align-items: center;">
             @php
-                $currentMonth = \Carbon\Carbon::now()->month;
-                $currentYear = \Carbon\Carbon::now()->year;
-                $months = [
-                    1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-                    5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-                    9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
-                ];
-                $startYear = 2020;
-                $years = range($currentYear, $startYear);
+                $selectedMonth = request()->has('month') ? request('month') : now()->month;
+                $selectedYear = request()->has('year') ? request('year') : now()->year;
             @endphp
             <select name="month" id="month" class="trn-month-filter" style="min-width: 140px;">
-                <option value="all" {{ (request()->input('month', $selectedMonth ?? $currentMonth) == 'all') ? 'selected' : '' }}>All Months</option>
-                @foreach ($months as $num => $name)
-                    <option value="{{ $num }}" {{ (request()->input('month', $selectedMonth ?? $currentMonth) == $num) ? 'selected' : '' }}>{{ $name }}</option>
-                @endforeach
+                <option value="all" {{ $selectedMonth === 'all' ? 'selected' : '' }}>All Months</option>
+                @for ($m = 1; $m <= 12; $m++)
+                    <option value="{{ $m }}" {{ (string)$selectedMonth === (string)$m ? 'selected' : '' }}>
+                        {{ \Carbon\Carbon::create()->month($m)->format('F') }}
+                    </option>
+                @endfor
             </select>
             <select name="year" id="year" class="trn-year-filter" style="min-width: 120px;">
-                <option value="all" {{ (request()->input('year', $selectedYear ?? $currentYear) == 'all') ? 'selected' : '' }}>All Years</option>
-                @foreach ($years as $year)
-                    <option value="{{ $year }}" {{ (request()->input('year', $selectedYear ?? $currentYear) == $year) ? 'selected' : '' }}>{{ $year }}</option>
-                @endforeach
+                <option value="all" {{ $selectedYear === 'all' ? 'selected' : '' }}>All Years</option>
+                @for ($y = now()->year; $y >= 2020; $y--)
+                    <option value="{{ $y }}" {{ (string)$selectedYear === (string)$y ? 'selected' : '' }}>
+                        {{ $y }}
+                    </option>
+                @endfor
             </select>
-            <a href="{{ route('damaged-products.index') }}" class="trn-reset-btn" style="margin-left: 10px;">Reset Filters</a>
+            <a href="{{ route('damaged-products.index', ['month' => now()->month, 'year' => now()->year]) }}" class="trn-reset-btn" style="margin-left: 10px;">Reset Filters</a>
         </form>
     </div>
 
@@ -189,8 +186,8 @@
                 'total_cost' => number_format($damagedProduct->total_cost, 2),
                 'supplier' => $damagedProduct->supplier,
                 'status' => $damagedProduct->status,
-                'reported_at' => $damagedProduct->reported_at->format('F j Y / g:i A'),
-                'return_date' => $damagedProduct->return_date ? $damagedProduct->return_date->format('F j Y / g:i A') : '-',
+                'reported_at' => $damagedProduct->reported_at->format('M j Y / g:i A'),
+                'return_date' => $damagedProduct->return_date ? $damagedProduct->return_date->format('M j Y / g:i A') : '-',
                 'reason' => $damagedProduct->reason
             ]) }}">
                 <td>{{ $damagedProduct->id }}</td>
@@ -200,8 +197,8 @@
                 <td>₱{{ number_format($damagedProduct->total_cost, 2) }}</td>
                 <td>{{ $damagedProduct->supplier }}</td>
                 <td>{{ $damagedProduct->status }}</td>
-                <td>{{ $damagedProduct->reported_at->format('F j Y/ g:i A') }}</td>
-                <td>{{ $damagedProduct->return_date ? $damagedProduct->return_date->format('F j Y/ g:i A') : '-' }}</td>
+                <td>{{ $damagedProduct->reported_at->format('M j Y / g:i A')}}</td>
+                <td>{{ $damagedProduct->return_date ? $damagedProduct->return_date->format('M j Y / g:i A') : '-' }}</td>
                 <td>{{ $damagedProduct->reason }}</td>
                 <td>
                     <button class="dmg-btn dmg-edit-btn" 
@@ -212,7 +209,7 @@
                         data-reason="{{ $damagedProduct->reason }}"
                         data-supplier="{{ $damagedProduct->supplier }}"
                         data-status="{{ $damagedProduct->status }}"
-                        data-reported_at="{{ $damagedProduct->reported_at->format('Y-m-d\TH:i') }}">
+                        data-reported_at="{{ $damagedProduct->reported_at->format('M j Y / g:i A') }}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
                     <button type="button" class="dmg-btn dmg-delete-btn" data-id="{{ $damagedProduct->id }}">

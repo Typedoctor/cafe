@@ -256,7 +256,7 @@
                     'quantity' => $trash->quantity,
                     'reason' => $trash->reason,
                     'total_loss' => number_format($trash->total_loss, 2),
-                    'created_at' => $trash->created_at->format('F j Y / g:i A')
+                    'created_at' => $trash->created_at->format('M j Y / g:i A')
                 ]) }}">
                 <td>{{ $trash->id }}</td>
                 <td>{{ $trash->product_name }}</td>
@@ -264,7 +264,7 @@
                 <td>{{ $trash->quantity }}</td>
                 <td>{{ $trash->reason }}</td>
                 <td>₱{{ number_format($trash->total_loss, 2) }}</td>
-                <td>{{ $trash->created_at->format('F j Y/ g:i A') }}</td>
+                <td>{{ $trash->created_at->format('M j Y / g:i A') }}</td>
                 <td>
                     <button type="button" class="btn delete-btn" data-trash-id="{{ $trash->id }}"><i class="fa-solid fa-trash"></i></button>
                 </td>

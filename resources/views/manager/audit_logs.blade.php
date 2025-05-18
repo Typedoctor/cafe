@@ -83,7 +83,7 @@
             <tbody>
                 @foreach($auditLogs as $log)
                     <tr>
-                        <td>{{ $log->created_at->format('F j Y / g:i A') }}</td>
+                        <td>{{ $log->created_at->format("M j Y / g:i A") }}</td>
                         <td>{{ $log->user ? $log->user->name : 'System' }}</td>
                         <td>{{ ucfirst($log->event) }}</td>
                         <td>{{ class_basename($log->auditable_type) }} #{{ $log->auditable_id }}</td>
