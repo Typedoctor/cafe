@@ -59,13 +59,13 @@
                                     @foreach ($shelfItems->where('product.category', $category) as $shelfItem)
                                         <tr>
                                             <td>{{ $shelfItem->product->product_name }}</td>
-                                            <td>₱{{ number_format($shelfItem->price - $shelfItem->product->purchase_cost, 2) }}</td>
+                                            <td>₱{{ number_format($shelfItem->price, 2) }}</td>
                                             <td class="csh-stock" data-product-id="{{ $shelfItem->product_id }}">{{ $shelfItem->quantity_added }}</td>
                                             <td>
                                                 <button type="button" class="csh-add-product-btn"
                                                         data-product-id="{{ $shelfItem->product_id }}"
                                                         data-product-name="{{ $shelfItem->product->product_name }}"
-                                                        data-product-price="{{ $shelfItem->price - $shelfItem->product->purchase_cost }}"
+                                                        data-product-price="{{ $shelfItem->price }}"
                                                         data-product-stock="{{ $shelfItem->quantity_added }}"
                                                         {{ $shelfItem->quantity_added <= 0 ? 'disabled' : '' }}>
                                                     {{ $shelfItem->quantity_added <= 0 ? 'Out of Stock' : 'Add to Order' }}

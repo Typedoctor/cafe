@@ -75,9 +75,9 @@
                     foreach ($validated['products'] as $productData) {
                         $shelfItem = $productQuantities[$productData['product_id']]['shelfItem'];
                         $quantity = $productData['quantity'];
-                        // Use profit as price
-                        $unit_profit = ($shelfItem->price ?? 0) - ($shelfItem->product->purchase_cost ?? 0);
-                        $item_price = $unit_profit * $quantity;
+                        // Use selling price (purchase cost + profit)
+                        $unit_price = $shelfItem->price ?? 0;
+                        $item_price = $unit_price * $quantity;
                         $total_price += $item_price;
 
                         $orderItems[] = [
@@ -114,15 +114,15 @@
                         }
                         $shelfItem->save();
 
-                        // Use profit as unit_price
-                        $unit_profit = ($shelfItem->price ?? 0) - ($shelfItem->product->purchase_cost ?? 0);
+                        // Use selling price as unit_price
+                        $unit_price = $shelfItem->price ?? 0;
 
                         Sale::create([
                             'order_id' => $order->id,
                             'product_id' => $shelfItem->product_id,
                             'product_name' => $shelfItem->product->product_name,
                             'quantity' => $item['quantity'],
-                            'unit_price' => $unit_profit,
+                            'unit_price' => $unit_price,
                             'total_price' => $item['price'],
                             'money_received' => $validated['money_received'],
                             'change' => $change,

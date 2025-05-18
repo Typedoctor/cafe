@@ -172,7 +172,7 @@
                     <tr>
                         <th>Product Name</th>
                         <th>Total Quantity Sold</th>
-                        <th>Total Revenue</th>
+                        <th>Total Revenue<br><small>(Purchase Cost + Profit)</small></th>
                     </tr>
                 </thead>
                 <tbody>

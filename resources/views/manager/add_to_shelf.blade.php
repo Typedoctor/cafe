@@ -85,7 +85,7 @@
                             <tr>
                                 <th>Product</th>
                                 <th>Purchase Cost (₱)</th>
-                                <th>Price (₱)<br><span class="price-note">Required, min purchase cost, max 1200</span></th>
+                                <th>Price (₱)<br><span class="price-note">Required, greater than purchase cost, max 1200</span></th>
                                 <th>Quantity</th>
                                 <th>Action</th>
                             </tr>
@@ -120,8 +120,12 @@
                     <input type="number" id="edit-available-stock" class="shelf-form-input" readonly>
                 </div>
                 <div class="shelf-form-group">
+                    <label for="edit-purchase-cost">Purchase Cost (₱)</label>
+                    <input type="number" id="edit-purchase-cost" class="shelf-form-input" readonly>
+                </div>
+                <div class="shelf-form-group">
                     <label for="edit-quantity-added">Quantity Added</label>
-                    <input type="number" name="quantity_added" id="edit-quantity-added" class="shelf-form-input" min="1" required>
+                    <input type="number" name="quantity_added" id="edit-quantity-added" class="shelf-form-input" min="1">
                 </div>
                 <div class="shelf-form-group">
                     <label for="edit-price">Price (₱)</label>
@@ -231,7 +235,8 @@
                                 data-quantity-added="{{ $item->quantity_added }}"
                                 data-price="{{ $item->price ?? '' }}"
                                 data-product-id="{{ $item->product_id }}"
-                                data-available-stock="{{ $item->product->quantity }}">
+                                data-available-stock="{{ $item->product->quantity }}"
+                                data-purchase-cost="{{ $item->product->purchase_cost }}">
                             <i class="fa-solid fa-pencil"></i>
                         </button>
                         <button type="button" class="shelf-btn shelf-delete-btn" data-shelf-item-id="{{ $item->id }}">
@@ -472,7 +477,7 @@
                     const qty = parseInt(qtyInput.value) || 0;
                     const maxStock = parseInt(row.dataset.productStock) || 0;
 
-                    if (!price || isNaN(price) || price < purchaseCost || price > 1200) {
+                    if (!price || isNaN(price) || price <= purchaseCost || price > 1200) {
                         priceInput.classList.add('price-error');
                         priceError.style.display = 'block';
                         hasError = true;
@@ -576,8 +581,8 @@
                                         <input type="hidden" name="items[${idx}][purchase_cost]" value="${cost}">
                                     </td>
                                     <td style="text-align: center;">
-                                        <input type="number" name="items[${idx}][price]" step="0.01" min="${cost}" max="1200" class="shelf-form-input" value="${existingPrice}" required>
-                                        <span class="shelf-price-error" style="display: none;">Price is required, must be at least purchase cost, max 1200</span>
+                                        <input type="number" name="items[${idx}][price]" step="0.01" min="${parseFloat(cost) + 0.01}" max="1200" class="shelf-form-input" value="${existingPrice}" required>
+                                        <span class="shelf-price-error" style="display: none;">Price is required, must be greater than purchase cost, max 1200</span>
                                     </td>
                                     <td style="text-align: center;">
                                         <input type="number" name="items[${idx}][quantity_added]" min="1" max="${stock}" value="1" required class="shelf-form-input">
@@ -628,13 +633,25 @@
                     openModal('confirmDeletionModal');
                 } else if (tgt.closest('.shelf-edit-btn')) {
                     const btn = $(tgt.closest('.shelf-edit-btn'));
-                    const { shelfItemId, productName, quantityAdded, price, productId, availableStock } = btn.data();
+                    const { shelfItemId, productName, quantityAdded, price, productId, availableStock, purchaseCost } = btn.data();
                     document.getElementById('edit-shelf-item-id').value = shelfItemId;
                     document.getElementById('edit-product-name').value = productName;
                     document.getElementById('edit-available-stock').value = availableStock;
                     document.getElementById('edit-quantity-added').value = quantityAdded;
                     document.getElementById('edit-price').value = price || '';
+                    document.getElementById('edit-purchase-cost').value = purchaseCost !== undefined ? parseFloat(purchaseCost).toFixed(2) : '';
                     document.getElementById('editShelfForm').action = `/add-to-shelf/${shelfItemId}`;
+
+                    // Highlight available stock input based on value
+                    const stockInput = document.getElementById('edit-available-stock');
+                    stockInput.classList.remove('stock-critical', 'stock-low');
+                    const stockVal = parseInt(availableStock, 10);
+                    if (stockVal >= 0 && stockVal <= 2) {
+                        stockInput.classList.add('stock-critical');
+                    } else if (stockVal >= 3 && stockVal <= 5) {
+                        stockInput.classList.add('stock-low');
+                    }
+
                     openModal('editShelfItemModal', true);
                 } else if (tgt.id === 'openModalBtn') {
                     openModal('shelfModal');
@@ -717,7 +734,7 @@
                     const qty = parseInt(qtyInput.value) || 0;
                     const maxStock = parseInt(row.dataset.productStock);
 
-                    if (!price || isNaN(price) || price < purchaseCost || price > 1200) {
+                    if (!price || isNaN(price) || price <= purchaseCost || price > 1200) {
                         priceInput.classList.add('price-error');
                         priceError.style.display = 'block';
                         hasError = true;
@@ -738,7 +755,7 @@
                 });
 
                 if (hasError) {
-                    showErrorModal('Fix price (required, min purchase cost, max 1200) or quantity (within stock) errors.', 'priceErrorModal');
+                    showErrorModal('Fix price (required, greater than purchase cost, max 1200) or quantity (within stock) errors.', 'priceErrorModal');
                     return;
                 }
 
@@ -777,14 +794,14 @@
                     const val = parseFloat(input.value);
                     const priceError = row.querySelector('.shelf-price-error');
                     const purchaseCost = parseFloat(row.dataset.purchaseCost || row.querySelector('input[name$="[purchase_cost]"]')?.value || 0);
-                    if (isNaN(val) || val < purchaseCost) {
+                    if (isNaN(val) || val <= purchaseCost) {
                         input.classList.add('price-error');
                         priceError.style.display = 'block';
                     } else if (val > 1200) {
                         input.value = 1200;
                         input.classList.add('price-error');
                         priceError.style.display = 'block';
-                        showWarningModal(`Price must be between purchase cost and 1200 for "${row.querySelector('td').textContent}".`);
+                        showWarningModal(`Price must be greater than purchase cost and max 1200 for "${row.querySelector('td').textContent}".`);
                     } else {
                         input.classList.remove('price-error');
                         priceError.style.display = 'none';
@@ -808,12 +825,12 @@
                 } else if (input.name.includes('price')) {
                     const val = parseFloat(input.value);
                     const purchaseCost = parseFloat(row.dataset.purchaseCost || row.querySelector('input[name$="[purchase_cost]"]')?.value || 0);
-                    if (isNaN(val) || val < purchaseCost) {
-                        input.value = purchaseCost;
-                        showWarningModal(`Price must not be less than purchase cost (₱${purchaseCost.toFixed(2)}) for "${row.querySelector('td').textContent}".`);
+                    if (isNaN(val) || val <= purchaseCost) {
+                        input.value = (parseFloat(purchaseCost) + 0.01).toFixed(2);
+                        showWarningModal(`Price must be greater than purchase cost (₱${purchaseCost.toFixed(2)}) for "${row.querySelector('td').textContent}".`);
                     } else if (val > 1200) {
                         input.value = 1200;
-                        showWarningModal(`Price must be between purchase cost and 1200 for "${row.querySelector('td').textContent}".`);
+                        showWarningModal(`Price must be greater than purchase cost and max 1200 for "${row.querySelector('td').textContent}".`);
                     }
                 }
                 updateSubmitButton();

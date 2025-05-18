@@ -157,6 +157,10 @@
     font-weight: bold;
 }
 
+.usr-table tr16 {
+    background-color: #f9f9f9;
+}
+
 .usr-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
@@ -203,7 +207,7 @@
 }
 
 /* Modal Styles */
-.usr-modal {
+.usr-modal, .usr-success-modal {
     display: none;
     position: fixed;
     top: 50%;
@@ -217,7 +221,7 @@
     z-index: 1000;
 }
 
-.usr-modal-content {
+.usr-modal-content, .usr-success-content {
     font-size: 16px;
     font-weight: 500;
     color: #000000;
@@ -225,7 +229,7 @@
     font-family: 'Poppins', sans-serif;
 }
 
-.usr-modal h2 {
+.usr-modal h2, .usr-success-modal h2 {
     font-size: 24px;
     margin-bottom: 20px;
     color: #333;
@@ -296,6 +300,19 @@
 }
 
 .usr-save-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
+}
+
+.usr-close-success-btn {
+    background-color: #3590C0;
+    color: white;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.usr-close-success-btn:hover {
     background-color: #0056b3;
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
@@ -432,7 +449,7 @@ body.modal-open {
         width: 100%;
     }
 
-    .usr-modal {
+    .usr-modal, .usr-success-modal {
         width: 90%;
         padding: 15px;
     }

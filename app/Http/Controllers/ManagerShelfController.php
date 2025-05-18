@@ -53,7 +53,19 @@ class ManagerShelfController extends Controller
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity_added' => 'required|integer|min:1',
-            'items.*.price' => 'required|numeric|min:0|max:1200',
+            'items.*.price' => [
+                'required',
+                'numeric',
+                'min:0',
+                'max:1200',
+                function ($attribute, $value, $fail) use ($request) {
+                    $index = explode('.', $attribute)[1];
+                    $purchaseCost = $request->input("items.$index.purchase_cost");
+                    if ($purchaseCost !== null && $value <= $purchaseCost) {
+                        $fail('The price must be greater than the purchase cost.');
+                    }
+                }
+            ],
         ]);
 
         try {
@@ -142,18 +154,32 @@ class ManagerShelfController extends Controller
         $product = Product::findOrFail($shelfItem->product_id);
 
         $validated = $request->validate([
-            'quantity_added' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0|max:1200',
+            'quantity_added' => 'nullable|integer|min:1',
+            'price' => [
+                'required',
+                'numeric',
+                'min:0',
+                'max:1200',
+                function ($attribute, $value, $fail) use ($product) {
+                    if ($value <= $product->purchase_cost) {
+                        $fail('The price must be greater than the purchase cost.');
+                    }
+                }
+            ],
         ]);
 
         try {
             DB::beginTransaction();
 
-            $newQuantity = $validated['quantity_added'];
+            $newQuantity = $validated['quantity_added'] ?? $shelfItem->quantity_added;
             $oldQuantity = $shelfItem->quantity_added;
             $quantityDifference = $newQuantity - $oldQuantity;
 
-            if ($quantityDifference > 0 && $quantityDifference > $product->quantity) {
+            if (
+                isset($validated['quantity_added']) &&
+                $quantityDifference > 0 &&
+                $quantityDifference > $product->quantity
+            ) {
                 return response()->json([
                     'errors' => [
                         'quantity_added' => ["Insufficient stock for '{$product->product_name}'. Available: {$product->quantity}, Requested additional: {$quantityDifference}."]
@@ -166,12 +192,14 @@ class ManagerShelfController extends Controller
                 'price' => $validated['price'],
             ]);
 
-            if ($quantityDifference > 0) {
-                $product->quantity -= $quantityDifference;
-            } elseif ($quantityDifference < 0) {
-                $product->quantity += abs($quantityDifference);
+            if (isset($validated['quantity_added'])) {
+                if ($quantityDifference > 0) {
+                    $product->quantity -= $quantityDifference;
+                } elseif ($quantityDifference < 0) {
+                    $product->quantity += abs($quantityDifference);
+                }
+                $product->save();
             }
-            $product->save();
 
             DB::commit();
             return response()->json(['message' => 'Shelf item updated successfully.']);

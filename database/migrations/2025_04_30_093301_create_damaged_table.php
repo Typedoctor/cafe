@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('reason');
             $table->string('supplier', 255);
             $table->timestamp('reported_at')->useCurrent();
-            $table->enum('status', ['Pending', 'Successfully Returned', 'Marked as Loss'])->default('Pending');
+            $table->enum('status', ['Successfully Returned and Replaced', 'Marked as Loss'])->default('Marked as Loss');
             $table->timestamp('return_date')->nullable();
             $table->decimal('total_loss', 10, 2)->default(0.00);
             $table->decimal('total_saved', 10, 2)->default(0.00);

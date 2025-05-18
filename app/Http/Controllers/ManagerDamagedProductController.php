@@ -29,7 +29,7 @@ class ManagerDamagedProductController extends Controller
             'reason' => 'required|string|regex:/^[a-zA-Z0-9\s,.()\-.À-ÿ]+$/|max:100',
             'supplier' =>'required|string|regex:/^[a-zA-Z\s,.&\'\-.À-ÿ]+$/|max:50',
             'reported_at' => 'nullable|date',
-            'status' => 'required|in:Successfully Returned,Marked as Loss',
+            'status' => 'required|in:Successfully Returned and Replaced,Marked as Loss',
             'return_notes' => 'nullable|string|max:255',
         ]);
 
@@ -43,7 +43,7 @@ class ManagerDamagedProductController extends Controller
         // Calculate total_cost
         $data['total_cost'] = $data['quantity'] * $data['price_per_item'];
         $data['reported_at'] = $data['reported_at'] ?? now();
-        $data['return_date'] = $data['status'] === 'Successfully Returned' ? now() : null;
+        $data['return_date'] = $data['status'] === 'Successfully Returned and Replaced' ? now() : null;
 
         DamagedProduct::create($data);
         DamagedProduct::updateTotals();
@@ -61,7 +61,7 @@ class ManagerDamagedProductController extends Controller
             'reason' => 'required|string|regex:/^[a-zA-Z0-9\s,.()\-.À-ÿ]+$/|max:100',
             'supplier' =>'required|string|regex:/^[a-zA-Z\s,.&\'\-.À-ÿ]+$/|max:50',
             'reported_at' => 'nullable|date',
-            'status' => 'required|in:Successfully Returned,Marked as Loss',
+            'status' => 'required|in:Successfully Returned and Replaced,Marked as Loss',
             'return_notes' => 'nullable|string|max:255',
         ]);
 
@@ -75,7 +75,7 @@ class ManagerDamagedProductController extends Controller
         // Calculate total_cost
         $data['total_cost'] = $data['quantity'] * $data['price_per_item'];
         $data['reported_at'] = $data['reported_at'] ?? $damagedProduct->reported_at;
-        $data['return_date'] = $data['status'] === 'Successfully Returned' ? now() : null;
+        $data['return_date'] = $data['status'] === 'Successfully Returned and Replaced' ? now() : null;
 
         $damagedProduct->update($data);
         DamagedProduct::updateTotals();

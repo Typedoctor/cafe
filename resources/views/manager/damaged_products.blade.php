@@ -13,8 +13,9 @@
 <div class="dmg-modal-overlay" data-modal-id="damagedProductModal">
     <!-- Damaged Product Modal -->
     <div id="damagedProductModal" class="dmg-modal">
+          <span class="dmg-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
         <div class="dmg-modal-content">
-            <span class="dmg-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
+          
             <h2 id="modalTitle">Report Damaged Product</h2>
             <div id="errorMessages" class="dmg-error-messages" style="display: none;"></div>
             <form id="damagedProductForm" method="POST">
@@ -45,7 +46,7 @@
                 <div class="dmg-form-group">
                     <label>Status:</label>
                     <select name="status" id="status" required>
-                        <option value="Successfully Returned">Successfully Returned</option>
+                        <option value="Successfully Returned and Replaced">Successfully Returned and Replaced</option>
                         <option value="Marked as Loss">Marked as Loss</option>
                     </select>
                 </div>
@@ -79,9 +80,37 @@
     </div>
 </div>
 
+<!-- Success Modal (similar to inventory) -->
+<div id="dmgSuccessModal" class="dmg-modal-success">
+    <div class="dmg-modal-success-content">
+        <p id="dmgSuccessMessage"></p>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal (similar to inventory) -->
+<div class="dmg-modal-overlay" data-modal-id="dmgDeleteModal"></div>
+<div id="dmgDeleteModal" class="dmg-modal delete">
+    <div class="dmg-modal-content">
+        <span class="dmg-close-btn" id="dmgDeleteCloseBtn"><i class="fa-solid fa-circle-xmark"></i></span>
+        <h2>Confirm Deletion</h2>
+        <p>Are you sure you want to delete this damaged product report?</p>
+        <div class="dmg-delete-btn-container">
+            <button class="dmg-delete-cancel-btn" id="dmgDeleteCancelBtn">Cancel</button>
+            <form id="dmgDeleteForm" method="POST" style="display:inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="dmg-delete-confirm-btn">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 @if (session('success'))
-    <div class="dmg-success-message">{{ session('success') }}</div>
+    <script>
+        window.dmgSuccessMessage = @json(session('success'));
+    </script>
 @endif
+
 @if (session('error'))
     <div class="dmg-error-messages">{{ session('error') }}</div>
 @endif
@@ -98,7 +127,7 @@
     <div class="dmg-header-row">
         <div class="dmg-tabs">
             <div class="dmg-tab active" data-status="all">All</div>
-            <div class="dmg-tab" data-status="Successfully Returned">Successfully Returned</div>
+            <div class="dmg-tab" data-status="Successfully Returned and Replaced">Successfully Returned and Replaced</div>
             <div class="dmg-tab" data-status="Marked as Loss">Marked as Loss</div>
         </div>
         <button id="addDamagedProductBtn" class="dmg-btn dmg-add-btn">+ Report Damaged Product</button>
@@ -155,11 +184,7 @@
                         data-reported_at="{{ $damagedProduct->reported_at->format('Y-m-d\TH:i') }}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
-                    <form action="{{ route('damaged-products.destroy', $damagedProduct) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this damaged product report?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="dmg-btn dmg-delete-btn"><i class="fa-solid fa-trash"></i></button>
-                    </form>
+                    <button type="button" class="dmg-btn dmg-delete-btn"><i class="fa-solid fa-trash"></i></button>
                 </td>
             </tr>
             @endforeach
@@ -191,6 +216,19 @@
                 setTimeout(() => successMessage.style.display = "none", 3000);
             }
 
+            // Success Modal Logic
+            if (typeof window.dmgSuccessMessage === 'string' && window.dmgSuccessMessage.trim() !== '') {
+                const modal = document.getElementById('dmgSuccessModal');
+                const msg = document.getElementById('dmgSuccessMessage');
+                msg.textContent = window.dmgSuccessMessage;
+                modal.classList.add('show');
+                modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.remove('show');
+                    modal.style.display = 'none';
+                }, 2500);
+            }
+
             document.querySelectorAll('.dmg-tab').forEach(tab => {
                 tab.addEventListener('click', function () {
                     document.querySelectorAll('.dmg-tab').forEach(t => t.classList.remove('active'));
@@ -200,8 +238,8 @@
                     const sectionTitle = document.getElementById('sectionTitle');
                     if (status === 'all') {
                         sectionTitle.textContent = 'All Damaged Products List';
-                    } else if (status === 'Successfully Returned') {
-                        sectionTitle.textContent = 'Successfully Returned Items List';
+                    } else if (status === 'Successfully Returned and Replaced') {
+                        sectionTitle.textContent = 'Successfully Returned and Replaced Items List';
                     } else if (status === 'Marked as Loss') {
                         sectionTitle.textContent = 'Marked as Loss Items List';
                     }
@@ -317,8 +355,15 @@
 
             function enforceValidQuantity() {
                 quantityInput.addEventListener("input", function () {
-                    let val = parseInt(this.value) || 1;
-                    this.value = Math.min(Math.max(val, 1), 9999);
+                    // Allow any value (including empty) while typing
+                    updateTotalCost();
+                });
+                quantityInput.addEventListener("blur", function () {
+                    // On blur, enforce min/max and set to 1 if empty or invalid
+                    let val = parseInt(this.value);
+                    if (isNaN(val) || val < 1) val = 1;
+                    if (val > 9999) val = 9999;
+                    this.value = val;
                     updateTotalCost();
                 });
             }
@@ -369,7 +414,13 @@
                 damagedProductForm.reset();
                 quantityInput.value = 1;
                 statusInput.value = "Marked as Loss";
-                document.getElementById("reportedAt").value = new Date().toISOString().slice(0, 16);
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                document.getElementById("reportedAt").value = `${year}-${month}-${day}T${hours}:${minutes}`;
                 clearErrors();
                 loadingSpinner.style.display = 'none';
                 SaveBtn.disabled = false;
@@ -440,6 +491,23 @@
                     closeModal(modalId);
                 }
             });
+
+            // Delete Modal Logic
+            let deleteFormAction = '';
+            $(document).on('click', '.dmg-delete-btn', function(e) {
+                e.preventDefault();
+                const form = $(this).closest('form');
+                deleteFormAction = form.attr('action');
+                $('#dmgDeleteForm').attr('action', deleteFormAction);
+                openModal('dmgDeleteModal');
+            });
+
+            document.getElementById('dmgDeleteCancelBtn').onclick = function() {
+                closeModal('dmgDeleteModal');
+            };
+            document.getElementById('dmgDeleteCloseBtn').onclick = function() {
+                closeModal('dmgDeleteModal');
+            };
 
             damagedProductForm.addEventListener("submit", function (event) {
                 event.preventDefault();

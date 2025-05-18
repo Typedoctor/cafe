@@ -1,3 +1,4 @@
+
 @extends('manager.layout')
 
 @section('title', 'Manage Users')
@@ -115,69 +116,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
 
 <script>
-$(document).ready(function () {
-    let table = $('#usersTable').DataTable({
-        pageLength: 10,
-        responsive: true,
-        order: [[0, 'asc']],
-        columnDefs: [
-            { orderable: false, targets: 4 } // Disable sorting on Actions column
-        ]
-    });
-
-    // Ensure edit buttons work with DataTables
-    $('#usersTable').on('click', '.usr-edit-btn', function() {
-        const modalTitle = document.getElementById("modalTitle");
-        const methodField = document.getElementById("methodField");
-        const userForm = document.getElementById("userForm");
-        const saveBtn = document.getElementById("saveBtn");
-        const confirmPasswordGroup = document.getElementById("confirmPasswordGroup");
-        const passwordInput = document.getElementById("password");
-        const confirmPasswordInput = document.getElementById("passwordConfirmation");
-
-        modalTitle.innerText = "Edit User";
-        methodField.value = "PUT";
-        userForm.action = `/manage_users/${this.dataset.id}`;
-        document.getElementById("userId").value = this.dataset.id;
-        document.getElementById("name").value = this.dataset.name.replace(/\./g, '');
-        document.getElementById("privilege").value = this.dataset.privilege;
-        document.getElementById("isActive").value = this.dataset.active;
-        document.getElementById("password").value = "";
-        document.getElementById("password").placeholder = "Change pass? (If no, leave blank)";
-        confirmPasswordGroup.style.display = "none";
-        passwordInput.required = false;
-        confirmPasswordInput.required = false;
-        saveBtn.innerText = "UPDATE";
-        clearErrors();
-        updateCharacterCount('name', 'nameCount', 24);
-        openModal("userModal");
-    });
-
-    // Close modal when clicking outside
-    $(document).on('click', '.usr-modal-overlay', function(e) {
-        if (e.target.classList.contains('usr-modal-overlay')) {
-            const modalId = $(this).data('modal-id');
-            closeModal(modalId);
-        }
-    });
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-    const userModal = document.getElementById("userModal");
-    const closeBtn = document.querySelector(".usr-close-btn");
-    const userForm = document.getElementById("userForm");
-    const modalTitle = document.getElementById("modalTitle");
-    const methodField = document.getElementById("methodField");
-    const confirmPasswordGroup = document.getElementById("confirmPasswordGroup");
-    const passwordInput = document.getElementById("password");
-    const confirmPasswordInput = document.getElementById("passwordConfirmation");
-    const nameInput = document.getElementById("name");
-    const saveBtn = document.getElementById("saveBtn");
-    const errorMessages = document.getElementById("errorMessages");
-    const statusForm = document.getElementById("status-form");
-    const statusValue = document.getElementById("status-value");
-    const nameInvalid = document.getElementById("nameInvalid");
-
+(function () {
+    // Shared functions accessible to both jQuery and DOM event listeners
     function openModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -209,43 +149,43 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Function to display error messages
     function showError(message) {
+        const errorMessages = document.getElementById("errorMessages");
         errorMessages.style.display = 'block';
         errorMessages.innerHTML = message;
     }
 
-    // Function to clear error messages
     function clearErrors() {
+        const errorMessages = document.getElementById("errorMessages");
+        const nameInvalid = document.getElementById("nameInvalid");
+        const nameInput = document.getElementById("name");
         errorMessages.style.display = 'none';
         errorMessages.innerHTML = '';
         nameInvalid.style.display = 'none';
         nameInput.classList.remove('name-error');
     }
 
-    // Function to validate name
     function validateName(name) {
         const nameRegex = /^[a-zA-Z\s',À-ÿ]+$/;
         return nameRegex.test(name);
     }
 
-    // Function to enforce valid name input
     function enforceValidName() {
+        const nameInput = document.getElementById("name");
         nameInput.addEventListener("input", function () {
             const value = this.value.replace(/[^a-zA-Z\s'.,À-ÿ]/g, '');
             this.value = value;
+            const nameInvalid = document.getElementById("nameInvalid");
             nameInvalid.style.display = value === this.value ? 'none' : 'block';
             nameInput.classList.toggle('name-error', value !== this.value);
             updateCharacterCount('name', 'nameCount', 24);
         });
     }
 
-    // Function to validate password (minimum 6 characters)
     function validatePassword(password) {
         return password.length >= 6;
     }
 
-    // Function to check if user name already exists
     function isUserNameExists(name, currentUserId = null) {
         let exists = false;
         $('#usersTable tbody tr').each(function() {
@@ -259,7 +199,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return exists;
     }
 
-    // Update character count
     function updateCharacterCount(inputId, countId, maxLength) {
         const input = document.getElementById(inputId);
         const count = document.getElementById(countId);
@@ -268,96 +207,150 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    enforceValidName();
-    updateCharacterCount('name', 'nameCount', 24); // Initial value
+    // jQuery document ready
+    $(document).ready(function () {
+        let table = $('#usersTable').DataTable({
+            pageLength: 10,
+            responsive: true,
+            order: [[0, 'asc']],
+            columnDefs: [
+                { orderable: false, targets: 4 } // Disable sorting on Actions column
+            ]
+        });
 
-    // Handle status dropdown change
-    document.querySelectorAll('.status-dropdown').forEach(dropdown => {
-        dropdown.addEventListener('change', function() {
-            const userId = this.getAttribute('data-user-id');
-            const newStatus = this.value;
-            
-            // Set form action and status value
-            statusForm.action = `/manage_users/${userId}/update_status`;
-            statusValue.value = newStatus;
-            
-            // Submit the form
-            statusForm.submit();
+        $('#usersTable').on('click', '.usr-edit-btn', function() {
+            const modalTitle = document.getElementById("modalTitle");
+            const methodField = document.getElementById("methodField");
+            const userForm = document.getElementById("userForm");
+            const saveBtn = document.getElementById("saveBtn");
+            const confirmPasswordGroup = document.getElementById("confirmPasswordGroup");
+            const passwordInput = document.getElementById("password");
+            const confirmPasswordInput = document.getElementById("passwordConfirmation");
+
+            modalTitle.innerText = "Edit User";
+            methodField.value = "PUT";
+            userForm.action = `/manage_users/${this.dataset.id}`;
+            document.getElementById("userId").value = this.dataset.id;
+            document.getElementById("name").value = this.dataset.name.replace(/\./g, '');
+            document.getElementById("privilege").value = this.dataset.privilege;
+            document.getElementById("isActive").value = this.dataset.active;
+            document.getElementById("password").value = "";
+            document.getElementById("password").placeholder = "Change pass? (If no, leave blank)";
+            confirmPasswordGroup.style.display = "none";
+            passwordInput.required = false;
+            confirmPasswordInput.required = false;
+            saveBtn.innerText = "UPDATE";
+            clearErrors();
+            updateCharacterCount('name', 'nameCount', 24);
+            openModal("userModal");
+        });
+
+        $(document).on('click', '.usr-modal-overlay', function(e) {
+            if (e.target.classList.contains('usr-modal-overlay')) {
+                const modalId = $(this).data('modal-id');
+                closeModal(modalId);
+            }
         });
     });
 
-    document.getElementById("addUserBtn").addEventListener("click", function () {
-        modalTitle.innerText = "Add New User";
-        methodField.value = "POST";
-        userForm.action = "{{ route('manage_users.store') }}";
-        passwordInput.placeholder = "";
-        passwordInput.required = true;
-        confirmPasswordGroup.style.display = "block";
-        confirmPasswordInput.required = true;
-        document.getElementById("isActive").value = "1"; // Default to active for new users
-        saveBtn.innerText = "ADD";
-        userForm.reset();
-        clearErrors();
-        updateCharacterCount('name', 'nameCount', 24); // Reset counter
-        openModal("userModal");
-    });
+    // DOM content loaded
+    document.addEventListener("DOMContentLoaded", function () {
+        const userModal = document.getElementById("userModal");
+        const closeBtn = document.querySelector(".usr-close-btn");
+        const userForm = document.getElementById("userForm");
+        const modalTitle = document.getElementById("modalTitle");
+        const methodField = document.getElementById("methodField");
+        const confirmPasswordGroup = document.getElementById("confirmPasswordGroup");
+        const passwordInput = document.getElementById("password");
+        const confirmPasswordInput = document.getElementById("passwordConfirmation");
+        const nameInput = document.getElementById("name");
+        const saveBtn = document.getElementById("saveBtn");
+        const statusForm = document.getElementById("status-form");
+        const statusValue = document.getElementById("status-value");
 
-    closeBtn.addEventListener("click", () => {
-        closeModal("userModal");
-        clearErrors();
-    });
+        enforceValidName();
+        updateCharacterCount('name', 'nameCount', 24); // Initial value
 
-    window.addEventListener("click", event => {
-        if (event.target === userModal) {
+        document.querySelectorAll('.status-dropdown').forEach(dropdown => {
+            dropdown.addEventListener('change', function() {
+                const userId = this.getAttribute('data-user-id');
+                const newStatus = this.value;
+                
+                statusForm.action = `/manage_users/${userId}/update_status`;
+                statusValue.value = newStatus;
+                
+                statusForm.submit();
+            });
+        });
+
+        document.getElementById("addUserBtn").addEventListener("click", function () {
+            modalTitle.innerText = "Add New User";
+            methodField.value = "POST";
+            userForm.action = "{{ route('manage_users.store') }}";
+            passwordInput.placeholder = "";
+            passwordInput.required = true;
+            confirmPasswordGroup.style.display = "block";
+            confirmPasswordInput.required = true;
+            document.getElementById("isActive").value = "1"; // Default to active for new users
+            saveBtn.innerText = "ADD";
+            userForm.reset();
+            clearErrors();
+            updateCharacterCount('name', 'nameCount', 24); // Reset counter
+            openModal("userModal");
+        });
+
+        closeBtn.addEventListener("click", () => {
             closeModal("userModal");
             clearErrors();
-        }
+        });
+
+        window.addEventListener("click", event => {
+            if (event.target === userModal) {
+                closeModal("userModal");
+                clearErrors();
+            }
+        });
+
+        userForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            clearErrors();
+
+            const name = nameInput.value.trim();
+            let errors = [];
+
+            if (!validateName(name)) {
+                errors.push("User name can only contain letters, spaces, apostrophes, hyphens, and commas.");
+                nameInput.classList.add('name-error');
+                document.getElementById("nameInvalid").style.display = 'block';
+            }
+
+            const currentUserId = methodField.value === "PUT" ? document.getElementById("userId").value : null;
+            if (isUserNameExists(name, currentUserId)) {
+                errors.push("User name already exists. Please select a different username.");
+            }
+
+            if (methodField.value === "POST") {
+                if (!validatePassword(passwordInput.value)) {
+                    errors.push("Password must be at least 6 characters long.");
+                }
+
+                if (passwordInput.value !== confirmPasswordInput.value) {
+                    errors.push("Passwords do not match!");
+                }
+            } else if (methodField.value === "PUT" && passwordInput.value) {
+                if (!validatePassword(passwordInput.value)) {
+                    errors.push("New password must be at least 6 characters long.");
+                }
+            }
+
+            if (errors.length > 0) {
+                showError(errors.join("<br>"));
+            } else {
+                userForm.submit();
+            }
+        });
     });
-
-    userForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-        clearErrors();
-
-        const name = nameInput.value.trim();
-        let errors = [];
-
-        // Validate name
-        if (!validateName(name)) {
-            errors.push("User name can only contain letters, spaces, apostrophes, hyphens, and commas.");
-            nameInput.classList.add('name-error');
-            nameInvalid.style.display = 'block';
-        }
-
-        // Check for existing user name
-        const currentUserId = methodField.value === "PUT" ? document.getElementById("userId").value : null;
-        if (isUserNameExists(name, currentUserId)) {
-            errors.push("User name already exists. Please select a different username.");
-        }
-
-        if (methodField.value === "POST") {
-            // Validate password
-            if (!validatePassword(passwordInput.value)) {
-                errors.push("Password must be at least 6 characters long.");
-            }
-
-            // Validate password confirmation
-            if (passwordInput.value !== confirmPasswordInput.value) {
-                errors.push("Passwords do not match!");
-            }
-        } else if (methodField.value === "PUT" && passwordInput.value) {
-            // Validate password when updating if provided
-            if (!validatePassword(passwordInput.value)) {
-                errors.push("New password must be at least 6 characters long.");
-            }
-        }
-
-        if (errors.length > 0) {
-            showError(errors.join("<br>"));
-        } else {
-            userForm.submit();
-        }
-    });
-});
+})();
 </script>
 @endpush
 @endsection

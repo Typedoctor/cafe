@@ -53,6 +53,7 @@ class ReportController extends Controller
             'order_id',
             'product_name',
             'quantity',
+            // Use selling price (purchase cost + profit) for unit_price and total_price
             'unit_price',
             'total_price',
             'customer_name',
@@ -65,6 +66,7 @@ class ReportController extends Controller
         $summaryQuery = Sale::select(
             'product_name',
             DB::raw('SUM(quantity) as total_quantity_sold'),
+            // Use SUM(total_price) for total revenue (purchase cost + profit)
             DB::raw('SUM(total_price) as total_revenue')
         );
 
@@ -167,7 +169,7 @@ class ReportController extends Controller
         $totalLoss = $trashLoss + $damagedLoss;
         $trashCount = $trashes->sum('quantity');
         $damagedCount = $damagedProducts->sum('quantity');
-        $totalRevenue = $saleLogs->sum('total_price');
+        $totalRevenue = $saleLogs->sum('total_price'); // Sum of selling prices (purchase cost + profit)
         $totalQuantity = $saleLogs->sum('quantity');
 
         return view('manager.reports', compact(
