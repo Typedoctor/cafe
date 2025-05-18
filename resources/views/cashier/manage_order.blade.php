@@ -246,6 +246,7 @@
                 {{ $orders->links() }}
             </div>
         </div>
+        @if (!$orders->isEmpty())
         <div id="orderDetailsForm" class="csh-order-details-form">
             <form id="orderDetailsFormInner" method="POST">
                 @csrf
@@ -307,6 +308,7 @@
                 </div>
             </form>
         </div>
+        @endif
     </div>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -413,7 +415,6 @@
             const selectedProductsBody = document.getElementById('selected-products-body');
             let total = 0;
             Array.from(selectedProductsBody.rows).forEach(row => {
-                // Use parseFloat and parseInt with fallback to 0
                 const price = parseFloat(row.cells[1]?.textContent) || 0;
                 const quantityInput = row.querySelector('input[type="number"]');
                 const quantity = quantityInput ? parseInt(quantityInput.value) || 0 : 0;
@@ -426,14 +427,16 @@
             const submitBtn = document.getElementById('submitOrderBtn');
             const moneyReceivedError = document.querySelector('.csh-money-received-error');
             changeDisplay.textContent = `Change: ₱ ${change.toFixed(2)}`;
-            if (change < 0) {
+            // --- Only show error if moneyReceived is not empty and less than total ---
+            if (moneyReceived !== 0 && change < 0) {
                 changeDisplay.classList.add('csh-change-negative');
                 moneyReceivedError.style.display = 'block';
                 submitBtn.disabled = true;
             } else {
                 changeDisplay.classList.remove('csh-change-negative');
                 moneyReceivedError.style.display = 'none';
-                submitBtn.disabled = selectedProductsBody.rows.length === 0;
+                // --- Only enable if there are products and moneyReceived is not empty ---
+                submitBtn.disabled = selectedProductsBody.rows.length === 0 || moneyReceived === 0;
             }
         }
 
@@ -461,7 +464,8 @@
             const moneyReceived = parseFloat(document.getElementById('moneyReceived').value) || 0;
             const total = parseFloat(document.getElementById('orderTotal').textContent.replace('Total: ₱ ', '')) || 0;
             const change = moneyReceived - total;
-            submitBtn.disabled = hasInsufficientStock || selectedProductsBody.rows.length === 0 || change < 0;
+            // --- Only enable if no stock issues, products exist, and moneyReceived is enough ---
+            submitBtn.disabled = hasInsufficientStock || selectedProductsBody.rows.length === 0 || moneyReceived === 0 || change < 0;
             updateOrderTotal();
         }
 
