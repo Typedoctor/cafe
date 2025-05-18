@@ -413,8 +413,10 @@
             const selectedProductsBody = document.getElementById('selected-products-body');
             let total = 0;
             Array.from(selectedProductsBody.rows).forEach(row => {
-                const price = parseFloat(row.cells[1].textContent) || 0;
-                const quantity = parseInt(row.querySelector('input[type="number"]').value) || 0;
+                // Use parseFloat and parseInt with fallback to 0
+                const price = parseFloat(row.cells[1]?.textContent) || 0;
+                const quantityInput = row.querySelector('input[type="number"]');
+                const quantity = quantityInput ? parseInt(quantityInput.value) || 0 : 0;
                 total += price * quantity;
             });
             document.getElementById('orderTotal').textContent = `Total: ₱ ${total.toFixed(2)}`;
@@ -505,6 +507,7 @@
                     if (newQuantity <= productStock) {
                         quantityInput.value = newQuantity;
                         existingRow.querySelector('.quantity-error').style.display = 'none';
+                        updateOrderTotal();
                     } else {
                         existingRow.querySelector('.quantity-error').textContent = `Cannot add more items. Stock available: ${productStock}`;
                         existingRow.querySelector('.quantity-error').style.display = 'block';
@@ -527,6 +530,12 @@
                         `;
                         selectedProductsBody.innerHTML += rowHtml;
                         productIndex++;
+                        updateOrderTotal();
+                        const lastRow = selectedProductsBody.rows[selectedProductsBody.rows.length - 1];
+                        const qtyInput = lastRow.querySelector('input[type="number"]');
+                        if (qtyInput) {
+                            qtyInput.addEventListener('input', updateOrderTotal);
+                        }
                     } else {
                         alert(`Cannot add ${productName}. Out of stock.`);
                     }
@@ -535,16 +544,79 @@
             });
         });
 
-        document.getElementById('selected-products-body').addEventListener('change', (e) => {
-            if (e.target.type === 'number') {
-                updateSubmitButtonState();
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof jQuery === 'undefined') {
+                console.error('jQuery is not loaded for DataTables initialization');
+                return;
             }
+            try {
+                const categories = ['meal', 'drink', 'dessert', 'snack'];
+                categories.forEach(category => {
+                    productTables[category] = jQuery(`#${category}-product-table`).DataTable({
+                        pageLength: 5,
+                        lengthMenu: [5, 10, 25, 50],
+                        responsive: true,
+                        searching: true,
+                        ordering: true,
+                        columnDefs: [{ orderable: false, targets: 3 }],
+                        language: {
+                            search: "Search products:",
+                            emptyTable: "No products available"
+                        },
+                        initComplete: function () {
+                            const wrapper = this.api().table().container();
+                            const length = wrapper.querySelector('.dataTables_length');
+                            const filter = wrapper.querySelector('.dataTables_filter');
+                            if (length && filter) {
+                                const topControls = document.createElement('div');
+                                topControls.className = 'dataTables_top_controls';
+                                length.parentNode.insertBefore(topControls, length);
+                                topControls.appendChild(length);
+                                topControls.appendChild(filter);
+                            }
+                        }
+                    });
+                    console.log(`Product table for ${category} initialized`);
+                });
+            } catch (e) {
+                console.error('Error during DataTables initialization:', e);
+            }
+            const orderCards = document.querySelectorAll('.csh-order-card');
+            if (orderCards.length > 0) {
+                let latestCard = null;
+                let highestId = -1;
+                orderCards.forEach(card => {
+                    const orderId = parseInt(card.dataset.orderId, 10);
+                    if (orderId > highestId) {
+                        highestId = orderId;
+                        latestCard = card;
+                    }
+                });
+                if (latestCard) {
+                    updateOrderDetails(latestCard);
+                }
+            }
+            updateSubmitButtonState();
+            document.querySelectorAll('#selected-products-body input[type="number"]').forEach(input => {
+                input.addEventListener('input', updateOrderTotal);
+            });
         });
 
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('csh-remove-product-btn')) {
                 const row = e.target.closest('tr');
                 row.remove();
+                updateOrderTotal();
+                document.querySelectorAll('#selected-products-body input[type="number"]').forEach(input => {
+                    input.removeEventListener('input', updateOrderTotal);
+                    input.addEventListener('input', updateOrderTotal);
+                });
+                updateSubmitButtonState();
+            }
+        });
+
+        document.getElementById('selected-products-body').addEventListener('change', (e) => {
+            if (e.target.type === 'number') {
                 updateSubmitButtonState();
             }
         });
@@ -634,61 +706,6 @@
                     updateOrderDetails(card);
                 }
             });
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof jQuery === 'undefined') {
-                console.error('jQuery is not loaded for DataTables initialization');
-                return;
-            }
-            try {
-                const categories = ['meal', 'drink', 'dessert', 'snack'];
-                categories.forEach(category => {
-                    productTables[category] = jQuery(`#${category}-product-table`).DataTable({
-                        pageLength: 5,
-                        lengthMenu: [5, 10, 25, 50],
-                        responsive: true,
-                        searching: true,
-                        ordering: true,
-                        columnDefs: [{ orderable: false, targets: 3 }],
-                        language: {
-                            search: "Search products:",
-                            emptyTable: "No products available"
-                        },
-                        initComplete: function () {
-                            const wrapper = this.api().table().container();
-                            const length = wrapper.querySelector('.dataTables_length');
-                            const filter = wrapper.querySelector('.dataTables_filter');
-                            if (length && filter) {
-                                const topControls = document.createElement('div');
-                                topControls.className = 'dataTables_top_controls';
-                                length.parentNode.insertBefore(topControls, length);
-                                topControls.appendChild(length);
-                                topControls.appendChild(filter);
-                            }
-                        }
-                    });
-                    console.log(`Product table for ${category} initialized`);
-                });
-            } catch (e) {
-                console.error('Error during DataTables initialization:', e);
-            }
-            const orderCards = document.querySelectorAll('.csh-order-card');
-            if (orderCards.length > 0) {
-                let latestCard = null;
-                let highestId = -1;
-                orderCards.forEach(card => {
-                    const orderId = parseInt(card.dataset.orderId, 10);
-                    if (orderId > highestId) {
-                        highestId = orderId;
-                        latestCard = card;
-                    }
-                });
-                if (latestCard) {
-                    updateOrderDetails(latestCard);
-                }
-            }
-            updateSubmitButtonState();
         });
     </script>
 </div>
