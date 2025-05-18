@@ -59,7 +59,7 @@
                                     @foreach ($shelfItems->where('product.category', $category) as $shelfItem)
                                         @php
                                             $stock = $shelfItem->quantity_added;
-                                            $stockClass = $stock <= 1 ? 'product-critical' : ($stock >= 3 && $stock <= 5 ? 'product-low' : '');
+                                            $stockClass = $stock <= 2 ? 'product-critical' : ($stock >= 3 && $stock <= 5 ? 'product-low' : '');
                                         @endphp
                                         <tr>
                                             <td>{{ $shelfItem->product->product_name }}</td>
@@ -193,57 +193,58 @@
     @endif
     <div class="csh-orders-container">
         <div class="csh-orders-list">
-            @if ($orders->isEmpty())
-                <p class="csh-no-orders">No orders have been placed yet.</p>
-            @else
-                @foreach ($orders as $order)
-                    @php
-                        $totalProfit = 0;
-                        foreach ($order->orderItems as $item) {
-                            $shelfItem = $shelfItems->firstWhere('product_id', $item->product_id);
-                            if ($shelfItem) {
-                                $profitPerItem = $shelfItem->price - $shelfItem->product->purchase_cost;
-                                $totalProfit += $profitPerItem * $item->quantity;
+            <div class="csh-order-card-list">
+                @if ($orders->isEmpty())
+                    <p class="csh-no-orders">No orders have been placed yet.</p>
+                @else
+                    @foreach ($orders as $order)
+                        @php
+                            $totalProfit = 0;
+                            foreach ($order->orderItems as $item) {
+                                $shelfItem = $shelfItems->firstWhere('product_id', $item->product_id);
+                                if ($shelfItem) {
+                                    $profitPerItem = $shelfItem->price - $shelfItem->product->purchase_cost;
+                                    $totalProfit += $profitPerItem * $item->quantity;
+                                }
                             }
-                        }
-                        $productsString = '';
-                        foreach ($order->orderItems as $index => $item) {
-                            $productsString .= $item->quantity . ' x ' . ($item->product->product_name ?? 'N/A');
-                            if ($index < $order->orderItems->count() - 1) {
-                                $productsString .= ', ';
+                            $productsString = '';
+                            foreach ($order->orderItems as $index => $item) {
+                                $productsString .= $item->quantity . ' x ' . ($item->product->product_name ?? 'N/A');
+                                if ($index < $order->orderItems->count() - 1) {
+                                    $productsString .= ', ';
+                                }
                             }
-                        }
-                    @endphp
-                    <div class="csh-order-card" data-order-id="{{ $order->id }}" role="button" tabindex="0"
-                         data-customer-name="{{ $order->customer_name }}"
-                         data-order-type="{{ $order->order_type }}"
-                         data-special-instructions="{{ $order->special_instructions ?? 'None' }}"
-                         data-total-price="{{ number_format($order->total_price, 2) }}"
-                         data-total-profit="{{ number_format($totalProfit, 2) }}"
-                         data-time="{{ $order->created_at->format('h:i A') }}"
-                         data-products="{{ $productsString }}"
-                         data-money-received="{{ number_format($order->money_received, 2) }}">
-                        <div class="csh-order-header">
-                            <span class="csh-order-id">{{ $order->id }}</span>
-                            <span class="csh-order-products">
-                                @foreach ($order->orderItems as $item)
-                                    {{ $item->product->product_name ?? 'N/A' }}
-                                    @if (!$loop->last), @endif
-                                @endforeach
-                            </span>
+                        @endphp
+                        <div class="csh-order-card" data-order-id="{{ $order->id }}" role="button" tabindex="0"
+                             data-customer-name="{{ $order->customer_name }}"
+                             data-order-type="{{ $order->order_type }}"
+                             data-special-instructions="{{ $order->special_instructions ?? 'None' }}"
+                             data-total-price="{{ number_format($order->total_price, 2) }}"
+                             data-total-profit="{{ number_format($totalProfit, 2) }}"
+                             data-time="{{ $order->created_at->format('h:i A') }}"
+                             data-products="{{ $productsString }}"
+                             data-money-received="{{ number_format($order->money_received, 2) }}">
+                            <div class="csh-order-header">
+                                <span class="csh-order-id">{{ $order->id }}</span>
+                                <span class="csh-order-products">
+                                    @foreach ($order->orderItems as $item)
+                                        {{ $item->product->product_name ?? 'N/A' }}
+                                        @if (!$loop->last), @endif
+                                    @endforeach
+                                </span>
+                            </div>
+                            <div class="csh-order-details">
+                                <span class="csh-order-time">{{ $order->created_at->format('h:i A') }}</span>
+                                <span class="csh-order-customer">{{ $order->customer_name }}</span>
+                                <span class="csh-order-type">{{ $order->order_type }}</span>
+                            </div>
                         </div>
-                        <div class="csh-order-details">
-                            <span class="csh-order-time">{{ $order->created_at->format('h:i A') }}</span>
-                            <span class="csh-order-customer">{{ $order->customer_name }}</span>
-                            <span class="csh-order-type">{{ $order->order_type }}</span>
-                            
-                        </div>
-                    </div>
-                @endforeach
-                <div class="csh-pagination">
-                    {{ $orders->links() }}
-                </div>
-            @endif
+                    @endforeach
+                @endif
+            </div>
+            <div class="csh-pagination">
+                {{ $orders->links() }}
+            </div>
         </div>
         <div id="orderDetailsForm" class="csh-order-details-form">
             <form id="orderDetailsFormInner" method="POST">
@@ -257,7 +258,33 @@
                     <span id="orderDetailsTime"></span>
                     <span id="orderDetailsType"></span>
                 </div>
-                <div class="csh-order-details-products" id="orderDetailsProducts"></div>
+                <div class="csh-order-details-products" id="orderDetailsProducts">
+                    {{-- Render products as a table --}}
+                    <table class="csh-order-details-products-table" style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;">Product</th>
+                                <th style="text-align:right;">Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(isset($orders) && $orders->count())
+                                {{-- This section is for server-rendered details (if you want to show the latest order by default) --}}
+                                @php
+                                    $selectedOrder = $orders->first();
+                                @endphp
+                                @if($selectedOrder)
+                                    @foreach($selectedOrder->orderItems as $item)
+                                        <tr>
+                                            <td>{{ $item->product->product_name ?? 'N/A' }}</td>
+                                            <td style="text-align:right;">{{ $item->quantity }}</td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
                 <div class="csh-order-details-payment">
                     <span class="csh-order-details-label">Payment mode</span>
                     <span class="csh-order-details-value">Cash</span>

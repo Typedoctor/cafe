@@ -352,17 +352,6 @@ body {
     white-space: normal;
 }
 
-/* Stock Level Coloring for Product Table */
-.product-low {
-    background-color: #fff3cd !important;
-    color: #856404 !important;
-}
-
-.product-critical {
-    background-color: #f8d7da !important;
-    color: #721c24 !important;
-}
-
 .csh-add-product-btn, .csh-remove-product-btn {
     padding: 4px 8px;
     cursor: pointer;
@@ -440,10 +429,16 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 60vh;
+    max-height: 75vh;
     overflow-y: auto;
     width: 100%;
     box-sizing: border-box;
+    direction: rtl; /* Move scrollbar to the left */
+}
+
+.csh-order-card-list,
+.csh-order-card {
+    direction: ltr; /* Keep content left-to-right */
 }
 
 .csh-order-card {
@@ -455,6 +450,8 @@ body {
     transition: background-color 0.2s ease;
     max-width: 100%;
     overflow: hidden;
+    margin: 8px 0;
+    margin-left: 12px; /* Add gap to the left */
 }
 
 .csh-order-card:hover {
@@ -481,8 +478,10 @@ body {
 .csh-order-products {
     color: #333;
     font-size: 14px;
-    word-break: break-word;
-    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-left: 10px
 }
 
 .csh-order-details {
@@ -505,8 +504,9 @@ body {
     flex: 1;
     text-align: center;
     text-transform: uppercase;
-    word-break: break-word;
-    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .csh-order-type {
@@ -560,6 +560,25 @@ body {
     font-size: 14px;
     line-height: 1.5;
     margin-top: 10px;
+}
+
+.csh-order-details-products-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    font-size: 13px;
+}
+.csh-order-details-products-table th,
+.csh-order-details-products-table td {
+    border-bottom: 1px solid #eee;
+    padding: 4px 8px;
+}
+.csh-order-details-products-table th {
+    background: #f4f4f4;
+    font-weight: 600;
+}
+.csh-order-details-products-table td {
+    background: #fff;
 }
 
 .csh-order-details-payment {
@@ -1132,4 +1151,15 @@ body {
     .csh-main-container, .csh-button-container, .csh-orders-list {
         display: none;
     }
+}
+
+/* Inventory Status Styles */
+.product-low {
+    background-color: #fff3cd !important;
+    color: #856404 !important;
+}
+
+.product-critical {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
 }
