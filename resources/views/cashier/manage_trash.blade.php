@@ -1,3 +1,4 @@
+
 @extends('cashier.layout')
 
 @section('title', 'Manage Trash')
@@ -9,7 +10,6 @@
 @section('content')
 <head>
    <link rel="stylesheet" href="{{ asset('css/cashier-trash.css') }}">
-  
 </head>
 <!-- Display Success/Error Messages -->
 @if (session('success'))
@@ -83,7 +83,6 @@
                         </thead>
                         
                         <tbody id="productTableBody">
-                            
                             {{-- Inventory products --}}
                             @foreach($products as $product)
                                 <tr data-source="inventory"
@@ -101,7 +100,6 @@
                                         </button>
                                     </td>
                                 </tr>
-                                
                             @endforeach
                             {{-- Shelfed items --}}
                             @foreach($shelfItems as $shelfItem)
@@ -195,6 +193,17 @@
     </div>
 </div>
 
+<!-- Spoil Entry Details Modal -->
+<div class="modal-overlay" id="spoilDetailsModalOverlay" data-modal-id="spoilDetailsModal"></div>
+<div id="spoilDetailsModal" class="spoil-details-modal">
+    <div class="spoil-details-header">Spoil Entry Details</div>
+    <div class="spoil-details-content" id="spoilDetailsContent"></div>
+    <div class="spoil-modal-buttons">
+        <button class="spoil-modal-print" id="spoilPrintModal">Print</button>
+        <button class="spoil-modal-close" id="spoilCloseModal">Close</button>
+    </div>
+</div>
+
 <!-- Trash Table -->
 <div class="trsh-table-container" id="transaction-table">
     <h1 class="page-title">Lists of Spoils</h1>
@@ -234,7 +243,16 @@
         </thead>
         <tbody>
             @foreach($trashes as $trash)
-            <tr data-trash-id="{{ $trash->id }}">
+            <tr class="spoil-row" data-trash-id="{{ $trash->id }}"
+                data-trash-details="{{ json_encode([
+                    'id' => $trash->id,
+                    'product_name' => $trash->product_name,
+                    'category' => $trash->category,
+                    'quantity' => $trash->quantity,
+                    'reason' => $trash->reason,
+                    'total_loss' => number_format($trash->total_loss, 2),
+                    'created_at' => $trash->created_at->format('F j Y / g:i A')
+                ]) }}">
                 <td>{{ $trash->id }}</td>
                 <td>{{ $trash->product_name }}</td>
                 <td>{{ $trash->category }}</td>
@@ -283,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize DataTables for Product Table
     const productTable = $('#productTable').DataTable({
         pageLength: 5,
-        lengthMenu: [5, 10, 25, 50, 100,],
+        lengthMenu: [5, 10, 25, 50, 100],
         responsive: true,
         searching: true,
         lengthChange: true,
@@ -327,6 +345,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const trashModal = document.getElementById('trashModal');
     const stockLimitModal = document.getElementById('stockLimitModal');
     const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+    const spoilDetailsModal = document.getElementById('spoilDetailsModal');
     const trashForm = document.getElementById('trashForm');
     const closeBtns = document.querySelectorAll('.close-btn');
     const loadingSpinner = document.getElementById('loadingSpinner');
@@ -401,6 +420,37 @@ document.addEventListener('DOMContentLoaded', function () {
             const modalId = $(this).data('modal-id');
             closeModal(modalId);
         }
+    });
+
+    // Handle spoil row click to show details modal
+    $(document).on('click', '.spoil-row', function(e) {
+        // Prevent triggering modal if clicking the delete button
+        if ($(e.target).closest('.delete-btn').length) {
+            return;
+        }
+        const trashDetails = $(this).data('trash-details');
+        const detailsHtml = `
+            <p><strong>ID:</strong> <span>${trashDetails.id}</span></p>
+            <p><strong>Product Name:</strong> <span>${trashDetails.product_name || 'N/A'}</span></p>
+            <p><strong>Category:</strong> <span>${trashDetails.category || 'N/A'}</span></p>
+            <p><strong>Quantity:</strong> <span>${trashDetails.quantity || '0'}</span></p>
+            <p><strong>Reason:</strong></p>
+            <div class="spoil-special-instructions">${trashDetails.reason || 'N/A'}</div>
+            <p><strong>Total Loss:</strong> <span>₱${trashDetails.total_loss || '0.00'}</span></p>
+            <p><strong>Date Thrown:</strong> <span>${trashDetails.created_at || 'N/A'}</span></p>
+        `;
+        $('#spoilDetailsContent').html(detailsHtml);
+        openModal('spoilDetailsModal');
+    });
+
+    // Print spoil details modal
+    $('#spoilPrintModal').on('click', function() {
+        window.print();
+    });
+
+    // Close spoil details modal
+    $('#spoilCloseModal').on('click', function() {
+        closeModal('spoilDetailsModal');
     });
 
     // Function to update hidden inputs for form submission
@@ -694,7 +744,7 @@ document.addEventListener('DOMContentLoaded', function () {
         loadingSpinner.style.display = 'none';
         saveBtn.disabled = true;
         productError.style.display = 'none';
-        reasonError.style.display = 'none';
+        reasonError.style.display = состоянии
         reasonInput.setCustomValidity('');
         selectedProducts = [];
         updateSelectedProductTable();

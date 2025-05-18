@@ -19,11 +19,12 @@ class SpoilageFactory extends Factory
 
     return [
         'product_name' => $product?->product_name ?? 'Unknown Product', // Use product name or fallback
+
         'category' => $this->faker->randomElement(['snack', 'drink', 'meal', 'dessert']),
         'quantity' => $quantity,
-        'reason' => $this->faker->randomElement(['expired', 'damaged', 'spilled']),
+        'reason' => $this->faker->randomElement(['expired', 'damaged', 'spoiled']),
         'total_loss' => $totalLoss,
-        'created_at' => $createdAt = $this->faker->dateTimeBetween('2020-01-01 00:00:00', '2024-12-31 23:59:59'),
+        'created_at' => $createdAt = $this->faker->dateTimeBetween('2020-01-01 00:00:00', '2025-12-31 23:59:59'),
         'updated_at' => $createdAt,
     ];
 }

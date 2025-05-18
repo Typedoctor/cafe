@@ -1,3 +1,4 @@
+
 /* Animations */
 @keyframes fadeIn {
     from { opacity: 0; transform: translate(-50%, -60%); }
@@ -758,16 +759,241 @@ body.modal-open {
     border-bottom: 2px solid #007bff;
 }
 
-@media (max-width: 768px) {
-    .sub-tabs {
-        flex-direction: column;
-        gap: 5px;
-        align-items: stretch;
+/* Spoil Entry Details Modal */
+.spoil-details-modal {
+    display: none;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 550px;
+    padding: 25px;
+    box-sizing: border-box;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    max-height: 95vh;
+    overflow-y: auto;
+    font-family: 'Poppins', sans-serif;
+    z-index: 1000;
+}
+
+.modal-overlay.active + .spoil-details-modal {
+    display: block;
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+.spoil-details-header {
+    background-color: #10394f;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px 8px 0 0;
+    margin: -25px -25px 20px -25px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.spoil-details-content {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background: #f9f9f9;
+}
+
+.spoil-details-content p {
+    margin: 10px 0;
+    font-size: 16px;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+}
+
+.spoil-details-content strong {
+    color: #10394f;
+    font-weight: 600;
+}
+
+.spoil-special-instructions {
+    margin-top: 5px;
+    word-wrap: break-word;
+    max-width: 100%;
+    color: #333;
+}
+
+.spoil-modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.spoil-modal-print {
+    background-color: #3590C0;
+    color: white;
+    padding: 12px 25px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.spoil-modal-close {
+    background-color: rgb(217, 9, 9);
+    color: white;
+    padding: 12px 25px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.spoil-modal-print:hover {
+    background-color: rgb(7, 81, 121);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5);
+}
+
+.spoil-modal-close:hover {
+    background-color: rgb(178, 11, 11);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5);
+}
+
+@media print {
+    /* Hide everything except the spoil-details-modal */
+    html, body {
+        visibility: hidden;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
     }
-    .sub-tab-btn {
-        width: 100%;
-        border-radius: 8px;
-        margin-bottom: 0;
+    .spoil-details-modal {
+        visibility: visible !important;
+        display: block !important; /* Ensure modal is displayed */
+        position: static !important; /* Use static positioning for print */
+        width: 100% !important;
+        max-width: 550px !important; /* Match on-screen width */
+        margin: 20mm auto !important; /* Center on page */
+        padding: 25px !important;
+        background: #fff !important;
+        border-radius: 12px !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+        max-height: none !important; /* Remove height restriction */
+        overflow: visible !important; /* Ensure all content is visible */
+        font-family: 'Poppins', sans-serif !important;
+        z-index: 1000 !important;
+        transform: none !important; /* Remove transform */
+        opacity: 1 !important; /* Ensure full opacity */
+    }
+    .spoil-details-modal * {
+        visibility: visible !important; /* Ensure all children are visible */
+    }
+    /* Preserve header styling */
+    .spoil-details-header {
+        background-color: #10394f !important;
+        color: white !important;
+        padding: 10px 15px !important;
+        border-radius: 8px 8px 0 0 !important;
+        margin: -25px -25px 20px -25px !important;
+        font-size: 18px !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+    }
+    /* Preserve content styling */
+    .spoil-details-content {
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 8px !important;
+        padding: 15px !important;
+        margin-bottom: 20px !important;
+        background: #f9f9f9 !important;
+    }
+    .spoil-details-content p {
+        margin: 10px 0 !important;
+        font-size: 16px !important;
+        color: #333 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+    }
+    .spoil-details-content strong {
+        color: #10394f !important;
+        font-weight: 600 !important;
+    }
+    .spoil-special-instructions {
+        margin-top: 5px !important;
+        word-wrap: break-word !important;
+        max-width: 100% !important;
+        color: #333 !important;
+    }
+    /* Preserve button styling */
+    .spoil-modal-buttons {
+        display: flex !important;
+        justify-content: center !important;
+        gap: 15px !important;
+        margin-top: 15px !important;
+    }
+    .spoil-modal-print {
+        background-color: #3590C0 !important;
+        color: white !important;
+        padding: 12px 25px !important;
+        font-size: 16px !important;
+        border-radius: 8px !important;
+        border: none !important;
+        min-width: 120px !important;
+        cursor: default !important; /* Disable cursor for print */
+    }
+    .spoil-modal-close {
+        background-color: rgb(217, 9, 9) !important;
+        color: white !important;
+        padding: 12px 25px !important;
+        font-size: 16px !important;
+        border-radius: 8px !important;
+        border: none !important;
+        min-width: 120px !important;
+        cursor: default !important; /* Disable cursor for print */
+    }
+    /* Disable hover effects for print */
+    .spoil-modal-print:hover,
+    .spoil-modal-close:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    /* Hide other elements */
+    .modal-overlay,
+    .modal,
+    .success-modal,
+    .warning-modal,
+    .delete-modal {
+        display: none !important;
+        visibility: hidden !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .spoil-details-modal {
+        max-width: 90%;
+        padding: 20px;
+    }
+    .spoil-details-header {
+        margin: -20px -20px 15px -20px;
+        font-size: 16px;
+    }
+    .spoil-details-content p {
+        font-size: 14px;
+    }
+    .spoil-modal-buttons {
+        flex-direction: column;
+        gap: 10px;
     }
 }
 
@@ -841,5 +1067,16 @@ body.modal-open {
     .product-table-container,
     .selected-product-table-container {
         max-height: 200px;
+    }
+
+    .sub-tabs {
+        flex-direction: column;
+        gap: 5px;
+        align-items: stretch;
+    }
+    .sub-tab-btn {
+        width: 100%;
+        border-radius: 8px;
+        margin-bottom: 0;
     }
 }

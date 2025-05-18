@@ -13,9 +13,8 @@
 <div class="dmg-modal-overlay" data-modal-id="damagedProductModal">
     <!-- Damaged Product Modal -->
     <div id="damagedProductModal" class="dmg-modal">
-          <span class="dmg-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
+        <span class="dmg-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
         <div class="dmg-modal-content">
-          
             <h2 id="modalTitle">Report Damaged Product</h2>
             <div id="errorMessages" class="dmg-error-messages" style="display: none;"></div>
             <form id="damagedProductForm" method="POST">
@@ -34,7 +33,7 @@
                 </div>
                 <div class="dmg-form-group">
                     <label>Price per Item (₱):<br><span class="quantity-note">Enter the cost per unit (1 to 1200)</span></label>
-                    <input type="number" name="price_per_item" id="pricePerItem" max="1200"  required>
+                    <input type="number" name="price_per_item" id="pricePerItem" max="1200" required>
                     <small id="totalCostDisplay">Total Cost: ₱0.00</small>
                 </div>
                 <div class="dmg-form-group">
@@ -82,6 +81,7 @@
 
 <!-- Success Modal (similar to inventory) -->
 <div id="dmgSuccessModal" class="dmg-modal-success">
+   
     <div class="dmg-modal-success-content">
         <p id="dmgSuccessMessage"></p>
     </div>
@@ -184,7 +184,9 @@
                         data-reported_at="{{ $damagedProduct->reported_at->format('Y-m-d\TH:i') }}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
-                    <button type="button" class="dmg-btn dmg-delete-btn"><i class="fa-solid fa-trash"></i></button>
+                    <button type="button" class="dmg-btn dmg-delete-btn" data-id="{{ $damagedProduct->id }}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </td>
             </tr>
             @endforeach
@@ -370,7 +372,7 @@
 
             function enforceValidPrice() {
                 pricePerItemInput.addEventListener("input", function () {
-                    let val = parseFloat(this.value) ;
+                    let val = parseFloat(this.value);
                     this.value = Math.min(Math.max(val, 1), 1200);
                     updateTotalCost();
                 });
@@ -493,12 +495,11 @@
             });
 
             // Delete Modal Logic
-            let deleteFormAction = '';
             $(document).on('click', '.dmg-delete-btn', function(e) {
                 e.preventDefault();
-                const form = $(this).closest('form');
-                deleteFormAction = form.attr('action');
-                $('#dmgDeleteForm').attr('action', deleteFormAction);
+                const productId = $(this).data('id');
+                const deleteRoute = "{{ route('damaged-products.destroy', ':id') }}".replace(':id', productId);
+                $('#dmgDeleteForm').attr('action', deleteRoute);
                 openModal('dmgDeleteModal');
             });
 

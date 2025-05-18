@@ -30,7 +30,7 @@
         <div class="dash-box">Revenue <div class="dash-content-box-revenue">₱{{ number_format($revenue, 2) }}</div></div> 
     </a>
     <a href="/reports?tab=loss" class="dash-box-link">
-        <div class="dash-box">Loss from thrown items<div class="dash-content-box-loss">₱{{ number_format($totalLoss, 2) }}</div> </div>
+        <div class="dash-box">Loss<div class="dash-content-box-loss">₱{{ number_format($totalLoss, 2) }}</div> </div>
     </a>
     <a href="/reports?tab=profit" class="dash-box-link">
         <div class="dash-box">Profit<div class="dash-content-box-profit">₱{{ number_format($revenue - $totalLoss, 2) }}</div></div>

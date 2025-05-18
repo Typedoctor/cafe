@@ -15,6 +15,6 @@ class SalesTableSeeder extends Seeder
 
           
         // Create 100 sale records 
-        Sale::factory()->count(100)->create();
+        Sale::factory()->count(50)->create();
     }
 }
