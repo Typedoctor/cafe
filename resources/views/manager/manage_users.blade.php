@@ -1,4 +1,3 @@
-
 @extends('manager.layout')
 
 @section('title', 'Manage Users')
@@ -11,9 +10,12 @@
 
 @section('content')
 
-<!-- Overlay for Modal -->
+<!-- Overlay for Modals -->
 <div class="usr-modal-overlay" data-modal-id="userModal"></div>
+<div class="usr-modal-overlay" data-modal-id="successModal"></div>
+<div class="usr-modal-overlay" data-modal-id="deleteConfirmModal"></div>
 
+<!-- Add/Edit User Modal -->
 <div id="userModal" class="usr-modal">
     <span class="usr-close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
     <div class="usr-modal-content">
@@ -58,6 +60,27 @@
     </div>
 </div>
 
+<!-- Success Modal -->
+@if (session('success'))
+    <div id="successModal" class="usr-success-modal">
+        <div class="usr-success-content">
+            <p>{{ session('success') }}</p>
+        </div>
+    </div>
+@endif
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteConfirmModal" class="usr-delete-modal">
+    <div class="usr-delete-modal-content">
+        <h2>Confirm Deletion</h2>
+        <p id="deleteConfirmMessage">Are you sure you want to delete this user?</p>
+        <div class="usr-delete-btn-container">
+            <button class="usr-btn usr-delete-cancel-btn">Cancel</button>
+            <button class="usr-btn usr-delete-confirm-btn">Delete</button>
+        </div>
+    </div>
+</div>
+
 <div class="usr-table-container">
     <div class="usr-section-title">Users List</div>
     <div class="usr-top-bar">
@@ -92,11 +115,7 @@
                             data-privilege="{{ $user->privilege }}"
                             data-active="{{ $user->is_active }}"><i class="fa-solid fa-pencil"></i>
                         </button>
-                        <form action="{{ route('manage_users.destroy', $user->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="usr-btn usr-delete-btn"><i class="fa-solid fa-trash"></i></button>
-                        </form>
+                        <button class="usr-btn usr-delete-btn" data-id="{{ $user->id }}"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
             @endforeach
@@ -267,6 +286,18 @@
         const saveBtn = document.getElementById("saveBtn");
         const statusForm = document.getElementById("status-form");
         const statusValue = document.getElementById("status-value");
+        const deleteConfirmModal = document.getElementById("deleteConfirmModal");
+        const deleteConfirmBtn = document.querySelector(".usr-delete-confirm-btn"); // Fixed typo
+        const deleteCancelBtn = document.querySelector(".usr-delete-cancel-btn");
+
+        // Success Modal Auto-Dismiss
+        const successModal = document.getElementById("successModal");
+        if (successModal) {
+            openModal("successModal");
+            setTimeout(() => {
+                closeModal("successModal");
+            }, 3000);
+        }
 
         enforceValidName();
         updateCharacterCount('name', 'nameCount', 24); // Initial value
@@ -310,6 +341,39 @@
                 clearErrors();
             }
         });
+
+        // Delete Confirmation Handling
+        let currentUserId = null;
+        document.querySelectorAll('.usr-delete-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                currentUserId = this.getAttribute('data-id');
+                openModal("deleteConfirmModal");
+            });
+        });
+
+        if (deleteConfirmBtn) {
+            deleteConfirmBtn.addEventListener('click', () => {
+                if (currentUserId) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `{{ route('manage_users.destroy', ':id') }}`.replace(':id', currentUserId);
+                    form.innerHTML = `
+                        @csrf
+                        @method('DELETE')
+                    `;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+                closeModal("deleteConfirmModal");
+            });
+        }
+
+        if (deleteCancelBtn) {
+            deleteCancelBtn.addEventListener('click', () => {
+                closeModal("deleteConfirmModal");
+                currentUserId = null;
+            });
+        }
 
         userForm.addEventListener("submit", function (event) {
             event.preventDefault();
