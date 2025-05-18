@@ -47,6 +47,7 @@ body {
     gap: 5px;
     height: 34px;
     line-height: 1;
+    margin-left: 12px;
 }
 
 .csh-add-order-btn::before {
