@@ -14,18 +14,20 @@
         <div class="sl-tab sl-summary {{ $tab === 'summary' ? 'active' : '' }}" onclick="showTab('summary')">SALES SUMMARY</div>
     </div>
     @php
-        $selectedMonth = request()->input('month', now()->month);
-        $selectedYear = request()->input('year', now()->year);
+        $selectedMonth = request()->has('month') ? request('month') : now()->month;
+        $selectedYear = request()->has('year') ? request('year') : now()->year;
     @endphp
     <div class="sl-filter-box">
         <select class="sl-month-filter" name="month" onchange="submitForm()">
+            <option value="" {{ $selectedMonth === '' ? 'selected' : '' }}>All Months</option>
             @for ($m = 1; $m <= 12; $m++)
-                <option value="{{ $m }}" {{ $selectedMonth == $m ? 'selected' : '' }}>{{ \Carbon\Carbon::create()->month($m)->format('F') }}</option>
+                <option value="{{ $m }}" {{ (string)$selectedMonth === (string)$m ? 'selected' : '' }}>{{ \Carbon\Carbon::create()->month($m)->format('F') }}</option>
             @endfor
         </select>
         <select class="sl-year-filter" name="year" onchange="submitForm()">
+            <option value="" {{ $selectedYear === '' ? 'selected' : '' }}>All Years</option>
             @for ($y = now()->year; $y >= now()->year - 5; $y--)
-                <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>{{ $y }}</option>
+                <option value="{{ $y }}" {{ (string)$selectedYear === (string)$y ? 'selected' : '' }}>{{ $y }}</option>
             @endfor
         </select>
         <button type="button" class="sl-reset-btn" onclick="resetFilters()">Reset</button>
@@ -150,32 +152,25 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script>
 $(document).ready(function () {
-    let salesLogTableInstance = null;
-    let salesSummaryTableInstance = null;
-
-    // Initialize DataTables for salesLogTable
     const salesLogTable = $('#salesLogTable');
     const hasSalesLogRows = salesLogTable.find('tbody tr').length > 0 && !salesLogTable.find('tbody tr td[colspan]').length;
     if (hasSalesLogRows) {
-        salesLogTableInstance = salesLogTable.DataTable({
+        salesLogTable.DataTable({
             pageLength: 10,
             responsive: true,
             order: [[9, 'desc']],
-            columnDefs: [{ orderable: true, targets: '_all' }],
-            stateSave: false // Disable state saving to ensure reset clears filters
+            columnDefs: [{ orderable: true, targets: '_all' }]
         });
     }
 
-    // Initialize DataTables for salesSummaryTable
     const salesSummaryTable = $('#salesSummaryTable');
     const hasSalesSummaryRows = salesSummaryTable.find('tbody tr').length > 0 && !salesSummaryTable.find('tbody tr td[colspan]').length;
     if (hasSalesSummaryRows) {
-        salesSummaryTableInstance = salesSummaryTable.DataTable({
+        salesSummaryTable.DataTable({
             pageLength: 10,
             responsive: true,
             order: [[1, 'desc']],
-            columnDefs: [{ orderable: true, targets: '_all' }],
-            stateSave: false // Disable state saving
+            columnDefs: [{ orderable: true, targets: '_all' }]
         });
     }
 
@@ -197,14 +192,14 @@ $(document).ready(function () {
         `;
         $('#saleDetails').html(detailsHtml);
         $('#saleDetailsModal').css('display', 'flex').addClass('active');
-        $('body').addClass('no-scroll');
+        $('body').addClass('no-scroll'); // Disable page scrolling
     });
 
     // Close sale details modal
     $('#closeSaleModal').on('click', function() {
         $('#saleDetailsModal').removeClass('active').delay(300).queue(function(next) {
             $(this).css('display', 'none');
-            $('body').removeClass('no-scroll');
+            $('body').removeClass('no-scroll'); // Restore page scrolling
             next();
         });
     });
@@ -214,24 +209,21 @@ $(document).ready(function () {
         if (e.target === this) {
             $('#saleDetailsModal').removeClass('active').delay(300).queue(function(next) {
                 $(this).css('display', 'none');
-                $('body').removeClass('no-scroll');
+                $('body').removeClass('no-scroll'); // Restore page scrolling
                 next();
             });
         }
     });
-
-    // Store DataTable instances for reset
-    window.salesLogTableInstance = salesLogTableInstance;
-    window.salesSummaryTableInstance = salesSummaryTableInstance;
 });
 
 function showTab(tabName) {
-    document.querySelectorAll('.sl-all-tabs .sl-tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelector(`.sl-tab.sl-${tabName}`).classList.add('active');
+    document.querySelectorAll('.sl-all-tabs .sl-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    event.target.classList.add('active');
     document.getElementById('tabInput').value = tabName;
     document.getElementById('transactions-content').style.display = tabName === 'transactions' ? 'block' : 'none';
     document.getElementById('summary-content').style.display = tabName === 'summary' ? 'block' : 'none';
-    submitForm(); // Submit form to update data
 }
 
 function submitForm() {
@@ -244,16 +236,6 @@ function resetFilters() {
     const year = now.getFullYear();
     document.querySelector('.sl-month-filter').value = month;
     document.querySelector('.sl-year-filter').value = year;
-    document.getElementById('tabInput').value = 'summary'; // Ensure summary tab is active
-    // Clear DataTables state
-    if (window.salesLogTableInstance) {
-        window.salesLogTableInstance.destroy();
-        $('#salesLogTable').find('tbody').empty(); // Clear table content
-    }
-    if (window.salesSummaryTableInstance) {
-        window.salesSummaryTableInstance.destroy();
-        $('#salesSummaryTable').find('tbody').empty();
-    }
     document.getElementById('filterForm').submit();
 }
 </script>
