@@ -352,6 +352,17 @@ body {
     white-space: normal;
 }
 
+/* Stock Level Coloring for Product Table */
+.product-low {
+    background-color: #fff3cd !important;
+    color: #856404 !important;
+}
+
+.product-critical {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+}
+
 .csh-add-product-btn, .csh-remove-product-btn {
     padding: 4px 8px;
     cursor: pointer;

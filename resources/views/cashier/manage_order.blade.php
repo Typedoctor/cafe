@@ -57,10 +57,14 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($shelfItems->where('product.category', $category) as $shelfItem)
+                                        @php
+                                            $stock = $shelfItem->quantity_added;
+                                            $stockClass = $stock <= 1 ? 'product-critical' : ($stock >= 3 && $stock <= 5 ? 'product-low' : '');
+                                        @endphp
                                         <tr>
                                             <td>{{ $shelfItem->product->product_name }}</td>
                                             <td>₱{{ number_format($shelfItem->price, 2) }}</td>
-                                            <td class="csh-stock" data-product-id="{{ $shelfItem->product_id }}">{{ $shelfItem->quantity_added }}</td>
+                                            <td class="csh-stock {{ $stockClass }}" data-product-id="{{ $shelfItem->product_id }}">{{ $shelfItem->quantity_added }}</td>
                                             <td>
                                                 <button type="button" class="csh-add-product-btn"
                                                         data-product-id="{{ $shelfItem->product_id }}"

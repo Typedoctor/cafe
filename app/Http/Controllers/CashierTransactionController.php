@@ -12,8 +12,10 @@ class CashierTransactionController extends Controller
 {
     public function index(Request $request)
     {
-        $month = $request->input('month', 'all');
-        $year = $request->input('year', 'all');
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+        $month = $request->input('month', $currentMonth);
+        $year = $request->input('year', $currentYear);
 
         $query = Transaction::select(
             'transaction_id',
@@ -40,8 +42,6 @@ class CashierTransactionController extends Controller
         if ($year !== 'all') {
             $query->whereYear('created_at', $year);
         }
-
-       
 
         $summarizedTransactions = $query->groupBy(
             'transaction_id',

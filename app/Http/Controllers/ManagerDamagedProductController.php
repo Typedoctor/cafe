@@ -8,15 +8,31 @@ use Illuminate\Support\Facades\Validator;
 
 class ManagerDamagedProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $damagedProducts = DamagedProduct::all();
-        // Get total_loss and total_saved from any row (they should be identical)
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+        $month = $request->input('month', $currentMonth);
+        $year = $request->input('year', $currentYear);
+
+        $query = DamagedProduct::query();
+
+        if ($month !== 'all') {
+            $query->whereMonth('reported_at', $month);
+        }
+        if ($year !== 'all') {
+            $query->whereYear('reported_at', $year);
+        }
+
+        $damagedProducts = $query->get();
         $summary = $damagedProducts->first() ?? (object)['total_loss' => 0.00, 'total_saved' => 0.00];
+
         return view('manager.damaged_products', [
             'damagedProducts' => $damagedProducts,
             'totalLoss' => $summary->total_loss,
             'totalSaved' => $summary->total_saved,
+            'selectedMonth' => $month,
+            'selectedYear' => $year,
         ]);
     }
 

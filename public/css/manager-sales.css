@@ -45,7 +45,7 @@ body.no-scroll {
 }
 
 .sl-tab.active {
-    background-color: #3980cd;
+    background-color: #23698f;
     color: white;
 }
 
@@ -61,9 +61,11 @@ body.no-scroll {
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 6px;
     background-color: #fff;
     transition: all 0.3s ease;
+    width: 200px;
+    font-family: 'Poppins', sans-serif;
 }
 
 .sl-month-filter:focus,

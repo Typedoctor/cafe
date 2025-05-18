@@ -1,4 +1,3 @@
-
 @extends('cashier.layout')
 
 @section('title', 'Manage Trash')
@@ -209,19 +208,22 @@
     <h1 class="page-title">Lists of Spoils</h1>
     <div class="top-bar-container">
         <div class="filter-container">
-            <form id="filterForm" method="GET" action="{{ route('trash.index') }}">
-                <select class="rep-month-filter" name="month" onchange="submitForm()">
+            <form id="filterForm" method="GET" action="{{ route('trash.index') }}" style="display: flex; gap: 10px; align-items: center;">
+                <select class="rep-month-filter" name="month" id="filterMonth" onchange="submitForm()">
+                    <option value="all" {{ request('month') == 'all' ? 'selected' : '' }}>All Months</option>
                     @for ($m = 1; $m <= 12; $m++)
-                        <option value="{{ $m }}" {{ request('month', now()->month) == $m ? 'selected' : '' }}>
+                        <option value="{{ $m }}" {{ (string)request('month', now()->month) === (string)$m ? 'selected' : '' }}>
                             {{ \Carbon\Carbon::create()->month($m)->format('F') }}
                         </option>
                     @endfor
                 </select>
-                <select class="rep-year-filter" name="year" onchange="submitForm()">
+                <select class="rep-year-filter" name="year" id="filterYear" onchange="submitForm()">
+                    <option value="all" {{ request('year') == 'all' ? 'selected' : '' }}>All Years</option>
                     @for ($y = now()->year; $y >= now()->year - 5; $y--)
-                        <option value="{{ $y }}" {{ request('year', now()->year) == $y ? 'selected' : '' }}>{{ $y }}</option>
+                        <option value="{{ $y }}" {{ (string)request('year', now()->year) === (string)$y ? 'selected' : '' }}>{{ $y }}</option>
                     @endfor
                 </select>
+                <button type="button" class="btn reset-filter-btn" id="resetFilterBtn">Reset</button>
             </form>
         </div>
         <div class="add-trash-container">
@@ -744,7 +746,7 @@ document.addEventListener('DOMContentLoaded', function () {
         loadingSpinner.style.display = 'none';
         saveBtn.disabled = true;
         productError.style.display = 'none';
-        reasonError.style.display = состоянии
+        reasonError.style.display = 'none';
         reasonInput.setCustomValidity('');
         selectedProducts = [];
         updateSelectedProductTable();
@@ -783,6 +785,14 @@ document.addEventListener('DOMContentLoaded', function () {
     deleteCancelBtn.addEventListener('click', () => {
         closeModal("deleteConfirmModal");
         currentTrashId = null;
+    });
+
+    // Reset filter button logic
+    document.getElementById('resetFilterBtn').addEventListener('click', function() {
+        const now = new Date();
+        document.getElementById('filterMonth').value = now.getMonth() + 1;
+        document.getElementById('filterYear').value = now.getFullYear();
+        document.getElementById('filterForm').submit();
     });
 });
 </script>

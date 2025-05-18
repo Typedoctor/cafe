@@ -17,10 +17,26 @@ class ManageTrashController extends Controller
         $year = $request->input('year', now()->year);
 
         $trashes = Spoilage::query()
-            ->when($month && $year, function ($query) use ($month, $year) {
-                return $query->whereMonth('created_at', $month)
-                             ->whereYear('created_at', $year);
-            })
+            ->when(
+                ($month !== 'all' && $year !== 'all'),
+                function ($query) use ($month, $year) {
+                    return $query->whereMonth('created_at', $month)
+                                 ->whereYear('created_at', $year);
+                }
+            )
+            ->when(
+                ($month === 'all' && $year !== 'all'),
+                function ($query) use ($year) {
+                    return $query->whereYear('created_at', $year);
+                }
+            )
+            ->when(
+                ($month !== 'all' && $year === 'all'),
+                function ($query) use ($month) {
+                    return $query->whereMonth('created_at', $month);
+                }
+            )
+            // If both are 'all', do not filter by date
             ->latest()
             ->get();
 

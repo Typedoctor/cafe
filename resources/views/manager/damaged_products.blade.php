@@ -132,6 +132,37 @@
         </div>
         <button id="addDamagedProductBtn" class="dmg-btn dmg-add-btn">+ Report Damaged Product</button>
     </div>
+
+    <!-- Date Filter Form (identical to cashier filter style) -->
+    <div class="dmg-search-filter-container" style="margin-bottom: 20px; display: flex; justify-content: center;">
+        <form id="damagedProductFilterForm" method="GET" action="{{ route('damaged-products.index') }}" style="display: flex; gap: 10px; align-items: center;">
+            @php
+                $currentMonth = \Carbon\Carbon::now()->month;
+                $currentYear = \Carbon\Carbon::now()->year;
+                $months = [
+                    1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+                    5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+                    9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+                ];
+                $startYear = 2020;
+                $years = range($currentYear, $startYear);
+            @endphp
+            <select name="month" id="month" class="trn-month-filter" style="min-width: 140px;">
+                <option value="all" {{ (request()->input('month', $selectedMonth ?? $currentMonth) == 'all') ? 'selected' : '' }}>All Months</option>
+                @foreach ($months as $num => $name)
+                    <option value="{{ $num }}" {{ (request()->input('month', $selectedMonth ?? $currentMonth) == $num) ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+            </select>
+            <select name="year" id="year" class="trn-year-filter" style="min-width: 120px;">
+                <option value="all" {{ (request()->input('year', $selectedYear ?? $currentYear) == 'all') ? 'selected' : '' }}>All Years</option>
+                @foreach ($years as $year)
+                    <option value="{{ $year }}" {{ (request()->input('year', $selectedYear ?? $currentYear) == $year) ? 'selected' : '' }}>{{ $year }}</option>
+                @endforeach
+            </select>
+            <a href="{{ route('damaged-products.index') }}" class="trn-reset-btn" style="margin-left: 10px;">Reset Filters</a>
+        </form>
+    </div>
+
     <table class="dmg-table" id="damagedProductsTable">
         <thead>
             <tr>
@@ -587,6 +618,11 @@
                     loadingSpinner.style.display = 'none';
                     SaveBtn.disabled = false;
                 }
+            });
+
+            // Auto-submit on select change
+            $('#month, #year').on('change', function() {
+                $('#damagedProductFilterForm').submit();
             });
         });
     </script>
