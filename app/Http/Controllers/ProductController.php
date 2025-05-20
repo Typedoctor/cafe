@@ -23,7 +23,7 @@ class ProductController extends Controller
             'quantity' => 'required|integer|min:1|max:9999',
             'supplier' => 'required|string|max:50',
             'unit_of_measurement' => 'required|in:pieces,liters,kilograms,grams',
-            'purchase_cost' => 'required|numeric|min:0', // Add validation
+            'purchase_cost' => 'required|numeric|min:1|max:99999', // Add max validation
         ]);
 
         try {
@@ -68,7 +68,7 @@ class ProductController extends Controller
             'quantity' => 'required|integer|min:1|max:9999',
             'supplier' => 'required|string|max:50',
             'unit_of_measurement' => 'required|in:pieces,liters,kilograms,grams',
-            'purchase_cost' => 'required|numeric|min:0', // Add validation
+            'purchase_cost' => 'required|numeric|min:0|max:99999', // Add max validation
         ]);
 
         try {

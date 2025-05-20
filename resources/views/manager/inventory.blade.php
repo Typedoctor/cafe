@@ -69,7 +69,7 @@
             </div>
             <div class="inv-form-group">
                 <label>Purchase Cost:</label>
-                <input type="number" name="purchase_cost" id="purchaseCost" min="0.01" step="0.01" required value="{{ old('purchase_cost', $product->purchase_cost ?? '') }}">
+                <input type="number" name="purchase_cost" id="purchaseCost" min="0.01" step="0.01" required max="99999" value="{{ old('purchase_cost', $product->purchase_cost ?? '') }}">
             </div>
             <div class="inv-form-group">
                 <label>Supplier:</label>
@@ -421,6 +421,8 @@ document.addEventListener("DOMContentLoaded", function () {
             let val = parseFloat(this.value);
             if (isNaN(val) || val < 0.01) {
                 this.value = '';
+            } else if (val > 99999) {
+                this.value = 99999;
             }
         });
     }
@@ -487,6 +489,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (isNaN(purchaseCost) || purchaseCost < 0.01) {
             errors.push("Purchase cost must be at least 0.01.");
+            purchaseCostInput.classList.add('purchase-cost-error');
+        } else if (purchaseCost > 99999) {
+            errors.push("Purchase cost must not exceed 99999.");
             purchaseCostInput.classList.add('purchase-cost-error');
         }
 

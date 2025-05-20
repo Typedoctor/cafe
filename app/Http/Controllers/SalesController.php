@@ -16,9 +16,13 @@ class SalesController extends Controller
             'tab' => 'nullable|in:transactions,summary'
         ]);
 
-        $month = $request->input('month');
-        $year = $request->input('year');
+        // Only default to current month/year if not present in the request at all
+        $hasMonth = $request->has('month');
+        $hasYear = $request->has('year');
+        $month = $hasMonth ? $request->input('month') : now()->month;
+        $year = $hasYear ? $request->input('year') : now()->year;
         $tab = $request->input('tab', 'transactions');
+
         $query = Sale::select(
             'order_id',
             'product_name',
@@ -32,10 +36,11 @@ class SalesController extends Controller
             'created_at'
         );
 
-        if ($month) {
+        // Only filter if month/year is not empty string or null
+        if ($month !== null && $month !== '') {
             $query->whereMonth('created_at', $month);
         }
-        if ($year) {
+        if ($year !== null && $year !== '') {
             $query->whereYear('created_at', $year);
         }
 
@@ -47,10 +52,10 @@ class SalesController extends Controller
             DB::raw('SUM(total_price) as total_revenue')
         );
 
-        if ($month) {
+        if ($month !== null && $month !== '') {
             $summaryQuery->whereMonth('created_at', $month);
         }
-        if ($year) {
+        if ($year !== null && $year !== '') {
             $summaryQuery->whereYear('created_at', $year);
         }
 
