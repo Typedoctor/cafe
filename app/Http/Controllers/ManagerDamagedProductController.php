@@ -41,7 +41,7 @@ class ManagerDamagedProductController extends Controller
         $validator = Validator::make($request->all(), [
             'product_name' => 'required|string|regex:/^[a-zA-Z\s\',&À-ÿ-]+$/|max:50', // Match frontend regex
             'quantity' => 'required|integer|min:1|max:9999', // 5-digit limit
-            'price_per_item' => 'required|numeric|min:1',
+            'price_per_item' => 'required|numeric|min:1|max:99999',
             'reason' => 'required|string|regex:/^[a-zA-Z0-9\s,.()\-.À-ÿ]+$/|max:100',
             'supplier' =>'required|string|regex:/^[a-zA-Z\s,.&\'\-.À-ÿ]+$/|max:50',
             'reported_at' => 'nullable|date',

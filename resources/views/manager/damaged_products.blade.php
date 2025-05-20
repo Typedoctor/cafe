@@ -32,8 +32,8 @@
                     <input type="number" name="quantity" id="quantity" min="1" max="9999" required>
                 </div>
                 <div class="dmg-form-group">
-                    <label>Price per Item (₱):<br><span class="quantity-note">Enter the cost per unit (1 to 1200)</span></label>
-                    <input type="number" name="price_per_item" id="pricePerItem" max="1200" required>
+                    <label>Price per Item (₱):<br><span class="quantity-note">Enter the cost per unit (1 to 99999)</span></label>
+                    <input type="number" name="price_per_item" id="pricePerItem" max="99999" required>
                     <small id="totalCostDisplay">Total Cost: ₱0.00</small>
                 </div>
                 <div class="dmg-form-group">
@@ -442,7 +442,7 @@
                 damagedProductForm.action = "{{ route('damaged-products.store') }}";
                 SaveBtn.innerText = "ADD";
                 damagedProductForm.reset();
-                quantityInput.value = 1;
+                quantityInput.value = ""; // Set to blank instead of 1
                 statusInput.value = "Marked as Loss";
                 const now = new Date();
                 const year = now.getFullYear();
@@ -469,7 +469,7 @@
                     document.getElementById("damagedProductId").value = this.dataset.id;
                     productNameInput.value = this.dataset.product_name;
                     quantityInput.value = Math.min(Math.max(1, parseInt(this.dataset.quantity)), 9999);
-                    pricePerItemInput.value = Math.min(Math.max(parseFloat(this.dataset.price_per_item), 1), 1200);
+                    pricePerItemInput.value = Math.min(Math.max(parseFloat(this.dataset.price_per_item)), 99999);
                     reasonInput.value = this.dataset.reason;
                     supplierInput.value = this.dataset.supplier;
                     statusInput.value = this.dataset.status;
