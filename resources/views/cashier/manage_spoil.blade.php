@@ -8,7 +8,7 @@
 
 @section('content')
 <head>
-   <link rel="stylesheet" href="{{ asset('css/cashier-trash.css') }}">
+   <link rel="stylesheet" href="{{ asset('css/cashier-spoil.css') }}">
 </head>
 <!-- Display Success/Error Messages -->
 @if (session('success'))
