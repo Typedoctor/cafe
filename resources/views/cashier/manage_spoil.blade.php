@@ -59,7 +59,7 @@
             <button class="tab-btn" data-category="dessert">Dessert</button>
         </div>
 
-        <form id="trashForm" method="POST" action="{{ route('trash.store') }}">
+        <form id="trashForm" method="POST" action="{{ route('spoilage.store') }}">
             @csrf
             <input type="hidden" name="category" id="category" value="snack">
             <input type="hidden" name="source" id="source" value="inventory">
@@ -211,7 +211,7 @@
     <h1 class="page-title">Lists of Spoils</h1>
     <div class="top-bar-container">
         <div class="filter-container">
-            <form id="filterForm" method="GET" action="{{ route('trash.index') }}" style="display: flex; gap: 10px; align-items: center;">
+            <form id="filterForm" method="GET" action="{{ route('spoilage.index') }}" style="display: flex; gap: 10px; align-items: center;">
                 <select class="rep-month-filter" name="month" id="filterMonth" onchange="submitForm()">
                     <option value="all" {{ request('month') == 'all' ? 'selected' : '' }}>All Months</option>
                     @for ($m = 1; $m <= 12; $m++)
@@ -794,7 +794,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (currentTrashId) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = `{{ route('trash.destroy', ':id') }}`.replace(':id', currentTrashId);
+            form.action = `{{ route('spoilage.destroy', ':id') }}`.replace(':id', currentTrashId);
             form.innerHTML = `
                 @csrf
                 @method('DELETE')

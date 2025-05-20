@@ -112,6 +112,7 @@
     min-width: 80px;
     overflow-wrap: break-word;
     word-break: break-word;
+    cursor: pointer;
 }
 
 /* Ellipsis for all inventory-table columns except Date and headers */
