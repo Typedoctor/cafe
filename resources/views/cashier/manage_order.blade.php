@@ -3,6 +3,14 @@
 @section('title', 'Cashier Dashboard')
 
 @section('styles')
+    <style>
+        /* Right-align DataTables search for selected products */
+        #selected-products .dataTables_filter {
+            justify-content: flex-end !important;
+            text-align: right !important;
+            display: flex !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -315,6 +323,7 @@
     <script>
         let productIndex = {{ old('products') ? count(old('products')) : 0 }};
         let productTables = {};
+        let selectedProductsTable = null;
         const openModalBtn = document.getElementById('openModalBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const orderModal = document.getElementById('orderModal');
@@ -512,6 +521,7 @@
                         quantityInput.value = newQuantity;
                         existingRow.querySelector('.quantity-error').style.display = 'none';
                         updateOrderTotal();
+                        if (selectedProductsTable) selectedProductsTable.draw(false);
                     } else {
                         existingRow.querySelector('.quantity-error').textContent = `Cannot add more items. Stock available: ${productStock}`;
                         existingRow.querySelector('.quantity-error').style.display = 'block';
@@ -540,6 +550,7 @@
                         if (qtyInput) {
                             qtyInput.addEventListener('input', updateOrderTotal);
                         }
+                        if (selectedProductsTable) selectedProductsTable.row.add(jQuery(lastRow)).draw(false);
                     } else {
                         alert(`Cannot add ${productName}. Out of stock.`);
                     }
@@ -582,6 +593,20 @@
                     });
                     console.log(`Product table for ${category} initialized`);
                 });
+
+                // Initialize DataTables for selected products table
+                selectedProductsTable = jQuery('#selected-products-table').DataTable({
+                    searching: true,
+                    paging: false,
+                    info: false,
+                    ordering: false,
+                    language: {
+                        search: "Search selected products:",
+                        emptyTable: "No products selected"
+                    },
+                    dom: '<"top"f>rt<"bottom"><"clear">'
+                });
+
             } catch (e) {
                 console.error('Error during DataTables initialization:', e);
             }
@@ -609,7 +634,11 @@
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('csh-remove-product-btn')) {
                 const row = e.target.closest('tr');
-                row.remove();
+                if (selectedProductsTable) {
+                    selectedProductsTable.row(jQuery(row)).remove().draw(false);
+                } else {
+                    row.remove();
+                }
                 updateOrderTotal();
                 document.querySelectorAll('#selected-products-body input[type="number"]').forEach(input => {
                     input.removeEventListener('input', updateOrderTotal);
