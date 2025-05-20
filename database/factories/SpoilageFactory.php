@@ -22,7 +22,7 @@ class SpoilageFactory extends Factory
 
         'category' => $this->faker->randomElement(['snack', 'drink', 'meal', 'dessert']),
         'quantity' => $quantity,
-        'reason' => $this->faker->randomElement(['expired', 'damaged', 'spoiled']),
+        'reason' => $this->faker->randomElement(['Expired', 'Damaged', 'Spoiled']),
         'total_loss' => $totalLoss,
         'created_at' => $createdAt = $this->faker->dateTimeBetween('2020-01-01 00:00:00', '2025-12-31 23:59:59'),
         'updated_at' => $createdAt,

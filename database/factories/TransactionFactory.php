@@ -30,7 +30,7 @@ class TransactionFactory extends Factory
             'customer_name' => $this->faker->name(),
             'special_instructions' => $this->faker->optional()->sentence(),
             'order_type' => $this->faker->randomElement(['Dine-in', 'Takeout']),
-            'status' => 'completed',
+            'status' => 'Completed',
             'quantity' => $this->faker->numberBetween(1, 5),
             'total_price' => $totalPrice,
             'money_received' => $moneyReceived,

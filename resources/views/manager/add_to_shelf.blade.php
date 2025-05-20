@@ -171,7 +171,7 @@
 
     <div class="rep-metric-container">
         <div class="rep-metric-box">
-            <div class="rep-metric-title">Total Items</div>
+            <div class="rep-metric-title">Total Shelfed Items</div>
             <div class="rep-metric-value">{{ $shelfItems->count() }}</div>
         </div>
         <div class="rep-metric-box rep-metric-box--low">
