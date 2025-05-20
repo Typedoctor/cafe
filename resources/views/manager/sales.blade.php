@@ -14,8 +14,8 @@
         <div class="sl-tab sl-summary {{ $tab === 'summary' ? 'active' : '' }}" onclick="showTab('summary')">SALES SUMMARY</div>
     </div>
     @php
-        $selectedMonth = request()->has('month') ? request('month') : now()->month;
-        $selectedYear = request()->has('year') ? request('year') : now()->year;
+        $selectedMonth = request()->has('month') && request('month') !== '' ? request('month') : now()->month;
+        $selectedYear = request()->has('year') && request('year') !== '' ? request('year') : now()->year;
     @endphp
     <div class="sl-filter-box">
         <select class="sl-month-filter" name="month" onchange="submitForm()">

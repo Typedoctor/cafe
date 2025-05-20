@@ -15,6 +15,6 @@ class TransactionsTableSeeder extends Seeder
     public function run()
     {
         // Factory generated transaction records
-        Transaction::factory()->count(100)->create();
+        Transaction::factory()->count(200)->create();
     }
 }

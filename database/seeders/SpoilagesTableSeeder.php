@@ -9,6 +9,6 @@ class SpoilagesTableSeeder extends Seeder
 {
     public function run(): void
     {
-        Spoilage::factory()->count(150)->create(); // Creates 50 fake spoilage records
+        Spoilage::factory()->count(250)->create(); // Creates 50 fake spoilage records
     }
 }

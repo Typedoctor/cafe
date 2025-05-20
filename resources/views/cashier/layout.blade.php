@@ -23,7 +23,7 @@
   
                 <li><a href="{{ route('order.index') }}" ><i class="fa-solid fa-mug-hot"></i>Manage orders</a></li>
                 <li><a href="{{ route('cashier-transactions.index') }}" ><i class="fa-solid fa-receipt"></i><span>Transactions</a></li>
-                <li><a href="{{ route('trash.index') }}"><i class="fa-solid fa-trash"></i>Record Spoiled Items</a></li>
+                <li><a href="{{ route('spoilage.index') }}"><i class="fa-solid fa-trash"></i>Record Spoiled Items</a></li>
                 <li><a href="{{ route('logout') }}"><i class="fa-solid fa-sign-out-alt"></i>Logout</a></li>
             </ul>
         </div>c
@@ -41,7 +41,7 @@
             <a href="#"><i class="fa fa-twitter"></i></a>
             <a href="#"><i class="fa fa-reddit"></i></a>
             <a href="#"><i class="fa fa-linkedin"></i></a>
-            <a href="#"><i class="fa fa-youtube"></i></a>
+            
         </div>
 
         <div class="row">

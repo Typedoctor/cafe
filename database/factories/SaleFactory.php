@@ -29,7 +29,7 @@ public function definition(): array
         'user_id' => User::inRandomOrder()->first()?->id,
         'customer_name' => $this->faker->name(), // Already realistic
         'order_type' => $this->faker->randomElement(['Dine-in', 'Takeout']),
-        'status' => $this->faker->randomElement(['completed']),
+        'status' => $this->faker->randomElement(['Completed']),
         'change' => $this->faker->randomFloat(2, 0, 10),
         'money_received' => $totalPrice + $this->faker->randomFloat(2, 0, 10),
         'special_instructions' => $this->faker->sentence(),

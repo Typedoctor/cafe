@@ -8,7 +8,8 @@
 
 @section('content')
 <head>
-   <link rel="stylesheet" href="{{ asset('css/cashier-trash.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+   <link rel="stylesheet" href="{{ asset('css/cashier-spoil.css') }}">
 </head>
 <!-- Display Success/Error Messages -->
 @if (session('success'))
@@ -59,7 +60,7 @@
             <button class="tab-btn" data-category="dessert">Dessert</button>
         </div>
 
-        <form id="trashForm" method="POST" action="{{ route('trash.store') }}">
+        <form id="trashForm" method="POST" action="{{ route('spoilage.store') }}">
             @csrf
             <input type="hidden" name="category" id="category" value="snack">
             <input type="hidden" name="source" id="source" value="inventory">
@@ -92,8 +93,8 @@
                                     data-stock="{{ $product->quantity }}">
                                     <td>{{ e(trim($product->product_name)) }}</td>
                                     <td>{{ number_format($product->purchase_cost, 2) }}</td>
-                                    <td>Inventory</td> <!-- Source column value -->
-                                    <td>{{ $product->quantity }}</td>
+                                    <td>Inventory</td>
+                                    <td class="{{ $product->quantity <= 2 ? 'product-critical' : ($product->quantity >= 3 && $product->quantity <= 5 ? 'product-low' : '') }}">{{ $product->quantity }}</td>
                                     <td>
                                         <button type="button" class="select-product-btn"
                                             @if($product->quantity == 0) disabled @endif>
@@ -106,20 +107,21 @@
                             @foreach($shelfItems as $shelfItem)
                                 @php
                                     $profit = $shelfItem->price - $shelfItem->product->purchase_cost;
+                                    $qty = $shelfItem->quantity_added;
                                 @endphp
                                 <tr data-source="shelf"
                                     data-product-name="{{ e(trim($shelfItem->product->product_name)) }}"
                                     data-price="{{ $profit }}"
                                     data-category="{{ $shelfItem->product->category }}"
-                                    data-stock="{{ $shelfItem->quantity_added }}">
+                                    data-stock="{{ $qty }}">
                                     <td>{{ e(trim($shelfItem->product->product_name)) }}</td>
                                     <td>{{ number_format($profit, 2) }}</td>
-                                    <td>Shelfed Item</td> <!-- Source column value -->
-                                    <td>{{ $shelfItem->quantity_added }}</td>
+                                    <td>Shelfed Item</td>
+                                    <td class="{{ $qty <= 2 ? 'product-critical' : ($qty >= 3 && $qty <= 5 ? 'product-low' : '') }}">{{ $qty }}</td>
                                     <td>
                                         <button type="button" class="select-product-btn"
-                                            @if($shelfItem->quantity_added == 0) disabled @endif>
-                                            @if($shelfItem->quantity_added == 0) No Stock @else Select @endif
+                                            @if($qty == 0) disabled @endif>
+                                            @if($qty == 0) No Stock @else Select @endif
                                         </button>
                                     </td>
                                 </tr>
@@ -211,7 +213,7 @@
     <h1 class="page-title">Lists of Spoils</h1>
     <div class="top-bar-container">
         <div class="filter-container">
-            <form id="filterForm" method="GET" action="{{ route('trash.index') }}" style="display: flex; gap: 10px; align-items: center;">
+            <form id="filterForm" method="GET" action="{{ route('spoilage.index') }}" style="display: flex; gap: 10px; align-items: center;">
                 <select class="rep-month-filter" name="month" id="filterMonth" onchange="submitForm()">
                     <option value="all" {{ request('month') == 'all' ? 'selected' : '' }}>All Months</option>
                     @for ($m = 1; $m <= 12; $m++)
@@ -311,9 +313,10 @@ document.addEventListener('DOMContentLoaded', function () {
         searching: true,
         lengthChange: true,
         paging: true,
+        // Set default order to Product Name (column 0) ascending
         order: [[0, 'asc']],
         columnDefs: [
-            { orderable: false, targets: 3 }
+            { orderable: false, targets: 4 } // Make "Action" column not orderable
         ],
         language: {
             search: "Search:",
@@ -435,14 +438,34 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         const trashDetails = $(this).data('trash-details');
         const detailsHtml = `
-            <p><strong>ID:</strong> <span>${trashDetails.id}</span></p>
-            <p><strong>Product Name:</strong> <span>${trashDetails.product_name || 'N/A'}</span></p>
-            <p><strong>Category:</strong> <span>${trashDetails.category || 'N/A'}</span></p>
-            <p><strong>Quantity:</strong> <span>${trashDetails.quantity || '0'}</span></p>
-            <p><strong>Reason:</strong></p>
-            <div class="spoil-special-instructions">${trashDetails.reason || 'N/A'}</div>
-            <p><strong>Total Loss:</strong> <span>₱${trashDetails.total_loss || '0.00'}</span></p>
-            <p><strong>Date Thrown:</strong> <span>${trashDetails.created_at || 'N/A'}</span></p>
+            <div class="spoil-row">
+                <span class="spoil-label">ID:</span>
+                <span class="spoil-value">${trashDetails.id}</span>
+            </div>
+            <div class="spoil-row">
+                <span class="spoil-label">Product Name:</span>
+                <span class="spoil-value">${trashDetails.product_name || 'N/A'}</span>
+            </div>
+            <div class="spoil-row">
+                <span class="spoil-label">Category:</span>
+                <span class="spoil-value">${trashDetails.category || 'N/A'}</span>
+            </div>
+            <div class="spoil-row">
+                <span class="spoil-label">Quantity:</span>
+                <span class="spoil-value">${trashDetails.quantity || '0'}</span>
+            </div>
+            <div class="spoil-row reason-row">
+                <span class="spoil-label">Reason:</span>
+                <span class="spoil-value">${trashDetails.reason || 'N/A'}</span>
+            </div>
+            <div class="spoil-row">
+                <span class="spoil-label">Total Loss:</span>
+                <span class="spoil-value">₱${trashDetails.total_loss || '0.00'}</span>
+            </div>
+            <div class="spoil-row">
+                <span class="spoil-label">Date Thrown:</span>
+                <span class="spoil-value">${trashDetails.created_at || 'N/A'}</span>
+            </div>
         `;
         $('#spoilDetailsContent').html(detailsHtml);
         openModal('spoilDetailsModal');
@@ -774,7 +797,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (currentTrashId) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = `{{ route('trash.destroy', ':id') }}`.replace(':id', currentTrashId);
+            form.action = `{{ route('spoilage.destroy', ':id') }}`.replace(':id', currentTrashId);
             form.innerHTML = `
                 @csrf
                 @method('DELETE')

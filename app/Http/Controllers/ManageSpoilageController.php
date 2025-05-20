@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class ManageTrashController extends Controller
+class ManageSpoilageController extends Controller
 {
     public function index(Request $request)
     {
@@ -47,7 +47,7 @@ class ManageTrashController extends Controller
 
         $products = Product::all();
 
-        return view('cashier.manage_trash', compact('trashes', 'shelfItems', 'products'));
+        return view('cashier.manage_spoil', compact('trashes', 'shelfItems', 'products'));
     }
 
     public function store(Request $request)
@@ -141,11 +141,11 @@ class ManageTrashController extends Controller
                 }
             });
 
-            return redirect()->route('trash.index', $request->only(['month', 'year']))
+            return redirect()->route('spoilage.index', $request->only(['month', 'year']))
                 ->with('success', 'Trash entries added successfully!');
         } catch (\Exception $e) {
             \Log::error('Error in store transaction', ['error' => $e->getMessage()]);
-            return redirect()->route('trash.index', $request->only(['month', 'year']))
+            return redirect()->route('spoilage.index', $request->only(['month', 'year']))
                 ->withErrors(['quantity' => $e->getMessage()])
                 ->withInput();
         }
@@ -155,7 +155,7 @@ class ManageTrashController extends Controller
     {
         $trash = Spoilage::find($id);
         if (!$trash) {
-            return redirect()->route('trash.index')->with('error', 'Trash entry not found');
+            return redirect()->route('spoilage.index')->with('error', 'Trash entry not found');
         }
 
         try {
@@ -173,9 +173,9 @@ class ManageTrashController extends Controller
                 $trash->delete();
             });
         } catch (\Exception $e) {
-            return redirect()->route('trash.index')->with('error', 'Failed to delete trash entry');
+            return redirect()->route('spoilage.index')->with('error', 'Failed to delete trash entry');
         }
 
-        return redirect()->route('trash.index')->with('success', 'Trash entry deleted successfully and quantity restored');
+        return redirect()->route('spoilage.index')->with('success', 'Trash entry deleted successfully and quantity restored');
     }
 }

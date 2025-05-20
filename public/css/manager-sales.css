@@ -138,6 +138,15 @@ body.no-scroll {
     vertical-align: middle;
 }
 
+/* Allow word-break for Date column only */
+#salesLogTable td:nth-child(10),
+#salesLogTable th:nth-child(10) {
+    white-space: normal;
+    word-break: break-word;
+    text-overflow: unset;
+    overflow: visible;
+}
+
 .sl-table th {
     background-color: #10394f;
     color: white;
