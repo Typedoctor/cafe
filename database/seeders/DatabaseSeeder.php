@@ -17,7 +17,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             //TransactionsTableSeeder::class, //for transaction table
             //SpoilagesTableSeeder::class, //for spoilage table
-            SalesTableSeeder::class, //sales tsble
+            //SalesTableSeeder::class, //sales tsble
+            //ProductSeeder::class,
+            //OrdersTableSeeder::class,
+            //OrderItemsTableSeeder::class,
+            //ShelfItemSeeder::class,
+            DamagedProductSeeder::class,
+
         ]);
     }
 }
