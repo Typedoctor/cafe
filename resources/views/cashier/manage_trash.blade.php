@@ -435,14 +435,34 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         const trashDetails = $(this).data('trash-details');
         const detailsHtml = `
-            <p><strong>ID:</strong> <span>${trashDetails.id}</span></p>
-            <p><strong>Product Name:</strong> <span>${trashDetails.product_name || 'N/A'}</span></p>
-            <p><strong>Category:</strong> <span>${trashDetails.category || 'N/A'}</span></p>
-            <p><strong>Quantity:</strong> <span>${trashDetails.quantity || '0'}</span></p>
-            <p><strong>Reason:</strong></p>
-            <div class="spoil-special-instructions">${trashDetails.reason || 'N/A'}</div>
-            <p><strong>Total Loss:</strong> <span>₱${trashDetails.total_loss || '0.00'}</span></p>
-            <p><strong>Date Thrown:</strong> <span>${trashDetails.created_at || 'N/A'}</span></p>
+            <div class="spoil-row">
+                <span class="spoil-label">ID:</span>
+                <span class="spoil-value">${trashDetails.id}</span>
+            </div>
+            <div class="spoil-row">
+                <span class="spoil-label">Product Name:</span>
+                <span class="spoil-value">${trashDetails.product_name || 'N/A'}</span>
+            </div>
+            <div class="spoil-row">
+                <span class="spoil-label">Category:</span>
+                <span class="spoil-value">${trashDetails.category || 'N/A'}</span>
+            </div>
+            <div class="spoil-row">
+                <span class="spoil-label">Quantity:</span>
+                <span class="spoil-value">${trashDetails.quantity || '0'}</span>
+            </div>
+            <div class="spoil-row reason-row">
+                <span class="spoil-label">Reason:</span>
+                <span class="spoil-value">${trashDetails.reason || 'N/A'}</span>
+            </div>
+            <div class="spoil-row">
+                <span class="spoil-label">Total Loss:</span>
+                <span class="spoil-value">₱${trashDetails.total_loss || '0.00'}</span>
+            </div>
+            <div class="spoil-row">
+                <span class="spoil-label">Date Thrown:</span>
+                <span class="spoil-value">${trashDetails.created_at || 'N/A'}</span>
+            </div>
         `;
         $('#spoilDetailsContent').html(detailsHtml);
         openModal('spoilDetailsModal');
