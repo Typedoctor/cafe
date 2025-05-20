@@ -214,8 +214,17 @@
             let content = '<table class="changes-table"><tr><th>Field</th><th>Old Value</th><th>New Value</th></tr>';
             for (const field in newValues) {
                 if (JSON.stringify(oldValues[field]) !== JSON.stringify(newValues[field])) {
-                    const oldValue = field === 'created_at' || field === 'updated_at' ? formatDate(oldValues[field]) : oldValues[field] ?? 'N/A';
-                    const newValue = field === 'created_at' || field === 'updated_at' ? formatDate(newValues[field]) : newValues[field];
+                    let oldValue, newValue;
+                    if (field === 'password') {
+                        oldValue = 'Changed';
+                        newValue = 'Changed';
+                    } else if (field === 'created_at' || field === 'updated_at') {
+                        oldValue = formatDate(oldValues[field]);
+                        newValue = formatDate(newValues[field]);
+                    } else {
+                        oldValue = oldValues[field] ?? 'N/A';
+                        newValue = newValues[field];
+                    }
                     content += `<tr>
                         <td>${field}</td>
                         <td>${oldValue}</td>
@@ -232,7 +241,14 @@
             modalTitle.innerText = `New Record by ${userName}`;
             let content = '<table class="changes-table"><tr><th>Field</th><th>Value</th></tr>';
             for (const field in values) {
-                const value = field === 'created_at' || field === 'updated_at' ? formatDate(values[field]) : values[field];
+                let value;
+                if (field === 'password') {
+                    value = 'Changed';
+                } else if (field === 'created_at' || field === 'updated_at') {
+                    value = formatDate(values[field]);
+                } else {
+                    value = values[field];
+                }
                 content += `<tr><td>${field}</td><td>${value}</td></tr>`;
             }
             content += '</table>';
@@ -244,7 +260,14 @@
             modalTitle.innerText = `Deleted Record by ${userName}`;
             let content = '<table class="changes-table"><tr><th>Field</th><th>Value</th></tr>';
             for (const field in values) {
-                const value = field === 'created_at' || field === 'updated_at' ? formatDate(values[field]) : values[field];
+                let value;
+                if (field === 'password') {
+                    value = 'Changed';
+                } else if (field === 'created_at' || field === 'updated_at') {
+                    value = formatDate(values[field]);
+                } else {
+                    value = values[field];
+                }
                 content += `<tr><td>${field}</td><td>${value}</td></tr>`;
             }
             content += '</table>';
