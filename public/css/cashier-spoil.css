@@ -157,8 +157,9 @@
 .product-table th {
     background-color: #f5f5f5;
     font-weight: bold;
-    position: sticky;
-    top: 0;
+    /* Remove sticky for all columns first */
+    position: static;
+    /* top: 0; */
     z-index: 5;
 }
 
@@ -198,6 +199,12 @@
     max-width: 100px; /* Stock */
 }
 
+.product-table th:nth-child(5),
+.product-table td:nth-child(5) {
+    max-width: 10px; /* Increase as needed */
+    width: 10px;
+}
+
 /* Action Buttons */
 .delete-btn {
     background-color: #dc3545;
@@ -218,7 +225,7 @@
 }
 
 .select-product-btn {
-    padding: 10px 20px;
+    padding: 10px 10px;
     background-color: #007bff;
     color: white;
     border: none;
@@ -803,6 +810,16 @@ body.modal-open {
     border-bottom: 2px solid #007bff;
 }
 
+/* Low/Critical Stock Coloring for Quantity Column */
+.product-low {
+    background-color: #fff3cd !important;
+    color: #856404 !important;
+}
+.product-critical {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+}
+
 /* Spoil Entry Details Modal */
 .spoil-details-modal {
     display: none;
@@ -920,6 +937,13 @@ body.modal-open {
     margin-bottom: 10px;
     font-size: 15px;
 }
+
+/* Highlight spoil row on hover */
+.spoil-row:hover {
+    background-color: #e0e0e0 ;
+    cursor: pointer;
+}
+
 .spoil-details-content .spoil-label {
     text-align: left;
     font-weight: 500;

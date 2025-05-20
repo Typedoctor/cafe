@@ -8,6 +8,7 @@
 
 @section('content')
 <head>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
    <link rel="stylesheet" href="{{ asset('css/cashier-spoil.css') }}">
 </head>
 <!-- Display Success/Error Messages -->
@@ -92,8 +93,8 @@
                                     data-stock="{{ $product->quantity }}">
                                     <td>{{ e(trim($product->product_name)) }}</td>
                                     <td>{{ number_format($product->purchase_cost, 2) }}</td>
-                                    <td>Inventory</td> <!-- Source column value -->
-                                    <td>{{ $product->quantity }}</td>
+                                    <td>Inventory</td>
+                                    <td class="{{ $product->quantity <= 2 ? 'product-critical' : ($product->quantity >= 3 && $product->quantity <= 5 ? 'product-low' : '') }}">{{ $product->quantity }}</td>
                                     <td>
                                         <button type="button" class="select-product-btn"
                                             @if($product->quantity == 0) disabled @endif>
@@ -106,20 +107,21 @@
                             @foreach($shelfItems as $shelfItem)
                                 @php
                                     $profit = $shelfItem->price - $shelfItem->product->purchase_cost;
+                                    $qty = $shelfItem->quantity_added;
                                 @endphp
                                 <tr data-source="shelf"
                                     data-product-name="{{ e(trim($shelfItem->product->product_name)) }}"
                                     data-price="{{ $profit }}"
                                     data-category="{{ $shelfItem->product->category }}"
-                                    data-stock="{{ $shelfItem->quantity_added }}">
+                                    data-stock="{{ $qty }}">
                                     <td>{{ e(trim($shelfItem->product->product_name)) }}</td>
                                     <td>{{ number_format($profit, 2) }}</td>
-                                    <td>Shelfed Item</td> <!-- Source column value -->
-                                    <td>{{ $shelfItem->quantity_added }}</td>
+                                    <td>Shelfed Item</td>
+                                    <td class="{{ $qty <= 2 ? 'product-critical' : ($qty >= 3 && $qty <= 5 ? 'product-low' : '') }}">{{ $qty }}</td>
                                     <td>
                                         <button type="button" class="select-product-btn"
-                                            @if($shelfItem->quantity_added == 0) disabled @endif>
-                                            @if($shelfItem->quantity_added == 0) No Stock @else Select @endif
+                                            @if($qty == 0) disabled @endif>
+                                            @if($qty == 0) No Stock @else Select @endif
                                         </button>
                                     </td>
                                 </tr>
@@ -311,9 +313,10 @@ document.addEventListener('DOMContentLoaded', function () {
         searching: true,
         lengthChange: true,
         paging: true,
+        // Set default order to Product Name (column 0) ascending
         order: [[0, 'asc']],
         columnDefs: [
-            { orderable: false, targets: 3 }
+            { orderable: false, targets: 4 } // Make "Action" column not orderable
         ],
         language: {
             search: "Search:",
