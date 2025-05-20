@@ -329,7 +329,7 @@ $(document).ready(function () {
         document.getElementById("productId").value = this.dataset.id;
         document.getElementById("productName").value = this.dataset.name.replace(/[^a-zA-Z\s',&À-ÿ-]/g, '');
         document.getElementById("category").value = this.dataset.category;
-        document.getElementById("quantity").value = Math.max(1, parseInt(this.dataset.quantity));
+        document.getElementById("quantity").value = Math.max(parseInt(this.dataset.quantity));
         document.getElementById("unitOfMeasurement").value = this.dataset.unitOfMeasurement;
         document.getElementById("supplier").value = this.dataset.supplier.replace(/[^a-zA-Z\s,.&'\-.À-ÿ]/g, '');
         document.getElementById("purchaseCost").value = parseFloat(this.dataset.purchaseCost).toFixed(2);

@@ -268,8 +268,8 @@
         let productTables = {};
 
         $(document).ready(() => {
-            // Initialize shelf items table
-            $('#shelfItemsTable').DataTable({
+            // Initialize shelf items table ONCE
+            const shelfItemsTable = $('#shelfItemsTable').DataTable({
                 pageLength: 10,
                 lengthMenu: [10, 25, 50, 100, 250, 500],
                 responsive: true,
@@ -282,11 +282,19 @@
                 }
             });
 
+            // Restore shelf category filter from localStorage
+            const savedCategory = localStorage.getItem('shelfCategoryFilter');
+            if (savedCategory) {
+                $('#shelfCategoryFilter').val(savedCategory);
+                shelfItemsTable.column(1).search(savedCategory).draw();
+            }
+
             // Category filter for shelfed items
             $('#shelfCategoryFilter').on('change', function() {
                 let value = this.value;
-                let table = $('#shelfItemsTable').DataTable();
-                table.column(1).search(value).draw();
+                // Save selected category to localStorage
+                localStorage.setItem('shelfCategoryFilter', value);
+                shelfItemsTable.column(1).search(value).draw();
             });
 
             // Initialize product tables for each category
@@ -422,6 +430,7 @@
                 openModal(modalId);
                 setTimeout(() => {
                     closeModal(modalId);
+                    // Reload the page, preserving the filter
                     location.reload();
                 }, SUCCESS_MODAL_DURATION);
             } catch (e) {
