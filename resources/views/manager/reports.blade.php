@@ -227,7 +227,7 @@
             <div class="rep-metric-value rep-loss">₱{{ number_format($damagedLoss, 2) }}</div>
         </div>
     </div>
-    <div id="thrown-content" style="display: {{ $subtab === 'thrown' || ($tab === 'loss' && !$subtab) ? 'block' : 'none' }};">
+    <div id="thrown-content" style="display: {{ ($subtab === 'thrown' || ($tab === 'loss' && !$subtab)) ? 'block' : 'none' }};">
         <div class="inv-table-container" id="trash-table">
             <div class="loss-sub-tabs">
                 <div class="loss-sub-tab {{ $subtab === 'thrown' || ($tab === 'loss' && !$subtab) ? 'active' : '' }}" data-subtab="thrown" onclick="showLossSubTab('thrown')">Spoiled Items</div>
@@ -479,6 +479,11 @@ $(document).ready(function () {
 
     // Initialize print buttons
     setupPrintButtons();
+
+    // On initial load, if tab=loss and subtab is not set, show 'thrown' subtab by default
+    if ($('#tabInput').val() === 'loss' && !$('#subtabInput').val()) {
+        showLossSubTab('thrown');
+    }
 });
 
 function printTable(tableId, tableTitle) {
@@ -783,11 +788,12 @@ function showTab(tabName) {
     document.getElementById('loss-content').style.display = tabName === 'loss' ? 'block' : 'none';
 
     // Set default sub-tab for the selected tab
-    const currentSubTab = document.getElementById('subtabInput').value;
     if (tabName === 'profit') {
-        showProfitSubTab(currentSubTab && ['all-transactions', 'sales-log', 'summary'].includes(currentSubTab) ? currentSubTab : 'all-transactions');
+        showProfitSubTab(['all-transactions', 'sales-log', 'summary'].includes(document.getElementById('subtabInput').value) ? document.getElementById('subtabInput').value : 'all-transactions');
     } else if (tabName === 'loss') {
-        showLossSubTab(currentSubTab && ['thrown', 'damaged'].includes(currentSubTab) ? currentSubTab : 'thrown');
+        // Always default to 'thrown' if subtab is not set or invalid
+        const currentSubTab = document.getElementById('subtabInput').value;
+        showLossSubTab(['thrown', 'damaged'].includes(currentSubTab) ? currentSubTab : 'thrown');
     }
 
     // Submit form to update server-side state
