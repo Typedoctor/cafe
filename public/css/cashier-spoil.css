@@ -43,11 +43,18 @@ html, body {
     text-align: center;
     text-decoration: none;
     border: none;
+    color: white;
     border-radius: 10px;
     transition: all 0.3s ease;
+    background: #177ead;
+}
+.btn:hover{
+     background-color: #0056b3;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(53, 144, 192, 0.5);
 }
 
-.trsh-table-container {
+.spoil-table-container {
     background: #ffffff;
     border-radius: 8px;
     padding: 20px;

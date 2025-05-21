@@ -16,7 +16,7 @@ class ManageSpoilageController extends Controller
         $month = $request->input('month', now()->month);
         $year = $request->input('year', now()->year);
 
-        $trashes = Spoilage::query()
+        $spoilages = Spoilage::query()
             ->when(
                 ($month !== 'all' && $year !== 'all'),
                 function ($query) use ($month, $year) {
@@ -47,7 +47,7 @@ class ManageSpoilageController extends Controller
 
         $products = Product::all();
 
-        return view('cashier.manage_spoil', compact('trashes', 'shelfItems', 'products'));
+        return view('cashier.manage_spoil', compact('spoilages', 'shelfItems', 'products'));
     }
 
     public function store(Request $request)
@@ -142,7 +142,7 @@ class ManageSpoilageController extends Controller
             });
 
             return redirect()->route('spoilage.index', $request->only(['month', 'year']))
-                ->with('success', 'Trash entries added successfully!');
+                ->with('success', 'Spoilage entries added successfully!');
         } catch (\Exception $e) {
             \Log::error('Error in store transaction', ['error' => $e->getMessage()]);
             return redirect()->route('spoilage.index', $request->only(['month', 'year']))
@@ -153,29 +153,29 @@ class ManageSpoilageController extends Controller
 
     public function destroy($id)
     {
-        $trash = Spoilage::find($id);
-        if (!$trash) {
-            return redirect()->route('spoilage.index')->with('error', 'Trash entry not found');
+        $spoil = Spoilage::find($id);
+        if (!$spoil) {
+            return redirect()->route('spoilage.index')->with('error', 'Spoilage entry not found');
         }
 
         try {
-            DB::transaction(function () use ($trash) {
+            DB::transaction(function () use ($spoil) {
                 $shelfItem = ShelfItem::with('product')
-                    ->whereHas('product', function ($query) use ($trash) {
-                        $query->where('product_name', $trash->product_name);
+                    ->whereHas('product', function ($query) use ($spoil) {
+                        $query->where('product_name', $spoil->product_name);
                     })
                     ->first();
 
                 if ($shelfItem) {
-                    $shelfItem->increment('quantity_added', $trash->quantity);
+                    $shelfItem->increment('quantity_added', $spoil->quantity);
                 }
 
-                $trash->delete();
+                $spoil->delete();
             });
         } catch (\Exception $e) {
-            return redirect()->route('spoilage.index')->with('error', 'Failed to delete trash entry');
+            return redirect()->route('spoilage.index')->with('error', 'Failed to delete Spoilage entry');
         }
 
-        return redirect()->route('spoilage.index')->with('success', 'Trash entry deleted successfully and quantity restored');
+        return redirect()->route('spoilage.index')->with('success', 'Spoilage entry deleted successfully and quantity restored');
     }
 }

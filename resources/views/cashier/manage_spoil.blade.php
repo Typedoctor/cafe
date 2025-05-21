@@ -1,6 +1,6 @@
 @extends('cashier.layout')
 
-@section('title', 'Manage Trash')
+@section('title', 'Manage Spoil')
 
 @push('styles')
     
@@ -40,9 +40,9 @@
     $products = \App\Models\Product::all();
 @endphp
 
-<!-- Add Trash Modal -->
-<div class="modal-overlay" data-modal-id="trashModal"></div>
-<div id="trashModal" class="modal">
+<!-- Add Spoil Modal -->
+<div class="modal-overlay" data-modal-id="spoilModal"></div>
+<div id="spoilModal" class="modal">
     <span class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
     <div class="modal-content">
         <!-- Sub Tabs -->
@@ -60,7 +60,7 @@
             <button class="tab-btn" data-category="dessert">Dessert</button>
         </div>
 
-        <form id="trashForm" method="POST" action="{{ route('spoilage.store') }}">
+        <form id="spoilForm" method="POST" action="{{ route('spoilage.store') }}">
             @csrf
             <input type="hidden" name="category" id="category" value="snack">
             <input type="hidden" name="source" id="source" value="inventory">
@@ -208,8 +208,8 @@
     </div>
 </div>
 
-<!-- Trash Table -->
-<div class="trsh-table-container" id="transaction-table">
+<!-- Spoil Table -->
+<div class="spoil-table-container" id="transaction-table">
     <h1 class="page-title">Lists of Spoils</h1>
     <div class="top-bar-container">
         <div class="filter-container">
@@ -231,11 +231,11 @@
                 <button type="button" class="btn reset-filter-btn" id="resetFilterBtn">Reset</button>
             </form>
         </div>
-        <div class="add-trash-container">
-            <button id="addTrashBtn" class="btn add-trash">+ Add Spoil Entry</button>
+        <div class="add-spoil-container">
+            <button id="addSpoilBtn" class="btn add-spoil">+ Add Spoil Entry</button>
         </div>
     </div>
-    <table class="inventory-table" id="trashTable">
+    <table class="inventory-table" id="spoilTable">
         <thead>
             <tr>
                 <th>ID</th>
@@ -249,26 +249,26 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($trashes as $trash)
-            <tr class="spoil-row" data-trash-id="{{ $trash->id }}"
-                data-trash-details="{{ json_encode([
-                    'id' => $trash->id,
-                    'product_name' => $trash->product_name,
-                    'category' => $trash->category,
-                    'quantity' => $trash->quantity,
-                    'reason' => $trash->reason,
-                    'total_loss' => number_format($trash->total_loss, 2),
-                    'created_at' => $trash->created_at->format('M j Y / g:i A')
+            @foreach($spoilages as $spoil)
+            <tr class="spoil-row" data-spoil-id="{{ $spoil->id }}"
+                data-spoil-details="{{ json_encode([
+                    'id' => $spoil->id,
+                    'product_name' => $spoil->product_name,
+                    'category' => $spoil->category,
+                    'quantity' => $spoil->quantity,
+                    'reason' => $spoil->reason,
+                    'total_loss' => number_format($spoil->total_loss, 2),
+                    'created_at' => $spoil->created_at->format('M j Y / g:i A')
                 ]) }}">
-                <td>{{ $trash->id }}</td>
-                <td>{{ $trash->product_name }}</td>
-                <td>{{ $trash->category }}</td>
-                <td>{{ $trash->quantity }}</td>
-                <td>{{ $trash->reason }}</td>
-                <td>₱{{ number_format($trash->total_loss, 2) }}</td>
-                <td>{{ $trash->created_at->format('M j Y / g:i A') }}</td>
+                <td>{{ $spoil->id }}</td>
+                <td>{{ $spoil->product_name }}</td>
+                <td>{{ $spoil->category }}</td>
+                <td>{{ $spoil->quantity }}</td>
+                <td>{{ $spoil->reason }}</td>
+                <td>₱{{ number_format($spoil->total_loss, 2) }}</td>
+                <td>{{ $spoil->created_at->format('M j Y / g:i A') }}</td>
                 <td>
-                    <button type="button" class="btn delete-btn" data-trash-id="{{ $trash->id }}"><i class="fa-solid fa-trash"></i></button>
+                    <button type="button" class="btn delete-btn" data-spoil-id="{{ $spoil->id }}"><i class="fa-solid fa-trash"></i></button>
                 </td>
             </tr>
             @endforeach
@@ -282,8 +282,8 @@ function submitForm() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize DataTables for Trash Table
-    const trashTable = $('#trashTable').DataTable({
+    // Initialize DataTables for Spoil Table
+    const spoilTable = $('#spoilTable').DataTable({
         pageLength: 10,
         lengthMenu: [10, 25, 50, 100, 250],
         responsive: true,
@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 previous: "Previous",
                 next: "Next"
             },
-            emptyTable: "No trash entries available."
+            emptyTable: "No spoil entries available."
         }
     });
 
@@ -350,11 +350,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Modal and form handling
-    const trashModal = document.getElementById('trashModal');
+    const spoilModal = document.getElementById('spoilModal');
     const stockLimitModal = document.getElementById('stockLimitModal');
     const deleteConfirmModal = document.getElementById('deleteConfirmModal');
     const spoilDetailsModal = document.getElementById('spoilDetailsModal');
-    const trashForm = document.getElementById('trashForm');
+    const spoilForm = document.getElementById('spoilForm');
     const closeBtns = document.querySelectorAll('.close-btn');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const productError = document.getElementById('productError');
@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Array to track selected products
     let selectedProducts = [];
-    let currentTrashId = null;
+    let currentSpoilId = null;
 
     // Modal open and close functions
     function openModal(modalId) {
@@ -436,35 +436,35 @@ document.addEventListener('DOMContentLoaded', function () {
         if ($(e.target).closest('.delete-btn').length) {
             return;
         }
-        const trashDetails = $(this).data('trash-details');
+        const spoilDetails = $(this).data('spoil-details');
         const detailsHtml = `
             <div class="spoil-row">
                 <span class="spoil-label">ID:</span>
-                <span class="spoil-value">${trashDetails.id}</span>
+                <span class="spoil-value">${spoilDetails.id}</span>
             </div>
             <div class="spoil-row">
                 <span class="spoil-label">Product Name:</span>
-                <span class="spoil-value">${trashDetails.product_name || 'N/A'}</span>
+                <span class="spoil-value">${spoilDetails.product_name || 'N/A'}</span>
             </div>
             <div class="spoil-row">
                 <span class="spoil-label">Category:</span>
-                <span class="spoil-value">${trashDetails.category || 'N/A'}</span>
+                <span class="spoil-value">${spoilDetails.category || 'N/A'}</span>
             </div>
             <div class="spoil-row">
                 <span class="spoil-label">Quantity:</span>
-                <span class="spoil-value">${trashDetails.quantity || '0'}</span>
+                <span class="spoil-value">${spoilDetails.quantity || '0'}</span>
             </div>
             <div class="spoil-row reason-row">
                 <span class="spoil-label">Reason:</span>
-                <span class="spoil-value">${trashDetails.reason || 'N/A'}</span>
+                <span class="spoil-value">${spoilDetails.reason || 'N/A'}</span>
             </div>
             <div class="spoil-row">
                 <span class="spoil-label">Total Loss:</span>
-                <span class="spoil-value">₱${trashDetails.total_loss || '0.00'}</span>
+                <span class="spoil-value">₱${spoilDetails.total_loss || '0.00'}</span>
             </div>
             <div class="spoil-row">
                 <span class="spoil-label">Date Thrown:</span>
-                <span class="spoil-value">${trashDetails.created_at || 'N/A'}</span>
+                <span class="spoil-value">${spoilDetails.created_at || 'N/A'}</span>
             </div>
         `;
         $('#spoilDetailsContent').html(detailsHtml);
@@ -483,7 +483,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to update hidden inputs for form submission
     function updateHiddenInputs() {
-        const form = document.getElementById('trashForm');
+        const form = document.getElementById('spoilForm');
         form.querySelectorAll('input[name="product_names[]"], input[name="quantities[]"]').forEach(input => input.remove());
         
         selectedProducts.forEach(product => {
@@ -703,10 +703,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Show modal for new trash entry
-    document.getElementById('addTrashBtn').addEventListener('click', function () {
-        openModal("trashModal");
-        trashForm.reset();
+    // Show modal for new spoil entry
+    document.getElementById('addSpoilBtn').addEventListener('click', function () {
+        openModal("spoilModal");
+        spoilForm.reset();
         selectedProducts = [];
         categoryInput.value = 'snack';
         totalLossDisplay.textContent = 'Select products to see total loss.';
@@ -728,7 +728,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Validate and submit form
-    trashForm.addEventListener('submit', function (event) {
+    spoilForm.addEventListener('submit', function (event) {
         event.preventDefault();
 
         try {
@@ -758,7 +758,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             loadingSpinner.style.display = 'block';
             saveBtn.disabled = true;
-            trashForm.submit();
+            spoilForm.submit();
         } catch (error) {
             alert('An error occurred while submitting the form. Please try again.');
             loadingSpinner.style.display = 'none';
@@ -788,16 +788,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // Delete Confirmation Handling
     document.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', function () {
-            currentTrashId = this.getAttribute('data-trash-id');
+            currentSpoilId = this.getAttribute('data-spoil-id');
             openModal("deleteConfirmModal");
         });
     });
 
     deleteConfirmBtn.addEventListener('click', () => {
-        if (currentTrashId) {
+        if (currentSpoilId) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = `{{ route('spoilage.destroy', ':id') }}`.replace(':id', currentTrashId);
+            form.action = `{{ route('spoilage.destroy', ':id') }}`.replace(':id', currentSpoilId);
             form.innerHTML = `
                 @csrf
                 @method('DELETE')
@@ -810,7 +810,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     deleteCancelBtn.addEventListener('click', () => {
         closeModal("deleteConfirmModal");
-        currentTrashId = null;
+        currentSpoilId = null;
     });
 
     // Reset filter button logic
