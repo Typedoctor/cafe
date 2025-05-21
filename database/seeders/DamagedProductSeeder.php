@@ -13,6 +13,6 @@ class DamagedProductSeeder extends Seeder
      */
     public function run(): void
     {
-       DamagedProduct::factory()->count(30)->create();
+       DamagedProduct::factory()->count(50)->create();
     }
 }

@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\DamagedProduct;
-
+use App\Models\Product;
 class DamagedProductFactory extends Factory
 {
     protected $model = DamagedProduct::class;
@@ -19,9 +19,9 @@ class DamagedProductFactory extends Factory
         
         $totalLoss = $status === 'Marked as Loss' ? $quantity * $pricePerItem : $this->faker->randomFloat(2, 0, $quantity * $pricePerItem);
         $totalSaved = $status === 'Successfully Returned and Replaced' ? ($quantity * $pricePerItem) - $totalLoss : 0;
-
+        $product = Product::inRandomOrder()->first(); 
         return [
-            'product_name' => $this->faker->word(),
+            'product_name' => $product?->product_name ?? 'Unknown Product',
             'quantity' => $quantity,
             'price_per_item' => $pricePerItem,
             'reason' => $this->faker->sentence(),
