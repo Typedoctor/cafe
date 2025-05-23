@@ -68,7 +68,8 @@
                         "money_received" => $transaction->money_received ?? 0,
                         "change" => $transaction->change ?? 0,
                         "total_price" => $transaction->total_price ?? 0,
-                        "created_at" => \Carbon\Carbon::parse($transaction->created_at)->format("M j Y / g:i A")
+                        "created_at" => \Carbon\Carbon::parse($transaction->created_at)->format("M j Y / g:i A"),
+                        "product_summary" => $transaction->product_summary ?? [],
                     ]) }}'>
                         <td>{{ $transaction->transaction_id ?? "N/A" }}</td>
                         <td>{{ $transaction->customer_name ?? "Unknown" }}</td>
@@ -125,11 +126,15 @@
         // Handle row click to show modal
         $(document).on('click', '.trn-transaction-row', function() {
             const transaction = $(this).data('transaction');
-            console.log("Transaction data:", transaction);
-
-            const products = transaction.product_names ? transaction.product_names.split(',').map(product => product.trim()) : [];
+            // Use product_summary for product list
             let productsHtml = '<ul class="trn-product-list">';
-            productsHtml += products.length > 0 ? products.map(product => `<li>${product}</li>`).join('') : '<li>No products listed</li>';
+            if (transaction.product_summary && Object.keys(transaction.product_summary).length > 0) {
+                for (const [product, qty] of Object.entries(transaction.product_summary)) {
+                    productsHtml += `<li>${product} <span style="color:#888;">(x${qty})</span></li>`;
+                }
+            } else {
+                productsHtml += '<li>No products listed</li>';
+            }
             productsHtml += '</ul>';
 
             const detailsHtml = `

@@ -205,6 +205,8 @@
               $product_names = [];
               $change = max(0, $order->money_received - $order->total_price);
 
+              // --- Aggregate product quantities ---
+              $productSummary = [];
               foreach ($order->orderItems as $item) {
                   if (!$item->product) {
                       \Log::warning("OrderItem {$item->id} has no associated product. Skipping.");
@@ -213,6 +215,13 @@
                   $total_quantity += $item->quantity;
                   $total_price += $item->price;
                   $product_names[] = $item->product->product_name;
+
+                  // Aggregate quantities by product name
+                  $pname = $item->product->product_name;
+                  if (!isset($productSummary[$pname])) {
+                      $productSummary[$pname] = 0;
+                  }
+                  $productSummary[$pname] += $item->quantity;
 
                   Sale::where('order_id', $order->id)
                       ->where('product_id', $item->product_id)
@@ -224,10 +233,11 @@
                   throw new \Exception('No valid products found in the order.');
               }
 
+              // Store product summary as JSON in product_name field (or add a new column for this)
               Transaction::create([
                   'customer_name' => $order->customer_name,
                   'user_id' => $order->user_id ?? Auth::id(),
-                  'product_name' => implode(', ', $product_names),
+                  'product_name' => json_encode($productSummary), // <-- store as JSON
                   'quantity' => $total_quantity,
                   'total_price' => $total_price,
                   'change' => $change,

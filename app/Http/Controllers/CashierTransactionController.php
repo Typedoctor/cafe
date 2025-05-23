@@ -24,10 +24,11 @@ class CashierTransactionController extends Controller
             'order_type',
             'status',
             \DB::raw('GROUP_CONCAT(product_name) as product_names'),
+            \DB::raw('GROUP_CONCAT(quantity) as product_quantities'), // Add this line
             \DB::raw('SUM(quantity) as total_quantity'),
             \DB::raw('SUM(total_price) as total_price'),
             'money_received',
-            'change', // Add change to the select statement
+            'change',
             'special_instructions',
             'created_at',
             'updated_at'
@@ -51,10 +52,30 @@ class CashierTransactionController extends Controller
             'status',
             'special_instructions',
             'money_received',
-            'change', // This can stay, but it's not strictly necessary
+            'change',
             'created_at',
             'updated_at'
         )->get();
+
+        // Decode product_name JSON for each transaction
+        foreach ($summarizedTransactions as $transaction) {
+            $productSummary = [];
+            if (!empty($transaction->product_names)) {
+                // If product_names is JSON, decode it
+                $decoded = json_decode($transaction->product_names, true);
+                if (is_array($decoded)) {
+                    $productSummary = $decoded;
+                } else {
+                    // fallback: old format (comma-separated)
+                    $names = explode(',', $transaction->product_names);
+                    $quantities = explode(',', $transaction->product_quantities ?? '');
+                    foreach ($names as $idx => $name) {
+                        $productSummary[trim($name)] = isset($quantities[$idx]) ? (int) $quantities[$idx] : 1;
+                    }
+                }
+            }
+            $transaction->product_summary = $productSummary;
+        }
 
         return view('cashier.cashier-transactions', compact('summarizedTransactions'));
     }

@@ -57,6 +57,24 @@ class ManagerTransactionController extends Controller
             'updated_at'
         )->get();
 
+        // Decode product_name JSON for each transaction
+        foreach ($summarizedTransactions as $transaction) {
+            $productSummary = [];
+            if (!empty($transaction->product_names)) {
+                $decoded = json_decode($transaction->product_names, true);
+                if (is_array($decoded)) {
+                    $productSummary = $decoded;
+                } else {
+                    $names = explode(',', $transaction->product_names);
+                    $quantities = explode(',', $transaction->product_quantities ?? '');
+                    foreach ($names as $idx => $name) {
+                        $productSummary[trim($name)] = isset($quantities[$idx]) ? (int) $quantities[$idx] : 1;
+                    }
+                }
+            }
+            $transaction->product_summary = $productSummary;
+        }
+
         return view('manager.transactions', compact('summarizedTransactions'));
     }
 
